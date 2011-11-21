@@ -39,6 +39,13 @@ namespace SteamworksUnityTest
             RemoteStorage r = s.RemoteStorage;
             Console.WriteLine(r.FileCount);
 
+            User u = s.User;
+            Console.WriteLine(u.LoggedOn);
+            Console.WriteLine(u.SteamID);
+
+            GameServer gs = s.GameServer;
+            Console.WriteLine(gs.SteamID);
+
             if (r.FileCount > 0)
             {
                 int fileSize;

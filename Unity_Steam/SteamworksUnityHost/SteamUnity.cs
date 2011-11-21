@@ -35,11 +35,32 @@ namespace SteamworksUnityHost
             return SteamUnityAPI_Init();
         }
 
+        public bool InitalizeGameServer()
+        {
+            return true;
+        }
+
         public RemoteStorage RemoteStorage
         {
             get
             {
                 return new RemoteStorage();
+            }
+        }
+
+        public User User
+        {
+            get
+            {
+                return new User();
+            }
+        }
+
+        public GameServer GameServer
+        {
+            get
+            {
+                return new GameServer();
             }
         }
     }
