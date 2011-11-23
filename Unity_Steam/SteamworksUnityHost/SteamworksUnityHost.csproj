@@ -36,6 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Friend.cs" />
+    <Compile Include="Friends.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="RemoteStorage.cs" />
     <Compile Include="SteamID.cs" />

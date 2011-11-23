@@ -46,6 +46,12 @@ namespace SteamworksUnityTest
             GameServer gs = s.GameServer;
             Console.WriteLine(gs.SteamID);
 
+            Console.WriteLine("Friends: ");
+            foreach (Friend f in s.Friends)
+            {
+                Console.WriteLine("{0} - {1} - {2}", f.Id, f.PersonaName, f.PersonaState);
+            }
+
             if (r.FileCount > 0)
             {
                 int fileSize;

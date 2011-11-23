@@ -56,7 +56,8 @@ public:
 
 		// ready/not ready toggle
 		{
-			bool bReady = ( 1 == atoi( SteamMatchmaking()->GetLobbyMemberData( steamIDLobby, SteamUser()->GetSteamID(), "ready" ) ) );
+			const char * ready = SteamMatchmaking()->GetLobbyMemberData( steamIDLobby, SteamUser()->GetSteamID(), "ready" );
+			bool bReady = ( ready && 1 == atoi( ready ) );
 			LobbyMenuItem_t menuItem = { CSteamID(), LobbyMenuItem_t::k_ELobbyMenuItemToggleReadState };
 			if ( bReady )
 				AddMenuItem( CLobbyMenu::MenuItem_t( "Set myself as Not Ready", menuItem ) );

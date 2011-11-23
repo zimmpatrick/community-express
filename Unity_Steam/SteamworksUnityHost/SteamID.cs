@@ -36,6 +36,16 @@ namespace SteamworksUnityHost
             get { return (EUniverse)((_id >> 56) & 0xFF); }
         }
 
+        public UInt64 ToUInt64()
+        {
+            return _id;
+        }
+
+        public override string ToString()
+        {
+            return _id.ToString();
+        }
+
         private UInt64 _id;
     }
 }

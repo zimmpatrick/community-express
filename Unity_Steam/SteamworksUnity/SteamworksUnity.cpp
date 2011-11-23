@@ -165,6 +165,38 @@ STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamGameServer_GetSteamID(void * pStea
 }
 
 
+STEAMWORKSUNITY_API void * SteamUnityAPI_SteamFriends()
+{
+	return SteamFriends();
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCount(void * pSteamFriends)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendCount(k_EFriendFlagImmediate);
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendByIndex(void * pSteamFriends, int iFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendByIndex(iFriend, k_EFriendFlagImmediate).ConvertToUint64();
+}
+
+STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamFriends_GetFriendPersonaName(void * pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+	
+	return pISteamFriends->GetFriendPersonaName( CSteamID( steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendPersonaState(void * pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+	
+	return pISteamFriends->GetFriendPersonaState( CSteamID( steamIDFriend) );
+}
 
 STEAMWORKSUNITY_API void * SteamUnityAPI_SteamUser()
 {

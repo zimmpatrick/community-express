@@ -11,9 +11,14 @@ namespace SteamworksUnityHost
         private static extern bool SteamUnityAPI_RestartAppIfNecessary(uint unOwnAppID);
         [DllImport("SteamworksUnity.dll")]
         private static extern bool SteamUnityAPI_Init();
+        [DllImport("SteamworksUnity.dll")]
+        private static extern void SteamUnityAPI_Shutdown();
 
         private static readonly SteamUnity _instance = new SteamUnity();
+        private bool shutdown = false;
+
         private SteamUnity() { }
+        ~SteamUnity() { Shutdown(); }
 
         public const uint k_uAppIdInvalid = 0x0;
 
@@ -33,6 +38,16 @@ namespace SteamworksUnityHost
         public bool Initialize()
         {
             return SteamUnityAPI_Init();
+        }
+
+        public void Shutdown()
+        {
+            // todo: make thread safe?
+            if (!shutdown)
+            {
+                shutdown = true;
+                SteamUnityAPI_Shutdown();
+            }
         }
 
         public bool InitalizeGameServer()
@@ -61,6 +76,14 @@ namespace SteamworksUnityHost
             get
             {
                 return new GameServer();
+            }
+        }
+
+        public Friends Friends
+        {
+            get
+            {
+                return new Friends();
             }
         }
     }
