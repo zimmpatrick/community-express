@@ -157,6 +157,11 @@ STEAMWORKSUNITY_API void * SteamUnityAPI_SteamGameServer()
 	return SteamGameServer();
 }
 
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_Shutdown()
+{
+	SteamGameServer_Shutdown();
+}
+
 STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamGameServer_GetSteamID(void * pSteamGameServer)
 {
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
