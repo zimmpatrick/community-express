@@ -7,6 +7,8 @@ namespace SteamworksUnityTest
 {
 	class Program
 	{
+		private static bool _statsReceived = false;
+
 		static int Main(string[] args)
 		{
 			SteamUnity s = SteamUnity.Instance;
@@ -52,6 +54,14 @@ namespace SteamworksUnityTest
 				Console.WriteLine("{0} - {1} - {2}", f.Id, f.PersonaName, f.PersonaState);
 			}
 
+			Stats stats = s.UserStats;
+			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback);
+
+			while (!_statsReceived)
+			{
+				s.RunCallbacks();
+			}
+
 			if (r.FileCount > 0)
 			{
 				int fileSize;
@@ -60,9 +70,20 @@ namespace SteamworksUnityTest
 				Console.WriteLine(msg);
 			}
 
-			//Console.In.ReadLine();
+			Console.In.ReadLine();
 
 			return 0;
+		}
+
+		public static void MyOnUserStatsReceivedCallback(Stats stats)
+		{
+			Console.WriteLine("Stats: ");
+			foreach (Stat s in stats)
+			{
+				Console.WriteLine("{0} - {1} - {2}", s.StatName, s.StatValue, s.IsIntValue);
+			}
+
+			_statsReceived = true;
 		}
 	}
 }

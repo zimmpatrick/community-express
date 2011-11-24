@@ -6,12 +6,34 @@ using System.Collections;
 
 namespace SteamworksUnityHost
 {
+	[StructLayout(LayoutKind.Sequential, Pack=1)]
+	public struct UserStatsReceived_t
+	{
+		public UInt64 m_nGameID;		// Game these stats are for
+		public EResult m_eResult;		// Success / error fetching the stats
+		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
+	}
+
+	public delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
+	public delegate void OnUserStatsReceived(Stats stats);
+
 	public class Stats : ICollection<Stat>
 	{
 		[DllImport("SteamworksUnity.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 intValue);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName, out float intValue);
 
 		private IntPtr _stats;
+		private SteamID _id;
+		private List<Stat> _statList = new List<Stat>();
+
+		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived;
+		private OnUserStatsReceived _onUserStatsReceived;
 
 		private class StatEnumator : IEnumerator<Stat>
 		{
@@ -28,7 +50,7 @@ namespace SteamworksUnityHost
 			{
 				get
 				{
-					return new Stat(_stats);
+					return _stats._statList[_index];
 				}
 			}
 
@@ -61,9 +83,50 @@ namespace SteamworksUnityHost
 			_stats = SteamUnityAPI_SteamUserStats();
 		}
 
+		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived)
+		{
+			_onUserStatsReceived = onUserStatsReceived;
+			_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
+
+			SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+		}
+
+		public void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
+		{
+			Int32 intValue;
+			float floatValue;
+
+			_id = new SteamID(CallbackData.m_steamIDUser);
+
+			foreach (string s in StatList)
+			{
+				if (SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
+				{
+					Add(new Stat(this, s, intValue, true));
+				}
+				else if (SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
+				{
+					Add(new Stat(this, s, (decimal)floatValue, false));
+				}
+			}
+
+			_onUserStatsReceived(this);
+		}
+
+		public SteamID SteamID
+		{
+			get { return _id; }
+		}
+
+		public static readonly string[] StatList = new string[]
+		{
+			"Kills",
+			"DamageHealed"
+		};
+
 		public int Count
 		{
-			get { return 1; /* todo: SteamUnityAPI_SteamUserStats_GetStatCount(_stats);*/ }
+			get { return _statList.Count; }
 		}
 
 		public bool IsReadOnly
@@ -73,7 +136,7 @@ namespace SteamworksUnityHost
 
 		public void Add(Stat item)
 		{
-			throw new NotSupportedException();
+			_statList.Add(item);
 		}
 
 		public void Clear()

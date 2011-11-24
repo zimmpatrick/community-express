@@ -17,5 +17,5 @@ public:
 
 	STEAM_CALLBACK(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
 
-	void (*delegateOnUserStatsReceived)(UserStatsReceived_t*);
+	void (__stdcall *delegateOnUserStatsReceived)(UserStatsReceived_t*);
 };

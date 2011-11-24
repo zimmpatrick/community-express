@@ -55,7 +55,12 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_RestartAppIfNecessary( uint32 unOwnAppID 
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_Init()
 {
-	return SteamAPI_Init( );
+	return SteamAPI_Init();
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
+{
+	return SteamAPI_RunCallbacks();
 }
 
 STEAMWORKSUNITY_API void * SteamUnityAPI_SteamRemoteStorage()
@@ -162,7 +167,7 @@ STEAMWORKSUNITY_API void * SteamUnityAPI_SteamGameServer()
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_Shutdown()
 {
-	SteamGameServer_Shutdown();
+	return SteamGameServer_Shutdown();
 }
 
 STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamGameServer_GetSteamID(void * pSteamGameServer)
@@ -245,9 +250,27 @@ STEAMWORKSUNITY_API void * SteamUnityAPI_SteamUserStats()
 	return SteamUserStats();
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamUserStats_RequestUserStats(void (*OnUserStatsReceivedCallback)(UserStatsReceived_t*))
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(void* pSteamUserStats, void (__stdcall *OnUserStatsReceivedCallback)(UserStatsReceived_t*))
 {
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
 	SteamCallbacks::getInstance().delegateOnUserStatsReceived = OnUserStatsReceivedCallback;
+
+	return pISteamUserStats->RequestCurrentStats();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetUserStatInt(void* pSteamUserStats, uint64 steamID, const char *statName, int &statValue)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetUserStat(steamID, statName, &statValue);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetUserStatFloat(void* pSteamUserStats, uint64 steamID, const char *statName, float &statValue)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetUserStat(steamID, statName, &statValue);
 }
 
 

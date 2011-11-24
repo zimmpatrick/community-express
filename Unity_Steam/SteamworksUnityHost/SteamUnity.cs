@@ -12,6 +12,8 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_Init();
 		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_RunCallbacks();
+		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
 
 		private static readonly SteamUnity _instance = new SteamUnity();
@@ -38,6 +40,11 @@ namespace SteamworksUnityHost
 		public bool Initialize()
 		{
 			return SteamUnityAPI_Init();
+		}
+
+		public void RunCallbacks()
+		{
+			SteamUnityAPI_RunCallbacks();
 		}
 
 		public void Shutdown()
