@@ -55,7 +55,8 @@ namespace SteamworksUnityTest
 			}
 
 			Stats stats = s.UserStats;
-			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback);
+			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback, 
+                new string[] { "Kills", "DamageHealed" } );
 
 			while (!_statsReceived)
 			{
@@ -78,9 +79,11 @@ namespace SteamworksUnityTest
 		public static void MyOnUserStatsReceivedCallback(Stats stats)
 		{
 			Console.WriteLine("Stats: ");
-			foreach (Stat s in stats)
+            foreach (Stat s in stats)
 			{
-				Console.WriteLine("{0} - {1} - {2}", s.StatName, s.StatValue, s.IsIntValue);
+				Console.WriteLine("{0} - {1} - {2} - {3} - {4}", s.StatName, s.StatValue, s.StatValue.GetType().Name, 
+                    s.StatValue is float, 
+                    s.StatValue is int);
 			}
 
 			_statsReceived = true;

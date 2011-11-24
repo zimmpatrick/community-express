@@ -31,6 +31,7 @@ namespace SteamworksUnityHost
 		private IntPtr _stats;
 		private SteamID _id;
 		private List<Stat> _statList = new List<Stat>();
+        private IEnumerable<string> _requestedStats;
 
 		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived;
 		private OnUserStatsReceived _onUserStatsReceived;
@@ -83,30 +84,31 @@ namespace SteamworksUnityHost
 			_stats = SteamUnityAPI_SteamUserStats();
 		}
 
-		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived)
+		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedStats)
 		{
+            _requestedStats = requestedStats;
 			_onUserStatsReceived = onUserStatsReceived;
 			_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
 
 			SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
 		}
 
-		public void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
+		internal void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
 		{
 			Int32 intValue;
 			float floatValue;
 
 			_id = new SteamID(CallbackData.m_steamIDUser);
 
-			foreach (string s in StatList)
+            foreach (string s in _requestedStats)
 			{
 				if (SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
 				{
-					Add(new Stat(this, s, intValue, true));
+					Add(new Stat(this, s, intValue));
 				}
 				else if (SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
 				{
-					Add(new Stat(this, s, (decimal)floatValue, false));
+					Add(new Stat(this, s, floatValue));
 				}
 			}
 
@@ -117,13 +119,7 @@ namespace SteamworksUnityHost
 		{
 			get { return _id; }
 		}
-
-		public static readonly string[] StatList = new string[]
-		{
-			"Kills",
-			"DamageHealed"
-		};
-
+        
 		public int Count
 		{
 			get { return _statList.Count; }
