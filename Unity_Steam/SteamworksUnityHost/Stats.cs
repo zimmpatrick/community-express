@@ -27,11 +27,17 @@ namespace SteamworksUnityHost
 		private static extern bool SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 intValue);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName, out float intValue);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 intValue);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float intValue);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
 
 		private IntPtr _stats;
 		private SteamID _id;
 		private List<Stat> _statList = new List<Stat>();
-        private IEnumerable<string> _requestedStats;
+		private IEnumerable<string> _requestedStats;
 
 		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived;
 		private OnUserStatsReceived _onUserStatsReceived;
@@ -86,7 +92,7 @@ namespace SteamworksUnityHost
 
 		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedStats)
 		{
-            _requestedStats = requestedStats;
+			_requestedStats = requestedStats;
 			_onUserStatsReceived = onUserStatsReceived;
 			_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
 
@@ -100,7 +106,7 @@ namespace SteamworksUnityHost
 
 			_id = new SteamID(CallbackData.m_steamIDUser);
 
-            foreach (string s in _requestedStats)
+			foreach (string s in _requestedStats)
 			{
 				if (SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
 				{
@@ -115,11 +121,38 @@ namespace SteamworksUnityHost
 			_onUserStatsReceived(this);
 		}
 
+		public void WriteStats()
+		{
+			foreach (Stat s in _statList)
+			{
+				if (s.HasChanged)
+				{
+					if (s.StatValue is int)
+					{
+						SteamUnityAPI_SteamUserStats_SetStatInt(_stats, s.StatName, (int)s.StatValue);
+					}
+					else
+					{
+						SteamUnityAPI_SteamUserStats_SetStatFloat(_stats, s.StatName, (float)s.StatValue);
+					}
+
+					s.HasChanged = false;
+				}
+			}
+
+			SteamUnityAPI_SteamUserStats_StoreStats(_stats);
+		}
+
 		public SteamID SteamID
 		{
 			get { return _id; }
 		}
-        
+
+		public List<Stat> StatsList
+		{
+			get { return _statList; }
+		}
+		
 		public int Count
 		{
 			get { return _statList.Count; }

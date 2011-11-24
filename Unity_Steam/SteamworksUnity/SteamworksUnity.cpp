@@ -273,6 +273,27 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetUserStatFloat(void* pSt
 	return pISteamUserStats->GetUserStat(steamID, statName, &statValue);
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_SetStatInt(void* pSteamUserStats, const char *statName, int statValue)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->SetStat(statName, statValue);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_SetStatFloat(void* pSteamUserStats, const char *statName, float statValue)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->SetStat(statName, statValue);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_StoreStats(void* pSteamUserStats)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->StoreStats();
+}
+
 
 // Steam Callbacks are used to bridge Steam's responses back to our app
 void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *CallbackData)

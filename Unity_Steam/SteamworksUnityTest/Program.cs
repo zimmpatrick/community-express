@@ -63,6 +63,20 @@ namespace SteamworksUnityTest
 				s.RunCallbacks();
 			}
 
+			/*/ Testing of the Stats Write functionality
+			stats.StatsList[0].StatValue = (Int32)stats.StatsList[0].StatValue + 1;
+			stats.WriteStats();
+
+			_statsReceived = false;
+			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback,
+				new string[] { "Kills", "DamageHealed" });
+
+			while (!_statsReceived)
+			{
+				s.RunCallbacks();
+			}
+			//*/
+
 			if (r.FileCount > 0)
 			{
 				int fileSize;
