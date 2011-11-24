@@ -10,6 +10,9 @@
 // also lets us get ourselves listed in the Steam master server so the server browser can find us
 #include "steam/steam_gameserver.h"
 
+// Steam Callbacks class is used to connect Steam's responses to our app
+#include "SteamCallbacks.h"
+
 // The following ifdef block is the standard way of creating macros which make exporting 
 // from a DLL simpler. All files within this DLL are compiled with the STEAMWORKSUNITY_EXPORTS
 // symbol defined on the command line. This symbol should not be defined on any project
@@ -38,13 +41,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_IsSteamRunning()
 // the client if necessary. The Steam client will be started if it is not running.
 //
 // Returns: true if your executable was NOT launched through the Steam client. This function will
-//          then start your application through the client. Your current process should exit.
+//		  then start your application through the client. Your current process should exit.
 //
-//          false if your executable was started through the Steam client or a steam_appid.txt file
-//          is present in your game's directory (for development). Your current process should continue.
+//		  false if your executable was started through the Steam client or a steam_appid.txt file
+//		  is present in your game's directory (for development). Your current process should continue.
 //
 // NOTE: This function should be used only if you are using CEG or not using Steam's DRM. Once applied
-//       to your executable, Steam's DRM will handle restarting through Steam if necessary.
+//	   to your executable, Steam's DRM will handle restarting through Steam if necessary.
 STEAMWORKSUNITY_API bool SteamUnityAPI_RestartAppIfNecessary( uint32 unOwnAppID )
 {
 	return SteamAPI_RestartAppIfNecessary( unOwnAppID );
@@ -135,7 +138,7 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamRemoteStorage_FileRead(void * pSteamR
 
 STEAMWORKSUNITY_API void * SteamUnityAPI_SteamGameServer()
 {
-	char *pchGameDir = "spacewar";
+	char *pchGameDir = "killingfloor";
 	uint32 unIP = 0;
 	uint16 usSpectatorPort = 0; // We don't support specators in our game
 	uint16 usMasterServerUpdaterPort = SPACEWAR_MASTER_SERVER_UPDATER_PORT;
@@ -236,3 +239,20 @@ STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamUser_GetSteamID(void * pSteamUser)
 	return pISteamUser->GetSteamID().ConvertToUint64();
 }
 
+
+STEAMWORKSUNITY_API void * SteamUnityAPI_SteamUserStats()
+{
+	return SteamUserStats();
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUserStats_RequestUserStats(void (*OnUserStatsReceivedCallback)(UserStatsReceived_t*))
+{
+	SteamCallbacks::getInstance().delegateOnUserStatsReceived = OnUserStatsReceivedCallback;
+}
+
+
+// Steam Callbacks are used to bridge Steam's responses back to our app
+void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *CallbackData)
+{
+	delegateOnUserStatsReceived(CallbackData);
+}
