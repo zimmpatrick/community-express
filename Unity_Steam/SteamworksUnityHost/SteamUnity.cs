@@ -101,5 +101,13 @@ namespace SteamworksUnityHost
 				return new Stats();
 			}
 		}
+
+		public Achievements UserAchievments
+		{
+			get
+			{
+				return new Achievements();
+			}
+		}
 	}
 }

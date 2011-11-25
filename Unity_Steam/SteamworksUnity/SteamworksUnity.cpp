@@ -10,7 +10,7 @@
 // also lets us get ourselves listed in the Steam master server so the server browser can find us
 #include "steam/steam_gameserver.h"
 
-// Steam Callbacks class is used to connect Steam's responses to our app
+// Steam Callbacks class is used to connect Steam's responses to our API
 #include "SteamCallbacks.h"
 
 // The following ifdef block is the standard way of creating macros which make exporting 
@@ -285,6 +285,27 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_SetStatFloat(void* pSteamU
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	return pISteamUserStats->SetStat(statName, statValue);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetAchievement(void* pSteamUserStats, const char *achievementName, bool &isAchieved)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetAchievement(achievementName, &isAchieved);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetUserAchievement(void* pSteamUserStats, uint64 steamID, const char *achievementName, bool &isAchieved)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetUserAchievement(steamID, achievementName, &isAchieved);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_SetAchievement(void* pSteamUserStats, const char *achievementName)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->SetAchievement(achievementName);
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_StoreStats(void* pSteamUserStats)

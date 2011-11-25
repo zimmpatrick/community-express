@@ -77,6 +77,10 @@ namespace SteamworksUnityTest
 			}
 			//*/
 
+			Achievements achievements = s.UserAchievments;
+			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
+			MyOnUserStatsReceivedCallback(null, achievements);
+
 			if (r.FileCount > 0)
 			{
 				int fileSize;
@@ -90,14 +94,26 @@ namespace SteamworksUnityTest
 			return 0;
 		}
 
-		public static void MyOnUserStatsReceivedCallback(Stats stats)
+		public static void MyOnUserStatsReceivedCallback(Stats stats, Achievements achievements)
 		{
-			Console.WriteLine("Stats: ");
-            foreach (Stat s in stats)
+			if (stats != null)
 			{
-				Console.WriteLine("{0} - {1} - {2} - {3} - {4}", s.StatName, s.StatValue, s.StatValue.GetType().Name, 
-                    s.StatValue is float, 
-                    s.StatValue is int);
+				Console.WriteLine("Stats: ");
+				foreach (Stat s in stats)
+				{
+					Console.WriteLine("{0} - {1} - {2} - {3} - {4}", s.StatName, s.StatValue, s.StatValue.GetType().Name,
+						s.StatValue is float,
+						s.StatValue is int);
+				}
+			}
+
+			if (achievements != null)
+			{
+				Console.WriteLine("Achievements: ");
+				foreach (Achievement a in achievements)
+				{
+					Console.WriteLine("{0} - {1}", a.AchievementName, a.IsAchieved);
+				}
 			}
 
 			_statsReceived = true;

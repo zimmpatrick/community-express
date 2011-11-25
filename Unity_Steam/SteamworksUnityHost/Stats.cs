@@ -15,7 +15,7 @@ namespace SteamworksUnityHost
 	}
 
 	public delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
-	public delegate void OnUserStatsReceived(Stats stats);
+	public delegate void OnUserStatsReceived(Stats stats, Achievements achievements);
 
 	public class Stats : ICollection<Stat>
 	{
@@ -104,6 +104,9 @@ namespace SteamworksUnityHost
 			Int32 intValue;
 			float floatValue;
 
+			// Make sure we don't double up the list of Stats
+			Clear();
+
 			_id = new SteamID(CallbackData.m_steamIDUser);
 
 			foreach (string s in _requestedStats)
@@ -118,7 +121,7 @@ namespace SteamworksUnityHost
 				}
 			}
 
-			_onUserStatsReceived(this);
+			_onUserStatsReceived(this, null);
 		}
 
 		public void WriteStats()
@@ -170,7 +173,7 @@ namespace SteamworksUnityHost
 
 		public void Clear()
 		{
-			throw new NotSupportedException();
+			_statList.Clear();
 		}
 
 		public bool Contains(Stat item)
