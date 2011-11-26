@@ -60,6 +60,11 @@ namespace SteamworksUnityHost
 			_leaderboard = leaderboard;
 		}
 
+		public Leaderboard Leaderboard
+		{
+			get { return _leaderboard; }
+		}
+
 		public int Count
 		{
 			get { return _leaderboardEntryList.Count; }

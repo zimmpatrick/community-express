@@ -8,7 +8,7 @@ namespace SteamworksUnityTest
 	class Program
 	{
 		private static bool _statsReceived = false;
-		private static bool _leaderboardReceived = false;
+		private static bool _leaderboardEntriesReceived = false;
 
 		static int Main(string[] args)
 		{
@@ -85,7 +85,7 @@ namespace SteamworksUnityTest
 			Leaderboards leaderboards = s.Leaderboards;
 			leaderboards.FindOrCreateLeaderboard(MyOnLeaderboardRetrievedCallback, "TestLeaderboard", ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
 
-			while (!_leaderboardReceived)
+			while (!_leaderboardEntriesReceived)
 			{
 				s.RunCallbacks();
 			}
@@ -130,9 +130,31 @@ namespace SteamworksUnityTest
 
 		public static void MyOnLeaderboardRetrievedCallback(Leaderboard leaderboard)
 		{
-			_leaderboardReceived = true;
-
 			Console.WriteLine("Leaderboard Retrieved: {0} - {1} - {2}", leaderboard.LeaderboardName, leaderboard.SortMethod, leaderboard.DisplayType);
+
+			leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 913, new List<Int32>{123, 456, 789});
+
+			leaderboard.RequestLeaderboardEntries(0, 2, 3, MyOnLeaderboardEntriesRetrievedCallback);
+		}
+
+		public static void MyOnLeaderboardEntriesRetrievedCallback(LeaderboardEntries leaderboardEntries)
+		{
+			_leaderboardEntriesReceived = true;
+
+			Console.WriteLine("Leaderboard Entries Retrieved: {0} - {1}", leaderboardEntries.Leaderboard.LeaderboardName, leaderboardEntries.Count);
+
+			foreach (LeaderboardEntry l in leaderboardEntries)
+			{
+				Console.WriteLine("Leaderboard Entry: {0} - {1} - {2}", l.GlobalRank, l.SteamID.ToString(), l.Score);
+
+				if (l.ScoreDetails != null)
+				{
+					foreach (Int32 i in l.ScoreDetails)
+					{
+						Console.WriteLine("Leaderboard Entry Detail: {0}", i);
+					}
+				}
+			}
 		}
 	}
 }

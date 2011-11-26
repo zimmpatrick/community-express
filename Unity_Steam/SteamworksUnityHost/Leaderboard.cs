@@ -35,7 +35,7 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(IntPtr stats, SteamLeaderboard_t leaderboard, ELeaderboardDataRequest requestType, Int32 startIndex, Int32 endIndex, IntPtr OnLeaderboardEntriesRetrievedCallback);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(IntPtr stats, SteamLeaderboardEntries_t leaderboardEntries, Int32 index, out LeaderboardEntry_t leaderboardEntry, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPWStr)] out Int32[] scoreDetails, Int32 maxScoreDetailCount);
+		private static extern bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(IntPtr stats, SteamLeaderboardEntries_t leaderboardEntries, Int32 index, out LeaderboardEntry_t leaderboardEntry, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I4)] Int32[] scoreDetails, Int32 maxScoreDetailCount);
 
 		private Leaderboards _leaderboards;
 
@@ -60,7 +60,14 @@ namespace SteamworksUnityHost
 
 		public void UploadLeaderboardScore(ELeaderboardUploadScoreMethod uploadScoreMethod, Int32 score, List<Int32> scoreDetails)
 		{
-			SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(_leaderboards.Stats, _leaderboard, uploadScoreMethod, score, scoreDetails.ToArray(), scoreDetails.Count);
+			if (scoreDetails != null)
+			{
+				SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(_leaderboards.Stats, _leaderboard, uploadScoreMethod, score, scoreDetails.ToArray(), scoreDetails.Count);
+			}
+			else
+			{
+				SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(_leaderboards.Stats, _leaderboard, uploadScoreMethod, score, null, 0);
+			}
 		}
 
 		public void RequestLeaderboardEntries(Int32 startIndex, Int32 endIndex, Int32 maxExpectedDetails, OnLeaderboardEntriesRetrieved onLeaderboardEntriesRetrieved)
@@ -84,9 +91,15 @@ namespace SteamworksUnityHost
 
 			for (int index = 0; index < leaderboardScoresDownloaded.m_cEntryCount; index++)
 			{
-				if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, leaderboardScoresDownloaded.m_hSteamLeaderboardEntries, index, out leaderboardEntry, out details, _maxDetails))
+				if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, leaderboardScoresDownloaded.m_hSteamLeaderboardEntries, index, out leaderboardEntry, details, _maxDetails))
 				{
-					List<Int32> scoreDetails = new List<Int32>(details);
+					List<Int32> scoreDetails = null;
+					
+					if (details != null)
+					{
+						scoreDetails = new List<Int32>(details);
+					}
+
 					leaderboardEntries.Add(new LeaderboardEntry(leaderboardEntry.m_steamIDUser, leaderboardEntry.m_nGlobalRank, leaderboardEntry.m_nScore, scoreDetails));
 				}
 			}

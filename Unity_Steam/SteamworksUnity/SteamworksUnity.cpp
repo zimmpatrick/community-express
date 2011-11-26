@@ -383,7 +383,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(
 	}
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(void* pSteamUserStats, SteamLeaderboardEntries_t leaderboardEntries, int32 index, LeaderboardEntry_t &leaderboardEntry, int32* &scoreDetails, int32 maxScoreDetailCount)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(void* pSteamUserStats, SteamLeaderboardEntries_t leaderboardEntries, int32 index, LeaderboardEntry_t &leaderboardEntry, int32* scoreDetails, int32 maxScoreDetailCount)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
