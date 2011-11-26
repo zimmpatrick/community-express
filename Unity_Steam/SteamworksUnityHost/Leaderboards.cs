@@ -23,12 +23,16 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName, IntPtr OnUserStatsReceivedCallback);
+		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName, IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, IntPtr OnUserStatsReceivedCallback);
+		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("SteamworksUnity.dll")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern ELeaderboardSortMethod SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(IntPtr stats, SteamLeaderboard_t leaderboard);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern ELeaderboardDisplayType SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(IntPtr stats, SteamLeaderboard_t leaderboard);
 
 		private IntPtr _stats;
 		private List<Leaderboard> _leaderboardList = new List<Leaderboard>();
@@ -145,11 +149,16 @@ namespace SteamworksUnityHost
 
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{
-				leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard, SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard));
+				leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard, SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard), SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard), SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard));
 				Add(leaderboard);
 			}
 
 			_onLeaderboardRetrieved(leaderboard);
+		}
+
+		public IntPtr Stats
+		{
+			get { return _stats; }
 		}
 
 		public int Count

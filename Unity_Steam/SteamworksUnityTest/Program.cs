@@ -132,7 +132,7 @@ namespace SteamworksUnityTest
 		{
 			_leaderboardReceived = true;
 
-			Console.WriteLine("Leaderboard Retrieved: {0}", leaderboard.LeaderboardName);
+			Console.WriteLine("Leaderboard Retrieved: {0} - {1} - {2}", leaderboard.LeaderboardName, leaderboard.SortMethod, leaderboard.DisplayType);
 		}
 	}
 }

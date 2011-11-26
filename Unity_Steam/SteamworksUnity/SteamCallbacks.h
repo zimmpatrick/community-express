@@ -20,6 +20,10 @@ public:
 	void OnLeaderboardRetrieved(LeaderboardFindResult_t *CallbackData, bool bIOFailure);
 	CCallResult<SteamCallbacks, LeaderboardFindResult_t> SteamCallResultFindLeaderboard;
 
+	void OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *CallbackData, bool bIOFailure);
+	CCallResult<SteamCallbacks, LeaderboardScoresDownloaded_t> SteamCallResultLeaderboardScoresDownloaded;
+
 	void (__stdcall *delegateOnUserStatsReceived)(UserStatsReceived_t*);
 	void (__stdcall *delegateOnLeaderboardRetrievedCallback)(LeaderboardFindResult_t*);
+	void (__stdcall *delegateOnLeaderboardEntriesRetrievedCallback)(LeaderboardScoresDownloaded_t*);
 };

@@ -348,6 +348,48 @@ STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamUserStats_GetLeaderboardName(
 	return pISteamUserStats->GetLeaderboardName(leaderboard);
 }
 
+STEAMWORKSUNITY_API ELeaderboardSortMethod SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(void* pSteamUserStats, SteamLeaderboard_t leaderboard)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetLeaderboardSortMethod(leaderboard);
+}
+
+STEAMWORKSUNITY_API ELeaderboardDisplayType SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(void* pSteamUserStats, SteamLeaderboard_t leaderboard)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetLeaderboardDisplayType(leaderboard);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(void* pSteamUserStats, SteamLeaderboard_t leaderboard, ELeaderboardUploadScoreMethod uploadScoreMethod, int32 score, int32* scoreDetails, int scoreDetailCount)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->UploadLeaderboardScore(leaderboard, uploadScoreMethod, score, scoreDetails, scoreDetailCount) != 0;
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(void* pSteamUserStats, SteamLeaderboard_t leaderboard, ELeaderboardDataRequest requestType, int32 startIndex, int32 endIndex, void (__stdcall *OnLeaderboardEntriesRetrievedCallback)(LeaderboardScoresDownloaded_t*))
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	SteamCallbacks::getInstance().delegateOnLeaderboardEntriesRetrievedCallback = OnLeaderboardEntriesRetrievedCallback;
+
+	SteamAPICall_t result = pISteamUserStats->DownloadLeaderboardEntries(leaderboard, requestType, startIndex, endIndex);
+
+	if (result != 0)
+	{
+		SteamCallbacks::getInstance().SteamCallResultLeaderboardScoresDownloaded.Set(result, &SteamCallbacks::getInstance(), &SteamCallbacks::OnLeaderboardEntriesRetrieved);
+	}
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(void* pSteamUserStats, SteamLeaderboardEntries_t leaderboardEntries, int32 index, LeaderboardEntry_t &leaderboardEntry, int32* &scoreDetails, int32 maxScoreDetailCount)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetDownloadedLeaderboardEntry(leaderboardEntries, index, &leaderboardEntry, scoreDetails, maxScoreDetailCount);
+}
+
 
 // Steam Callbacks are used to bridge Steam's responses back to our app
 void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *CallbackData)
@@ -359,4 +401,9 @@ void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *CallbackData)
 void SteamCallbacks::OnLeaderboardRetrieved(LeaderboardFindResult_t *CallbackData, bool bIOFailure)
 {
 	delegateOnLeaderboardRetrievedCallback(CallbackData);
+}
+
+void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *CallbackData, bool bIOFailure )
+{
+	delegateOnLeaderboardEntriesRetrievedCallback(CallbackData);
 }
