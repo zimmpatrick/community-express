@@ -12,6 +12,9 @@ namespace SteamworksUnityHost
 
 		private List<LeaderboardEntry> _leaderboardEntryList = new List<LeaderboardEntry>();
 
+		private Int32 _minRank = Int32.MaxValue;
+		private Int32 _maxRank = Int32.MinValue;
+
 		private class LeaderboardEntryEnumator : IEnumerator<LeaderboardEntry>
 		{
 			private int _index;
@@ -65,6 +68,16 @@ namespace SteamworksUnityHost
 			get { return _leaderboard; }
 		}
 
+		public Int32 LowestRank
+		{
+			get { return _minRank; }
+		}
+
+		public Int32 HighestRank
+		{
+			get { return _maxRank; }
+		}
+
 		public int Count
 		{
 			get { return _leaderboardEntryList.Count; }
@@ -78,6 +91,16 @@ namespace SteamworksUnityHost
 		public void Add(LeaderboardEntry item)
 		{
 			_leaderboardEntryList.Add(item);
+
+			if (item.GlobalRank < _minRank)
+			{
+				_minRank = item.GlobalRank;
+			}
+
+			if (item.GlobalRank > _maxRank)
+			{
+				_maxRank = item.GlobalRank;
+			}
 		}
 
 		public void Clear()
