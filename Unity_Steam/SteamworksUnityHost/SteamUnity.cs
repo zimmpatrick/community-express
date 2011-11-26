@@ -102,11 +102,19 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		public Achievements UserAchievments
+		public Achievements UserAchievements
 		{
 			get
 			{
 				return new Achievements();
+			}
+		}
+
+		public Leaderboards Leaderboards
+		{
+			get
+			{
+				return new Leaderboards();
 			}
 		}
 	}

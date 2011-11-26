@@ -155,5 +155,34 @@ namespace SteamworksUnityHost
 		EAccountTypeAnonUser = 10
 	};
 
+	public enum ELeaderboardDataRequest
+	{
+		k_ELeaderboardDataRequestGlobal = 0,
+		k_ELeaderboardDataRequestGlobalAroundUser = 1,
+		k_ELeaderboardDataRequestFriends = 2,
+	};
 
+	// the sort order of a leaderboard
+	public enum ELeaderboardSortMethod
+	{
+		k_ELeaderboardSortMethodNone = 0,
+		k_ELeaderboardSortMethodAscending = 1,	// top-score is lowest number
+		k_ELeaderboardSortMethodDescending = 2,	// top-score is highest number
+	};
+
+	// the display type (used by the Steam Community web site) for a leaderboard
+	public enum ELeaderboardDisplayType
+	{
+		k_ELeaderboardDisplayTypeNone = 0,
+		k_ELeaderboardDisplayTypeNumeric = 1,			// simple numerical score
+		k_ELeaderboardDisplayTypeTimeSeconds = 2,		// the score represents a time, in seconds
+		k_ELeaderboardDisplayTypeTimeMilliSeconds = 3,	// the score represents a time, in milliseconds
+	};
+
+	public enum ELeaderboardUploadScoreMethod
+	{
+		k_ELeaderboardUploadScoreMethodNone = 0,
+		k_ELeaderboardUploadScoreMethodKeepBest = 1,	// Leaderboard will keep user's best score
+		k_ELeaderboardUploadScoreMethodForceUpdate = 2,	// Leaderboard will always replace score with specified
+	};
 }

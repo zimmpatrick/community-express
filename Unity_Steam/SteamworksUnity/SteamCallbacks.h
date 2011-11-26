@@ -17,5 +17,9 @@ public:
 
 	STEAM_CALLBACK(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
 
+	void OnLeaderboardRetrieved(LeaderboardFindResult_t *CallbackData, bool bIOFailure);
+	CCallResult<SteamCallbacks, LeaderboardFindResult_t> SteamCallResultFindLeaderboard;
+
 	void (__stdcall *delegateOnUserStatsReceived)(UserStatsReceived_t*);
+	void (__stdcall *delegateOnLeaderboardRetrievedCallback)(LeaderboardFindResult_t*);
 };

@@ -7,14 +7,14 @@ using System.Collections;
 namespace SteamworksUnityHost
 {
 	[StructLayout(LayoutKind.Sequential, Pack=1)]
-	public struct UserStatsReceived_t
+	internal struct UserStatsReceived_t
 	{
 		public UInt64 m_nGameID;		// Game these stats are for
 		public EResult m_eResult;		// Success / error fetching the stats
 		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
 	}
 
-	public delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
+	internal delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
 	public delegate void OnUserStatsReceived(Stats stats, Achievements achievements);
 
 	public class Stats : ICollection<Stat>

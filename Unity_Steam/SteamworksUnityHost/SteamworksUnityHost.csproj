@@ -41,6 +41,10 @@
     <Compile Include="Friend.cs" />
     <Compile Include="Friends.cs" />
     <Compile Include="GameServer.cs" />
+    <Compile Include="Leaderboard.cs" />
+    <Compile Include="LeaderboardEntries.cs" />
+    <Compile Include="LeaderboardEntry.cs" />
+    <Compile Include="Leaderboards.cs" />
     <Compile Include="RemoteStorage.cs" />
     <Compile Include="Stat.cs" />
     <Compile Include="Stats.cs" />

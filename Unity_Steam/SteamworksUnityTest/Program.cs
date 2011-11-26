@@ -8,6 +8,7 @@ namespace SteamworksUnityTest
 	class Program
 	{
 		private static bool _statsReceived = false;
+		private static bool _leaderboardReceived = false;
 
 		static int Main(string[] args)
 		{
@@ -77,9 +78,17 @@ namespace SteamworksUnityTest
 			}
 			//*/
 
-			Achievements achievements = s.UserAchievments;
+			Achievements achievements = s.UserAchievements;
 			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
 			MyOnUserStatsReceivedCallback(null, achievements);
+
+			Leaderboards leaderboards = s.Leaderboards;
+			leaderboards.FindOrCreateLeaderboard(MyOnLeaderboardRetrievedCallback, "TestLeaderboard", ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
+
+			while (!_leaderboardReceived)
+			{
+				s.RunCallbacks();
+			}
 
 			if (r.FileCount > 0)
 			{
@@ -117,6 +126,13 @@ namespace SteamworksUnityTest
 			}
 
 			_statsReceived = true;
+		}
+
+		public static void MyOnLeaderboardRetrievedCallback(Leaderboard leaderboard)
+		{
+			_leaderboardReceived = true;
+
+			Console.WriteLine("Leaderboard Retrieved: {0}", leaderboard.LeaderboardName);
 		}
 	}
 }

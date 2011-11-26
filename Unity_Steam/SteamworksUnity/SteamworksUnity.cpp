@@ -315,9 +315,48 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_StoreStats(void* pSteamUse
 	return pISteamUserStats->StoreStats();
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSteamUserStats, const char *leaderboardName, void (__stdcall *OnLeaderboardRetrievedCallback)(LeaderboardFindResult_t*))
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	SteamCallbacks::getInstance().delegateOnLeaderboardRetrievedCallback = OnLeaderboardRetrievedCallback;
+
+	return pISteamUserStats->FindLeaderboard(leaderboardName) != 0;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(void* pSteamUserStats, const char *leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, void (__stdcall *OnLeaderboardRetrievedCallback)(LeaderboardFindResult_t*))
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	SteamCallbacks::getInstance().delegateOnLeaderboardRetrievedCallback = OnLeaderboardRetrievedCallback;
+
+	SteamAPICall_t result = pISteamUserStats->FindOrCreateLeaderboard(leaderboardName, sortMethod, displayType);
+
+	if (result != 0)
+	{
+		SteamCallbacks::getInstance().SteamCallResultFindLeaderboard.Set(result, &SteamCallbacks::getInstance(), &SteamCallbacks::OnLeaderboardRetrieved);
+		return true;
+	}
+
+	return false;
+}
+
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamUserStats_GetLeaderboardName(void* pSteamUserStats, SteamLeaderboard_t leaderboard)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetLeaderboardName(leaderboard);
+}
+
 
 // Steam Callbacks are used to bridge Steam's responses back to our app
 void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *CallbackData)
 {
 	delegateOnUserStatsReceived(CallbackData);
+}
+
+// Steam Callbacks are used to bridge Steam's responses back to our app
+void SteamCallbacks::OnLeaderboardRetrieved(LeaderboardFindResult_t *CallbackData, bool bIOFailure)
+{
+	delegateOnLeaderboardRetrievedCallback(CallbackData);
 }
