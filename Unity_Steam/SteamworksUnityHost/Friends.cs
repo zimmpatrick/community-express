@@ -7,6 +7,20 @@ using System.Collections;
 namespace SteamworksUnityHost
 {
 	//-----------------------------------------------------------------------------
+	// Purpose: set of relationships to other users
+	//-----------------------------------------------------------------------------
+	public enum EFriendRelationship
+	{
+		k_EFriendRelationshipNone = 0,
+		k_EFriendRelationshipBlocked = 1,
+		k_EFriendRelationshipRequestRecipient = 2,
+		k_EFriendRelationshipFriend = 3,
+		k_EFriendRelationshipRequestInitiator = 4,
+		k_EFriendRelationshipIgnored = 5,
+		k_EFriendRelationshipIgnoredFriend = 6,
+	};
+
+	//-----------------------------------------------------------------------------
 	// Purpose: list of states a friend can be in
 	//-----------------------------------------------------------------------------
 	public enum EPersonaState
@@ -18,18 +32,39 @@ namespace SteamworksUnityHost
 		EPersonaStateSnooze = 4			// auto-away for a long time
 	};
 
+	//-----------------------------------------------------------------------------
+	// Purpose: flags for enumerating friends list, or quickly checking a the relationship between users
+	//-----------------------------------------------------------------------------
+	public enum EFriendFlags
+	{
+		k_EFriendFlagNone = 0x00,
+		k_EFriendFlagBlocked = 0x01,
+		k_EFriendFlagFriendshipRequested = 0x02,
+		k_EFriendFlagImmediate = 0x04,			// "regular" friend
+		k_EFriendFlagClanMember = 0x08,
+		k_EFriendFlagOnGameServer = 0x10,
+		// k_EFriendFlagHasPlayedWith	= 0x20,	// not currently used
+		// k_EFriendFlagFriendOfFriend	= 0x40, // not currently used
+		k_EFriendFlagRequestingFriendship = 0x80,
+		k_EFriendFlagRequestingInfo = 0x100,
+		k_EFriendFlagIgnored = 0x200,
+		k_EFriendFlagIgnoredFriend = 0x400,
+		k_EFriendFlagAll = 0xFFFF,
+	};
+
 	public class Friends : ICollection<Friend>
 	{
 		[DllImport("SteamworksUnity.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamFriends();
 		[DllImport("SteamworksUnity.dll")]
-		private static extern int SteamUnityAPI_SteamFriends_GetFriendCount(IntPtr friend);
+		private static extern int SteamUnityAPI_SteamFriends_GetFriendCount(IntPtr friends);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendByIndex(IntPtr friend, int iFriend);
+		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendByIndex(IntPtr friends, int iFriend);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern IntPtr SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friend, UInt64 steamIDFriend);
+		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
+		private static extern String SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern int SteamUnityAPI_SteamFriends_GetFriendPersonaState(IntPtr friend, UInt64 steamIDFriend);
+		private static extern int SteamUnityAPI_SteamFriends_GetFriendPersonaState(IntPtr friends, UInt64 steamIDFriend);
 
 		private IntPtr _friends;
 
@@ -89,8 +124,7 @@ namespace SteamworksUnityHost
 
 		internal String GetFriendPersonaName(SteamID steamIDFriend)
 		{
-			IntPtr personaName = SteamUnityAPI_SteamFriends_GetFriendPersonaName(_friends, steamIDFriend.ToUInt64());
-			return Marshal.PtrToStringAnsi(personaName);
+			return SteamUnityAPI_SteamFriends_GetFriendPersonaName(_friends, steamIDFriend.ToUInt64());
 		}
 
 		internal EPersonaState GetFriendPersonaState(SteamID steamIDFriend)

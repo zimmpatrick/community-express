@@ -11,7 +11,7 @@ namespace SteamworksUnityHost
 		private Int32 _score;
 		private List<Int32> _scoreDetails;
 
-		public LeaderboardEntry(UInt64 steamIDUser, Int32 globalRank, Int32 score, List<Int32> scoreDetails)
+		internal LeaderboardEntry(UInt64 steamIDUser, Int32 globalRank, Int32 score, List<Int32> scoreDetails)
 		{
 			_id = new SteamID(steamIDUser);
 			_rank = globalRank;

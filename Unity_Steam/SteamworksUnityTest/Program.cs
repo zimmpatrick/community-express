@@ -52,7 +52,18 @@ namespace SteamworksUnityTest
 			Console.WriteLine("Friends: ");
 			foreach (Friend f in s.Friends)
 			{
-				Console.WriteLine("{0} - {1} - {2}", f.Id, f.PersonaName, f.PersonaState);
+				Console.WriteLine("{0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
+			}
+
+			Console.WriteLine("Groups/Clans: ");
+			foreach (Group g in s.Groups)
+			{
+				Console.WriteLine(" {0} - {1} - {2} - {3}", g.SteamID, g.ClanTag, g.GroupName, g.Count);
+
+				foreach (Friend f in g)
+				{
+					Console.WriteLine("   {0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
+				}
 			}
 
 			Stats stats = s.UserStats;

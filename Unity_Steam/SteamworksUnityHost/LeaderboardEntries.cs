@@ -58,7 +58,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		public LeaderboardEntries(Leaderboard leaderboard)
+		internal LeaderboardEntries(Leaderboard leaderboard)
 		{
 			_leaderboard = leaderboard;
 		}

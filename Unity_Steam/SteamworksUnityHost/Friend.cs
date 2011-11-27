@@ -4,8 +4,6 @@ using System.Text;
 
 namespace SteamworksUnityHost
 {
-
-
 	public class Friend
 	{
 		private Friends _friends;
@@ -27,7 +25,7 @@ namespace SteamworksUnityHost
 			get { return _friends.GetFriendPersonaState(_id); }
 		}
 
-		public SteamID Id
+		public SteamID SteamID
 		{
 			get { return _id; }
 		}

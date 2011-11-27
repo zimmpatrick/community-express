@@ -207,8 +207,50 @@ STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamFriends_GetFriendPersonaName
 STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendPersonaState(void * pSteamFriends, uint64 steamIDFriend)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
-	
+
 	return pISteamFriends->GetFriendPersonaState( CSteamID( steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetClanCount(void * pSteamFriends)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetClanCount();
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetClanByIndex(void * pSteamFriends, int iClan)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetClanByIndex(iClan).ConvertToUint64();
+}
+
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamFriends_GetClanName(void * pSteamFriends, uint64 steamIDClan)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetClanName(steamIDClan);
+}
+
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamFriends_GetClanTag(void * pSteamFriends, uint64 steamIDClan)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetClanTag(steamIDClan);
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCountFromSource(void * pSteamFriends, uint64 steamIDSource)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendCountFromSource( CSteamID( steamIDSource) );
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendFromSourceByIndex(void * pSteamFriends, uint64 steamIDSource, int iFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendFromSourceByIndex(steamIDSource, iFriend).ConvertToUint64();
 }
 
 STEAMWORKSUNITY_API void * SteamUnityAPI_SteamUser()
@@ -388,6 +430,25 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEn
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	return pISteamUserStats->GetDownloadedLeaderboardEntry(leaderboardEntries, index, &leaderboardEntry, scoreDetails, maxScoreDetailCount);
+}
+
+STEAMWORKSUNITY_API void * SteamUnityAPI_SteamMatchmaking()
+{
+	return SteamMatchmaking();
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetNumLobbyMembers(void* pSteamMatchmaking, uint64 steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetNumLobbyMembers(steamIDLobby);
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetLobbyMemberByIndex(void* pSteamMatchmaking, uint64 steamIDLobby, int iLobbyMember)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyMemberByIndex(steamIDLobby, iLobbyMember).ConvertToUint64();
 }
 
 

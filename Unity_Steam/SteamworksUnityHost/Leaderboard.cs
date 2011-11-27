@@ -63,7 +63,7 @@ namespace SteamworksUnityHost
 		private OnLeaderboardEntriesRetrievedFromSteam _internalOnLeaderboardEntriesRetrieved = null;
 		private OnLeaderboardEntriesRetrieved _onLeaderboardEntriesRetrieved;
 
-		public Leaderboard(Leaderboards leaderboards, SteamLeaderboard_t leaderboard, String leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType)
+		internal Leaderboard(Leaderboards leaderboards, SteamLeaderboard_t leaderboard, String leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType)
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
 			_leaderboards = leaderboards;
@@ -95,7 +95,7 @@ namespace SteamworksUnityHost
 				_internalOnLeaderboardEntriesRetrieved = new OnLeaderboardEntriesRetrievedFromSteam(OnLeaderboardEntriesRetrievedCallback);
 			}
 
-			SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(_leaderboards.Stats, _leaderboard, ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobal, startIndex, endIndex, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved));
+			SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(_leaderboards.Stats, _leaderboard, ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobal, startIndex, endIndex, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardEntriesRetrieved));
 		}
 
 		public void RequestLeaderboardEntriesAroundCurrentUser(Int32 rowsBefore, Int32 rowsAfter, Int32 maxExpectedDetails, OnLeaderboardEntriesRetrieved onLeaderboardEntriesRetrieved)

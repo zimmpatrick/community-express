@@ -85,7 +85,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		public Stats()
+		internal Stats()
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
 		}

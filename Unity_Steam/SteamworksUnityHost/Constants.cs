@@ -11,35 +11,35 @@ namespace SteamworksUnityHost
 		EResultFail = 2,							// generic failure 
 		EResultNoConnection = 3,					// no/failed network connection
 	//	EResultNoConnectionRetry = 4,				// OBSOLETE - removed
-		EResultInvalidPassword = 5,				// password/ticket is invalid
+		EResultInvalidPassword = 5,					// password/ticket is invalid
 		EResultLoggedInElsewhere = 6,				// same user logged in elsewhere
-		EResultInvalidProtocolVer = 7,			// protocol version is incorrect
+		EResultInvalidProtocolVer = 7,				// protocol version is incorrect
 		EResultInvalidParam = 8,					// a parameter is incorrect
 		EResultFileNotFound = 9,					// file was not found
 		EResultBusy = 10,							// called method busy - action not taken
 		EResultInvalidState = 11,					// called object was in an invalid state
 		EResultInvalidName = 12,					// name is invalid
 		EResultInvalidEmail = 13,					// email is invalid
-		EResultDuplicateName = 14,				// name is not unique
+		EResultDuplicateName = 14,					// name is not unique
 		EResultAccessDenied = 15,					// access is denied
 		EResultTimeout = 16,						// operation timed out
-		EResultBanned = 17,						// VAC2 banned
+		EResultBanned = 17,							// VAC2 banned
 		EResultAccountNotFound = 18,				// account not found
-		EResultInvalidSteamID = 19,				// steamID is invalid
-		EResultServiceUnavailable = 20,			// The requested service is currently unavailable
+		EResultInvalidSteamID = 19,					// steamID is invalid
+		EResultServiceUnavailable = 20,				// The requested service is currently unavailable
 		EResultNotLoggedOn = 21,					// The user is not logged on
 		EResultPending = 22,						// Request is pending (may be in process, or waiting on third party)
-		EResultEncryptionFailure = 23,			// Encryption or Decryption failed
-		EResultInsufficientPrivilege = 24,		// Insufficient privilege
-		EResultLimitExceeded = 25,				// Too much of a good thing
+		EResultEncryptionFailure = 23,				// Encryption or Decryption failed
+		EResultInsufficientPrivilege = 24,			// Insufficient privilege
+		EResultLimitExceeded = 25,					// Too much of a good thing
 		EResultRevoked = 26,						// Access has been revoked (used for revoked guest passes)
 		EResultExpired = 27,						// License/Guest pass the user is trying to access is expired
 		EResultAlreadyRedeemed = 28,				// Guest pass has already been redeemed by account, cannot be acked again
 		EResultDuplicateRequest = 29,				// The request is a duplicate and the action has already occurred in the past, ignored this time
 		EResultAlreadyOwned = 30,					// All the games in this guest pass redemption request are already owned by the user
-		EResultIPNotFound = 31,					// IP address not found
-		EResultPersistFailed = 32,				// failed to write change to the data store
-		EResultLockingFailed = 33,				// failed to acquire access lock for this operation
+		EResultIPNotFound = 31,						// IP address not found
+		EResultPersistFailed = 32,					// failed to write change to the data store
+		EResultLockingFailed = 33,					// failed to acquire access lock for this operation
 		EResultLogonSessionReplaced = 34,
 		EResultConnectFailed = 35,
 		EResultHandshakeFailed = 36,
@@ -51,15 +51,15 @@ namespace SteamworksUnityHost
 		EResultNoMatch = 42,						// nothing matching the request found
 		EResultAccountDisabled = 43,
 		EResultServiceReadOnly = 44,				// this service is not accepting content changes right now
-		EResultAccountNotFeatured = 45,			// account doesn't have value, so this feature isn't available
+		EResultAccountNotFeatured = 45,				// account doesn't have value, so this feature isn't available
 		EResultAdministratorOK = 46,				// allowed to take this action, but only because requester is admin
-		EResultContentVersion = 47,				// A Version mismatch in content transmitted within the Steam protocol.
+		EResultContentVersion = 47,					// A Version mismatch in content transmitted within the Steam protocol.
 		EResultTryAnotherCM = 48,					// The current CM can't service the user making a request, user should try another.
-		EResultPasswordRequiredToKickSession = 49,// You are already logged in elsewhere, this cached credential login has failed.
+		EResultPasswordRequiredToKickSession = 49,	// You are already logged in elsewhere, this cached credential login has failed.
 		EResultAlreadyLoggedInElsewhere = 50,		// You are already logged in elsewhere, you must wait
-		EResultSuspended = 51,					// Long running operation (content download) suspended/paused
-		EResultCancelled = 52,					// Operation canceled (typically by user: content download)
-		EResultDataCorruption = 53,				// Operation canceled because data is ill formed or unrecoverable
+		EResultSuspended = 51,						// Long running operation (content download) suspended/paused
+		EResultCancelled = 52,						// Operation canceled (typically by user: content download)
+		EResultDataCorruption = 53,					// Operation canceled because data is ill formed or unrecoverable
 		EResultDiskFull = 54,						// Operation canceled - not enough disk space.
 		EResultRemoteCallFailed = 55				// an remote call or IPC call failed
 	};
@@ -97,26 +97,26 @@ namespace SteamworksUnityHost
 	};
 
 	// results from BeginAuthSession
-	public  enum EBeginAuthSessionResult
+	public enum EBeginAuthSessionResult
 	{
 		EBeginAuthSessionResultOK = 0,						// Ticket is valid for this game and this steamID.
-		EBeginAuthSessionResultInvalidTicket = 1,				// Ticket is not valid.
-		EBeginAuthSessionResultDuplicateRequest = 2,			// A ticket has already been submitted for this steamID
+		EBeginAuthSessionResultInvalidTicket = 1,			// Ticket is not valid.
+		EBeginAuthSessionResultDuplicateRequest = 2,		// A ticket has already been submitted for this steamID
 		EBeginAuthSessionResultInvalidVersion = 3,			// Ticket is from an incompatible interface version
-		EBeginAuthSessionResultGameMismatch = 4,				// Ticket is not for this game
-		EBeginAuthSessionResultExpiredTicket = 5				// Ticket has expired
+		EBeginAuthSessionResultGameMismatch = 4,			// Ticket is not for this game
+		EBeginAuthSessionResultExpiredTicket = 5			// Ticket has expired
 	};
 
 	// Callback values for callback ValidateAuthTicketResponse_t which is a response to BeginAuthSession
 	public enum EAuthSessionResponse
 	{
-		EAuthSessionResponseOK = 0,							// Steam has verified the user is online, the ticket is valid and ticket has not been reused.
+		EAuthSessionResponseOK = 0,								// Steam has verified the user is online, the ticket is valid and ticket has not been reused.
 		EAuthSessionResponseUserNotConnectedToSteam = 1,		// The user in question is not connected to steam
-		EAuthSessionResponseNoLicenseOrExpired = 2,			// The license has expired.
-		EAuthSessionResponseVACBanned = 3,					// The user is VAC banned for this game.
-		EAuthSessionResponseLoggedInElseWhere = 4,			// The user account has logged in elsewhere and the session containing the game instance has been disconnected.
+		EAuthSessionResponseNoLicenseOrExpired = 2,				// The license has expired.
+		EAuthSessionResponseVACBanned = 3,						// The user is VAC banned for this game.
+		EAuthSessionResponseLoggedInElseWhere = 4,				// The user account has logged in elsewhere and the session containing the game instance has been disconnected.
 		EAuthSessionResponseVACCheckTimedOut = 5,				// VAC has been unable to perform anti-cheat checks on this user
-		EAuthSessionResponseAuthTicketCanceled = 6,			// The ticket has been canceled by the issuer
+		EAuthSessionResponseAuthTicketCanceled = 6,				// The ticket has been canceled by the issuer
 		EAuthSessionResponseAuthTicketInvalidAlreadyUsed = 7,	// This ticket has already been used, it is not valid.
 		EAuthSessionResponseAuthTicketInvalid = 8				// This ticket is not from a user instance currently connected to steam.
 	};
@@ -153,36 +153,5 @@ namespace SteamworksUnityHost
 		EAccountTypeClan = 7,
 		EAccountTypeChat = 8,
 		EAccountTypeAnonUser = 10
-	};
-
-	public enum ELeaderboardDataRequest
-	{
-		k_ELeaderboardDataRequestGlobal = 0,
-		k_ELeaderboardDataRequestGlobalAroundUser = 1,
-		k_ELeaderboardDataRequestFriends = 2,
-	};
-
-	// the sort order of a leaderboard
-	public enum ELeaderboardSortMethod
-	{
-		k_ELeaderboardSortMethodNone = 0,
-		k_ELeaderboardSortMethodAscending = 1,	// top-score is lowest number
-		k_ELeaderboardSortMethodDescending = 2,	// top-score is highest number
-	};
-
-	// the display type (used by the Steam Community web site) for a leaderboard
-	public enum ELeaderboardDisplayType
-	{
-		k_ELeaderboardDisplayTypeNone = 0,
-		k_ELeaderboardDisplayTypeNumeric = 1,			// simple numerical score
-		k_ELeaderboardDisplayTypeTimeSeconds = 2,		// the score represents a time, in seconds
-		k_ELeaderboardDisplayTypeTimeMilliSeconds = 3,	// the score represents a time, in milliseconds
-	};
-
-	public enum ELeaderboardUploadScoreMethod
-	{
-		k_ELeaderboardUploadScoreMethodNone = 0,
-		k_ELeaderboardUploadScoreMethodKeepBest = 1,	// Leaderboard will keep user's best score
-		k_ELeaderboardUploadScoreMethodForceUpdate = 2,	// Leaderboard will always replace score with specified
 	};
 }

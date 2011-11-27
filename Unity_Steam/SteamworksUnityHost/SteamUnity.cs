@@ -19,6 +19,9 @@ namespace SteamworksUnityHost
 		private static readonly SteamUnity _instance = new SteamUnity();
 		private bool shutdown = false;
 
+		private Friends _friends = null;
+		private Groups _groups = null;
+
 		private SteamUnity() { }
 		~SteamUnity() { Shutdown(); }
 
@@ -90,7 +93,30 @@ namespace SteamworksUnityHost
 		{
 			get
 			{
-				return new Friends();
+				if (_friends == null)
+				{
+					_friends = new Friends();
+				}
+
+				return _friends;
+			}
+		}
+
+		public Groups Groups
+		{
+			get
+			{
+				if (_groups == null)
+				{
+					if (_friends == null)
+					{
+						_friends = new Friends();
+					}
+
+					_groups = new Groups(_friends);
+				}
+
+				return _groups;
 			}
 		}
 
