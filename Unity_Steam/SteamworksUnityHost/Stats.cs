@@ -41,50 +41,7 @@ namespace SteamworksUnityHost
 
 		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived;
 		private OnUserStatsReceived _onUserStatsReceived;
-
-		private class StatEnumator : IEnumerator<Stat>
-		{
-			private int _index;
-			private Stats _stats;
-
-			public StatEnumator(Stats stats)
-			{
-				_stats = stats;
-				_index = -1;
-			}
-
-			public Stat Current
-			{
-				get
-				{
-					return _stats._statList[_index];
-				}
-			}
-
-			object IEnumerator.Current
-			{
-				get
-				{
-					return Current;
-				}
-			}
-
-			public bool MoveNext()
-			{
-				_index++;
-				return _index < _stats.Count;
-			}
-
-			public void Reset()
-			{
-				_index = -1;
-			}
-
-			public void Dispose()
-			{
-			}
-		}
-
+        
 		internal Stats()
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
@@ -151,7 +108,7 @@ namespace SteamworksUnityHost
 			get { return _id; }
 		}
 
-		public List<Stat> StatsList
+		public IList<Stat> StatsList
 		{
 			get { return _statList; }
 		}
@@ -193,7 +150,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<Stat> GetEnumerator()
 		{
-			return new StatEnumator(this);
+            return new ListEnumerator<Stat>(_statList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

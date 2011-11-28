@@ -29,49 +29,6 @@ namespace SteamworksUnityHost
 		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived;
 		private OnUserStatsReceived _onUserStatsReceived;
 
-		private class AchievementEnumator : IEnumerator<Achievement>
-		{
-			private int _index;
-			private Achievements _achievements;
-
-			public AchievementEnumator(Achievements achievements)
-			{
-				_achievements = achievements;
-				_index = -1;
-			}
-
-			public Achievement Current
-			{
-				get
-				{
-					return _achievements._achievementList[_index];
-				}
-			}
-
-			object IEnumerator.Current
-			{
-				get
-				{
-					return Current;
-				}
-			}
-
-			public bool MoveNext()
-			{
-				_index++;
-				return _index < _achievements.Count;
-			}
-
-			public void Reset()
-			{
-				_index = -1;
-			}
-
-			public void Dispose()
-			{
-			}
-		}
-
 		public Achievements()
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
@@ -158,7 +115,7 @@ namespace SteamworksUnityHost
 			get { return _id; }
 		}
 
-		public List<Achievement> StatsList
+		public IList<Achievement> StatsList
 		{
 			get { return _achievementList; }
 		}
@@ -200,7 +157,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<Achievement> GetEnumerator()
 		{
-			return new AchievementEnumator(this);
+            return new ListEnumerator<Achievement>(_achievementList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

@@ -14,50 +14,7 @@ namespace SteamworksUnityHost
 
 		private Int32 _minRank = Int32.MaxValue;
 		private Int32 _maxRank = Int32.MinValue;
-
-		private class LeaderboardEntryEnumator : IEnumerator<LeaderboardEntry>
-		{
-			private int _index;
-			private LeaderboardEntries _leaderboardEntries;
-
-			public LeaderboardEntryEnumator(LeaderboardEntries leaderboardEntries)
-			{
-				_leaderboardEntries = leaderboardEntries;
-				_index = -1;
-			}
-
-			public LeaderboardEntry Current
-			{
-				get
-				{
-					return _leaderboardEntries._leaderboardEntryList[_index];
-				}
-			}
-
-			object IEnumerator.Current
-			{
-				get
-				{
-					return Current;
-				}
-			}
-
-			public bool MoveNext()
-			{
-				_index++;
-				return _index < _leaderboardEntries.Count;
-			}
-
-			public void Reset()
-			{
-				_index = -1;
-			}
-
-			public void Dispose()
-			{
-			}
-		}
-
+        
 		internal LeaderboardEntries(Leaderboard leaderboard)
 		{
 			_leaderboard = leaderboard;
@@ -125,7 +82,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<LeaderboardEntry> GetEnumerator()
 		{
-			return new LeaderboardEntryEnumator(this);
+            return new ListEnumerator<LeaderboardEntry>(_leaderboardEntryList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

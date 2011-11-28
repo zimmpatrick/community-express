@@ -72,50 +72,7 @@ namespace SteamworksUnityHost
 
 		private OnLeaderboardRetrievedFromSteam _internalOnLeaderboardRetrieved;
 		private OnLeaderboardRetrieved _onLeaderboardRetrieved;
-
-		private class LeaderboardEnumator : IEnumerator<Leaderboard>
-		{
-			private int _index;
-			private Leaderboards _leaderboards;
-
-			public LeaderboardEnumator(Leaderboards leaderboards)
-			{
-				_leaderboards = leaderboards;
-				_index = -1;
-			}
-
-			public Leaderboard Current
-			{
-				get
-				{
-					return _leaderboards._leaderboardList[_index];
-				}
-			}
-
-			object IEnumerator.Current
-			{
-				get
-				{
-					return Current;
-				}
-			}
-
-			public bool MoveNext()
-			{
-				_index++;
-				return _index < _leaderboards.Count;
-			}
-
-			public void Reset()
-			{
-				_index = -1;
-			}
-
-			public void Dispose()
-			{
-			}
-		}
-
+        
 		internal Leaderboards()
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
@@ -230,8 +187,8 @@ namespace SteamworksUnityHost
 		}
 
 		public IEnumerator<Leaderboard> GetEnumerator()
-		{
-			return new LeaderboardEnumator(this);
+        {
+            return new ListEnumerator<Leaderboard>(_leaderboardList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

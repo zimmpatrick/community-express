@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="Achievement.cs" />
     <Compile Include="Achievements.cs" />
+    <Compile Include="ListEnumerator.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Friend.cs" />
     <Compile Include="Friends.cs" />

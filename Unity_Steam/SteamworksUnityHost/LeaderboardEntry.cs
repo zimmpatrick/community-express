@@ -34,7 +34,7 @@ namespace SteamworksUnityHost
 			get { return _score; }
 		}
 
-		public List<Int32> ScoreDetails
+		public IList<Int32> ScoreDetails
 		{
 			get { return _scoreDetails; }
 		}
