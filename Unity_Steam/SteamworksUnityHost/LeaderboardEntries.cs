@@ -14,7 +14,7 @@ namespace SteamworksUnityHost
 
 		private Int32 _minRank = Int32.MaxValue;
 		private Int32 _maxRank = Int32.MinValue;
-        
+		
 		internal LeaderboardEntries(Leaderboard leaderboard)
 		{
 			_leaderboard = leaderboard;
@@ -82,7 +82,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<LeaderboardEntry> GetEnumerator()
 		{
-            return new ListEnumerator<LeaderboardEntry>(_leaderboardEntryList);
+			return new ListEnumerator<LeaderboardEntry>(_leaderboardEntryList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

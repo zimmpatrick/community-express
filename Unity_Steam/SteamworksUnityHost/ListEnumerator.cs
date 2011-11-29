@@ -5,14 +5,14 @@ using System.Collections;
 
 namespace SteamworksUnityHost
 {
-    class ListEnumerator<T> : IEnumerator<T>
-    {
-            private int _index;
-            private IList<T> _list;
+	class ListEnumerator<T> : IEnumerator<T>
+	{
+			private int _index;
+			private IList<T> _list;
 
-            public ListEnumerator(IList<T> list)
+			public ListEnumerator(IList<T> list)
 			{
-                _list = list;
+				_list = list;
 				_index = -1;
 			}
 
@@ -20,7 +20,7 @@ namespace SteamworksUnityHost
 			{
 				get
 				{
-                    return _list[_index];
+					return _list[_index];
 				}
 			}
 
@@ -35,7 +35,7 @@ namespace SteamworksUnityHost
 			public bool MoveNext()
 			{
 				_index++;
-                return _index < _list.Count;
+				return _index < _list.Count;
 			}
 
 			public void Reset()
@@ -46,5 +46,5 @@ namespace SteamworksUnityHost
 			public void Dispose()
 			{
 			}
-    }
+	}
 }

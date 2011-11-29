@@ -13,9 +13,11 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_GetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName, out bool isAchieved);
+		private static extern bool SteamUnityAPI_SteamUserStats_GetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
+			out Byte isAchieved);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_GetUserAchievement(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string achievementName, out bool isAchieved);
+		private static extern bool SteamUnityAPI_SteamUserStats_GetUserAchievement(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
+			out Byte isAchieved);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_SetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName);
 		[DllImport("SteamworksUnity.dll")]
@@ -26,7 +28,7 @@ namespace SteamworksUnityHost
 		private List<Achievement> _achievementList = new List<Achievement>();
 		private IEnumerable<string> _requestedAchievements;
 
-		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived;
+		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived = null;
 		private OnUserStatsReceived _onUserStatsReceived;
 
 		public Achievements()
@@ -38,7 +40,11 @@ namespace SteamworksUnityHost
 		{
 			_requestedAchievements = requestedAchievements;
 			_onUserStatsReceived = onUserStatsReceived;
-			_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
+
+			if (_internalOnUserStatsReceived == null)
+			{
+				_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
+			}
 
 			SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
 		}
@@ -54,7 +60,7 @@ namespace SteamworksUnityHost
 
 		public void InitializeAchievementList(IEnumerable<string> requestedAchievements)
 		{
-			bool achieved;
+			Byte achieved;
 
 			// Make sure we don't double up the list of Achievements
 			Clear();
@@ -67,7 +73,7 @@ namespace SteamworksUnityHost
 				{
 					if (SteamUnityAPI_SteamUserStats_GetUserAchievement(_stats, _id.ToUInt64(), s, out achieved))
 					{
-						Add(new Achievement(this, s, achieved));
+						Add(new Achievement(this, s, achieved != 0));
 					}
 				}
 			}
@@ -77,7 +83,7 @@ namespace SteamworksUnityHost
 				{
 					if (SteamUnityAPI_SteamUserStats_GetAchievement(_stats, s, out achieved))
 					{
-						Add(new Achievement(this, s, achieved));
+						Add(new Achievement(this, s, achieved != 0));
 					}
 				}
 			}
@@ -157,7 +163,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<Achievement> GetEnumerator()
 		{
-            return new ListEnumerator<Achievement>(_achievementList);
+			return new ListEnumerator<Achievement>(_achievementList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

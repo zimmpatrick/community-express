@@ -56,9 +56,11 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName, IntPtr OnLeaderboardRetrievedCallback);
+		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName,
+			IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, IntPtr OnLeaderboardRetrievedCallback);
+		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName,
+			ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("SteamworksUnity.dll")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
@@ -70,9 +72,9 @@ namespace SteamworksUnityHost
 		private IntPtr _stats;
 		private List<Leaderboard> _leaderboardList = new List<Leaderboard>();
 
-		private OnLeaderboardRetrievedFromSteam _internalOnLeaderboardRetrieved;
+		private OnLeaderboardRetrievedFromSteam _internalOnLeaderboardRetrieved = null;
 		private OnLeaderboardRetrieved _onLeaderboardRetrieved;
-        
+		
 		internal Leaderboards()
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
@@ -98,9 +100,16 @@ namespace SteamworksUnityHost
 			else
 			{
 				_onLeaderboardRetrieved = onLeaderboardRetrieved;
-				_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
 
-				SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved));
+				if (_internalOnLeaderboardRetrieved == null)
+				{
+					_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
+				}
+
+				if (!SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved)))
+				{
+					_onLeaderboardRetrieved(null);
+				}
 			}
 		}
 
@@ -124,7 +133,11 @@ namespace SteamworksUnityHost
 			else
 			{
 				_onLeaderboardRetrieved = onLeaderboardRetrieved;
-				_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
+
+				if (_internalOnLeaderboardRetrieved == null)
+				{
+					_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
+				}
 
 				if (!SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(_stats, leaderboardName, sortMethod, displayType, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved)))
 				{
@@ -187,8 +200,8 @@ namespace SteamworksUnityHost
 		}
 
 		public IEnumerator<Leaderboard> GetEnumerator()
-        {
-            return new ListEnumerator<Leaderboard>(_leaderboardList);
+		{
+			return new ListEnumerator<Leaderboard>(_leaderboardList);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

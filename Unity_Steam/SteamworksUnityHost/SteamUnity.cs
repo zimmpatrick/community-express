@@ -14,11 +14,14 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_RunCallbacks();
 		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_RunCallbacks();
+		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
 
 		private static readonly SteamUnity _instance = new SteamUnity();
 		private bool shutdown = false;
 
+		private GameServer _gameserver = null;
 		private Friends _friends = null;
 		private Groups _groups = null;
 
@@ -48,6 +51,11 @@ namespace SteamworksUnityHost
 		public void RunCallbacks()
 		{
 			SteamUnityAPI_RunCallbacks();
+
+			if (_gameserver != null && _gameserver.IsInitialized)
+			{
+				SteamUnityAPI_SteamGameServer_RunCallbacks();
+			}
 		}
 
 		public void Shutdown()
@@ -85,7 +93,12 @@ namespace SteamworksUnityHost
 		{
 			get
 			{
-				return new GameServer();
+				if (_gameserver == null)
+				{
+					_gameserver = new GameServer();
+				}
+
+				return _gameserver;
 			}
 		}
 
