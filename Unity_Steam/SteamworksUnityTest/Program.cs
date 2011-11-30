@@ -73,7 +73,7 @@ namespace SteamworksUnityTest
 
 				foreach (Friend f in g)
 				{
-					Console.WriteLine("     {0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
+					Console.WriteLine("	 {0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
 				}
 			}
 
@@ -128,7 +128,27 @@ namespace SteamworksUnityTest
 				}
 			}
 
-			Console.WriteLine("User Authentication Complete - Delaying 1 second before Disconnecting User");
+			Console.WriteLine("Requesting Stats through Game Server");
+			gs.RequestUserStats(u.SteamID, MyOnUserStatsReceivedCallback,
+				new string[] { "Kills", "DamageHealed", "Testing1" });
+
+			_statsReceived = false;
+			while (!_statsReceived)
+			{
+				s.RunCallbacks();
+			}
+
+			Console.WriteLine("Requesting Achievements through Game Server");
+			gs.RequestUserAchievements(u.SteamID, MyOnUserStatsReceivedCallback,
+				new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
+
+			_statsReceived = false;
+			while (!_statsReceived)
+			{
+				s.RunCallbacks();
+			}
+
+			Console.WriteLine("Delaying 1 second before Disconnecting User");
 			Thread.Sleep(1000);
 
 			gs.ClientDisconnected(u.SteamID);
@@ -228,13 +248,13 @@ namespace SteamworksUnityTest
 
 				foreach (LeaderboardEntry l in leaderboardEntries)
 				{
-					Console.WriteLine("    Leaderboard Entry: {0} - {1} - {2}", l.GlobalRank, l.SteamID.ToString(), l.Score);
+					Console.WriteLine("	Leaderboard Entry: {0} - {1} - {2}", l.GlobalRank, l.SteamID.ToString(), l.Score);
 
 					if (l.ScoreDetails != null)
 					{
 						foreach (Int32 i in l.ScoreDetails)
 						{
-							Console.WriteLine("      Leaderboard Entry Detail: {0}", i);
+							Console.WriteLine("	  Leaderboard Entry Detail: {0}", i);
 						}
 					}
 				}

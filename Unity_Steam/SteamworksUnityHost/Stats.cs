@@ -6,10 +6,19 @@ using System.Collections;
 
 namespace SteamworksUnityHost
 {
-	[StructLayout(LayoutKind.Sequential, Pack=1)]
+	using SteamAPICall_t = UInt64;
+
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	internal struct UserStatsReceived_t
 	{
 		public UInt64 m_nGameID;		// Game these stats are for
+		public EResult m_eResult;		// Success / error fetching the stats
+		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
+	}
+
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	internal struct GSStatsReceived_t
+	{
 		public EResult m_eResult;		// Success / error fetching the stats
 		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
 	}
@@ -25,18 +34,37 @@ namespace SteamworksUnityHost
 		private static extern Boolean SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
-			out Int32 intValue);
+			out Int32 value);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
-			out float intValue);
+			out float value);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 intValue);
+		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float intValue);
+		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float value);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
+		[DllImport("SteamworksUnity.dll")]
+		private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 value);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPStr)] string statName, out float value);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPStr)] string statName, float value);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
 
-		private IntPtr _stats;
+		private IntPtr _stats = IntPtr.Zero;
+		private IntPtr _gameserverStats = IntPtr.Zero;
 		private SteamID _id;
 		private List<Stat> _statList = new List<Stat>();
 		private IEnumerable<string> _requestedStats;
@@ -46,10 +74,23 @@ namespace SteamworksUnityHost
 		
 		internal Stats()
 		{
-			_stats = SteamUnityAPI_SteamUserStats();
 		}
 
-		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedStats)
+		internal void Init(SteamID steamID = null, Boolean isGameServer = false)
+		{
+			_id = steamID;
+
+			if (isGameServer)
+			{
+				_gameserverStats = SteamUnityAPI_SteamGameServerStats();
+			}
+			else
+			{
+				_stats = SteamUnityAPI_SteamUserStats();
+			}
+		}
+
+		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
 		{
 			_requestedStats = requestedStats;
 			_onUserStatsReceived = onUserStatsReceived;
@@ -59,7 +100,15 @@ namespace SteamworksUnityHost
 				_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
 			}
 
-			SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+			if (_gameserverStats != IntPtr.Zero)
+			{
+				SteamAPICall_t result = SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
+				SteamUnity.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
+			}
+			else
+			{
+				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+			}
 		}
 
 		internal void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
@@ -72,15 +121,32 @@ namespace SteamworksUnityHost
 
 			_id = new SteamID(CallbackData.m_steamIDUser);
 
-			foreach (string s in _requestedStats)
+			if (_gameserverStats != IntPtr.Zero)
 			{
-				if (SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
+				foreach (string s in _requestedStats)
 				{
-					Add(new Stat(this, s, intValue));
+					if (SteamUnityAPI_SteamGameServerStats_GetUserStatInt(_gameserverStats, _id.ToUInt64(), s, out intValue))
+					{
+						Add(new Stat(this, s, intValue));
+					}
+					else if (SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(_gameserverStats, _id.ToUInt64(), s, out floatValue))
+					{
+						Add(new Stat(this, s, floatValue));
+					}
 				}
-				else if (SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
+			}
+			else
+			{
+				foreach (string s in _requestedStats)
 				{
-					Add(new Stat(this, s, floatValue));
+					if (SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
+					{
+						Add(new Stat(this, s, intValue));
+					}
+					else if (SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
+					{
+						Add(new Stat(this, s, floatValue));
+					}
 				}
 			}
 
@@ -89,24 +155,48 @@ namespace SteamworksUnityHost
 
 		public void WriteStats()
 		{
-			foreach (Stat s in _statList)
+			if (_gameserverStats != IntPtr.Zero)
 			{
-				if (s.HasChanged)
+				foreach (Stat s in _statList)
 				{
-					if (s.StatValue is int)
+					if (s.HasChanged)
 					{
-						SteamUnityAPI_SteamUserStats_SetStatInt(_stats, s.StatName, (int)s.StatValue);
-					}
-					else
-					{
-						SteamUnityAPI_SteamUserStats_SetStatFloat(_stats, s.StatName, (float)s.StatValue);
-					}
+						if (s.StatValue is int)
+						{
+							SteamUnityAPI_SteamGameServerStats_SetUserStatInt(_gameserverStats, _id.ToUInt64(), s.StatName, (int)s.StatValue);
+						}
+						else
+						{
+							SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(_gameserverStats, _id.ToUInt64(), s.StatName, (float)s.StatValue);
+						}
 
-					s.HasChanged = false;
+						s.HasChanged = false;
+					}
 				}
-			}
 
-			SteamUnityAPI_SteamUserStats_StoreStats(_stats);
+				SteamUnityAPI_SteamGameServerStats_StoreUserStats(_gameserverStats, _id.ToUInt64());
+			}
+			else
+			{
+				foreach (Stat s in _statList)
+				{
+					if (s.HasChanged)
+					{
+						if (s.StatValue is int)
+						{
+							SteamUnityAPI_SteamUserStats_SetStatInt(_stats, s.StatName, (int)s.StatValue);
+						}
+						else
+						{
+							SteamUnityAPI_SteamUserStats_SetStatFloat(_stats, s.StatName, (float)s.StatValue);
+						}
+
+						s.HasChanged = false;
+					}
+				}
+
+				SteamUnityAPI_SteamUserStats_StoreStats(_stats);
+			}
 		}
 
 		public SteamID SteamID

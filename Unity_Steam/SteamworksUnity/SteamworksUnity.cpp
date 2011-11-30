@@ -63,6 +63,54 @@ STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
 	return SteamAPI_RunCallbacks();
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t hSteamAPICall, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (SteamGameServer())
+	{
+		result = SteamGameServerUtils()->IsAPICallCompleted(hSteamAPICall, &failed);
+	}
+	else
+	{
+		result = SteamUtils()->IsAPICallCompleted(hSteamAPICall, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t hSteamAPICall, GSStatsReceived_t &CallbackData, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (SteamGameServer())
+	{
+		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+	else
+	{
+		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamUtils_GetAppID()
+{
+	if (SteamGameServer())
+	{
+		return SteamGameServerUtils()->GetAppID();
+	}
+	else
+	{
+		return SteamUtils()->GetAppID();
+	}
+}
+
 STEAMWORKSUNITY_API void * SteamUnityAPI_SteamRemoteStorage()
 {
 	return SteamRemoteStorage();
@@ -484,6 +532,75 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEn
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	return pISteamUserStats->GetDownloadedLeaderboardEntry(hSteamLeaderboardEntries, index, &outLeaderboardEntry, pDetails, cDetailsMax);
+}
+
+STEAMWORKSUNITY_API void * SteamUnityAPI_SteamGameServerStats()
+{
+	return SteamGameServerStats();
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(void* pSteamGameServerStats, uint64 steamIDUser)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->RequestUserStats(steamIDUser);;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_GetUserStatInt(void* pSteamGameServerStats, uint64 steamIDUser, const char *pchName, int32 &nData)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->GetUserStat(steamIDUser, pchName, &nData);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(void* pSteamGameServerStats, uint64 steamIDUser, const char *pchName, float &fData)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->GetUserStat(steamIDUser, pchName, &fData);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_SetStatInt(void* pSteamGameServerStats, uint64 steamIDUser, const char *pchName, int32 nData)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->SetUserStat(steamIDUser, pchName, nData);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_SetStatFloat(void* pSteamGameServerStats, uint64 steamIDUser, const char *pchName, float fData)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->SetUserStat(steamIDUser, pchName, fData);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_GetUserAchievement(void* pSteamGameServerStats, uint64 steamIDUser, const char *pchName, unsigned char &bAchieved)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	bool achieved;
+
+	if (pISteamGameServerStats->GetUserAchievement(steamIDUser, pchName, &achieved))
+	{
+		bAchieved = achieved ? 1 : 0;
+		return true;
+	}
+
+	return false;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_SetUserAchievement(void* pSteamGameServerStats, uint64 steamIDUser, const char *pchName)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->SetUserAchievement(steamIDUser, pchName);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_StoreStats(void* pSteamGameServerStats, uint64 steamIDUser)
+{
+	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
+
+	return pISteamGameServerStats->StoreUserStats(steamIDUser) != 0;
 }
 
 STEAMWORKSUNITY_API void * SteamUnityAPI_SteamMatchmaking()

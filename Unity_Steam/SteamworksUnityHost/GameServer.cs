@@ -237,6 +237,20 @@ namespace SteamworksUnityHost
 			_vacSecured = callbackData.m_bSecure != 0;
 		}
 
+		public void RequestUserStats(SteamID steamID, OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
+		{
+			Stats stats = new Stats();
+			stats.Init(steamID, true);
+			stats.RequestCurrentStats(onUserStatsReceived, requestedStats);
+		}
+
+		public void RequestUserAchievements(SteamID steamID, OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedAchievements)
+		{
+			Achievements achievements = new Achievements();
+			achievements.Init(steamID, true);
+			achievements.RequestCurrentAchievements(onUserStatsReceived, requestedAchievements);
+		}
+
 		public Boolean IsInitialized
 		{
 			get { return _isInitialized; }

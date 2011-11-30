@@ -6,6 +6,8 @@ using System.Collections;
 
 namespace SteamworksUnityHost
 {
+	using SteamAPICall_t = UInt64;
+
 	public class Achievements : ICollection<Achievement>
 	{
 		[DllImport("SteamworksUnity.dll")]
@@ -22,8 +24,21 @@ namespace SteamworksUnityHost
 		private static extern bool SteamUnityAPI_SteamUserStats_SetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
+		[DllImport("SteamworksUnity.dll")]
+		private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamGameServerStats_GetUserAchievement(IntPtr gameserverStats, UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPStr)] string achievementName, out Byte isAchieved);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern bool SteamUnityAPI_SteamGameServerStats_SetUserAchievement(IntPtr stats, UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPStr)] string achievementName);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
 
-		private IntPtr _stats;
+		private IntPtr _stats = IntPtr.Zero;
+		private IntPtr _gameserverStats = IntPtr.Zero;
 		private SteamID _id;
 		private List<Achievement> _achievementList = new List<Achievement>();
 		private IEnumerable<string> _requestedAchievements;
@@ -33,7 +48,20 @@ namespace SteamworksUnityHost
 
 		public Achievements()
 		{
-			_stats = SteamUnityAPI_SteamUserStats();
+		}
+
+		internal void Init(SteamID steamID = null, Boolean isGameServer = false)
+		{
+			_id = steamID;
+
+			if (isGameServer)
+			{
+				_gameserverStats = SteamUnityAPI_SteamGameServerStats();
+			}
+			else
+			{
+				_stats = SteamUnityAPI_SteamUserStats();
+			}
 		}
 
 		public void RequestCurrentAchievements(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedAchievements)
@@ -46,7 +74,15 @@ namespace SteamworksUnityHost
 				_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
 			}
 
-			SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+			if (_gameserverStats != IntPtr.Zero)
+			{
+				SteamAPICall_t result = SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
+				SteamUnity.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
+			}
+			else
+			{
+				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+			}
 		}
 
 		internal void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
@@ -67,7 +103,17 @@ namespace SteamworksUnityHost
 
 			_requestedAchievements = requestedAchievements;
 
-			if (_id != null)
+			if (_gameserverStats != IntPtr.Zero)
+			{
+				foreach (string s in _requestedAchievements)
+				{
+					if (SteamUnityAPI_SteamGameServerStats_GetUserAchievement(_gameserverStats, _id.ToUInt64(), s, out achieved))
+					{
+						Add(new Achievement(this, s, achieved != 0));
+					}
+				}
+			}
+			else if (_id != null)
 			{
 				foreach (string s in _requestedAchievements)
 				{
@@ -97,7 +143,15 @@ namespace SteamworksUnityHost
 				{
 					if (!a.IsAchieved)
 					{
-						SteamUnityAPI_SteamUserStats_SetAchievement(_stats, a.AchievementName);
+						if (_gameserverStats != IntPtr.Zero)
+						{
+							SteamUnityAPI_SteamGameServerStats_SetUserAchievement(_gameserverStats, _id.ToUInt64(), a.AchievementName);
+						}
+						else
+						{
+							SteamUnityAPI_SteamUserStats_SetAchievement(_stats, a.AchievementName);
+						}
+
 						a.IsAchieved = true;
 
 						if (storeStats)
@@ -113,7 +167,14 @@ namespace SteamworksUnityHost
 
 		public void WriteStats()
 		{
-			SteamUnityAPI_SteamUserStats_StoreStats(_stats);
+			if (_gameserverStats != IntPtr.Zero)
+			{
+				SteamUnityAPI_SteamGameServerStats_StoreUserStats(_gameserverStats, _id.ToUInt64());
+			}
+			else
+			{
+				SteamUnityAPI_SteamUserStats_StoreStats(_stats);
+			}
 		}
 
 		public SteamID SteamID

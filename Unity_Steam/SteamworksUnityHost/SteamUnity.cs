@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 
 namespace SteamworksUnityHost
 {
+	using SteamAPICall_t = UInt64;
+
 	public sealed class SteamUnity
 	{
 		[DllImport("SteamworksUnity.dll")]
@@ -16,6 +18,12 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_RunCallbacks();
 		[DllImport("SteamworksUnity.dll")]
+		private static extern UInt64 SteamUnityAPI_SteamUtils_GetAppID();
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t callHandle, out GSStatsReceived_t result, out Byte failed);
+		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
 
 		private static readonly SteamUnity _instance = new SteamUnity();
@@ -24,6 +32,11 @@ namespace SteamworksUnityHost
 		private GameServer _gameserver = null;
 		private Friends _friends = null;
 		private Groups _groups = null;
+		private Stats _userStats = null;
+		private Achievements _achievements = null;
+
+		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
+		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
 
 		private SteamUnity() { }
 		~SteamUnity() { Shutdown(); }
@@ -55,6 +68,29 @@ namespace SteamworksUnityHost
 			if (_gameserver != null && _gameserver.IsInitialized)
 			{
 				SteamUnityAPI_SteamGameServer_RunCallbacks();
+
+				for (int i = 0; i < _gameserverUserStatsReceivedCallHandles.Count; i++)
+				{
+					SteamAPICall_t h = _gameserverUserStatsReceivedCallHandles[i];
+
+					Byte failed;
+					if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
+					{
+						GSStatsReceived_t callbackData = new GSStatsReceived_t();
+						UserStatsReceived_t morphedCallbackData = new UserStatsReceived_t();
+						SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(h, out callbackData, out failed);
+
+						morphedCallbackData.m_nGameID = SteamUnityAPI_SteamUtils_GetAppID();
+						morphedCallbackData.m_steamIDUser = callbackData.m_steamIDUser;
+						morphedCallbackData.m_eResult = callbackData.m_eResult;
+
+						_gameserverUserStatsReceivedCallbacks[i](ref morphedCallbackData);
+						_gameserverUserStatsReceivedCallHandles.RemoveAt(i);
+						_gameserverUserStatsReceivedCallbacks.RemoveAt(i);
+
+						i--;
+					}
+				}
 			}
 		}
 
@@ -137,7 +173,13 @@ namespace SteamworksUnityHost
 		{
 			get
 			{
-				return new Stats();
+				if (_userStats == null)
+				{
+					_userStats = new Stats();
+					_userStats.Init();
+				}
+
+				return _userStats;
 			}
 		}
 
@@ -145,7 +187,13 @@ namespace SteamworksUnityHost
 		{
 			get
 			{
-				return new Achievements();
+				if (_achievements == null)
+				{
+					_achievements = new Achievements();
+					_achievements.Init();
+				}
+
+				return _achievements;
 			}
 		}
 
@@ -155,6 +203,12 @@ namespace SteamworksUnityHost
 			{
 				return new Leaderboards();
 			}
+		}
+
+		internal void AddGameServerUserStatsReceivedCallback(SteamAPICall_t handle, OnUserStatsReceivedFromSteam callback)
+		{
+			_gameserverUserStatsReceivedCallHandles.Add(handle);
+			_gameserverUserStatsReceivedCallbacks.Add(callback);
 		}
 	}
 }
