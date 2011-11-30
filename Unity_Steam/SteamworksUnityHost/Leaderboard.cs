@@ -9,7 +9,7 @@ namespace SteamworksUnityHost
 	using SteamLeaderboardEntries_t = UInt64;
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct LeaderboardEntry_t
+	struct LeaderboardEntry_t
 	{
 		public UInt64 m_steamIDUser;	// user with the entry - use SteamFriends()->GetFriendPersonaName() & SteamFriends()->GetFriendAvatar() to get more info
 		public Int32 m_nGlobalRank;	// [1..N], where N is the number of users with an entry in the leaderboard
@@ -18,14 +18,14 @@ namespace SteamworksUnityHost
 	};
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct LeaderboardScoresDownloaded_t
+	struct LeaderboardScoresDownloaded_t
 	{
 		public SteamLeaderboard_t m_hSteamLeaderboard;
 		public SteamLeaderboardEntries_t m_hSteamLeaderboardEntries;	// the handle to pass into GetDownloadedLeaderboardEntries()
 		public Int32 m_cEntryCount; // the number of entries downloaded
 	};
 
-	internal delegate void OnLeaderboardEntriesRetrievedFromSteam(ref LeaderboardScoresDownloaded_t callbackData);
+	delegate void OnLeaderboardEntriesRetrievedFromSteam(ref LeaderboardScoresDownloaded_t callbackData);
 	public delegate void OnLeaderboardEntriesRetrieved(LeaderboardEntries leaderboardEntries);
 
 	public class Leaderboard
@@ -138,7 +138,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		internal void OnLeaderboardEntriesRetrievedCallback(ref LeaderboardScoresDownloaded_t callbackData)
+		private void OnLeaderboardEntriesRetrievedCallback(ref LeaderboardScoresDownloaded_t callbackData)
 		{
 			if (callbackData.m_cEntryCount > 0)
 			{
@@ -184,7 +184,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		internal void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
+        private void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
 		{
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{

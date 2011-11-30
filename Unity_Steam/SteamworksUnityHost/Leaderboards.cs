@@ -42,13 +42,13 @@ namespace SteamworksUnityHost
 
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct LeaderboardFindResult_t
+	struct LeaderboardFindResult_t
 	{
 		public SteamLeaderboard_t m_hSteamLeaderboard;	// handle to the leaderboard serarched for, 0 if no leaderboard found
 		public Byte m_bLeaderboardFound;				// 0 if no leaderboard found
 	};
 
-	internal delegate void OnLeaderboardRetrievedFromSteam(ref LeaderboardFindResult_t findLearderboardResult);
+	delegate void OnLeaderboardRetrievedFromSteam(ref LeaderboardFindResult_t findLearderboardResult);
 	public delegate void OnLeaderboardRetrieved(Leaderboard leaderboard);
 
 	public class Leaderboards : ICollection<Leaderboard>
@@ -146,7 +146,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		internal void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
+		private void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
 		{
 			Leaderboard leaderboard = null;
 

@@ -9,7 +9,7 @@ namespace SteamworksUnityHost
 	using SteamAPICall_t = UInt64;
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct UserStatsReceived_t
+	struct UserStatsReceived_t
 	{
 		public UInt64 m_nGameID;		// Game these stats are for
 		public EResult m_eResult;		// Success / error fetching the stats
@@ -17,13 +17,13 @@ namespace SteamworksUnityHost
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-	internal struct GSStatsReceived_t
+	struct GSStatsReceived_t
 	{
 		public EResult m_eResult;		// Success / error fetching the stats
 		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
 	}
 
-	internal delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
+	delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
 	public delegate void OnUserStatsReceived(Stats stats, Achievements achievements);
 
 	public class Stats : ICollection<Stat>
@@ -111,7 +111,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		internal void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
+		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
 		{
 			Int32 intValue;
 			float floatValue;

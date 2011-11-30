@@ -85,7 +85,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		internal void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
+		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
 		{
 			_id = new SteamID(CallbackData.m_steamIDUser);
 
