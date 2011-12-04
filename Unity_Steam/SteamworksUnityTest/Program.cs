@@ -12,6 +12,7 @@ namespace SteamworksUnityTest
 		private static bool _statsReceived = false;
 		private static bool _leaderboardEntriesReceived = false;
 		private static bool _userAuthenticationCompleted = false;
+		private static bool _gamestatsInitialized = false;
 
 		static int Main(string[] args)
 		{
@@ -156,6 +157,32 @@ namespace SteamworksUnityTest
 
 			Console.WriteLine("User Disconnected");
 
+			// There's currently no way to test Game Stats =/
+/*			GameStats gamestats = s.CreateNewGameStats(MyOnGameStatsSessionInitialized, false);
+			while (!_gamestatsInitialized)
+			{
+				s.RunCallbacks();
+			}
+
+			if (gamestats.IsInitialized)
+			{
+				Console.WriteLine("Writing some fake Game Stats");
+
+				gamestats.AddSessionValue("FakeIntValue", 100);
+				gamestats.AddSessionValue("FakeInt64Value", UInt64.MaxValue - 10);
+				gamestats.AddSessionValue("FakeFloatValue", 1.013f);
+				gamestats.AddSessionValue("FakeStringValue", "Stringy");
+				UInt64 rowId = gamestats.CreateNewRow("FakeTable");
+				gamestats.AddRowValue(rowId, "FakeIntValue", 100);
+				gamestats.AddRowValue(rowId, "FakeInt64Value", UInt64.MaxValue - 10);
+				gamestats.AddRowValue(rowId, "FakeFloatValue", 1.013f);
+				gamestats.AddRowValue(rowId, "FakeStringValue", "Stringy");
+				gamestats.CommitRow(rowId);
+				gamestats.EndCurrentSession();
+
+				Console.WriteLine("Done writing fake Game Stats");
+			}
+*/
 			if (r.FileCount > 0)
 			{
 				int fileSize;
@@ -263,6 +290,20 @@ namespace SteamworksUnityTest
 			{
 				Console.WriteLine("  Failed to Retreive Leaderboard Entries");
 			}
+		}
+
+		public static void MyOnGameStatsSessionInitialized(GameStats gamestats)
+		{
+			if (gamestats != null)
+			{
+				Console.WriteLine("GameStats object Initialized");
+			}
+			else
+			{
+				Console.WriteLine("GameStats object Initialization failed");
+			}
+
+			_gamestatsInitialized = true;
 		}
 	}
 }

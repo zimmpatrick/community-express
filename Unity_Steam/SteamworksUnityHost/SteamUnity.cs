@@ -24,6 +24,8 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t callHandle, out GSStatsReceived_t result, out Byte failed);
 		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(SteamAPICall_t callHandle, out GameStatsSessionIssued_t result, out Byte failed);
+		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
 
 		private static readonly SteamUnity _instance = new SteamUnity();
@@ -34,9 +36,13 @@ namespace SteamworksUnityHost
 		private Groups _groups = null;
 		private Stats _userStats = null;
 		private Achievements _achievements = null;
+		private Leaderboards _leaderboards = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
+
+		private List<SteamAPICall_t> _gamestatsSessionIssuedCallHandles = new List<SteamAPICall_t>();
+		private List<OnGameStatsSessionIssuedBySteam> _gamestatsSessionIssuedCallbacks = new List<OnGameStatsSessionIssuedBySteam>();
 
 		private SteamUnity() { }
 		~SteamUnity() { Shutdown(); }
@@ -90,6 +96,24 @@ namespace SteamworksUnityHost
 
 						i--;
 					}
+				}
+			}
+
+			for (int i = 0; i < _gamestatsSessionIssuedCallHandles.Count; i++)
+			{
+				SteamAPICall_t h = _gamestatsSessionIssuedCallHandles[i];
+
+				Byte failed;
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
+				{
+					GameStatsSessionIssued_t callbackData = new GameStatsSessionIssued_t();
+					SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(h, out callbackData, out failed);
+
+					_gamestatsSessionIssuedCallbacks[i](ref callbackData);
+					_gamestatsSessionIssuedCallHandles.RemoveAt(i);
+					_gamestatsSessionIssuedCallbacks.RemoveAt(i);
+
+					i--;
 				}
 			}
 		}
@@ -201,14 +225,48 @@ namespace SteamworksUnityHost
 		{
 			get
 			{
-				return new Leaderboards();
+				if (_leaderboards == null)
+				{
+					_leaderboards = new Leaderboards();
+				}
+
+				return _leaderboards; 
 			}
+		}
+
+		public GameStats CreateNewGameStats(OnGameStatsSessionInitialized onGameStatsSessionInitialized, Boolean gameserver, SteamID steamID = null)
+		{
+			GameStats gamestats;
+
+			gamestats = new GameStats();
+
+			if (gameserver)
+			{
+				gamestats.StartNewSession(onGameStatsSessionInitialized, EGameStatsAccountType.k_EGameStatsAccountType_SteamGameServer, steamID);
+			}
+			else
+			{
+				gamestats.StartNewSession(onGameStatsSessionInitialized, EGameStatsAccountType.k_EGameStatsAccountType_Steam, steamID);
+			}
+
+			return gamestats;
+		}
+
+		public Boolean IsGameServerInitialized
+		{
+			get { return _gameserver != null && _gameserver.IsInitialized; }
 		}
 
 		internal void AddGameServerUserStatsReceivedCallback(SteamAPICall_t handle, OnUserStatsReceivedFromSteam callback)
 		{
 			_gameserverUserStatsReceivedCallHandles.Add(handle);
 			_gameserverUserStatsReceivedCallbacks.Add(callback);
+		}
+
+		internal void AddGameStatsSessionIssuedCallback(SteamAPICall_t handle, OnGameStatsSessionIssuedBySteam callback)
+		{
+			_gamestatsSessionIssuedCallHandles.Add(handle);
+			_gamestatsSessionIssuedCallbacks.Add(callback);
 		}
 	}
 }
