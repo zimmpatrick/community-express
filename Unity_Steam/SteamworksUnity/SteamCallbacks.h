@@ -9,8 +9,10 @@ typedef void (__stdcall *FPOnGameServerClientKick)(GSClientKick_t*);
 typedef void (__stdcall *FPOnGameServerPolicyResponse)(GSPolicyResponse_t*);
 typedef void (__stdcall *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
 typedef void (__stdcall *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
+typedef void (__stdcall *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
+typedef void (__stdcall *FPOnServerListComplete)(HServerListRequest);
 
-class SteamCallbacks
+class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
 public:
 	SteamCallbacks() : UserStatsReceivedCallback(this, &SteamCallbacks::OnUserStatsReceived)
@@ -26,6 +28,16 @@ public:
 		static SteamCallbacks instance;
 		return instance;
 	}
+
+	//
+	// ISteamMatchmakingServerListResponse Implementation
+	//
+	// Server has responded ok with updated data
+	virtual void ServerResponded(HServerListRequest hRequest, int iServer);
+	// Server has failed to respond
+	virtual void ServerFailedToRespond(HServerListRequest hRequest, int iServer);
+	// A list refresh you had initiated is now 100% completed
+	virtual void RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response);
 
 	STEAM_CALLBACK(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
 
@@ -47,4 +59,6 @@ public:
 	FPOnGameServerPolicyResponse delegateOnGameServerPolicyResponse;
 	FPOnLeaderboardRetrieved delegateOnLeaderboardRetrieved;
 	FPOnLeaderboardEntriesRetrieved delegateOnLeaderboardEntriesRetrieved;
+	FPOnServerResponded delegateOnServerResponded;
+	FPOnServerListComplete delegateOnServerListComplete;
 };

@@ -12,7 +12,10 @@ namespace SteamworksUnityTest
 		private static bool _statsReceived = false;
 		private static bool _leaderboardEntriesReceived = false;
 		private static bool _userAuthenticationCompleted = false;
-		private static bool _gamestatsInitialized = false;
+		//private static bool _gamestatsInitialized = false;
+		private static bool _serversReceived = false;
+
+		private static Servers _serverList = null;
 
 		static int Main(string[] args)
 		{
@@ -52,7 +55,9 @@ namespace SteamworksUnityTest
 
 			GameServer gs = s.GameServer;
 			const UInt16 gsPort = 8793;
-			if (gs.Init(0, gsPort, gsPort, 0, 27015, EServerMode.eServerModeAuthenticationAndSecure, "killingfloor", "1.0.0.0", MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
+			if (gs.Init(false, new IPAddress(0), gsPort, gsPort, 0, 27015, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
+				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "killingfloor", "1.0.0.0", "KF-FakeMap", 2, true,
+				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
 			{
 				Console.WriteLine("GameServer: {0}", gs.SteamID);
 			}
@@ -102,11 +107,14 @@ namespace SteamworksUnityTest
 			//*/
 
 			Achievements achievements = s.UserAchievements;
-			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
+			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam",
+				"DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam",
+				"Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
 			MyOnUserStatsReceivedCallback(null, achievements);
 
 			Leaderboards leaderboards = s.Leaderboards;
-			leaderboards.FindOrCreateLeaderboard(MyOnLeaderboardRetrievedCallback, "TestLeaderboard", ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
+			leaderboards.FindOrCreateLeaderboard(MyOnLeaderboardRetrievedCallback, "TestLeaderboard",
+				ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
 
 			while (!_leaderboardEntriesReceived)
 			{
@@ -141,13 +149,39 @@ namespace SteamworksUnityTest
 
 			Console.WriteLine("Requesting Achievements through Game Server");
 			gs.RequestUserAchievements(u.SteamID, MyOnUserStatsReceivedCallback,
-				new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
+				new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam",
+					"WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
 
 			_statsReceived = false;
 			while (!_statsReceived)
 			{
 				s.RunCallbacks();
 			}
+
+			gs.ServerName = "Updated KF Server";
+
+			SteamID bot = gs.AddBot();
+
+			gs.UpdateUserDetails(bot, "FakeBot", 68);
+			gs.UpdateUserDetails(u.SteamID, "FakePlayer", 69);
+
+			// Give the system plenty of time to get the server into the server list
+			Thread.Sleep(1000);
+			s.RunCallbacks();
+			Thread.Sleep(1000);
+			s.RunCallbacks();
+
+			// Request a "list" of servers(should only be 1)
+			Matchmaking m = s.Matchmaking;
+			Console.WriteLine("Requesting Server List(Only our server will show details):");
+			m.RequestInternetServerList(null, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
+			while (!_serversReceived)
+			{
+				s.RunCallbacks();
+			}
+
+			Console.WriteLine("");
+			Console.WriteLine("Server List Complete! Server Count: {0}", _serverList.Count);
 
 			Console.WriteLine("Delaying 1 second before Disconnecting User");
 			Thread.Sleep(1000);
@@ -292,7 +326,7 @@ namespace SteamworksUnityTest
 			}
 		}
 
-		public static void MyOnGameStatsSessionInitialized(GameStats gamestats)
+/*		public static void MyOnGameStatsSessionInitialized(GameStats gamestats)
 		{
 			if (gamestats != null)
 			{
@@ -304,6 +338,25 @@ namespace SteamworksUnityTest
 			}
 
 			_gamestatsInitialized = true;
+		}
+*/
+		public static void MyOnServerReceivedCallback(Servers serverList, Server server)
+		{
+			_serverList = serverList;
+
+			if (server.MapName != "KF - FakeMap")
+				Console.Write(".");
+			else
+			{
+				Console.WriteLine("");
+				Console.WriteLine("  {0} - {1} - {2}/{3}", server.ServerName, server.IP, server.Players, server.MaxPlayers);
+			}
+		}
+
+		public static void MyOnServerListReceivedCallback(Servers serverList)
+		{
+			_serverList = serverList;
+			_serversReceived = true;
 		}
 	}
 }

@@ -50,7 +50,10 @@
     <Compile Include="LeaderboardEntry.cs" />
     <Compile Include="Leaderboards.cs" />
     <Compile Include="Lobby.cs" />
+    <Compile Include="Matchmaking.cs" />
     <Compile Include="RemoteStorage.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="Servers.cs" />
     <Compile Include="Stat.cs" />
     <Compile Include="Stats.cs" />
     <Compile Include="SteamID.cs" />

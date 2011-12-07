@@ -37,6 +37,7 @@ namespace SteamworksUnityHost
 		private Stats _userStats = null;
 		private Achievements _achievements = null;
 		private Leaderboards _leaderboards = null;
+		private Matchmaking _matchmaking = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -231,6 +232,19 @@ namespace SteamworksUnityHost
 				}
 
 				return _leaderboards; 
+			}
+		}
+
+		public Matchmaking Matchmaking
+		{
+			get
+			{
+				if (_matchmaking == null)
+				{
+					_matchmaking = new Matchmaking();
+				}
+
+				return _matchmaking;
 			}
 		}
 

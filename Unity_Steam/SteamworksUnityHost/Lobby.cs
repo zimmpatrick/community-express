@@ -11,9 +11,9 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
 		[DllImport("SteamworksUnity.dll")]
-		private static extern int SteamUnityAPI_SteamFriends_GetNumLobbyMembers(IntPtr matchmaking, UInt64 steamIDLobby);
+		private static extern int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern UInt64 SteamUnityAPI_SteamFriends_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
+		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
 
 		private IntPtr _matchmaking;
 		private Friends _friendsRef;
@@ -77,7 +77,7 @@ namespace SteamworksUnityHost
 
 		private SteamID GetLobbyMemberByIndex(int iLobbyMember)
 		{
-			return new SteamID(SteamUnityAPI_SteamFriends_GetLobbyMemberByIndex(_matchmaking, _id.ToUInt64(), iLobbyMember));
+			return new SteamID(SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(_matchmaking, _id.ToUInt64(), iLobbyMember));
 		}
 
 		public SteamID SteamID
@@ -87,7 +87,7 @@ namespace SteamworksUnityHost
 
 		public int Count
 		{
-			get { return SteamUnityAPI_SteamFriends_GetNumLobbyMembers(_matchmaking, _id.ToUInt64()); }
+			get { return SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(_matchmaking, _id.ToUInt64()); }
 		}
 
 		public bool IsReadOnly
