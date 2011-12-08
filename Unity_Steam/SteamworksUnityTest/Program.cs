@@ -55,19 +55,6 @@ namespace SteamworksUnityTest
 			Console.WriteLine(u.LoggedOn);
 			Console.WriteLine(u.SteamID);
 
-			GameServer gs = s.GameServer;
-			const UInt16 gsPort = 8793;
-			if (gs.Init(false, new IPAddress(0), 27015, gsPort, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
-				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true,
-				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
-			{
-				Console.WriteLine("GameServer: {0}", gs.SteamID);
-			}
-			else
-			{
-				Console.WriteLine("GameServer Failed to Initialize");
-			}
-
 			Console.WriteLine("Friends: ");
 			foreach (Friend f in s.Friends)
 			{
@@ -136,6 +123,19 @@ namespace SteamworksUnityTest
 			while (!_leaderboardEntriesReceived)
 			{
 				s.RunCallbacks();
+			}
+
+			GameServer gs = s.GameServer;
+			const UInt16 gsPort = 8793;
+			if (gs.Init(false, new IPAddress(0), 27015, gsPort, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
+				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true,
+				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
+			{
+				Console.WriteLine("GameServer: {0}", gs.SteamID);
+			}
+			else
+			{
+				Console.WriteLine("GameServer Failed to Initialize");
 			}
 
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket

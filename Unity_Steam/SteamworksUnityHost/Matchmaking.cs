@@ -198,6 +198,12 @@ namespace SteamworksUnityHost
 
 		public void CreateLobby(ELobbyType lobbyType, Int32 maxMembers, OnLobbyCreated onLobbyCreated)
 		{
+			if (SteamUnity.Instance.IsGameServerInitialized)
+			{
+				System.Diagnostics.Debug.WriteLine("Unable to create a Lobby after a Game Server has been initialized.");
+				throw new Exception("A Lobby cannot be created after a Steam Game Server has been initialized.");
+			}
+
 			_onLobbyCreated = onLobbyCreated;
 
 			SteamUnity.Instance.AddCreateLobbyCallback(SteamUnityAPI_SteamMatchmaking_CreateLobby(_matchmaking, lobbyType, maxMembers), OnLobbyCreatedCallback);
