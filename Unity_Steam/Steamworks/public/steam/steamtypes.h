@@ -26,6 +26,11 @@ typedef unsigned char uint8;
 #define X64BITS
 #endif
 
+// Make sure VALVE_BIG_ENDIAN gets set on PS3, may already be set previously in Valve internal code.
+#if !defined(VALVE_BIG_ENDIAN) && defined(_PS3)
+#define VALVE_BIG_ENDIAN
+#endif
+
 typedef unsigned char uint8;
 typedef signed char int8;
 
@@ -98,6 +103,10 @@ typedef uint32 AppId_t;
 const AppId_t k_uAppIdInvalid = 0x0;
 
 
+typedef uint32 PhysicalItemId_t;
+const PhysicalItemId_t k_uPhysicalItemIdInvalid = 0x0;
+
+
 // this is baked into client messages and interfaces as an int, 
 // make sure we never break this.  AppIds and DepotIDs also presently
 // share the same namespace, but since we'd like to change that in the future
@@ -117,7 +126,7 @@ const CellID_t k_uCellIDInvalid = 0xFFFFFFFF;
 typedef uint64 SteamAPICall_t;
 const SteamAPICall_t k_uAPICallInvalid = 0x0;
 
-
+typedef uint32 AccountID_t;
 
 
 #endif // STEAMTYPES_H

@@ -24,6 +24,10 @@ typedef int32 HSteamUser;
 #endif
 extern "C" typedef void (__cdecl *SteamAPIWarningMessageHook_t)(int, const char *);
 
+#if defined( __SNC__ )
+	#pragma diag_suppress=1700	   // warning 1700: class "%s" has virtual functions but non-virtual destructor
+#endif
+
 // interface predec
 class ISteamUser;
 class ISteamGameServer;
@@ -31,13 +35,15 @@ class ISteamFriends;
 class ISteamUtils;
 class ISteamMatchmaking;
 class ISteamContentServer;
-class ISteamMasterServerUpdater;
 class ISteamMatchmakingServers;
 class ISteamUserStats;
 class ISteamApps;
 class ISteamNetworking;
 class ISteamRemoteStorage;
+class ISteamScreenshots;
 class ISteamGameServerStats;
+class ISteamPS3OverlayRender;
+class ISteamHTTP;
 
 //-----------------------------------------------------------------------------
 // Purpose: Interface to creating a new steam instance, or to
@@ -86,9 +92,6 @@ public:
 	// returns the ISteamMatchmaking interface
 	virtual ISteamMatchmaking *GetISteamMatchmaking( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
-	// returns the ISteamMasterServerUpdater interface
-	virtual ISteamMasterServerUpdater *GetISteamMasterServerUpdater( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
-
 	// returns the ISteamMatchmakingServers interface
 	virtual ISteamMatchmakingServers *GetISteamMatchmakingServers( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
@@ -110,6 +113,10 @@ public:
 	// remote storage
 	virtual ISteamRemoteStorage *GetISteamRemoteStorage( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
+	// user screenshots
+	virtual ISteamScreenshots *GetISteamScreenshots( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
+
+
 	// this needs to be called every frame to process matchmaking results
 	// redundant if you're already calling SteamAPI_RunCallbacks()
 	virtual void RunFrame() = 0;
@@ -126,9 +133,20 @@ public:
 	// callbacks will occur directly after the API function is called that generated the warning or message
 	virtual void SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction ) = 0;
 
+	// Trigger global shutdown for the DLL
+	virtual bool BShutdownIfAllPipesClosed() = 0;
+
+#ifdef _PS3
+	virtual ISteamPS3OverlayRender *GetISteamPS3OverlayRender() = 0;
+#endif
+
+	// Expose HTTP interface
+	virtual ISteamHTTP *GetISteamHTTP( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
+
+
 };
 
-#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient009"
+#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient012"
 
 //-----------------------------------------------------------------------------
 // Purpose: Base values for callback identifiers, each callback must
@@ -155,5 +173,8 @@ enum { k_iSteamGameServerStatsCallbacks = 1800 };
 enum { k_iSteam2AsyncCallbacks = 1900 };
 enum { k_iSteamGameStatsCallbacks = 2000 };
 enum { k_iClientHTTPCallbacks = 2100 };
+enum { k_iClientScreenshotsCallbacks = 2200 };
+enum { k_iSteamScreenshotsCallbacks = 2300 };
+enum { k_iClientAudioCallbacks = 2400 };
 
 #endif // ISTEAMCLIENT_H

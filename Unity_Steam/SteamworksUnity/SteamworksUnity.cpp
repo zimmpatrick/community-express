@@ -184,12 +184,12 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameServer()
 	return SteamGameServer();
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_Init(uint32 unIP, uint16 usPort, uint16 usGamePort, uint16 usSpectatorPort, uint16 usMasterServerPort, EServerMode eServerMode, const char *pchGameDir, const char *pchGameVersion)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_Init(uint32 unIP, uint16 usMasterServerPort, uint16 usPort, uint16 usQueryPort, EServerMode eServerMode, const char *pchGameVersion)
 {
 	// Initialize the SteamGameServer interface, we tell it some info about us, and we request support
 	// for both Authentication (making sure users own games) and secure mode, VAC running in our game
 	// and kicking users who are VAC banned
-	if ( !SteamGameServer_Init( unIP, usPort, usGamePort, usSpectatorPort, usMasterServerPort, eServerMode, pchGameDir, pchGameVersion ) )
+	if ( !SteamGameServer_Init( unIP, usMasterServerPort, usPort, usQueryPort, eServerMode, pchGameVersion ) )
 	{
 		OutputDebugString( TEXT("SteamGameServer_Init call failed\n") );
 		return false;
@@ -254,11 +254,16 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SendUserDisconnect(void* 
 	return pISteamGameServer->SendUserDisconnect(steamIDClient);
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_UpdateServerStatus(void* pSteamGameServer, int32 iClients, int32 iMaxClients, int32 iBots, const char* pchServerName, const char* pchSpectatorServerName, const char* pchMapName)
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_UpdateServerStatus(void* pSteamGameServer, int32 iMaxClients, int32 iBots, const char* pchServerName, const char* pchSpectatorServerName, const char* pchMapName, bool bPassworded)
 {
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
-	return pISteamGameServer->UpdateServerStatus(iClients, iMaxClients, iBots, pchServerName, pchSpectatorServerName, pchMapName);
+	pISteamGameServer->SetMaxPlayerCount(iMaxClients);
+	pISteamGameServer->SetBotPlayerCount(iBots);
+	pISteamGameServer->SetServerName(pchServerName);
+	pISteamGameServer->SetSpectatorServerName(pchSpectatorServerName);
+	pISteamGameServer->SetMapName(pchMapName);
+	pISteamGameServer->SetPasswordProtected(bPassworded);
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_UpdateUserData(void* pSteamGameServer, uint64 steamIDUser, const char* pchPlayerName, uint32 uiScore)
@@ -274,16 +279,20 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_Shutdown()
 }
 
 
-STEAMWORKSUNITY_API void* SteamUnityAPI_SteamMasterServer()
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetBasicServerData(void* pSteamGameServer, bool bDedicated, const char* pchGameName, const char* pchGameDesc)
 {
-	return SteamMasterServerUpdater();
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	pISteamGameServer->SetDedicatedServer(bDedicated);
+	pISteamGameServer->SetProduct(pchGameName);
+	pISteamGameServer->SetGameDescription(pchGameDesc);
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamMasterServer_SetBasicServerData(void* pSteamMasterServer, bool bDedicated, const char* pchRegionName, const char* pchGameName, uint16 usMaxClients, bool bPassworded, const char* pchGameDesc)
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_LogOnAnonymous(void* pSteamGameServer)
 {
-	ISteamMasterServerUpdater * pISteamMasterServer = static_cast<ISteamMasterServerUpdater*>( pSteamMasterServer );
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
-	return pISteamMasterServer->SetBasicServerData(7, bDedicated, pchRegionName, pchGameName, usMaxClients, bPassworded, pchGameDesc);
+	pISteamGameServer->LogOnAnonymous();
 }
 
 
@@ -571,11 +580,11 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(
 	return false;
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(void* pSteamUserStats, SteamLeaderboardEntries_t hSteamLeaderboardEntries, int32 index, LeaderboardEntry_t &outLeaderboardEntry, int32* pDetails, int cDetailsMax)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(void* pSteamUserStats, SteamLeaderboardEntries_t hSteamLeaderboardEntries, int32 index, LeaderboardEntry_t* outLeaderboardEntry, int32* pDetails, int cDetailsMax)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
-	return pISteamUserStats->GetDownloadedLeaderboardEntry(hSteamLeaderboardEntries, index, &outLeaderboardEntry, pDetails, cDetailsMax);
+	return pISteamUserStats->GetDownloadedLeaderboardEntry(hSteamLeaderboardEntries, index, outLeaderboardEntry, pDetails, cDetailsMax);
 }
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameServerStats()

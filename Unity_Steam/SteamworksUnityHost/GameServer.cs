@@ -56,10 +56,8 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServer();
 		[DllImport("SteamworksUnity.dll")]
-		private static extern IntPtr SteamUnityAPI_SteamMasterServer();
-		[DllImport("SteamworksUnity.dll")]
-		private static extern Boolean SteamUnityAPI_SteamGameServer_Init(UInt32 ip, UInt16 port, UInt16 gamePort, UInt16 spectatorPort, UInt16 masterServerPort,
-			EServerMode serverMode, [MarshalAs(UnmanagedType.LPStr)] String gameDir, [MarshalAs(UnmanagedType.LPStr)] String gameVersion);
+		private static extern Boolean SteamUnityAPI_SteamGameServer_Init(UInt32 ip, UInt16 masterServerPort, UInt16 port, UInt16 queryPort,
+			EServerMode serverMode, [MarshalAs(UnmanagedType.LPStr)] String gameVersion);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetCallbacks(IntPtr OnGameServerClientApproved, IntPtr OnGameServerClientDeny,
 			IntPtr OnGameServerClientKick, IntPtr OnGameServerPolicyResponse);
@@ -68,6 +66,15 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern UInt32 SteamUnityAPI_SteamGameServer_GetPublicIP(IntPtr gameserver);
 		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_SetBasicServerData(IntPtr gameserver, Boolean isDedicated,
+			[MarshalAs(UnmanagedType.LPStr)] String gameName, [MarshalAs(UnmanagedType.LPStr)] String gameDescription);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_LogOnAnonymous(IntPtr gameserver);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_UpdateServerStatus(IntPtr gameserver, Int32 maxClients, Int32 bots,
+			[MarshalAs(UnmanagedType.LPStr)] String serverName, [MarshalAs(UnmanagedType.LPStr)] String spectatorServerName,
+			[MarshalAs(UnmanagedType.LPStr)] String mapName, Boolean passworded);
+		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamGameServer_SendUserConnectAndAuthenticate(IntPtr gameserver, UInt32 ipClient,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] authTicket, UInt32 authTicketSize, out UInt64 steamIDClient);
 		[DllImport("SteamworksUnity.dll")]
@@ -75,21 +82,12 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_SendUserDisconnect(IntPtr gameserver, UInt64 steamIDClient);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern void SteamUnityAPI_SteamMasterServer_SetBasicServerData(IntPtr masterserver, Boolean isDedicated,
-			[MarshalAs(UnmanagedType.LPStr)] String regionName, [MarshalAs(UnmanagedType.LPStr)] String gameName, UInt16 maxClients,
-			Boolean isPassworded, [MarshalAs(UnmanagedType.LPStr)] String gameDescription);
-		[DllImport("SteamworksUnity.dll")]
-		private static extern void SteamUnityAPI_SteamGameServer_UpdateServerStatus(IntPtr gameserver, Int32 clients, Int32 maxClients, Int32 bots,
-			[MarshalAs(UnmanagedType.LPStr)] String serverName, [MarshalAs(UnmanagedType.LPStr)] String spectatorServerName,
-			[MarshalAs(UnmanagedType.LPStr)] String mapName);
-		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamGameServer_UpdateUserData(IntPtr gameserver, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, UInt32 score);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_Shutdown();
 		
 		private IntPtr _gameserver;
-		private IntPtr _masterserver;
 
 		private Boolean _isInitialized = false;
 		private Boolean _vacSecured = false;
@@ -127,8 +125,8 @@ namespace SteamworksUnityHost
 			Shutdown();
 		}
 
-		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 gamePort, UInt16 spectatorPort, UInt16 masterServerPort, EServerMode serverMode,
-			String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription, String gameDir, String gameVersion, String mapName,
+		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, EServerMode serverMode,
+			String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription, String gameVersion, String mapName,
 			UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved, OnGameServerClientDenied onGameServerClientDenied,
 			OnGameServerClientKick onGameServerClientKick)
 		{
@@ -156,11 +154,10 @@ namespace SteamworksUnityHost
 				Marshal.GetFunctionPointerForDelegate(_privateOnGameServerClientKick),
 				Marshal.GetFunctionPointerForDelegate(_privateOnGameServerPolicyResponse));
 
-			if (SteamUnityAPI_SteamGameServer_Init(serverIP, port, gamePort, spectatorPort, masterServerPort, serverMode, gameDir, gameVersion))
+			if (SteamUnityAPI_SteamGameServer_Init(serverIP, masterServerPort, port, queryPort, serverMode, gameVersion))
 			{
 				_isInitialized = true;
 				_gameserver = SteamUnityAPI_SteamGameServer();
-				_masterserver = SteamUnityAPI_SteamMasterServer();
 				_isDedicated = isDedicated;
 				_serverName = serverName;
 				_spectatorServerName = spectatorServerName;
@@ -172,6 +169,7 @@ namespace SteamworksUnityHost
 				_isPassworded = isPassworded;
 
 				SendBasicServerStatus();
+				SteamUnityAPI_SteamGameServer_LogOnAnonymous(_gameserver);
 				SendUpdatedServerStatus();
 
 				return true;
@@ -325,12 +323,12 @@ namespace SteamworksUnityHost
 
 		private void SendBasicServerStatus()
 		{
-			SteamUnityAPI_SteamMasterServer_SetBasicServerData(_masterserver, _isDedicated, _regionName, _gameName, _maxClients, _isPassworded, _gameDescription);
+			SteamUnityAPI_SteamGameServer_SetBasicServerData(_gameserver, _isDedicated, _gameName, _gameDescription);
 		}
 
 		private void SendUpdatedServerStatus()
 		{
-			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameserver, _playersPendingAuth.Count + _playersConnected.Count, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _mapName);
+			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameserver, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _mapName, _isPassworded);
 		}
 
 		public void RequestUserStats(SteamID steamID, OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)

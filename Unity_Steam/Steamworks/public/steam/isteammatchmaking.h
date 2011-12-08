@@ -19,6 +19,7 @@
 // lobby type description
 enum ELobbyType
 {
+	k_ELobbyTypePrivate = 0,		// only way to join the lobby is to invite to someone else
 	k_ELobbyTypeFriendsOnly = 1,	// shows for friends or invitees, but not in lobby list
 	k_ELobbyTypePublic = 2,			// visible for friends and in lobby list
 	k_ELobbyTypeInvisible = 3,		// returned by search, but not visible to other friends 
@@ -37,11 +38,11 @@ enum ELobbyComparison
 	k_ELobbyComparisonNotEqual = 3,
 };
 
-// lobby search distance
+// lobby search distance. Lobby results are sorted from closest to farthest.
 enum ELobbyDistanceFilter
 {
 	k_ELobbyDistanceFilterClose,		// only lobbies in the same immediate region will be returned
-	k_ELobbyDistanceFilterDefault,		// only lobbies in the same region or close, but looking further if the current region has infrequent lobby activity (the default)
+	k_ELobbyDistanceFilterDefault,		// only lobbies in the same region or near by regions
 	k_ELobbyDistanceFilterFar,			// for games that don't have many latency requirements, will return lobbies about half-way around the globe
 	k_ELobbyDistanceFilterWorldwide,	// no filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients)
 };
@@ -118,6 +119,8 @@ public:
 	// sets how many results to return, the lower the count the faster it is to download the lobby results & details to the client
 	virtual void AddRequestLobbyListResultCountFilter( int cMaxResults ) = 0;
 
+	virtual void AddRequestLobbyListCompatibleMembersFilter( CSteamID steamIDLobby ) = 0;
+
 	// returns the CSteamID of a lobby, as retrieved by a RequestLobbyList call
 	// should only be called after a LobbyMatchList_t callback is received
 	// iLobby is of the range [0, LobbyMatchList_t::m_nLobbiesMatching)
@@ -128,7 +131,7 @@ public:
 	// If private, then the lobby will not be returned by any RequestLobbyList() call; the CSteamID
 	// of the lobby will need to be communicated via game channels or via InviteUserToLobby()
 	// this is an asynchronous request
-	// results will be returned by LobbyCreated_t callback and call result; lobby is joined & ready to use at this pointer
+	// results will be returned by LobbyCreated_t callback and call result; lobby is joined & ready to use at this point
 	// a LobbyEnter_t callback will also be received (since the local user is joining their own lobby)
 	virtual SteamAPICall_t CreateLobby( ELobbyType eLobbyType, int cMaxMembers ) = 0;
 
@@ -159,6 +162,7 @@ public:
 	virtual int GetNumLobbyMembers( CSteamID steamIDLobby ) = 0;
 	// returns the CSteamID of a user in the lobby
 	// iMember is of range [0,GetNumLobbyMembers())
+	// note that the current user must be in a lobby to retrieve CSteamIDs of other users in that lobby
 	virtual CSteamID GetLobbyMemberByIndex( CSteamID steamIDLobby, int iMember ) = 0;
 
 	// Get data associated with this lobby
@@ -204,7 +208,8 @@ public:
 	// this will send down all the metadata associated with a lobby
 	// this is an asynchronous call
 	// returns false if the local user is not connected to the Steam servers
-	// restart are returned by a LobbyDataUpdate_t callback
+	// results will be returned by a LobbyDataUpdate_t callback
+	// if the specified lobby doesn't exist, LobbyDataUpdate_t::m_bSuccess will be set to false
 	virtual bool RequestLobbyData( CSteamID steamIDLobby ) = 0;
 	
 	// sets the game server associated with the lobby
@@ -237,8 +242,19 @@ public:
 	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
 	// after completion, the local user will no longer be the owner
 	virtual bool SetLobbyOwner( CSteamID steamIDLobby, CSteamID steamIDNewOwner ) = 0;
+
+	// link two lobbies for the purposes of checking player compatibility
+	// you must be the lobby owner of both lobbies
+	virtual bool SetLinkedLobby( CSteamID steamIDLobby, CSteamID steamIDLobbyDependent ) = 0;
+
+#ifdef _PS3
+	// changes who the lobby owner is
+	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
+	// after completion, the local user will no longer be the owner
+	virtual void CheckForPSNGameBootInvite( unsigned int iGameBootAttributes  ) = 0;
+#endif
 };
-#define STEAMMATCHMAKING_INTERFACE_VERSION "SteamMatchMaking008"
+#define STEAMMATCHMAKING_INTERFACE_VERSION "SteamMatchMaking009"
 
 
 //-----------------------------------------------------------------------------
@@ -434,7 +450,7 @@ public:
 	// Request the list of players currently playing on a server
 	virtual HServerQuery PlayerDetails( uint32 unIP, uint16 usPort, ISteamMatchmakingPlayersResponse *pRequestServersResponse ) = 0;
 
-	// Request the list of rules that the server is running (See ISteamMasterServerUpdater->SetKeyValue() to set the rules server side)
+	// Request the list of rules that the server is running (See ISteamGameServer::SetKeyValue() to set the rules server side)
 	virtual HServerQuery ServerRules( uint32 unIP, uint16 usPort, ISteamMatchmakingRulesResponse *pRequestServersResponse ) = 0; 
 
 	// Cancel an outstanding Ping/Players/Rules query from above.  You should call this to cancel
@@ -500,6 +516,7 @@ struct LobbyInvite_t
 
 	uint64 m_ulSteamIDUser;		// Steam ID of the person making the invite
 	uint64 m_ulSteamIDLobby;	// Steam ID of the Lobby
+	uint64 m_ulGameID;			// GameID of the Lobby
 };
 
 
@@ -530,6 +547,8 @@ struct LobbyDataUpdate_t
 
 	uint64 m_ulSteamIDLobby;		// steamID of the Lobby
 	uint64 m_ulSteamIDMember;		// steamID of the member whose data changed, or the room itself
+	uint8 m_bSuccess;				// true if we lobby data was successfully changed; 
+									// will only be false if RequestLobbyData() was called on a lobby that no longer exists
 };
 
 
@@ -608,8 +627,8 @@ struct LobbyKicked_t
 //-----------------------------------------------------------------------------
 // Purpose: Result of our request to create a Lobby
 //			m_eResult == k_EResultOK on success
-//			at this point, the local user may not have finishing joining this lobby;
-//			game code should wait until the subsequent LobbyEnter_t callback is received
+//			at this point, the lobby has been joined and is ready for use
+//			a LobbyEnter_t callback will also be received (since the local user is joining their own lobby)
 //-----------------------------------------------------------------------------
 struct LobbyCreated_t
 {
@@ -627,6 +646,21 @@ struct LobbyCreated_t
 
 // used by now obsolete RequestFriendsLobbiesResponse_t
 // enum { k_iCallback = k_iSteamMatchmakingCallbacks + 14 };
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Result of CheckForPSNGameBootInvite
+//			m_eResult == k_EResultOK on success
+//			at this point, the local user may not have finishing joining this lobby;
+//			game code should wait until the subsequent LobbyEnter_t callback is received
+//-----------------------------------------------------------------------------
+struct PSNGameBootInviteResult_t
+{
+	enum { k_iCallback = k_iSteamMatchmakingCallbacks + 15 };
+
+	bool m_bGameBootInviteExists;
+	CSteamID m_steamIDLobby;		// Should be valid if m_bGameBootInviteExists == true
+};
 #pragma pack( pop )
 
 

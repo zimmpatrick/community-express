@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2008, Valve LLC, All rights reserved. ============
+//========= Copyright ï¿½ 1996-2008, Valve LLC, All rights reserved. ============
 //
 // Purpose: Main class for the space war game client
 //
@@ -8,39 +8,78 @@
 #include "stdafx.h"
 #include "SpaceWarClient.h"
 #include "SpaceWarServer.h"
+#include "connectingmenu.h"
 #include "MainMenu.h"
 #include "QuitMenu.h"
 #include "stdlib.h"
 #include "time.h"
 #include "ServerBrowser.h"
 #include "Leaderboards.h"
+#include "clanchatroom.h"
 #include "Lobby.h"
 #include "p2pauth.h"
+#include "voicechat.h"
+#include "steam/steamencryptedappticket.h"
 
 CSpaceWarClient *g_pSpaceWarClient = NULL;
 CSpaceWarClient* SpaceWarClient() { return g_pSpaceWarClient; }
 
+#if defined(WIN32)
+#define atoll _atoi64
+#endif
+
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CSpaceWarClient::CSpaceWarClient( CGameEngine *pGameEngine, CSteamID steamIDUser ) :
+CSpaceWarClient::CSpaceWarClient( IGameEngine *pGameEngine ) :
 		m_CallbackP2PSessionConnectFail( this, &CSpaceWarClient::OnP2PSessionConnectFail ),
 		m_LobbyGameCreated( this, &CSpaceWarClient::OnLobbyGameCreated ),
+		m_AvatarImageLoadedCreated( this, &CSpaceWarClient::OnAvatarImageLoaded ),
 		m_IPCFailureCallback( this, &CSpaceWarClient::OnIPCFailure ),
-		m_SteamShutdownCallback( this, &CSpaceWarClient::OnSteamShutdown )
-
+		m_SteamShutdownCallback( this, &CSpaceWarClient::OnSteamShutdown ),
+		m_SteamServersConnected( this, &CSpaceWarClient::OnSteamServersConnected ),
+		m_SteamServersDisconnected( this, &CSpaceWarClient::OnSteamServersDisconnected ),
+		m_SteamServerConnectFailure( this, &CSpaceWarClient::OnSteamServerConnectFailure ),
+		m_GameJoinRequested( this, &CSpaceWarClient::OnGameJoinRequested ),
+		m_CallbackGameOverlayActivated( this, &CSpaceWarClient::OnGameOverlayActivated )
 {
+	Init( pGameEngine );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: initialize our client for use
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::Init( IGameEngine *pGameEngine )
+{
+	// On PC/OSX we always know the user has a SteamID and is logged in already,
+	// as Steam enforces this before game launch.  On PS3 however the game must
+	// initiate the logon and we need to check the state here and block the user
+	// while Steam connects.
+	if ( SteamUser()->BLoggedOn() )
+	{
+		m_SteamIDLocalUser = SteamUser()->GetSteamID();
+		m_eGameState = k_EClientGameMenu;
+	}
+#ifdef _PS3
+	else
+	{
+		m_eGameState = k_EClientConnectingToSteam;
+		SteamUser()->LogOn( true );
+	}
+#endif
+
 	g_pSpaceWarClient = this;
 	m_pGameEngine = pGameEngine;
-	m_eGameState = k_EClientGameMenu;
 	m_uPlayerWhoWonGame = 0;
 	m_ulStateTransitionTime = m_pGameEngine->GetGameTickCount();
 	m_ulLastNetworkDataReceivedTime = 0;
 	m_pServer = NULL;
 	m_uPlayerShipIndex = 0;
-	m_SteamIDLocalUser = steamIDUser;
 	m_eConnectedStatus = k_EClientNotConnected;
-	m_bTransitionedGameState = false;
+	m_bTransitionedGameState = true;
 	m_rgchErrorText[0] = 0;
 	m_unServerIP = 0;
 	m_usServerPort = 0;
@@ -69,6 +108,9 @@ CSpaceWarClient::CSpaceWarClient( CGameEngine *pGameEngine, CSteamID steamIDUser
 	// Initialize main menu
 	m_pMainMenu = new CMainMenu( pGameEngine );
 
+	// Initialize connecting menu
+	m_pConnectingMenu = new CConnectingMenu( pGameEngine );
+
 	// Initialize pause menu
 	m_pQuitMenu = new CQuitMenu( pGameEngine );
 
@@ -87,9 +129,13 @@ CSpaceWarClient::CSpaceWarClient( CGameEngine *pGameEngine, CSteamID steamIDUser
 	// Init stats
 	m_pStatsAndAchievements = new CStatsAndAchievements( pGameEngine );
 	m_pLeaderboards = new CLeaderboards( pGameEngine );
+	m_pClanChatRoom = new CClanChatRoom( pGameEngine );
 
 	// Remote Storage page
 	m_pRemoteStorage = new CRemoteStorage( pGameEngine );
+
+	// P2P voice chat 
+	m_pVoiceChat = new CVoiceChat( pGameEngine );
 }
 
 
@@ -119,6 +165,9 @@ CSpaceWarClient::~CSpaceWarClient()
 	if ( m_pMainMenu )
 		delete m_pMainMenu;
 
+	if ( m_pConnectingMenu )
+		delete m_pConnectingMenu;
+
 	if ( m_pQuitMenu ) 
 		delete m_pQuitMenu;
 
@@ -130,6 +179,9 @@ CSpaceWarClient::~CSpaceWarClient()
 
 	if ( m_pServerBrowser )
 		delete m_pServerBrowser; 
+
+	if ( m_pVoiceChat )
+		delete m_pVoiceChat;
 
 	for( uint32 i = 0; i < MAX_PLAYERS_PER_SERVER; ++i )
 	{
@@ -149,7 +201,13 @@ void CSpaceWarClient::DisconnectFromServer()
 {
 	if ( m_eConnectedStatus != k_EClientNotConnected )
 	{
-		SteamUser()->TerminateGameConnection( m_unServerIP, m_usServerPort );
+#ifdef USE_GS_AUTH_API
+		if ( m_hAuthTicket != k_HAuthTicketInvalid )
+			SteamUser()->CancelAuthTicket( m_hAuthTicket );
+		m_hAuthTicket = k_HAuthTicketInvalid;
+#else
+		SteamUser()->AdvertiseGame( k_steamIDNil, 0, 0 );
+#endif
 
 		MsgClientLeavingServer_t msg;
 		BSendServerData( &msg, sizeof(msg) );
@@ -158,6 +216,11 @@ void CSpaceWarClient::DisconnectFromServer()
 	if ( m_pP2PAuthedGame )
 	{
 		m_pP2PAuthedGame->EndGame();
+	}
+
+	if ( m_pVoiceChat )
+	{
+		m_pVoiceChat->StopVoiceChat();
 	}
 
 	// forget the game server ID
@@ -184,20 +247,28 @@ void CSpaceWarClient::OnReceiveServerInfo( CSteamID steamIDGameServer, bool bVAC
 	m_unServerIP = p2pSessionState.m_nRemoteIP;
 	m_usServerPort = p2pSessionState.m_nRemotePort;
 
+	// set how to connect to the game server, using the Rich Presence API
+	// this lets our friends connect to this game via their friends list
+	UpdateRichPresenceConnectionInfo();
+
 	MsgClientBeginAuthentication_t msg;
 #ifdef USE_GS_AUTH_API
-	msg.m_uTokenLen = SteamUser()->InitiateGameConnection( (void*)&msg.m_rgchToken, ARRAYSIZE( msg.m_rgchToken ), steamIDGameServer, m_unServerIP, m_usServerPort, bVACSecure );
+	char rgchToken[1024];
+	uint32 unTokenLen = 0;
+	m_hAuthTicket = SteamUser()->GetAuthSessionTicket( rgchToken, sizeof( rgchToken ), &unTokenLen );
+	msg.SetToken( rgchToken, unTokenLen );
+
 #else
-	// When you aren't using Steam auth you still call InitiateGameConnection() so you can communicate presence data to the friends
-	// system. Make sure to pass k_steamIDNonSteamGS so Steam won't try to authenticate your user.
-	msg.m_uTokenLen = SteamUser()->InitiateGameConnection( NULL, 0, k_steamIDNonSteamGS, m_unServerIP, m_usServerPort, false );
-	msg.m_SteamID = SteamUser()->GetSteamID();
+	// When you aren't using Steam auth you can still call AdvertiseGame() so you can communicate presence data to the friends
+	// system. Make sure to pass k_steamIDNonSteamGS
+	uint32 unTokenLen = SteamUser()->AdvertiseGame( k_steamIDNonSteamGS, m_unServerIP, m_usServerPort );
+	msg.SetSteamID( SteamUser()->GetSteamID().ConvertToUint64() );
 #endif
 
 	Steamworks_TestSecret();
 
-	if ( msg.m_uTokenLen < 1 )
-		OutputDebugString( "Warning: Looks like InitiateGameConnection didn't give us a good token\n" );
+	if ( msg.GetTokenLen() < 1 )
+		OutputDebugString( "Warning: Looks like GetAuthSessionTicket didn't give us a good ticket\n" );
 
 	BSendServerData( &msg, sizeof(msg) );
 }
@@ -223,6 +294,9 @@ void CSpaceWarClient::OnReceiveServerAuthenticationResponse( bool bSuccess, uint
 		m_uPlayerShipIndex = uPlayerPosition;
 		m_eConnectedStatus = k_EClientConnectedAndAuthenticated;
 
+		// set information so our friends can join the lobby
+		UpdateRichPresenceConnectionInfo();
+
 		// send a ping, to measure round-trip time
 		m_ulPingSentTime = m_pGameEngine->GetGameTickCount();
 		MsgClientPing_t msg;
@@ -234,11 +308,11 @@ void CSpaceWarClient::OnReceiveServerAuthenticationResponse( bool bSuccess, uint
 //-----------------------------------------------------------------------------
 // Purpose: Handles receiving a state update from the game server
 //-----------------------------------------------------------------------------
-void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateData )
+void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t *pUpdateData )
 {
 	// Update our client state based on what the server tells us
 	
-	switch( UpdateData.m_eCurrentGameState )
+	switch( pUpdateData->GetServerGameState() )
 	{
 	case k_EServerWaitingForPlayers:
 		if ( m_eGameState == k_EClientGameQuitMenu )
@@ -289,10 +363,13 @@ void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateDa
 	}
 
 	// Update scores
-	memcpy( m_rguPlayerScores, UpdateData.m_rgPlayerScores, sizeof( m_rguPlayerScores ) );
+	for( int i=0; i < MAX_PLAYERS_PER_SERVER; ++i )
+	{
+		m_rguPlayerScores[i] = pUpdateData->GetPlayerScore(i);
+	}
 
 	// Update who won last
-	m_uPlayerWhoWonGame = UpdateData.m_uPlayerWhoWonGame;
+	m_uPlayerWhoWonGame = pUpdateData->GetPlayerWhoWon();
 
 	if ( m_pP2PAuthedGame )
 	{
@@ -303,10 +380,10 @@ void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateDa
 			// assume i am in slot 0, so start at slot 1
 			for( uint32 i=1; i < MAX_PLAYERS_PER_SERVER; ++i )
 			{
-				CSteamID steamIDNew( UpdateData.m_rgPlayerSteamIDs[i] );
+				CSteamID steamIDNew( pUpdateData->GetPlayerSteamID(i) );
 				if ( steamIDNew == SteamUser()->GetSteamID() )
 				{
-					OutputDebugStringA( "Server player slot 0 is not server owner.\n" );
+					OutputDebugString( "Server player slot 0 is not server owner.\n" );
 				}
 				else if ( steamIDNew != m_rgSteamIDPlayers[i] )
 				{
@@ -324,16 +401,16 @@ void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateDa
 		else
 		{
 			// i am just a client, i need to auth the game owner ( slot 0 )
-			CSteamID steamIDNew( UpdateData.m_rgPlayerSteamIDs[0] );
+			CSteamID steamIDNew( pUpdateData->GetPlayerSteamID( 0 ) );
 			if ( steamIDNew == SteamUser()->GetSteamID() )
 			{
-				OutputDebugStringA( "Server player slot 0 is not server owner.\n" );
+				OutputDebugString( "Server player slot 0 is not server owner.\n" );
 			}
 			else if ( steamIDNew != m_rgSteamIDPlayers[0] )
 			{
 				if ( m_rgSteamIDPlayers[0].IsValid() )
 				{
-					OutputDebugStringA( "Server player slot 0 has disconnected - but thats the server owner.\n" );
+					OutputDebugString( "Server player slot 0 has disconnected - but thats the server owner.\n" );
 					m_pP2PAuthedGame->PlayerDisconnect( 0 );
 				}
 				if ( steamIDNew.IsValid() )
@@ -344,18 +421,23 @@ void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateDa
 		}
 	}
 
-	// Update the ships
+	// update all players that are active
+	if ( m_pVoiceChat )
+		m_pVoiceChat->MarkAllPlayersInactive();
+
+	// Update the players
 	for( uint32 i=0; i < MAX_PLAYERS_PER_SERVER; ++i )
 	{
 		// Update steamid array with data from server
-		m_rgSteamIDPlayers[i].SetFromUint64( UpdateData.m_rgPlayerSteamIDs[i] );
+		m_rgSteamIDPlayers[i].SetFromUint64( pUpdateData->GetPlayerSteamID( i ) );
 
-		if ( UpdateData.m_rgPlayersActive[i] )
+		if ( pUpdateData->GetPlayerActive( i ) )
 		{
 			// Check if we have a ship created locally for this player slot, if not create it
 			if ( !m_rgpShips[i] )
 			{
-				m_rgpShips[i] = new CShip( m_pGameEngine, false, UpdateData.m_rgShipData[i].m_flXPosition, UpdateData.m_rgShipData[i].m_flYPosition, g_rgPlayerColors[i] );
+				ServerShipUpdateData_t *pShipData = pUpdateData->AccessShipUpdateData( i );
+				m_rgpShips[i] = new CShip( m_pGameEngine, false, pShipData->GetXPosition(), pShipData->GetYPosition(), g_rgPlayerColors[i] );
 				if ( i == m_uPlayerShipIndex )
 				{
 					// If this is our local ship, then setup key bindings appropriately
@@ -372,7 +454,10 @@ void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateDa
 			else
 				m_rgpShips[i]->SetIsLocalPlayer( false );
 
-			m_rgpShips[i]->OnReceiveServerUpdate( UpdateData.m_rgShipData[i] );			
+			m_rgpShips[i]->OnReceiveServerUpdate( pUpdateData->AccessShipUpdateData( i ) );			
+
+			if ( m_pVoiceChat )
+				m_pVoiceChat->MarkPlayerAsActive( m_rgSteamIDPlayers[i] );
 		}
 		else
 		{
@@ -401,11 +486,14 @@ void CSpaceWarClient::SetGameState( EClientGameState eState )
 
 	// Let the stats handler check the state (so it can detect wins, losses, etc...)
 	m_pStatsAndAchievements->OnGameStateChange( eState );
+
+	// update any rich presence state
+	UpdateRichPresenceConnectionInfo();
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Used to transition game state
+// Purpose: set the error string to display in the UI
 //-----------------------------------------------------------------------------
 void CSpaceWarClient::SetConnectionFailureText( const char *pchErrorText )
 {
@@ -423,7 +511,6 @@ bool CSpaceWarClient::BSendServerData( const void *pData, uint32 nSizeOfData )
 		OutputDebugString( "Failed sending data to server\n" );
 		return false;
 	}
-
 	return true;
 }
 
@@ -476,14 +563,14 @@ void CSpaceWarClient::InitiateServerConnection( CSteamID steamIDGameServer )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: steam callback, trigger when our connection state changes
+// Purpose: steam callback, triggered when our connection to another client fails
 //-----------------------------------------------------------------------------
 void CSpaceWarClient::OnP2PSessionConnectFail( P2PSessionConnectFail_t *pCallback )
 {
 	if ( pCallback->m_steamIDRemote == m_steamIDGameServer )
 	{
 		// failed, error out
-		OutputDebugString( "Failed to make P2P connection, quiting server" );
+		OutputDebugString( "Failed to make P2P connection, quiting server\n" );
 		OnReceiveServerExiting();
 	}
 }
@@ -494,7 +581,7 @@ void CSpaceWarClient::OnP2PSessionConnectFail( P2PSessionConnectFail_t *pCallbac
 //-----------------------------------------------------------------------------
 void CSpaceWarClient::ReceiveNetworkData()
 {
-	char rgchRecvBuf[MAX_SPACEWAR_PACKET_SIZE];
+	char rgchRecvBuf[1024];
 	char *pchRecvBuf = rgchRecvBuf;
 	uint32 cubMsgSize;
 	for (;;)
@@ -529,13 +616,13 @@ void CSpaceWarClient::ReceiveNetworkData()
 			if ( m_eConnectedStatus == k_EClientNotConnected && m_eGameState != k_EClientGameConnecting )
 				continue;
 
-			if ( cubMsgSize < sizeof( EMessage ) )
+			if ( cubMsgSize < sizeof( DWORD ) )
 			{
 				OutputDebugString( "Got garbage on client socket, too short\n" );
 			}
 
-			EMessage *pEMsg = (EMessage*)pchRecvBuf;
-			switch ( *pEMsg )
+			EMessage eMsg = (EMessage)LittleDWord( *(DWORD*)pchRecvBuf );
+			switch ( eMsg )
 			{
 			case k_EMsgServerSendInfo:
 				{
@@ -547,7 +634,7 @@ void CSpaceWarClient::ReceiveNetworkData()
 					MsgServerSendInfo_t *pMsg = (MsgServerSendInfo_t*)pchRecvBuf;
 
 					// pull the IP address of the user from the socket
-					OnReceiveServerInfo( CSteamID( pMsg->m_ulSteamIDServer ), pMsg->m_bIsVACSecure, pMsg->m_rgchServerName );
+					OnReceiveServerInfo( CSteamID( pMsg->GetSteamIDServer() ), pMsg->GetSecure(), pMsg->GetServerName() );
 				}
 				break;
 			case k_EMsgServerPassAuthentication:
@@ -561,7 +648,7 @@ void CSpaceWarClient::ReceiveNetworkData()
 
 					// Our game client doesn't really care about whether the server is secure, or what its 
 					// steamID is, but if it did we would pass them in here as they are part of the accept message
-					OnReceiveServerAuthenticationResponse( true, pMsg->m_uPlayerPosition );
+					OnReceiveServerAuthenticationResponse( true, pMsg->GetPlayerPosition() );
 				}
 				break;
 			case k_EMsgServerFailAuthentication:
@@ -578,7 +665,7 @@ void CSpaceWarClient::ReceiveNetworkData()
 					}
 
 					MsgServerUpdateWorld_t *pMsg = (MsgServerUpdateWorld_t*)pchRecvBuf;
-					OnReceiveServerUpdate( pMsg->m_ServerUpdateData );
+					OnReceiveServerUpdate( pMsg->AccessUpdateData() );
 				}
 				break;
 			case k_EMsgServerExiting:
@@ -604,10 +691,19 @@ void CSpaceWarClient::ReceiveNetworkData()
 				break;
 			}
 		}
-		else
+		else 
 		{
-			EMessage *pEMsg = (EMessage*)pchRecvBuf;
-			m_pP2PAuthedGame->HandleMessage( *pEMsg, pchRecvBuf );
+			// the message is from another player
+			EMessage eMsg = (EMessage)LittleDWord( *(DWORD*)pchRecvBuf );
+
+			if ( m_pP2PAuthedGame->HandleMessage( eMsg, pchRecvBuf ) )
+				continue; // this was a P2P auth message
+
+			if ( m_pVoiceChat->HandleMessage( steamIDRemote, eMsg, pchRecvBuf ) )
+				continue;
+
+			// Unhandled message
+			OutputDebugString( "Received unknown message on our listen socket\n" );
 		}
 	}
 
@@ -626,18 +722,41 @@ void CSpaceWarClient::OnReceiveServerExiting()
 {
 	if ( m_pP2PAuthedGame )
 		m_pP2PAuthedGame->EndGame();
+
+#ifdef USE_GS_AUTH_API
+	if ( m_hAuthTicket != k_HAuthTicketInvalid )
+	{
+		SteamUser()->CancelAuthTicket( m_hAuthTicket );
+	}
+	m_hAuthTicket = k_HAuthTicketInvalid;
+#else
+	SteamUser()->AdvertiseGame( k_steamIDNil, 0, 0 );
+#endif
+
 	if ( m_eGameState != k_EClientGameActive )
 		return;
-
-	if ( m_eConnectedStatus == k_EClientConnectedAndAuthenticated )
-		SteamUser()->TerminateGameConnection( m_unServerIP, m_usServerPort );
-
 	m_eConnectedStatus = k_EClientNotConnected;
 
 	SetConnectionFailureText( "Game server has exited." );
 	SetGameState( k_EClientGameConnectionFailure );
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose: Steam is asking us to join a game, based on the user selecting
+//			'join game' on a friend in their friends list 
+//			the string comes from the "connect" field set in the friends' rich presence
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnGameJoinRequested( GameRichPresenceJoinRequested_t *pCallback )
+{
+	// parse out the connect 
+	const char *pchServerAddress, *pchLobbyID;
+	extern void ParseCommandLine( const char *pchCmdLine, const char **ppchServerAddress, const char **ppchLobbyID );
+	ParseCommandLine( pCallback->m_rgchConnect, &pchServerAddress, &pchLobbyID );
+
+	// exec
+	ExecCommandLineConnect( pchServerAddress, pchLobbyID );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Finishes up entering a lobby of our own creation
@@ -670,7 +789,6 @@ void CSpaceWarClient::OnLobbyCreated( LobbyCreated_t *pCallback, bool bIOFailure
 	}
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: Finishes up entering a lobby
 //-----------------------------------------------------------------------------
@@ -679,26 +797,22 @@ void CSpaceWarClient::OnLobbyEntered( LobbyEnter_t *pCallback, bool bIOFailure )
 	if ( m_eGameState != k_EClientJoiningLobby )
 		return;
 
+	if ( pCallback->m_EChatRoomEnterResponse != k_EChatRoomEnterResponseSuccess )
+	{
+		// failed, show error
+		SetConnectionFailureText( "Failed to enter lobby" );
+		SetGameState( k_EClientGameConnectionFailure );
+		return;
+	}
+
 	// success
+
 	// move forward the state
-	SetGameState( k_EClientInLobby );
 	m_steamIDLobby = pCallback->m_ulSteamIDLobby;
 	m_pLobby->SetLobbySteamID( m_steamIDLobby );
-
+	SetGameState( k_EClientInLobby );
 }
 
-void CSpaceWarClient::OnLobbyDataChange( LobbyDataUpdate_t *pCallback, bool bIOFailure )
-{
-	OutputDebugStringA( "OnLobbyDataChange ");
-	CSteamID steamIDLobbyMember( pCallback->m_ulSteamIDMember );
-}
-
-void CSpaceWarClient::OnLobbyChatUpdate( LobbyChatUpdate_t *pCallback, bool bIOFailure )
-{
-	CSteamID steamIDLobbyMember( pCallback->m_ulSteamIDUserChanged );
-	CSteamID steamIDLobbyMember2( pCallback->m_ulSteamIDMakingChange );
-	OutputDebugStringA( "OnLobbyChatUpdate ");
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Joins a game from a lobby
@@ -713,6 +827,14 @@ void CSpaceWarClient::OnLobbyGameCreated( LobbyGameCreated_t *pCallback )
 	{
 		InitiateServerConnection( CSteamID( pCallback->m_ulSteamIDGameServer ) );
 	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: a large avatar image has been loaded for us
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnAvatarImageLoaded( AvatarImageLoaded_t *pCallback )
+{
 }
 
 
@@ -746,6 +868,7 @@ void CSpaceWarClient::OnMenuSelection( LobbyMenuItem_t selection )
 
 		// broadcast to everyone in the lobby that the game is starting
 		SteamMatchmaking()->SetLobbyData( m_steamIDLobby, "game_starting", "1" );
+		
 		// start a local game server
 		m_pServer = new CSpaceWarServer( m_pGameEngine );
 		// we'll have to wait until the game server connects to the Steam server back-end 
@@ -769,6 +892,15 @@ void CSpaceWarClient::OnMenuSelection( LeaderboardMenuItem_t selection )
 
 
 //-----------------------------------------------------------------------------
+// Purpose: Handles menu actions when viewing the remote storage sync screen
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnMenuSelection( ERemoteStorageSyncMenuCommand selection )
+{
+	m_pRemoteStorage->OnMenuSelection( selection );
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: does work on transitioning from one game state to another
 //-----------------------------------------------------------------------------
 void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
@@ -777,10 +909,12 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 	{
 		// If we are just opening the find servers screen, then start a refresh
 		m_pServerBrowser->RefreshInternetServers();
+		SteamFriends()->SetRichPresence( "status", "Finding an internet game" );
 	}
 	else if ( m_eGameState == k_EClientFindLANServers )
 	{
 		m_pServerBrowser->RefreshLANServers();
+		SteamFriends()->SetRichPresence( "status", "Finding a LAN game" );
 	}
 	else if ( m_eGameState == k_EClientCreatingLobby )
 	{
@@ -792,10 +926,12 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 			// set the function to call when this completes
 			m_SteamCallResultLobbyCreated.Set( hSteamAPICall, this, &CSpaceWarClient::OnLobbyCreated );
 		}
+		SteamFriends()->SetRichPresence( "status", "Creating a lobby" );
 	}
 	else if ( m_eGameState == k_EClientFindLobby )
 	{
 		m_pLobbyBrowser->Refresh();
+		SteamFriends()->SetRichPresence( "status", "Main menu: finding lobbies" );
 	}
 	else if ( m_eGameState == k_EClientGameMenu )
 	{
@@ -810,6 +946,8 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 			delete m_pServer;
 			m_pServer = NULL;
 		}
+
+		SteamFriends()->SetRichPresence( "status", "Main menu" );
 	}
 	else if ( m_eGameState == k_EClientGameWinner || m_eGameState == k_EClientGameDraw )
 	{
@@ -820,6 +958,25 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 	{
 		// we've switched to the leaderboard menu
 		m_pLeaderboards->Show();
+		SteamFriends()->SetRichPresence( "status", "Viewing leaderboards" );
+	}
+	else if ( m_eGameState == k_EClientClanChatRoom )
+	{
+		// we've switched to the leaderboard menu
+		m_pClanChatRoom->Show();
+		SteamFriends()->SetRichPresence( "status", "Chatting" );
+	}
+	else if ( m_eGameState == k_EClientGameActive )
+	{
+		// start voice chat 
+		m_pVoiceChat->StartVoiceChat();
+		SteamFriends()->SetRichPresence( "status", "In match" );
+	}
+	else if ( m_eGameState == k_EClientRemoteStorage )
+	{
+		// we've switched to the remote storage menu
+		m_pRemoteStorage->Show();
+		SteamFriends()->SetRichPresence( "status", "Viewing remote storage" );
 	}
 }
 
@@ -831,10 +988,12 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 void CSpaceWarClient::OnIPCFailure( IPCFailure_t *failure )
 {
 	static bool bExiting = false;
-	if ( ! bExiting )
+	if ( !bExiting )
 	{
 		OutputDebugString( "Steam IPC Failure, shutting down\n" );
+#if defined( _WIN32 )
 		::MessageBoxA( NULL, "Connection to Steam Lost, Exiting", "Steam Connection Error", MB_OK );
+#endif
 		m_pGameEngine->Shutdown();
 		bExiting = true;
 	}
@@ -854,6 +1013,57 @@ void CSpaceWarClient::OnSteamShutdown( SteamShutdown_t *callback )
 		m_pGameEngine->Shutdown();
 		bExiting = true;
 	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles notification that we are now connected to Steam
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnSteamServersConnected( SteamServersConnected_t *callback )
+{
+	if ( SteamUser()->BLoggedOn() )
+		m_eGameState = k_EClientGameMenu;
+	else
+	{
+		OutputDebugString( "Got SteamServersConnected_t, but not logged on?\n" );
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles notification that we are now connected to Steam
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnSteamServersDisconnected( SteamServersDisconnected_t *callback )
+{
+	SetGameState( k_EClientConnectingToSteam );
+	m_pConnectingMenu->OnConnectFailure();
+	OutputDebugString( "Got SteamServersDisconnected_t\n" );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles notification that the Steam overlay is shown/hidden, note, this
+// doesn't mean the overlay will or will not draw, it may still draw when not active.
+// This does mean the time when the overlay takes over input focus from the game.
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnGameOverlayActivated( GameOverlayActivated_t *callback )
+{
+	if ( callback->m_bActive )	
+		OutputDebugString( "Steam overlay now active\n" );
+	else
+		OutputDebugString( "Steam overlay now inactive\n" );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles notification that we are failed to connected to Steam
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnSteamServerConnectFailure( SteamServerConnectFailure_t *callback )
+{
+	char rgchString[256];
+	_snprintf( rgchString, 256, "SteamServerConnectFailure_t: %d\n", callback->m_eResult );
+
+	m_pConnectingMenu->OnConnectFailure();
 }
 
 
@@ -901,6 +1111,40 @@ void CSpaceWarClient::RunFrame()
 	// Update state for everything
 	switch ( m_eGameState )
 	{
+	case k_EClientConnectingToSteam:
+		m_pStarField->Render();
+		m_pConnectingMenu->RunFrame();
+		break;
+	case k_EClientRetrySteamConnection:
+#ifdef _PS3
+		m_pStarField->Render();
+		SteamUser()->LogOn( true );
+		m_pConnectingMenu->Reset();
+		SetGameState( k_EClientConnectingToSteam );
+#else
+		OutputDebugString( "Invalidate state k_EClientRetrySteamConnection hit on non-PS3 platform" );
+#endif
+		break;
+	case k_EClientLinkSteamAccount:
+#ifdef _PS3
+		m_pStarField->Render();
+		SteamUser()->LogOnAndLinkSteamAccountToPSN( true, "jmccaskeybeta", "test123" );
+		m_pConnectingMenu->Reset();
+		SetGameState( k_EClientConnectingToSteam );
+#else
+		OutputDebugString( "Invalidate state k_EClientLinkSteamAccount hit on non-PS3 platform" );
+#endif
+		break;
+	case k_EClientAutoCreateAccount:
+#ifdef _PS3
+		m_pStarField->Render();
+		m_pConnectingMenu->Reset();
+		SteamUser()->LogOnAndCreateNewSteamAccountIfNeeded( true );
+		SetGameState( k_EClientConnectingToSteam );
+#else
+		OutputDebugString( "Invalidate state k_EClientAutoCreateAccount hit on non-PS3 platform" );
+#endif
+		break;
 	case k_EClientGameMenu:
 		m_pStarField->Render();
 		m_pMainMenu->RunFrame();
@@ -972,8 +1216,9 @@ void CSpaceWarClient::RunFrame()
 			if ( m_pP2PAuthedGame )
 				m_pP2PAuthedGame->EndGame();
 			if ( m_eConnectedStatus == k_EClientConnectedAndAuthenticated )
+			{
 				SteamUser()->TerminateGameConnection( m_unServerIP, m_usServerPort );
-			
+			}
 			m_GameServerPing.CancelPing();
 			SetConnectionFailureText( "Timed out connecting to game server" );
 			SetGameState( k_EClientGameConnectionFailure );
@@ -1016,19 +1261,25 @@ void CSpaceWarClient::RunFrame()
 			SetGameState( k_EClientGameMenu );
 		break;
 
-	case k_EClientRemoteStorage:
+	case k_EClientClanChatRoom:
 		m_pStarField->Render();
-		m_pRemoteStorage->Render();
+		m_pClanChatRoom->RunFrame();		
 
-		if ( m_pRemoteStorage->BFinished() )
+		if ( bEscapePressed )
 			SetGameState( k_EClientGameMenu );
 		break;
 
+	case k_EClientRemoteStorage:
+		m_pStarField->Render();
+		m_pRemoteStorage->Render();
+		break;
+
 	case k_EClientMinidump:
+#ifdef _WIN32
 		RaiseException( EXCEPTION_NONCONTINUABLE_EXCEPTION,
 			EXCEPTION_NONCONTINUABLE,
 			0, NULL );
-
+#endif
 		SetGameState( k_EClientGameMenu );
 		break;
 
@@ -1061,12 +1312,17 @@ void CSpaceWarClient::RunFrame()
 		DrawHUDText();
 		DrawWinnerDrawOrWaitingText();
 
+		m_pVoiceChat->RunFrame();
+
 		if ( bEscapePressed )
 			SetGameState( k_EClientGameQuitMenu );
+
 		break;
 
 	case k_EClientGameActive:
 		m_pStarField->Render();
+		
+
 
 		// Update all the entities...
 		m_pSun->RunFrame();
@@ -1078,9 +1334,12 @@ void CSpaceWarClient::RunFrame()
 		DrawHUDText();
 
 		m_pStatsAndAchievements->RunFrame();
+		
+		m_pVoiceChat->RunFrame();
 
 		if ( bEscapePressed )
 			SetGameState( k_EClientGameQuitMenu );
+
 		break;
 	case k_EClientGameExiting:
 		DisconnectFromServer();
@@ -1095,10 +1354,10 @@ void CSpaceWarClient::RunFrame()
 	if ( m_eConnectedStatus == k_EClientConnectedAndAuthenticated &&  m_rgpShips[ m_uPlayerShipIndex ] )
 	{
 		MsgClientSendLocalUpdate_t msg;
-		msg.m_uShipPosition = m_uPlayerShipIndex;
+		msg.SetShipPosition( m_uPlayerShipIndex );
 
 		// If this fails, it probably just means its not time to send an update yet
-		if ( m_rgpShips[ m_uPlayerShipIndex ]->BGetClientUpdateData( &msg.m_ClientUpdateData ) )
+		if ( m_rgpShips[ m_uPlayerShipIndex ]->BGetClientUpdateData( msg.AccessUpdateData() ) )
 			BSendServerData( &msg, sizeof( msg ) );
 	}
 
@@ -1172,7 +1431,16 @@ void CSpaceWarClient::RunFrame()
 void CSpaceWarClient::DrawHUDText()
 {
 	// Padding from the edge of the screen for hud elements
-	const int32 nHudPadding = 15;
+#ifdef _PS3
+	// Larger padding on PS3, since many of our test HDTVs truncate 
+	// edges of the screen and can't be calibrated properly.
+	const int32 nHudPaddingVertical = 20;
+	const int32 nHudPaddingHorizontal = 35;
+#else
+	const int32 nHudPaddingVertical = 15;
+	const int32 nHudPaddingHorizontal = 15;
+#endif
+
 
 	const int32 width = m_pGameEngine->GetViewportWidth();
 	const int32 height = m_pGameEngine->GetViewportHeight();
@@ -1182,7 +1450,7 @@ void CSpaceWarClient::DrawHUDText()
 
 	const int32 nSpaceBetweenAvatarAndScore = 6;
 
-	LONG scorewidth = LONG((m_pGameEngine->GetViewportWidth() - nHudPadding*2.0f)/4.0f);
+	LONG scorewidth = LONG((m_pGameEngine->GetViewportWidth() - nHudPaddingHorizontal*2.0f)/4.0f);
 
 	char rgchBuffer[256];
 	for( uint32 i=0; i<MAX_PLAYERS_PER_SERVER; ++i )
@@ -1197,9 +1465,13 @@ void CSpaceWarClient::DrawHUDText()
 		// players on the same game server as us (if using the Steam game server auth API) 
 		// and on ourself.
 		char rgchPlayerName[128];
+		CSteamID playerSteamID( m_rgSteamIDPlayers[i] );
+
+		const char *pszVoiceState = m_pVoiceChat->IsPlayerTalking( playerSteamID ) ? "(VoiceChat)" : "";
+
 		if ( m_rgSteamIDPlayers[i].IsValid() )
 		{
-			_snprintf( rgchPlayerName, ARRAYSIZE( rgchPlayerName ), "%s", SteamFriends()->GetFriendPersonaName( m_rgSteamIDPlayers[i] ) );
+			_snprintf( rgchPlayerName, ARRAYSIZE( rgchPlayerName ), "%s", SteamFriends()->GetFriendPersonaName( playerSteamID ) );
 		}
 		else
 		{
@@ -1207,18 +1479,20 @@ void CSpaceWarClient::DrawHUDText()
 		}
 
 		// We also want to use the Steam Avatar image inside the HUD if it is available.
-		// We look it up via GetFriendAvatar, which returns an image index we use
+		// We look it up via GetMediumFriendAvatar, which returns an image index we use
 		// to look up the actual RGBA data below.
-		int iImage = SteamFriends()->GetFriendAvatar( m_rgSteamIDPlayers[i], k_EAvatarSize64x64 );
-		HGAMETEXTURE hTexture = GetSteamImageAsTexture( iImage );
+		int iImage = SteamFriends()->GetMediumFriendAvatar( playerSteamID );
+		HGAMETEXTURE hTexture = NULL;
+		if ( iImage != -1 )
+			hTexture = GetSteamImageAsTexture( iImage );
 
 		RECT rect;
 		switch( i )
 		{
 		case 0:
-			rect.top = nHudPadding;
+			rect.top = nHudPaddingVertical;
 			rect.bottom = rect.top+nAvatarHeight;
-			rect.left = nHudPadding;
+			rect.left = nHudPaddingHorizontal;
 			rect.right = rect.left + scorewidth;
 
 			if ( hTexture )
@@ -1229,15 +1503,15 @@ void CSpaceWarClient::DrawHUDText()
 				rect.right += nAvatarWidth + nSpaceBetweenAvatarAndScore;
 			}
 			
-			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u", rgchPlayerName, m_rguPlayerScores[i] );
-			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], DT_LEFT|DT_VCENTER, rgchBuffer );
+			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u %s", rgchPlayerName, m_rguPlayerScores[i], pszVoiceState );
+			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], TEXTPOS_LEFT|TEXTPOS_VCENTER, rgchBuffer );
 			break;
 		case 1:
 
-			rect.top = nHudPadding;
+			rect.top = nHudPaddingVertical;
 			rect.bottom = rect.top+nAvatarHeight;
-			rect.left = width-nHudPadding-scorewidth;
-			rect.right = width-nHudPadding;
+			rect.left = width-nHudPaddingHorizontal-scorewidth;
+			rect.right = width-nHudPaddingHorizontal;
 
 			if ( hTexture )
 			{
@@ -1247,13 +1521,13 @@ void CSpaceWarClient::DrawHUDText()
 				rect.left -= nAvatarWidth + nSpaceBetweenAvatarAndScore;
 			}
 
-			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u", rgchPlayerName, m_rguPlayerScores[i] );
-			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], DT_RIGHT|DT_VCENTER, rgchBuffer );
+			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u ", rgchPlayerName, m_rguPlayerScores[i], pszVoiceState );
+			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], TEXTPOS_RIGHT|TEXTPOS_VCENTER, rgchBuffer );
 			break;
 		case 2:
-			rect.top = height-nHudPadding-nAvatarHeight;
+			rect.top = height-nHudPaddingVertical-nAvatarHeight;
 			rect.bottom = rect.top+nAvatarHeight;
-			rect.left = nHudPadding;
+			rect.left = nHudPaddingHorizontal;
 			rect.right = rect.left + scorewidth;
 
 			if ( hTexture )
@@ -1264,14 +1538,14 @@ void CSpaceWarClient::DrawHUDText()
 				rect.left += nAvatarWidth + nSpaceBetweenAvatarAndScore;
 			}
 
-			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u", rgchPlayerName, m_rguPlayerScores[i] );
-			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], DT_LEFT|DT_BOTTOM, rgchBuffer );
+			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u %s", rgchPlayerName, m_rguPlayerScores[i], pszVoiceState );
+			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], TEXTPOS_LEFT|TEXTPOS_BOTTOM, rgchBuffer );
 			break;
 		case 3:
-			rect.top = height-nHudPadding-nAvatarHeight;
+			rect.top = height-nHudPaddingVertical-nAvatarHeight;
 			rect.bottom = rect.top+nAvatarHeight;
-			rect.left = width-nHudPadding-scorewidth;
-			rect.right = width-nHudPadding;
+			rect.left = width-nHudPaddingHorizontal-scorewidth;
+			rect.right = width-nHudPaddingHorizontal;
 
 			if ( hTexture )
 			{
@@ -1281,8 +1555,8 @@ void CSpaceWarClient::DrawHUDText()
 				rect.left -= nAvatarWidth + nSpaceBetweenAvatarAndScore;
 			}
 
-			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u", rgchPlayerName, m_rguPlayerScores[i] );
-			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], DT_RIGHT|DT_BOTTOM, rgchBuffer );
+			_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\nScore: %2u %s", rgchPlayerName, m_rguPlayerScores[i], pszVoiceState );
+			m_pGameEngine->BDrawString( m_hHUDFont, rect, g_rgPlayerColors[i], TEXTPOS_RIGHT|TEXTPOS_BOTTOM, rgchBuffer );
 			break;
 		default:
 			OutputDebugString( "DrawHUDText() needs updating for more players\n" );
@@ -1306,8 +1580,13 @@ void CSpaceWarClient::DrawInstructions()
 	rect.right = width;
 
 	char rgchBuffer[256];
+#ifdef _PS3
+	_snprintf( rgchBuffer, sizeof( rgchBuffer), "Turn Ship Left: 'Left'\nTurn Ship Right: 'Right'\nForward Thrusters: 'R2'\nReverse Thrusters: 'L2'\nFire Photon Beams: 'Cross'" );
+#else
 	_snprintf( rgchBuffer, sizeof( rgchBuffer), "Turn Ship Left: 'A'\nTurn Ship Right: 'D'\nForward Thrusters: 'W'\nReverse Thrusters: 'S'\nFire Photon Beams: 'Space'" );
-	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+#endif
+
+	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 
 	
 	rect.left = 0;
@@ -1316,7 +1595,7 @@ void CSpaceWarClient::DrawInstructions()
 	rect.bottom = m_pGameEngine->GetViewportHeight();
 
 	_snprintf( rgchBuffer, sizeof( rgchBuffer ), "Press ESC to return to the Main Menu" );
-	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_TOP, rgchBuffer );
+	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_TOP, rgchBuffer );
 
 }
 
@@ -1349,7 +1628,7 @@ void CSpaceWarClient::DrawConnectionAttemptText()
 	else
 		_snprintf( rgchBuffer, sizeof( rgchBuffer ), "Connecting to server%s", rgchTimeoutString );
 
-	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 }
 
 
@@ -1368,7 +1647,7 @@ void CSpaceWarClient::DrawConnectionFailureText()
 
 	char rgchBuffer[256];
 	_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s\n", m_rgchErrorText );
-	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 
 	rect.left = 0;
 	rect.right = width;
@@ -1376,7 +1655,7 @@ void CSpaceWarClient::DrawConnectionFailureText()
 	rect.bottom = m_pGameEngine->GetViewportHeight();
 
 	_snprintf( rgchBuffer, sizeof( rgchBuffer ), "Press ESC to return to the Main Menu" );
-	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_TOP, rgchBuffer );
+	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_TOP, rgchBuffer );
 }
 
 
@@ -1397,16 +1676,16 @@ void CSpaceWarClient::DrawWinnerDrawOrWaitingText()
 	if ( m_eGameState == k_EClientGameWaitingForPlayers )
 	{
 		_snprintf( rgchBuffer, sizeof( rgchBuffer), "Server is waiting for players.\n\nStarting in %d seconds...", nSecondsToRestart );
-		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 	} 
 	else if ( m_eGameState == k_EClientGameDraw )
 	{
 		_snprintf( rgchBuffer, sizeof( rgchBuffer), "The round is a draw!\n\nStarting again in %d seconds...", nSecondsToRestart );
-		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 	} 
 	else if ( m_eGameState == k_EClientGameWinner )
 	{
-		if ( m_uPlayerWhoWonGame < 0 || m_uPlayerWhoWonGame >= MAX_PLAYERS_PER_SERVER )
+		if ( m_uPlayerWhoWonGame >= MAX_PLAYERS_PER_SERVER )
 		{
 			OutputDebugString( "Invalid winner value\n" );
 			return;
@@ -1424,7 +1703,7 @@ void CSpaceWarClient::DrawWinnerDrawOrWaitingText()
 
 		_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s wins!\n\nStarting again in %d seconds...", rgchPlayerName, nSecondsToRestart );
 		
-		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 	}
 }
 
@@ -1436,7 +1715,7 @@ bool CSpaceWarClient::BLocalPlayerWonLastGame()
 {
 	if ( m_eGameState == k_EClientGameWinner )
 	{
-		if ( m_uPlayerWhoWonGame < 0 || m_uPlayerWhoWonGame >= MAX_PLAYERS_PER_SERVER )
+		if ( m_uPlayerWhoWonGame >= MAX_PLAYERS_PER_SERVER )
 		{
 			// ur
 			return false;
@@ -1510,4 +1789,131 @@ HGAMETEXTURE CSpaceWarClient::GetSteamImageAsTexture( int iImage )
 	}
 
 	return hTexture;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Request an encrypted app ticket
+//-----------------------------------------------------------------------------
+uint32 k_unSecretData = 0x5444;
+void CSpaceWarClient::RetrieveEncryptedAppTicket()
+{	
+	SteamAPICall_t hSteamAPICall = SteamUser()->RequestEncryptedAppTicket( &k_unSecretData, sizeof( k_unSecretData ) );
+	m_SteamCallResultEncryptedAppTicket.Set( hSteamAPICall, this, &CSpaceWarClient::OnRequestEncryptedAppTicket );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Called when requested app ticket asynchronously completes
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::OnRequestEncryptedAppTicket( EncryptedAppTicketResponse_t *pEncryptedAppTicketResponse, bool bIOFailure )
+{
+	if ( bIOFailure )
+		return;
+
+	if ( pEncryptedAppTicketResponse->m_eResult == k_EResultOK )
+	{
+		uint8 rgubTicket[1024];
+		uint32 cubTicket;		
+		SteamUser()->GetEncryptedAppTicket( rgubTicket, sizeof( rgubTicket), &cubTicket );
+
+
+#ifdef _WIN32
+		// normally at this point you transmit the encrypted ticket to the service that knows the decryption key
+		// this code is just to demonstrate the ticket cracking library
+
+		// included is the "secret" key for spacewar. normally this is secret
+		const uint8 rgubKey[k_nSteamEncryptedAppTicketSymmetricKeyLen] = { 0xed, 0x93, 0x86, 0x07, 0x36, 0x47, 0xce, 0xa5, 0x8b, 0x77, 0x21, 0x49, 0x0d, 0x59, 0xed, 0x44, 0x57, 0x23, 0xf0, 0xf6, 0x6e, 0x74, 0x14, 0xe1, 0x53, 0x3b, 0xa3, 0x3c, 0xd8, 0x03, 0xbd, 0xbd };		
+
+		uint8 rgubDecrypted[1024];
+		uint32 cubDecrypted = sizeof( rgubDecrypted );
+		if ( !SteamEncryptedAppTicket_BDecryptTicket( rgubTicket, cubTicket, rgubDecrypted, &cubDecrypted, rgubKey, sizeof( rgubKey ) ) )
+		{
+			OutputDebugString( "Ticket failed to decrypt\n" );
+			return;
+		}
+
+		if ( !SteamEncryptedAppTicket_BIsTicketForApp( rgubDecrypted, cubDecrypted, SteamUtils()->GetAppID() ) )
+			OutputDebugString( "Ticket for wrong app id\n" );
+
+		CSteamID steamIDFromTicket;
+		SteamEncryptedAppTicket_GetTicketSteamID( rgubDecrypted, cubDecrypted, &steamIDFromTicket );
+		if ( steamIDFromTicket != SteamUser()->GetSteamID() )
+			OutputDebugString( "Ticket for wrong user\n" );
+
+		uint32 cubData;
+		uint32 *punSecretData = (uint32 *)SteamEncryptedAppTicket_GetUserVariableData( rgubDecrypted, cubDecrypted, &cubData );
+		if ( cubData != sizeof( uint32 ) || *punSecretData != k_unSecretData )
+			OutputDebugString( "Failed to retrieve secret data\n" );
+#endif
+	}
+	else if ( pEncryptedAppTicketResponse->m_eResult == k_EResultLimitExceeded )
+	{
+		OutputDebugString( "Calling RequestEncryptedAppTicket more than once per minute returns this error\n" );
+	}
+	else if ( pEncryptedAppTicketResponse->m_eResult == k_EResultDuplicateRequest )
+	{
+		OutputDebugString( "Calling RequestEncryptedAppTicket while there is already a pending request results in this error\n" );
+	}
+	else if ( pEncryptedAppTicketResponse->m_eResult == k_EResultNoConnection )
+	{
+		OutputDebugString( "Calling RequestEncryptedAppTicket while not connected to steam results in this error\n" );
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Updates what we show to friends about what we're doing and how to connect
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::UpdateRichPresenceConnectionInfo()
+{
+	// connect string that will come back to us on the command line	when a friend tries to join our game
+	char rgchConnectString[128];
+	rgchConnectString[0] = 0;
+
+	if ( m_eConnectedStatus == k_EClientConnectedAndAuthenticated && m_unServerIP && m_usServerPort )
+	{
+		// game server connection method
+		_snprintf( rgchConnectString, sizeof(rgchConnectString), "+connect %d:%d", m_unServerIP, m_usServerPort );
+	}
+	else if ( m_steamIDLobby.IsValid() )
+	{
+		// lobby connection method
+		_snprintf( rgchConnectString, sizeof(rgchConnectString), "+connect_lobby %llu", m_steamIDLobby.ConvertToUint64() );
+	}
+
+	SteamFriends()->SetRichPresence( "connect", rgchConnectString );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: applies a command-line connect
+//-----------------------------------------------------------------------------
+void CSpaceWarClient::ExecCommandLineConnect( const char *pchServerAddress, const char *pchLobbyID )
+{
+	if ( pchServerAddress )
+	{
+		int32 octet0 = 0, octet1 = 0, octet2 = 0, octet3 = 0;
+		int32 uPort = 0;
+		int nConverted = sscanf( pchServerAddress, "%d.%d.%d.%d:%d", &octet0, &octet1, &octet2, &octet3, &uPort );
+		if ( nConverted == 5 )
+		{
+			char rgchIPAddress[128];
+			_snprintf( rgchIPAddress, ARRAYSIZE( rgchIPAddress ), "%d.%d.%d.%d", octet0, octet1, octet2, octet3 );
+			uint32 unIPAddress = ( octet3 ) + ( octet2 << 8 ) + ( octet1 << 16 ) + ( octet0 << 24 );
+			InitiateServerConnection( unIPAddress, uPort );
+		}
+	}
+
+	// if +connect_lobby was used to specify a lobby to join, connect now
+	if ( pchLobbyID )
+	{
+		CSteamID steamIDLobby( (uint64)atoll( pchLobbyID ) );
+		if ( steamIDLobby.IsValid() )
+		{
+			// act just like we had selected it from the menu
+			LobbyBrowserMenuItem_t menuItem = { steamIDLobby, k_EClientJoiningLobby };
+			OnMenuSelection( menuItem );
+		}
+	}
 }

@@ -15,6 +15,7 @@ namespace SteamworksUnityHost
 		public Int32 m_nGlobalRank;	// [1..N], where N is the number of users with an entry in the leaderboard
 		public Int32 m_nScore;			// score as set in the leaderboard
 		public Int32 m_cDetails;		// number of int32 details available for this entry
+		public UInt64 m_hUGC;		// handle for UGC attached to the entry
 	};
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -50,7 +51,7 @@ namespace SteamworksUnityHost
 			Int32 startIndex, Int32 endIndex, IntPtr OnLeaderboardEntriesRetrievedCallback);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(IntPtr stats, SteamLeaderboardEntries_t leaderboardEntries, Int32 index,
-			out LeaderboardEntry_t leaderboardEntry, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I4)] Int32[] scoreDetails, Int32 maxScoreDetailCount);
+			ref LeaderboardEntry_t leaderboardEntry, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I4)] Int32[] scoreDetails, Int32 maxScoreDetailCount);
 
 		private IntPtr _stats;
 		private Leaderboards _leaderboards;
@@ -142,13 +143,14 @@ namespace SteamworksUnityHost
 		{
 			if (callbackData.m_cEntryCount > 0)
 			{
-				LeaderboardEntry_t leaderboardEntry;
+				int entryCount = callbackData.m_cEntryCount;
+				LeaderboardEntry_t leaderboardEntry = new LeaderboardEntry_t();
 				LeaderboardEntries leaderboardEntries = new LeaderboardEntries(this);
 				Int32[] details = new Int32[_maxDetails];
 
-				for (int index = 0; index < callbackData.m_cEntryCount; index++)
+				for (int index = 0; index < entryCount; index++)
 				{
-					if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, callbackData.m_hSteamLeaderboardEntries, index, out leaderboardEntry, details, _maxDetails))
+					if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, callbackData.m_hSteamLeaderboardEntries, index, ref leaderboardEntry, details, _maxDetails))
 					{
 						List<Int32> scoreDetails = null;
 
