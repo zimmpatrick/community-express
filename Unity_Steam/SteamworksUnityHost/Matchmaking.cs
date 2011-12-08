@@ -6,8 +6,53 @@ using System.Net;
 
 namespace SteamworksUnityHost
 {
+	using SteamAPICall_t = UInt64;
 	using AppId_t = UInt32;
 	using HServerListRequest = UInt32;
+
+	// lobby type description
+	public enum ELobbyType
+	{
+		k_ELobbyTypePrivate = 0,		// only way to join the lobby is to invite to someone else
+		k_ELobbyTypeFriendsOnly = 1,	// shows for friends or invitees, but not in lobby list
+		k_ELobbyTypePublic = 2,			// visible for friends and in lobby list
+		k_ELobbyTypeInvisible = 3,		// returned by search, but not visible to other friends 
+		//    useful if you want a user in two lobbies, for example matching groups together
+		//	  a user can be in only one regular lobby, and up to two invisible lobbies
+	};
+
+	// lobby search filter tools
+	public enum ELobbyComparison
+	{
+		k_ELobbyComparisonEqualToOrLessThan = -2,
+		k_ELobbyComparisonLessThan = -1,
+		k_ELobbyComparisonEqual = 0,
+		k_ELobbyComparisonGreaterThan = 1,
+		k_ELobbyComparisonEqualToOrGreaterThan = 2,
+		k_ELobbyComparisonNotEqual = 3,
+	};
+
+	// lobby search distance. Lobby results are sorted from closest to farthest.
+	public enum ELobbyDistanceFilter
+	{
+		k_ELobbyDistanceFilterClose,		// only lobbies in the same immediate region will be returned
+		k_ELobbyDistanceFilterDefault,		// only lobbies in the same region or near by regions
+		k_ELobbyDistanceFilterFar,			// for games that don't have many latency requirements, will return lobbies about half-way around the globe
+		k_ELobbyDistanceFilterWorldwide,	// no filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients)
+	};
+
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	struct LobbyCreated_t
+	{
+		public EResult m_eResult;
+		public UInt64 m_ulSteamIDLobby;		// chat room, zero if failed
+	}
+
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	struct LobbyMatchList_t
+	{
+		public UInt32 m_nLobbiesMatching;		// Number of lobbies that matched search criteria and we have SteamIDs for
+	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	struct servernetadr_t
@@ -45,6 +90,25 @@ namespace SteamworksUnityHost
 		public UInt64 m_steamID;					// steamID of the game server - invalid if it's doesn't have one (old server, or not connected to Steam)
 	}
 
+	public struct LobbyStringFilter
+	{
+		public String key;
+		public String value;
+		public ELobbyComparison comparison;
+	}
+
+	public struct LobbyIntFilter
+	{
+		public String key;
+		public Int32 value;
+		public ELobbyComparison comparison;
+	}
+
+	delegate void OnMatchmakingLobbyCreatedBySteam(ref LobbyCreated_t callbackData);
+	public delegate void OnLobbyCreated(Lobby lobby);
+	delegate void OnMatchmakingLobbyListReceivedFromSteam(ref LobbyMatchList_t callbackData);
+	public delegate void OnLobbyListReceived(Lobbies lobbies);
+
 	delegate void OnMatchmakingServerReceivededFromSteam(HServerListRequest request, ref gameserveritem_t callbackData);
 	delegate void OnMatchmakingServerListReceivededFromSteam(HServerListRequest request);
 	public delegate void OnServerReceived(Servers serverList, Server server);
@@ -59,7 +123,50 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern UInt64 SteamUnityAPI_SteamUtils_GetAppID();
 		[DllImport("SteamworksUnity.dll")]
+		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(IntPtr matchmaking, ELobbyType lobbyType, Int32 maxMembers);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, [MarshalAs(UnmanagedType.LPStr)] String value, ELobbyComparison comparisonType);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value, ELobbyComparison comparisonType);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(IntPtr matchmaking, int slotsAvailable);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(IntPtr matchmaking, ELobbyDistanceFilter lobbyDistanceFilter);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListResultCountFilter(IntPtr matchmaking, int maxResults);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(IntPtr matchmaking, UInt64 steamIDLobby);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(IntPtr matchmaking);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(IntPtr matchmaking, Int32 lobbyIndex);
+		[DllImport("SteamworksUnity.dll")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(IntPtr matchmakingServers, AppId_t appId,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
+			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestLANServerList(IntPtr matchmakingServers, AppId_t appId,
+			IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestSpectatorServerList(IntPtr matchmakingServers, AppId_t appId,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
+			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestHistoryServerList(IntPtr matchmakingServers, AppId_t appId,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
+			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFavoriteServerList(IntPtr matchmakingServers, AppId_t appId,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
+			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFriendServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
@@ -69,6 +176,11 @@ namespace SteamworksUnityHost
 		public const HServerListRequest HServerListRequest_Invalid = 0x0;
 
 		private IntPtr _matchmaking;
+		private Lobbies _lobbyList;
+		private SteamAPICall_t _lobbyListRequest = 0;
+		private OnLobbyCreated _onLobbyCreated;
+		private OnLobbyListReceived _onLobbyListReceived;
+
 		private IntPtr _matchmakingServers;
 		private HServerListRequest _serverListRequest = HServerListRequest_Invalid;
 		private Servers _serverList;
@@ -84,10 +196,97 @@ namespace SteamworksUnityHost
 			_matchmakingServers = SteamUnityAPI_SteamMatchmakingServers();
 		}
 
-		public Servers RequestInternetServerList(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		public void CreateLobby(ELobbyType lobbyType, Int32 maxMembers, OnLobbyCreated onLobbyCreated)
+		{
+			_onLobbyCreated = onLobbyCreated;
+
+			SteamUnity.Instance.AddCreateLobbyCallback(SteamUnityAPI_SteamMatchmaking_CreateLobby(_matchmaking, lobbyType, maxMembers), OnLobbyCreatedCallback);
+		}
+
+		private void OnLobbyCreatedCallback(ref LobbyCreated_t callbackData)
+		{
+			_onLobbyCreated(new Lobby(null, new SteamID(callbackData.m_ulSteamIDLobby)));
+		}
+
+		public Lobbies RequestLobbyList(ICollection<LobbyStringFilter> stringFilters, ICollection<LobbyIntFilter> intFilters, Dictionary<String, Int32> nearValueFilters, Int32 requiredSlotsAvailable, ELobbyDistanceFilter lobbyDistance, Int32 maxResults, ICollection<SteamID> compatibleSteamIDs, OnLobbyListReceived onLobbyListReceived)
+		{
+			if (_lobbyListRequest != 0)
+				CancelCurrentLobbyListRequest();
+
+			_lobbyList = new Lobbies();
+
+			_onLobbyListReceived = onLobbyListReceived;
+
+			if (stringFilters != null)
+			{
+				foreach (LobbyStringFilter f in stringFilters)
+				{
+					SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(_matchmaking, f.key, f.value, f.comparison);
+				}
+			}
+		
+			if (intFilters != null)
+			{
+				foreach (LobbyIntFilter f in intFilters)
+				{
+					SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(_matchmaking, f.key, f.value, f.comparison);
+				}
+			}
+		
+			if (nearValueFilters != null)
+			{
+				foreach (KeyValuePair<String, Int32> kvp in nearValueFilters)
+				{
+					SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(_matchmaking, kvp.Key, kvp.Value);
+				}
+			}
+
+			if (compatibleSteamIDs != null)
+			{
+				foreach (SteamID id in compatibleSteamIDs)
+				{
+					SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(_matchmaking, id.ToUInt64());
+				}
+			}
+
+			if (requiredSlotsAvailable != 0)
+			{
+				SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(_matchmaking, requiredSlotsAvailable);
+			}
+
+			if (maxResults != 0)
+			{
+				SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListResultCountFilter(_matchmaking, maxResults);
+			}
+
+			SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(_matchmaking, lobbyDistance);
+
+			SteamUnity.Instance.AddLobbyListRequestCallback(SteamUnityAPI_SteamMatchmaking_RequestLobbyList(_matchmaking), OnLobbyListReceivedCallback);
+
+			return _lobbyList;
+		}
+
+		private void OnLobbyListReceivedCallback(ref LobbyMatchList_t CallbackData)
+		{
+			for (int i = 0; i < CallbackData.m_nLobbiesMatching; i++)
+			{
+				_lobbyList.Add(new Lobby(_lobbyList, new SteamID(SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(_matchmaking, i))));
+			}
+
+			_onLobbyListReceived(_lobbyList);
+		}
+
+		public void CancelCurrentLobbyListRequest()
+		{
+			SteamUnity.Instance.RemoveLobbyListRequestCallback(_lobbyListRequest, OnLobbyListReceivedCallback);
+			_lobbyListRequest = 0;
+		}
+
+		private void PrepServerListRequest(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived,
+			out String[] keys, out String[] values)
 		{
 			if (_serverListRequest != HServerListRequest_Invalid)
-				return null;
+				CancelCurrentServerListRequest();
 
 			_serverList = new Servers();
 			_serverFilters = filters;
@@ -103,12 +302,27 @@ namespace SteamworksUnityHost
 
 			if (_serverFilters != null)
 			{
-				String[] keys = new String[]{};
-				String[] values = new String[]{};
+				keys = new String[] { };
+				values = new String[] { };
 
 				_serverFilters.Keys.CopyTo(keys, 0);
 				_serverFilters.Values.CopyTo(values, 0);
+			}
+			else
+			{
+				keys = null;
+				values = null;
+			}
+		}
 
+		public Servers RequestInternetServerList(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		{
+			String[] keys, values;
+
+			PrepServerListRequest(filters, onServerReceived, onServerListReceived, out keys, out values);
+
+			if (_serverFilters != null)
+			{
 				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
 					keys, values, (UInt32)_serverFilters.Count, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam),
 					Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
@@ -116,6 +330,102 @@ namespace SteamworksUnityHost
 			else
 			{
 				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					null, null, 0, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam), Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+
+			return _serverList;
+		}
+
+		public Servers RequestLANServerList(OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		{
+			String[] keys, values;
+
+			PrepServerListRequest(null, onServerReceived, onServerListReceived, out keys, out values);
+
+			_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestLANServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+				Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam), Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+
+			return _serverList;
+		}
+
+		public Servers RequestSpecatorServerList(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		{
+			String[] keys, values;
+
+			PrepServerListRequest(filters, onServerReceived, onServerListReceived, out keys, out values);
+
+			if (_serverFilters != null)
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestSpectatorServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					keys, values, (UInt32)_serverFilters.Count, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam),
+					Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+			else
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestSpectatorServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					null, null, 0, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam), Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+
+			return _serverList;
+		}
+
+		public Servers RequestHistoryServerList(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		{
+			String[] keys, values;
+
+			PrepServerListRequest(filters, onServerReceived, onServerListReceived, out keys, out values);
+
+			if (_serverFilters != null)
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestHistoryServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					keys, values, (UInt32)_serverFilters.Count, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam),
+					Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+			else
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestHistoryServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					null, null, 0, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam), Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+
+			return _serverList;
+		}
+
+		public Servers RequestFavoriteServerList(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		{
+			String[] keys, values;
+
+			PrepServerListRequest(filters, onServerReceived, onServerListReceived, out keys, out values);
+
+			if (_serverFilters != null)
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestFavoriteServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					keys, values, (UInt32)_serverFilters.Count, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam),
+					Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+			else
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestFavoriteServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					null, null, 0, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam), Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+
+			return _serverList;
+		}
+
+		public Servers RequestFriendServerList(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived)
+		{
+			String[] keys, values;
+
+			PrepServerListRequest(filters, onServerReceived, onServerListReceived, out keys, out values);
+
+			if (_serverFilters != null)
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestFriendServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
+					keys, values, (UInt32)_serverFilters.Count, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam),
+					Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
+			}
+			else
+			{
+				_serverListRequest = SteamUnityAPI_SteamMatchmakingServers_RequestFriendServerList(_matchmakingServers, (AppId_t)SteamUnityAPI_SteamUtils_GetAppID(),
 					null, null, 0, Marshal.GetFunctionPointerForDelegate(_onServerReceivedFromSteam), Marshal.GetFunctionPointerForDelegate(_onServerListReceivedFromSteam));
 			}
 

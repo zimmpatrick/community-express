@@ -26,6 +26,10 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(SteamAPICall_t callHandle, out GameStatsSessionIssued_t result, out Byte failed);
 		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPICall_t callHandle, out LobbyCreated_t result, out Byte failed);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t callHandle, out LobbyMatchList_t result, out Byte failed);
+		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
 
 		private static readonly SteamUnity _instance = new SteamUnity();
@@ -44,6 +48,12 @@ namespace SteamworksUnityHost
 
 		private List<SteamAPICall_t> _gamestatsSessionIssuedCallHandles = new List<SteamAPICall_t>();
 		private List<OnGameStatsSessionIssuedBySteam> _gamestatsSessionIssuedCallbacks = new List<OnGameStatsSessionIssuedBySteam>();
+
+		private List<SteamAPICall_t> _lobbyCreatedCallHandles = new List<SteamAPICall_t>();
+		private List<OnMatchmakingLobbyCreatedBySteam> _lobbyCreatedCallbacks = new List<OnMatchmakingLobbyCreatedBySteam>();
+
+		private List<SteamAPICall_t> _lobbyListReceivedCallHandles = new List<SteamAPICall_t>();
+		private List<OnMatchmakingLobbyListReceivedFromSteam> _lobbyListReceivedCallbacks = new List<OnMatchmakingLobbyListReceivedFromSteam>();
 
 		private SteamUnity() { }
 		~SteamUnity() { Shutdown(); }
@@ -113,6 +123,42 @@ namespace SteamworksUnityHost
 					_gamestatsSessionIssuedCallbacks[i](ref callbackData);
 					_gamestatsSessionIssuedCallHandles.RemoveAt(i);
 					_gamestatsSessionIssuedCallbacks.RemoveAt(i);
+
+					i--;
+				}
+			}
+
+			for (int i = 0; i < _lobbyCreatedCallHandles.Count; i++)
+			{
+				SteamAPICall_t h = _lobbyCreatedCallHandles[i];
+
+				Byte failed;
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
+				{
+					LobbyCreated_t callbackData = new LobbyCreated_t();
+					SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(h, out callbackData, out failed);
+
+					_lobbyCreatedCallbacks[i](ref callbackData);
+					_lobbyCreatedCallHandles.RemoveAt(i);
+					_lobbyCreatedCallbacks.RemoveAt(i);
+
+					i--;
+				}
+			}
+
+			for (int i = 0; i < _lobbyListReceivedCallHandles.Count; i++)
+			{
+				SteamAPICall_t h = _lobbyListReceivedCallHandles[i];
+
+				Byte failed;
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
+				{
+					LobbyMatchList_t callbackData = new LobbyMatchList_t();
+					SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(h, out callbackData, out failed);
+
+					_lobbyListReceivedCallbacks[i](ref callbackData);
+					_lobbyListReceivedCallHandles.RemoveAt(i);
+					_lobbyListReceivedCallbacks.RemoveAt(i);
 
 					i--;
 				}
@@ -281,6 +327,24 @@ namespace SteamworksUnityHost
 		{
 			_gamestatsSessionIssuedCallHandles.Add(handle);
 			_gamestatsSessionIssuedCallbacks.Add(callback);
+		}
+
+		internal void AddCreateLobbyCallback(SteamAPICall_t handle, OnMatchmakingLobbyCreatedBySteam callback)
+		{
+			_lobbyCreatedCallHandles.Add(handle);
+			_lobbyCreatedCallbacks.Add(callback);
+		}
+
+		internal void AddLobbyListRequestCallback(SteamAPICall_t handle, OnMatchmakingLobbyListReceivedFromSteam callback)
+		{
+			_lobbyListReceivedCallHandles.Add(handle);
+			_lobbyListReceivedCallbacks.Add(callback);
+		}
+
+		internal void RemoveLobbyListRequestCallback(SteamAPICall_t handle, OnMatchmakingLobbyListReceivedFromSteam callback)
+		{
+			_lobbyListReceivedCallHandles.Remove(handle);
+			_lobbyListReceivedCallbacks.Remove(callback);
 		}
 	}
 }

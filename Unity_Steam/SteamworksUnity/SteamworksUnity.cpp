@@ -102,6 +102,60 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceived
 	return result;
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(SteamAPICall_t hSteamAPICall, GameStatsSessionIssued_t &CallbackData, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (SteamGameServer())
+	{
+		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+	else
+	{
+		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPICall_t hSteamAPICall, LobbyCreated_t &CallbackData, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (SteamGameServer())
+	{
+		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+	else
+	{
+		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t hSteamAPICall, LobbyMatchList_t &CallbackData, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (SteamGameServer())
+	{
+		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+	else
+	{
+		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
 STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetAppID()
 {
 	if (SteamGameServer())
@@ -662,6 +716,76 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamMatchmaking()
 	return SteamMatchmaking();
 }
 
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(void* pSteamMatchmaking, ELobbyType eLobbyType, int32 cMaxMembers)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->CreateLobby(eLobbyType, cMaxMembers);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(void* pSteamMatchmaking, const char *pchKeyToMatch, const char *pchValueToMatch, ELobbyComparison eComparisonType)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListStringFilter(pchKeyToMatch, pchValueToMatch, eComparisonType);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(void* pSteamMatchmaking, const char *pchKeyToMatch, int nValueToMatch, ELobbyComparison eComparisonType)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListNumericalFilter(pchKeyToMatch, nValueToMatch, eComparisonType);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(void* pSteamMatchmaking, const char *pchKeyToMatch, int nValueToBeCloseTo)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListNearValueFilter(pchKeyToMatch, nValueToBeCloseTo);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(void* pSteamMatchmaking, int nSlotsAvailable)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListFilterSlotsAvailable(nSlotsAvailable);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(void* pSteamMatchmaking, ELobbyDistanceFilter eLobbyDistanceFilter)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListDistanceFilter(eLobbyDistanceFilter);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListResultCountFilter(void* pSteamMatchmaking, int cMaxResults)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListResultCountFilter(cMaxResults);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(void* pSteamMatchmaking, CSteamID steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->AddRequestLobbyListCompatibleMembersFilter(steamIDLobby);
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(void* pSteamMatchmaking)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->RequestLobbyList();
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(void* pSteamMatchmaking, int iLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyByIndex(iLobby).ConvertToUint64();
+}
+
 STEAMWORKSUNITY_API int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(void* pSteamMatchmaking, uint64 steamIDLobby)
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
@@ -704,6 +828,104 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 	}
 
 	return pISteamMatchmakingServers->RequestInternetServerList(iApp, NULL, 0, &SteamCallbacks::getInstance());
+}
+
+STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestLANServerList(void* pSteamMatchmakingServers, AppId_t iApp, FPOnServerResponded fpOnServerResponded, FPOnServerListComplete fpOnServerListComplete)
+{
+	ISteamMatchmakingServers * pISteamMatchmakingServers = static_cast<ISteamMatchmakingServers*>( pSteamMatchmakingServers );
+
+	SteamCallbacks::getInstance().delegateOnServerResponded = fpOnServerResponded;
+	SteamCallbacks::getInstance().delegateOnServerListComplete = fpOnServerListComplete;
+
+	return pISteamMatchmakingServers->RequestLANServerList(iApp, &SteamCallbacks::getInstance());
+}
+
+STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestSpectatorServerList(void* pSteamMatchmakingServers, AppId_t iApp, char** pKeys, char** pValues, uint32 uiKeyValueCount, FPOnServerResponded fpOnServerResponded, FPOnServerListComplete fpOnServerListComplete)
+{
+	ISteamMatchmakingServers * pISteamMatchmakingServers = static_cast<ISteamMatchmakingServers*>( pSteamMatchmakingServers );
+
+	SteamCallbacks::getInstance().delegateOnServerResponded = fpOnServerResponded;
+	SteamCallbacks::getInstance().delegateOnServerListComplete = fpOnServerListComplete;
+
+	if (uiKeyValueCount > 0)
+	{
+		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
+		for (uint32 i = 0; i < uiKeyValueCount; i++)
+		{
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+		}
+
+		return pISteamMatchmakingServers->RequestSpectatorServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
+	}
+
+	return pISteamMatchmakingServers->RequestSpectatorServerList(iApp, NULL, 0, &SteamCallbacks::getInstance());
+}
+
+STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestHistoryServerList(void* pSteamMatchmakingServers, AppId_t iApp, char** pKeys, char** pValues, uint32 uiKeyValueCount, FPOnServerResponded fpOnServerResponded, FPOnServerListComplete fpOnServerListComplete)
+{
+	ISteamMatchmakingServers * pISteamMatchmakingServers = static_cast<ISteamMatchmakingServers*>( pSteamMatchmakingServers );
+
+	SteamCallbacks::getInstance().delegateOnServerResponded = fpOnServerResponded;
+	SteamCallbacks::getInstance().delegateOnServerListComplete = fpOnServerListComplete;
+
+	if (uiKeyValueCount > 0)
+	{
+		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
+		for (uint32 i = 0; i < uiKeyValueCount; i++)
+		{
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+		}
+
+		return pISteamMatchmakingServers->RequestHistoryServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
+	}
+
+	return pISteamMatchmakingServers->RequestHistoryServerList(iApp, NULL, 0, &SteamCallbacks::getInstance());
+}
+
+STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFavoriteServerList(void* pSteamMatchmakingServers, AppId_t iApp, char** pKeys, char** pValues, uint32 uiKeyValueCount, FPOnServerResponded fpOnServerResponded, FPOnServerListComplete fpOnServerListComplete)
+{
+	ISteamMatchmakingServers * pISteamMatchmakingServers = static_cast<ISteamMatchmakingServers*>( pSteamMatchmakingServers );
+
+	SteamCallbacks::getInstance().delegateOnServerResponded = fpOnServerResponded;
+	SteamCallbacks::getInstance().delegateOnServerListComplete = fpOnServerListComplete;
+
+	if (uiKeyValueCount > 0)
+	{
+		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
+		for (uint32 i = 0; i < uiKeyValueCount; i++)
+		{
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+		}
+
+		return pISteamMatchmakingServers->RequestFavoritesServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
+	}
+
+	return pISteamMatchmakingServers->RequestFavoritesServerList(iApp, NULL, 0, &SteamCallbacks::getInstance());
+}
+
+STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFriendServerList(void* pSteamMatchmakingServers, AppId_t iApp, char** pKeys, char** pValues, uint32 uiKeyValueCount, FPOnServerResponded fpOnServerResponded, FPOnServerListComplete fpOnServerListComplete)
+{
+	ISteamMatchmakingServers * pISteamMatchmakingServers = static_cast<ISteamMatchmakingServers*>( pSteamMatchmakingServers );
+
+	SteamCallbacks::getInstance().delegateOnServerResponded = fpOnServerResponded;
+	SteamCallbacks::getInstance().delegateOnServerListComplete = fpOnServerListComplete;
+
+	if (uiKeyValueCount > 0)
+	{
+		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
+		for (uint32 i = 0; i < uiKeyValueCount; i++)
+		{
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
+			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+		}
+
+		return pISteamMatchmakingServers->RequestFriendsServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
+	}
+
+	return pISteamMatchmakingServers->RequestFriendsServerList(iApp, NULL, 0, &SteamCallbacks::getInstance());
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(void* pSteamMatchmakingServers, HServerListRequest hRequest)

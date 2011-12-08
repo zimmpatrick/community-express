@@ -16,9 +16,8 @@ namespace SteamworksUnityHost
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
 
 		private IntPtr _matchmaking;
-		private Friends _friendsRef;
 
-		//private Lobbies _lobbies;
+		private Lobbies _lobbies;
 		private SteamID _id;
 
 		private class FriendEnumator : IEnumerator<Friend>
@@ -67,11 +66,10 @@ namespace SteamworksUnityHost
 			}
 		}
 
-		internal Lobby(/*Lobbies lobbies,*/ Friends friendsRef, SteamID id)
+		internal Lobby(Lobbies lobbies, SteamID id)
 		{
 			_matchmaking = SteamUnityAPI_SteamMatchmaking();
-			//_lobbies = lobbies;
-			_friendsRef = friendsRef;
+			_lobbies = lobbies;
 			_id = id;
 		}
 
@@ -122,7 +120,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<Friend> GetEnumerator()
 		{
-			return new FriendEnumator(this, _friendsRef);
+			return new FriendEnumator(this, SteamUnity.Instance.Friends);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

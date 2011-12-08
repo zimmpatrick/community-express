@@ -14,6 +14,8 @@ namespace SteamworksUnityTest
 		private static bool _userAuthenticationCompleted = false;
 		//private static bool _gamestatsInitialized = false;
 		private static bool _serversReceived = false;
+		private static bool _lobbyCreated = false;
+		private static bool _lobbyListReceived = false;
 
 		private static Servers _serverList = null;
 
@@ -81,6 +83,21 @@ namespace SteamworksUnityTest
 				{
 					Console.WriteLine("	 {0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
 				}
+			}
+
+			// Request a "list" of servers(should only be 1)
+			Matchmaking m = s.Matchmaking;
+
+			m.CreateLobby(ELobbyType.k_ELobbyTypeInvisible, 2, MyOnLobbyCreated);
+			while (!_lobbyCreated)
+			{
+				s.RunCallbacks();
+			}
+
+			m.RequestLobbyList(null, null, null, 0, ELobbyDistanceFilter.k_ELobbyDistanceFilterWorldwide, 100, null, MyOnLobbyListReceived);
+			while (!_lobbyListReceived)
+			{
+				s.RunCallbacks();
 			}
 
 			Stats stats = s.UserStats;
@@ -158,39 +175,6 @@ namespace SteamworksUnityTest
 				s.RunCallbacks();
 			}
 
-			gs.ServerName = "Updated KF Server";
-
-			SteamID bot = gs.AddBot();
-
-			gs.UpdateUserDetails(bot, "FakeBot", 68);
-			gs.UpdateUserDetails(u.SteamID, "FakePlayer", 69);
-
-			// Give the system plenty of time to get the server into the server list
-			Thread.Sleep(1000);
-			s.RunCallbacks();
-			Thread.Sleep(1000);
-			s.RunCallbacks();
-
-			// Request a "list" of servers(should only be 1)
-			Matchmaking m = s.Matchmaking;
-			Console.WriteLine("Requesting Server List(Only our server will show details):");
-			m.RequestInternetServerList(null, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
-			while (!_serversReceived)
-			{
-				s.RunCallbacks();
-			}
-
-			Console.WriteLine("");
-			Console.WriteLine("Server List Complete! Server Count: {0}", _serverList.Count);
-
-			Console.WriteLine("Delaying 1 second before Disconnecting User");
-			Thread.Sleep(1000);
-
-			gs.ClientDisconnected(u.SteamID);
-			u.OnDisconnect();
-
-			Console.WriteLine("User Disconnected");
-
 			// There's currently no way to test Game Stats =/
 /*			GameStats gamestats = s.CreateNewGameStats(MyOnGameStatsSessionInitialized, false);
 			while (!_gamestatsInitialized)
@@ -217,6 +201,37 @@ namespace SteamworksUnityTest
 				Console.WriteLine("Done writing fake Game Stats");
 			}
 */
+			gs.ServerName = "Updated KF Server";
+
+			SteamID bot = gs.AddBot();
+
+			gs.UpdateUserDetails(bot, "FakeBot", 68);
+			gs.UpdateUserDetails(u.SteamID, "FakePlayer", 69);
+
+			// Give the system plenty of time to get the server into the server list
+			Thread.Sleep(1000);
+			s.RunCallbacks();
+			Thread.Sleep(1000);
+			s.RunCallbacks();
+
+			Console.WriteLine("Requesting Server List(Only our server will show details):");
+			m.RequestInternetServerList(null, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
+			while (!_serversReceived)
+			{
+				s.RunCallbacks();
+			}
+
+			Console.WriteLine("");
+			Console.WriteLine("Server List Complete! Server Count: {0}", _serverList.Count);
+
+			Console.WriteLine("Delaying 1 second before Disconnecting User");
+			Thread.Sleep(1000);
+
+			gs.ClientDisconnected(u.SteamID);
+			u.OnDisconnect();
+
+			Console.WriteLine("User Disconnected");
+
 			if (r.FileCount > 0)
 			{
 				int fileSize;
@@ -340,6 +355,24 @@ namespace SteamworksUnityTest
 			_gamestatsInitialized = true;
 		}
 */
+		public static void MyOnLobbyCreated(Lobby lobby)
+		{
+			Console.WriteLine("Lobby Created {0}", lobby.SteamID);
+			_lobbyCreated = true;
+		}
+
+		public static void MyOnLobbyListReceived(Lobbies lobbyList)
+		{
+			Console.WriteLine("Lobby List Received:");
+
+			foreach (Lobby l in lobbyList)
+			{
+				Console.WriteLine("  Lobby: {0}", l.SteamID);
+			}
+
+			_lobbyListReceived = true;
+		}
+
 		public static void MyOnServerReceivedCallback(Servers serverList, Server server)
 		{
 			_serverList = serverList;
