@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <stdlib.h>
 
 // steam api header file
 #include "steam/steam_api.h"
@@ -28,11 +29,7 @@
 #define STEAMWORKSUNITY_API extern "C" __declspec(dllimport)
 #endif
 
-// STEAMWORKSUNITY_API void SteamUnityAPI_Init(); (see below)
-STEAMWORKSUNITY_API void SteamUnityAPI_Shutdown()
-{
-	return SteamAPI_Shutdown();
-}
+typedef uint64 (__stdcall *FPOnChallengeResponse)(uint64 challenge);
 
 // checks if a local Steam client is running 
 STEAMWORKSUNITY_API bool SteamUnityAPI_IsSteamRunning()
@@ -56,9 +53,53 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_RestartAppIfNecessary( uint32 unOwnAppID 
 	return SteamAPI_RestartAppIfNecessary( unOwnAppID );
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_Init()
+HANDLE hLicenseThread = NULL;
+
+DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam ) 
+{ 
+	FPOnChallengeResponse pFPOnChallengeResponse = static_cast<FPOnChallengeResponse>( lpParam );
+
+	while (true)
+	{
+		uint32 value = (uint32)rand();
+		uint64 valueSQ = value * value;
+
+		uint64 res = (pFPOnChallengeResponse)( valueSQ );
+		if (res != (uint64)value)
+		{
+			// this will do for now, many throw an Exception
+			//  in the main thread.
+			abort();
+		}
+
+		Sleep(1000 * value % 5);
+	}
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse)
 {
+	hLicenseThread = CreateThread( 
+		NULL,                   // default security attributes
+		0,                      // use default stack size  
+		MyLicenseThreadFunction,       // thread function name
+		pFPOnChallengeResponse,        // argument to thread function 
+		0,                      // use default creation flags 
+		NULL);   // returns the thread identifier 
+
 	return SteamAPI_Init();
+}
+
+// STEAMWORKSUNITY_API void SteamUnityAPI_Init(); (see below)
+STEAMWORKSUNITY_API void SteamUnityAPI_Shutdown()
+{
+	if (hLicenseThread)
+	{
+		// TODO, clean this up to pass events, etc
+		TerminateThread(hLicenseThread, 0);
+		hLicenseThread = 0;
+	}
+
+	return SteamAPI_Shutdown();
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()

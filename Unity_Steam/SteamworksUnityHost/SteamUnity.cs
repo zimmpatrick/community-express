@@ -12,7 +12,7 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern bool SteamUnityAPI_RestartAppIfNecessary(uint unOwnAppID);
 		[DllImport("SteamworksUnity.dll")]
-		private static extern bool SteamUnityAPI_Init();
+		private static extern bool SteamUnityAPI_Init(IntPtr OnChallengeResponse);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_RunCallbacks();
 		[DllImport("SteamworksUnity.dll")]
@@ -31,6 +31,9 @@ namespace SteamworksUnityHost
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t callHandle, out LobbyMatchList_t result, out Byte failed);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
+
+        delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
+        private OnChallengeResponseFromSteam _challengeResponse;
 
 		private static readonly SteamUnity _instance = new SteamUnity();
 		private bool shutdown = false;
@@ -75,7 +78,9 @@ namespace SteamworksUnityHost
 
 		public bool Initialize()
 		{
-			return SteamUnityAPI_Init();
+            _challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
+
+            return SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse));
 		}
 
 		public void RunCallbacks()
@@ -346,5 +351,11 @@ namespace SteamworksUnityHost
 			_lobbyListReceivedCallHandles.Remove(handle);
 			_lobbyListReceivedCallbacks.Remove(callback);
 		}
+
+        private UInt64 OnChallengeResponseCallback(UInt64 challenge)
+        {
+            // TODO: Put a real functional test in here
+            return (UInt64)Math.Sqrt((double)challenge);
+        }
 	}
 }
