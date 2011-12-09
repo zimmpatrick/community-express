@@ -79,11 +79,11 @@ DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam )
 STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse)
 {
 	hLicenseThread = CreateThread( 
-		NULL,                   // default security attributes
-		0,                      // use default stack size  
-		MyLicenseThreadFunction,       // thread function name
-		pFPOnChallengeResponse,        // argument to thread function 
-		0,                      // use default creation flags 
+		NULL,				   // default security attributes
+		0,					  // use default stack size  
+		MyLicenseThreadFunction,	   // thread function name
+		pFPOnChallengeResponse,		// argument to thread function 
+		0,					  // use default creation flags 
 		NULL);   // returns the thread identifier 
 
 	return SteamAPI_Init();
@@ -180,6 +180,24 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPI
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t hSteamAPICall, LobbyMatchList_t &CallbackData, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (SteamGameServer())
+	{
+		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+	else
+	{
+		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPICall_t hSteamAPICall, LobbyEnter_t &CallbackData, unsigned char &bFailed)
 {
 	bool result, failed;
 
@@ -825,6 +843,20 @@ STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(void* 
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
 
 	return pISteamMatchmaking->GetLobbyByIndex(iLobby).ConvertToUint64();
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->JoinLobby(steamIDLobby);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_LeaveLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->LeaveLobby(steamIDLobby);
 }
 
 STEAMWORKSUNITY_API int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(void* pSteamMatchmaking, uint64 steamIDLobby)

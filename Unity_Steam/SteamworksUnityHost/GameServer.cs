@@ -8,14 +8,14 @@ namespace SteamworksUnityHost
 {
 	// client has been approved to connect to this game server
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct GSClientApprove_t
+	struct GSClientApprove_t
 	{
 		public UInt64 m_SteamID;
 	};
 
 	// client has been denied to connection to this game server
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct GSClientDeny_t
+	struct GSClientDeny_t
 	{
 		public UInt64 m_SteamID;
 		public EDenyReason m_eDenyReason;
@@ -25,7 +25,7 @@ namespace SteamworksUnityHost
 
 	// request the game server should kick the user
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct GSClientKick_t
+	struct GSClientKick_t
 	{
 		public UInt64 m_SteamID;
 		public EDenyReason m_eDenyReason;
@@ -34,7 +34,7 @@ namespace SteamworksUnityHost
 	// received when the game server requests to be displayed as secure (VAC protected)
 	// m_bSecure is true if the game server should display itself as secure to users, false otherwise
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct GSPolicyResponse_t
+	struct GSPolicyResponse_t
 	{
 		public Byte m_bSecure;
 	};
@@ -42,13 +42,13 @@ namespace SteamworksUnityHost
 	delegate void OnGameServerClientApprovedBySteam(ref GSClientApprove_t callbackData);
 	public delegate void OnGameServerClientApproved(SteamID approvedPlayer);
 
-    delegate void OnGameServerClientDeniedBySteam(ref GSClientDeny_t callbackData);
+	delegate void OnGameServerClientDeniedBySteam(ref GSClientDeny_t callbackData);
 	public delegate void OnGameServerClientDenied(SteamID deniedPlayer, EDenyReason denyReason, String optionalText);
 
-    delegate void OnGameServerClientKickFromSteam(ref GSClientKick_t callbackData);
+	delegate void OnGameServerClientKickFromSteam(ref GSClientKick_t callbackData);
 	public delegate void OnGameServerClientKick(SteamID playerToKick, EDenyReason denyReason);
 
-    delegate void OnGameServerPolicyResponseFromSteam(ref GSPolicyResponse_t callbackData);
+	delegate void OnGameServerPolicyResponseFromSteam(ref GSPolicyResponse_t callbackData);
 	public delegate void OnGameServerPolicyResponse();
 
 	public class GameServer
@@ -272,7 +272,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-        private void OnGameServerClientDeniedCallback(ref GSClientDeny_t callbackData)
+		private void OnGameServerClientDeniedCallback(ref GSClientDeny_t callbackData)
 		{
 			foreach (SteamID s in _playersPendingAuth)
 			{
@@ -286,7 +286,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-        private void OnGameServerClientKickCallback(ref GSClientKick_t callbackData)
+		private void OnGameServerClientKickCallback(ref GSClientKick_t callbackData)
 		{
 			Boolean found = false;
 

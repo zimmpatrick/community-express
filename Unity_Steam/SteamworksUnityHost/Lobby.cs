@@ -19,6 +19,8 @@ namespace SteamworksUnityHost
 
 		private Lobbies _lobbies;
 		private SteamID _id;
+		private Boolean _isLocked;
+		private UInt32 _chatPermissions;
 
 		private class FriendEnumator : IEnumerator<Friend>
 		{
@@ -81,6 +83,18 @@ namespace SteamworksUnityHost
 		public SteamID SteamID
 		{
 			get { return _id; }
+		}
+
+		public Boolean IsLocked
+		{
+			get { return _isLocked; }
+			internal set { _isLocked = value; }
+		}
+
+		public UInt32 ChatPermissions
+		{
+			get { return _chatPermissions; }
+			internal set { _chatPermissions = value; }
 		}
 
 		public int Count

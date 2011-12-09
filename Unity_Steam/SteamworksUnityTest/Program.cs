@@ -16,7 +16,9 @@ namespace SteamworksUnityTest
 		private static bool _serversReceived = false;
 		private static bool _lobbyCreated = false;
 		private static bool _lobbyListReceived = false;
+		private static bool _lobbyJoined = false;
 
+		private static Lobby _lobby;
 		private static Servers _serverList = null;
 
 		static int Main(string[] args)
@@ -86,6 +88,15 @@ namespace SteamworksUnityTest
 			{
 				s.RunCallbacks();
 			}
+
+			m.JoinLobby(_lobby, MyOnLobbyJoined);
+			while (!_lobbyJoined)
+			{
+				s.RunCallbacks();
+			}
+
+			m.LeaveLobby();
+			Console.WriteLine("Exited from Lobby");
 
 			Stats stats = s.UserStats;
 			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback, 
@@ -358,6 +369,7 @@ namespace SteamworksUnityTest
 		public static void MyOnLobbyCreated(Lobby lobby)
 		{
 			Console.WriteLine("Lobby Created {0}", lobby.SteamID);
+			_lobby = lobby;
 			_lobbyCreated = true;
 		}
 
@@ -371,6 +383,12 @@ namespace SteamworksUnityTest
 			}
 
 			_lobbyListReceived = true;
+		}
+
+		public static void MyOnLobbyJoined(Lobby lobby, EChatRoomEnterResponse chatRoomEnterResponse)
+		{
+			Console.WriteLine("Lobby Joined {0}", lobby.SteamID);
+			_lobbyJoined = true;
 		}
 
 		public static void MyOnServerReceivedCallback(Servers serverList, Server server)

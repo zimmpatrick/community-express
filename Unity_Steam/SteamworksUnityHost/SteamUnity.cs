@@ -30,10 +30,12 @@ namespace SteamworksUnityHost
 		[DllImport("SteamworksUnity.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t callHandle, out LobbyMatchList_t result, out Byte failed);
 		[DllImport("SteamworksUnity.dll")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPICall_t callHandle, out LobbyEnter_t result, out Byte failed);
+		[DllImport("SteamworksUnity.dll")]
 		private static extern void SteamUnityAPI_Shutdown();
 
-        delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
-        private OnChallengeResponseFromSteam _challengeResponse;
+		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
+		private OnChallengeResponseFromSteam _challengeResponse;
 
 		private static readonly SteamUnity _instance = new SteamUnity();
 		private bool shutdown = false;
@@ -52,11 +54,14 @@ namespace SteamworksUnityHost
 		private List<SteamAPICall_t> _gamestatsSessionIssuedCallHandles = new List<SteamAPICall_t>();
 		private List<OnGameStatsSessionIssuedBySteam> _gamestatsSessionIssuedCallbacks = new List<OnGameStatsSessionIssuedBySteam>();
 
-		private List<SteamAPICall_t> _lobbyCreatedCallHandles = new List<SteamAPICall_t>();
-		private List<OnMatchmakingLobbyCreatedBySteam> _lobbyCreatedCallbacks = new List<OnMatchmakingLobbyCreatedBySteam>();
+		private SteamAPICall_t _lobbyCreatedCallHandle = 0;
+		private OnMatchmakingLobbyCreatedBySteam _lobbyCreatedCallback;
 
-		private List<SteamAPICall_t> _lobbyListReceivedCallHandles = new List<SteamAPICall_t>();
-		private List<OnMatchmakingLobbyListReceivedFromSteam> _lobbyListReceivedCallbacks = new List<OnMatchmakingLobbyListReceivedFromSteam>();
+		private SteamAPICall_t _lobbyListReceivedCallHandle = 0;
+		private OnMatchmakingLobbyListReceivedFromSteam _lobbyListReceivedCallback;
+
+		private SteamAPICall_t _lobbyJoinedCallHandle = 0;
+		private OnMatchmakingLobbyJoinedFromSteam _lobbyJoinedCallback;
 
 		private SteamUnity() { }
 		~SteamUnity() { Shutdown(); }
@@ -78,9 +83,9 @@ namespace SteamworksUnityHost
 
 		public bool Initialize()
 		{
-            _challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
+			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
 
-            return SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse));
+			return SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse));
 		}
 
 		public void RunCallbacks()
@@ -133,39 +138,45 @@ namespace SteamworksUnityHost
 				}
 			}
 
-			for (int i = 0; i < _lobbyCreatedCallHandles.Count; i++)
+			if (_lobbyCreatedCallHandle != 0)
 			{
-				SteamAPICall_t h = _lobbyCreatedCallHandles[i];
-
 				Byte failed;
-				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyCreatedCallHandle, out failed))
 				{
 					LobbyCreated_t callbackData = new LobbyCreated_t();
-					SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(h, out callbackData, out failed);
+					SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(_lobbyCreatedCallHandle, out callbackData, out failed);
 
-					_lobbyCreatedCallbacks[i](ref callbackData);
-					_lobbyCreatedCallHandles.RemoveAt(i);
-					_lobbyCreatedCallbacks.RemoveAt(i);
+					_lobbyCreatedCallback(ref callbackData);
 
-					i--;
+					_lobbyCreatedCallHandle = 0;
 				}
 			}
 
-			for (int i = 0; i < _lobbyListReceivedCallHandles.Count; i++)
+			if (_lobbyListReceivedCallHandle != 0)
 			{
-				SteamAPICall_t h = _lobbyListReceivedCallHandles[i];
-
 				Byte failed;
-				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyListReceivedCallHandle, out failed))
 				{
 					LobbyMatchList_t callbackData = new LobbyMatchList_t();
-					SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(h, out callbackData, out failed);
+					SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(_lobbyListReceivedCallHandle, out callbackData, out failed);
 
-					_lobbyListReceivedCallbacks[i](ref callbackData);
-					_lobbyListReceivedCallHandles.RemoveAt(i);
-					_lobbyListReceivedCallbacks.RemoveAt(i);
+					_lobbyListReceivedCallback(ref callbackData);
 
-					i--;
+					_lobbyListReceivedCallHandle = 0;
+				}
+			}
+
+			if (_lobbyJoinedCallHandle != 0)
+			{
+				Byte failed;
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyJoinedCallHandle, out failed))
+				{
+					LobbyEnter_t callbackData = new LobbyEnter_t();
+					SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(_lobbyJoinedCallHandle, out callbackData, out failed);
+
+					_lobbyJoinedCallback(ref callbackData);
+
+					_lobbyJoinedCallHandle = 0;
 				}
 			}
 		}
@@ -336,26 +347,31 @@ namespace SteamworksUnityHost
 
 		internal void AddCreateLobbyCallback(SteamAPICall_t handle, OnMatchmakingLobbyCreatedBySteam callback)
 		{
-			_lobbyCreatedCallHandles.Add(handle);
-			_lobbyCreatedCallbacks.Add(callback);
+			_lobbyCreatedCallHandle = handle;
+			_lobbyCreatedCallback = callback;
 		}
 
 		internal void AddLobbyListRequestCallback(SteamAPICall_t handle, OnMatchmakingLobbyListReceivedFromSteam callback)
 		{
-			_lobbyListReceivedCallHandles.Add(handle);
-			_lobbyListReceivedCallbacks.Add(callback);
+			_lobbyListReceivedCallHandle = handle;
+			_lobbyListReceivedCallback = callback;
 		}
 
 		internal void RemoveLobbyListRequestCallback(SteamAPICall_t handle, OnMatchmakingLobbyListReceivedFromSteam callback)
 		{
-			_lobbyListReceivedCallHandles.Remove(handle);
-			_lobbyListReceivedCallbacks.Remove(callback);
+			_lobbyListReceivedCallHandle = 0;
 		}
 
-        private UInt64 OnChallengeResponseCallback(UInt64 challenge)
-        {
-            // TODO: Put a real functional test in here
-            return (UInt64)Math.Sqrt((double)challenge);
-        }
+		internal void AddLobbyJoinedCallback(SteamAPICall_t handle, OnMatchmakingLobbyJoinedFromSteam callback)
+		{
+			_lobbyJoinedCallHandle = handle;
+			_lobbyJoinedCallback = callback;
+		}
+
+		private UInt64 OnChallengeResponseCallback(UInt64 challenge)
+		{
+			// TODO: Put a real functional test in here
+			return (UInt64)Math.Sqrt((double)challenge);
+		}
 	}
 }

@@ -186,7 +186,7 @@ namespace SteamworksUnityHost
 			}
 		}
 
-        private void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
+		private void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
 		{
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{

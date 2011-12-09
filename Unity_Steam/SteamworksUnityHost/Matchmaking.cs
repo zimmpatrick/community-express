@@ -17,9 +17,9 @@ namespace SteamworksUnityHost
 		k_ELobbyTypeFriendsOnly = 1,	// shows for friends or invitees, but not in lobby list
 		k_ELobbyTypePublic = 2,			// visible for friends and in lobby list
 		k_ELobbyTypeInvisible = 3,		// returned by search, but not visible to other friends 
-		//    useful if you want a user in two lobbies, for example matching groups together
+		//	useful if you want a user in two lobbies, for example matching groups together
 		//	  a user can be in only one regular lobby, and up to two invisible lobbies
-	};
+	}
 
 	// lobby search filter tools
 	public enum ELobbyComparison
@@ -30,7 +30,7 @@ namespace SteamworksUnityHost
 		k_ELobbyComparisonGreaterThan = 1,
 		k_ELobbyComparisonEqualToOrGreaterThan = 2,
 		k_ELobbyComparisonNotEqual = 3,
-	};
+	}
 
 	// lobby search distance. Lobby results are sorted from closest to farthest.
 	public enum ELobbyDistanceFilter
@@ -39,7 +39,25 @@ namespace SteamworksUnityHost
 		k_ELobbyDistanceFilterDefault,		// only lobbies in the same region or near by regions
 		k_ELobbyDistanceFilterFar,			// for games that don't have many latency requirements, will return lobbies about half-way around the globe
 		k_ELobbyDistanceFilterWorldwide,	// no filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients)
-	};
+	}
+
+	//-----------------------------------------------------------------------------
+	// Purpose: Chat Room Enter Responses
+	//-----------------------------------------------------------------------------
+	public enum EChatRoomEnterResponse
+	{
+		k_EChatRoomEnterResponseSuccess = 1,		// Success
+		k_EChatRoomEnterResponseDoesntExist = 2,	// Chat doesn't exist (probably closed)
+		k_EChatRoomEnterResponseNotAllowed = 3,		// General Denied - You don't have the permissions needed to join the chat
+		k_EChatRoomEnterResponseFull = 4,			// Chat room has reached its maximum size
+		k_EChatRoomEnterResponseError = 5,			// Unexpected Error
+		k_EChatRoomEnterResponseBanned = 6,			// You are banned from this chat room and may not join
+		k_EChatRoomEnterResponseLimited = 7,		// Joining this chat is not allowed because you are a limited user (no value on account)
+		k_EChatRoomEnterResponseClanDisabled = 8,	// Attempt to join a clan chat when the clan is locked or disabled
+		k_EChatRoomEnterResponseCommunityBan = 9,	// Attempt to join a chat when the user has a community lock on their account
+		k_EChatRoomEnterResponseMemberBlockedYou = 10, // Join failed - some member in the chat has blocked you from joining
+		k_EChatRoomEnterResponseYouBlockedMember = 11, // Join failed - you have blocked some member already in the chat
+	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	struct LobbyCreated_t
@@ -54,6 +72,15 @@ namespace SteamworksUnityHost
 		public UInt32 m_nLobbiesMatching;		// Number of lobbies that matched search criteria and we have SteamIDs for
 	}
 
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	struct LobbyEnter_t
+	{
+		public UInt64 m_ulSteamIDLobby;			// SteamID of the Lobby you have entered
+		public UInt32 m_rgfChatPermissions;		// Permissions of the current user
+		public Boolean m_bLocked;				// If true, then only invited users may join
+		public UInt32 m_EChatRoomEnterResponse;	// EChatRoomEnterResponse
+	}
+	
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	struct servernetadr_t
 	{
@@ -108,6 +135,8 @@ namespace SteamworksUnityHost
 	public delegate void OnLobbyCreated(Lobby lobby);
 	delegate void OnMatchmakingLobbyListReceivedFromSteam(ref LobbyMatchList_t callbackData);
 	public delegate void OnLobbyListReceived(Lobbies lobbies);
+	delegate void OnMatchmakingLobbyJoinedFromSteam(ref LobbyEnter_t callbackData);
+	public delegate void OnLobbyJoined(Lobby lobby, EChatRoomEnterResponse chatRoomEnterResponse);
 
 	delegate void OnMatchmakingServerReceivededFromSteam(HServerListRequest request, ref gameserveritem_t callbackData);
 	delegate void OnMatchmakingServerListReceivededFromSteam(HServerListRequest request);
@@ -140,6 +169,10 @@ namespace SteamworksUnityHost
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(IntPtr matchmaking);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(IntPtr matchmaking, UInt64 steamIDLobby);
+		[DllImport("SteamworksUnity.dll")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_LeaveLobby(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("SteamworksUnity.dll")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(IntPtr matchmaking, Int32 lobbyIndex);
 		[DllImport("SteamworksUnity.dll")]
@@ -176,10 +209,12 @@ namespace SteamworksUnityHost
 		public const HServerListRequest HServerListRequest_Invalid = 0x0;
 
 		private IntPtr _matchmaking;
-		private Lobbies _lobbyList;
+		private Lobbies _lobbyList = new Lobbies();
 		private SteamAPICall_t _lobbyListRequest = 0;
 		private OnLobbyCreated _onLobbyCreated;
 		private OnLobbyListReceived _onLobbyListReceived;
+		private Lobby _lobbyJoined = null;
+		private OnLobbyJoined _onLobbyJoined;
 
 		private IntPtr _matchmakingServers;
 		private HServerListRequest _serverListRequest = HServerListRequest_Invalid;
@@ -214,12 +249,10 @@ namespace SteamworksUnityHost
 			_onLobbyCreated(new Lobby(null, new SteamID(callbackData.m_ulSteamIDLobby)));
 		}
 
-		public Lobbies RequestLobbyList(ICollection<LobbyStringFilter> stringFilters, ICollection<LobbyIntFilter> intFilters, Dictionary<String, Int32> nearValueFilters, Int32 requiredSlotsAvailable, ELobbyDistanceFilter lobbyDistance, Int32 maxResults, ICollection<SteamID> compatibleSteamIDs, OnLobbyListReceived onLobbyListReceived)
+		public void RequestLobbyList(ICollection<LobbyStringFilter> stringFilters, ICollection<LobbyIntFilter> intFilters, Dictionary<String, Int32> nearValueFilters, Int32 requiredSlotsAvailable, ELobbyDistanceFilter lobbyDistance, Int32 maxResults, ICollection<SteamID> compatibleSteamIDs, OnLobbyListReceived onLobbyListReceived)
 		{
 			if (_lobbyListRequest != 0)
 				CancelCurrentLobbyListRequest();
-
-			_lobbyList = new Lobbies();
 
 			_onLobbyListReceived = onLobbyListReceived;
 
@@ -268,24 +301,99 @@ namespace SteamworksUnityHost
 			SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(_matchmaking, lobbyDistance);
 
 			SteamUnity.Instance.AddLobbyListRequestCallback(SteamUnityAPI_SteamMatchmaking_RequestLobbyList(_matchmaking), OnLobbyListReceivedCallback);
-
-			return _lobbyList;
 		}
 
-		private void OnLobbyListReceivedCallback(ref LobbyMatchList_t CallbackData)
+		private void OnLobbyListReceivedCallback(ref LobbyMatchList_t callbackData)
 		{
-			for (int i = 0; i < CallbackData.m_nLobbiesMatching; i++)
+			Lobbies lobbyList = new Lobbies();
+			Lobby lobby;
+
+			for (int i = 0; i < callbackData.m_nLobbiesMatching; i++)
 			{
-				_lobbyList.Add(new Lobby(_lobbyList, new SteamID(SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(_matchmaking, i))));
+				UInt64 id = SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(_matchmaking, i);
+
+				lobby = null;
+				foreach (Lobby l in _lobbyList)
+				{
+					if (l.SteamID == id)
+					{
+						lobby = l;
+						break;
+					}
+				}
+
+				if (lobby == null)
+				{
+					lobby = new Lobby(_lobbyList, new SteamID(id));
+				}
+
+				lobbyList.Add(lobby);
 			}
 
-			_onLobbyListReceived(_lobbyList);
+			_onLobbyListReceived(lobbyList);
 		}
 
 		public void CancelCurrentLobbyListRequest()
 		{
 			SteamUnity.Instance.RemoveLobbyListRequestCallback(_lobbyListRequest, OnLobbyListReceivedCallback);
 			_lobbyListRequest = 0;
+		}
+
+		public void JoinLobby(SteamID steamIDLobby, OnLobbyJoined onLobbyJoined)
+		{
+			if (_lobbyJoined != null)
+			{
+				LeaveLobby();
+			}
+
+			foreach (Lobby l in _lobbyList)
+			{
+				if (l.SteamID == steamIDLobby)
+				{
+					_lobbyJoined = l;
+					break;
+				}
+			}
+
+			_onLobbyJoined = onLobbyJoined;
+
+			SteamUnity.Instance.AddLobbyJoinedCallback(SteamUnityAPI_SteamMatchmaking_JoinLobby(_matchmaking, steamIDLobby.ToUInt64()), OnLobbyJoinedCallback);
+		}
+
+		public void JoinLobby(Lobby lobby, OnLobbyJoined onLobbyJoined)
+		{
+			if (_lobbyJoined != null)
+			{
+				LeaveLobby();
+			}
+
+			_lobbyJoined = lobby;
+			_onLobbyJoined = onLobbyJoined;
+
+			SteamUnity.Instance.AddLobbyJoinedCallback(SteamUnityAPI_SteamMatchmaking_JoinLobby(_matchmaking, lobby.SteamID.ToUInt64()), OnLobbyJoinedCallback);
+		}
+
+		private void OnLobbyJoinedCallback(ref LobbyEnter_t callbackData)
+		{
+			if (_lobbyJoined == null)
+			{
+				_lobbyJoined = new Lobby(null, new SteamID(callbackData.m_ulSteamIDLobby));
+				_lobbyList.Add(_lobbyJoined);
+			}
+
+			_lobbyJoined.IsLocked = callbackData.m_bLocked;
+			_lobbyJoined.ChatPermissions = callbackData.m_rgfChatPermissions;
+
+			_onLobbyJoined(_lobbyJoined, (EChatRoomEnterResponse)callbackData.m_EChatRoomEnterResponse);
+		}
+
+		public void LeaveLobby()
+		{
+			if (_lobbyJoined != null)
+			{
+				SteamUnityAPI_SteamMatchmaking_LeaveLobby(_matchmaking, _lobbyJoined.SteamID.ToUInt64());
+				_lobbyJoined = null;
+			}
 		}
 
 		private void PrepServerListRequest(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived,
