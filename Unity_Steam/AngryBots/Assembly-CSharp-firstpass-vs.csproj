@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>9.0.21022</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_4_2;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Plugins\Achievement.cs" />
+     <Compile Include="Assets\Plugins\Achievements.cs" />
+     <Compile Include="Assets\Plugins\Constants.cs" />
+     <Compile Include="Assets\Plugins\Friend.cs" />
+     <Compile Include="Assets\Plugins\Friends.cs" />
+     <Compile Include="Assets\Plugins\GameServer.cs" />
+     <Compile Include="Assets\Plugins\GameStats.cs" />
+     <Compile Include="Assets\Plugins\Group.cs" />
+     <Compile Include="Assets\Plugins\Groups.cs" />
+     <Compile Include="Assets\Plugins\Leaderboard.cs" />
+     <Compile Include="Assets\Plugins\LeaderboardEntries.cs" />
+     <Compile Include="Assets\Plugins\LeaderboardEntry.cs" />
+     <Compile Include="Assets\Plugins\Leaderboards.cs" />
+     <Compile Include="Assets\Plugins\ListEnumerator.cs" />
+     <Compile Include="Assets\Plugins\Lobbies.cs" />
+     <Compile Include="Assets\Plugins\Lobby.cs" />
+     <Compile Include="Assets\Plugins\Matchmaking.cs" />
+     <Compile Include="Assets\Plugins\RemoteStorage.cs" />
+     <Compile Include="Assets\Plugins\Server.cs" />
+     <Compile Include="Assets\Plugins\Servers.cs" />
+     <Compile Include="Assets\Plugins\Stat.cs" />
+     <Compile Include="Assets\Plugins\Stats.cs" />
+     <Compile Include="Assets\Plugins\SteamID.cs" />
+     <Compile Include="Assets\Plugins\SteamUnity.cs" />
+     <Compile Include="Assets\Plugins\User.cs" />
+     <None Include="Assets\Shaders\BackgroundAndCharacters\AngryInclude.cginc" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
+	

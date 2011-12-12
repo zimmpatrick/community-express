@@ -16,6 +16,9 @@ public var cursorFacingCamera : float = 0;
 public var cursorSmallerWithDistance : float = 0;
 public var cursorSmallerWhenClose : float = 1;
 
+public var steamworks : SteamUnity;
+steamworks = GetComponent(SteamUnity);
+
 // Private memeber data
 private var mainCamera : Camera;
 
@@ -93,7 +96,9 @@ function Start () {
 	
 	screenMovementSpace = Quaternion.Euler (0, mainCameraTransform.eulerAngles.y, 0);
 	screenMovementForward = screenMovementSpace * Vector3.forward;
-	screenMovementRight = screenMovementSpace * Vector3.right;	
+	screenMovementRight = screenMovementSpace * Vector3.right;
+	
+	steamworks.UserAchievements.RequestCurrentAchievements(null, ["WinWestLondonNormal"]);
 }
 
 function OnDisable () {
@@ -267,4 +272,10 @@ function HandleCursorAlignment (cursorWorldPosition : Vector3) {
 	if (Input.GetKey(KeyCode.K)) cursorSmallerWithDistance += Time.deltaTime * 0.5;
 	if (Input.GetKey(KeyCode.L)) cursorSmallerWithDistance -= Time.deltaTime * 0.5;
 	cursorSmallerWithDistance = Mathf.Clamp01(cursorSmallerWithDistance);
+}
+
+function OnKilledEnemy()
+{
+	print("Unlocking Achievement!");
+	steamworks.UserAchievements.UnlockAchievement("WinWestLondonNormal", true);
 }

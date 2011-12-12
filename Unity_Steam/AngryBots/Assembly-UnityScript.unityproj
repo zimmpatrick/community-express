@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>9.0.21022</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{CD7D0F1E-AE16-CF0B-7B9C-035C8C5AEE24}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-UnityScript</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_4_2;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Explosions\Scripts\EffectSequencer.js" />
+     <Compile Include="Assets\Explosions\Scripts\ElectricShockwave.js" />
+     <Compile Include="Assets\Explosions\Scripts\ExplosionControl.js" />
+     <Compile Include="Assets\Explosions\Scripts\ExplosionLine.js" />
+     <Compile Include="Assets\Explosions\Scripts\ExplosionTestCage.js" />
+     <Compile Include="Assets\Explosions\Scripts\ExplosionTrail.js" />
+     <Compile Include="Assets\Explosions\Scripts\MuzzleFlashAnimate.js" />
+     <Compile Include="Assets\Explosions\Scripts\ScaleAndDestroyRefractSphere.js" />
+     <Compile Include="Assets\Scripts\AI\AI.js" />
+     <Compile Include="Assets\Scripts\AI\AttackMoveController.js" />
+     <Compile Include="Assets\Scripts\AI\BuzzerKamikazeControllerAndAi.js" />
+     <Compile Include="Assets\Scripts\AI\DisableOutsideRadius.js" />
+     <Compile Include="Assets\Scripts\AI\MechAttackMoveController.js" />
+     <Compile Include="Assets\Scripts\AI\PatrolMoveController.js" />
+     <Compile Include="Assets\Scripts\AI\PatrolPoint.js" />
+     <Compile Include="Assets\Scripts\AI\PatrolRoute.js" />
+     <Compile Include="Assets\Scripts\AI\SpiderAttackMoveController.js" />
+     <Compile Include="Assets\Scripts\AI\SpiderReturnMoveController.js" />
+     <Compile Include="Assets\Scripts\AI\SwarmAI.js" />
+     <Compile Include="Assets\Scripts\Animation\FanRotate.js" />
+     <Compile Include="Assets\Scripts\Animation\FootstepHandler.js" />
+     <Compile Include="Assets\Scripts\Animation\MechAnimation.js" />
+     <Compile Include="Assets\Scripts\Animation\MechAnimationTest.js" />
+     <Compile Include="Assets\Scripts\Animation\PlayerAnimation.js" />
+     <Compile Include="Assets\Scripts\Animation\SpiderAnimation.js" />
+     <Compile Include="Assets\Scripts\Animation\SpiderAnimationTest.js" />
+     <Compile Include="Assets\Scripts\Animation\conveyorBelt.js" />
+     <Compile Include="Assets\Scripts\Fx\BrokenScreen.js" />
+     <Compile Include="Assets\Scripts\Fx\ColoredNoise.js" />
+     <Compile Include="Assets\Scripts\Fx\DeactivatorOnLowQuality.js" />
+     <Compile Include="Assets\Scripts\Fx\GlowChange.js" />
+     <Compile Include="Assets\Scripts\Fx\GlowPlane.js" />
+     <Compile Include="Assets\Scripts\Fx\GlowPlaneAngleFade.js" />
+     <Compile Include="Assets\Scripts\Fx\HeightDepthOfField.js" />
+     <Compile Include="Assets\Scripts\Fx\LaserScope.js" />
+     <Compile Include="Assets\Scripts\Fx\MobileBloom.js" />
+     <Compile Include="Assets\Scripts\Fx\MoodBox.js" />
+     <Compile Include="Assets\Scripts\Fx\MoodBoxData.js" />
+     <Compile Include="Assets\Scripts\Fx\MoodBoxManager.js" />
+     <Compile Include="Assets\Scripts\Fx\PostEffects.js" />
+     <Compile Include="Assets\Scripts\Fx\QualityManager.js" />
+     <Compile Include="Assets\Scripts\Fx\RenderFogPlane.js" />
+     <Compile Include="Assets\Scripts\Fx\SelfIlluminationBlink.js" />
+     <Compile Include="Assets\Scripts\Fx\ShaderDatabase.js" />
+     <Compile Include="Assets\Scripts\Fx\WorldSpaceSpecular.js" />
+     <Compile Include="Assets\Scripts\Managers\MaterialImpactManager.js" />
+     <Compile Include="Assets\Scripts\Managers\Spawner.js" />
+     <Compile Include="Assets\Scripts\Managers\TextAdventureManager.js" />
+     <Compile Include="Assets\Scripts\Misc\EndOfLevel.js" />
+     <Compile Include="Assets\Scripts\Misc\PlaySoundOnTrigger.js" />
+     <Compile Include="Assets\Scripts\Misc\ReBirth.js" />
+     <Compile Include="Assets\Scripts\Misc\ShowFps.js" />
+     <Compile Include="Assets\Scripts\Misc\SimpleRotate.js" />
+     <Compile Include="Assets\Scripts\Misc\StaticFollower.js" />
+     <Compile Include="Assets\Scripts\Modules\DestroyObject.js" />
+     <Compile Include="Assets\Scripts\Modules\EmitParticles.js" />
+     <Compile Include="Assets\Scripts\Modules\EnemyArea.js" />
+     <Compile Include="Assets\Scripts\Modules\Lock.js" />
+     <Compile Include="Assets\Scripts\Modules\LockedThing.js" />
+     <Compile Include="Assets\Scripts\Modules\PlayAnimation.js" />
+     <Compile Include="Assets\Scripts\Modules\PlayAnimationAndBack.js" />
+     <Compile Include="Assets\Scripts\Modules\PlaySound.js" />
+     <Compile Include="Assets\Scripts\Modules\PlaySoundAndBack.js" />
+     <Compile Include="Assets\Scripts\Modules\SetCheckpoint.js" />
+     <Compile Include="Assets\Scripts\Modules\ShiftUV.js" />
+     <Compile Include="Assets\Scripts\Modules\SignalSender.js" />
+     <Compile Include="Assets\Scripts\Modules\SpawnAtCheckpoint.js" />
+     <Compile Include="Assets\Scripts\Modules\SpawnMultipleObjects.js" />
+     <Compile Include="Assets\Scripts\Modules\SpawnObject.js" />
+     <Compile Include="Assets\Scripts\Modules\TerminalHack.js" />
+     <Compile Include="Assets\Scripts\Modules\TriggerOnMouse.js" />
+     <Compile Include="Assets\Scripts\Modules\TriggerOnMouseOrJoystick.js" />
+     <Compile Include="Assets\Scripts\Modules\TriggerOnPresence.js" />
+     <Compile Include="Assets\Scripts\Modules\TriggerOnTag.js" />
+     <Compile Include="Assets\Scripts\Movement\CameraControl.js" />
+     <Compile Include="Assets\Scripts\Movement\FreeMovementMotor.js" />
+     <Compile Include="Assets\Scripts\Movement\HoverMovementMotor.js" />
+     <Compile Include="Assets\Scripts\Movement\Joystick.js" />
+     <Compile Include="Assets\Scripts\Movement\KamikazeMovementMotor.js" />
+     <Compile Include="Assets\Scripts\Movement\MechMovementMotor.js" />
+     <Compile Include="Assets\Scripts\Movement\MovementMotor.js" />
+     <Compile Include="Assets\Scripts\Movement\PlayerMoveController.js" />
+     <Compile Include="Assets\Scripts\Rain\RainBox.js" />
+     <Compile Include="Assets\Scripts\Rain\RainManager.js" />
+     <Compile Include="Assets\Scripts\Rain\RainsplashBox.js" />
+     <Compile Include="Assets\Scripts\Rain\RainsplashManager.js" />
+     <Compile Include="Assets\Scripts\Weapons\AutoFire.js" />
+     <Compile Include="Assets\Scripts\Weapons\CopyRotation.js" />
+     <Compile Include="Assets\Scripts\Weapons\Health.js" />
+     <Compile Include="Assets\Scripts\Weapons\HealthFlash.js" />
+     <Compile Include="Assets\Scripts\Weapons\PerFrameRaycast.js" />
+     <Compile Include="Assets\Scripts\Weapons\SeekerBullet.js" />
+     <Compile Include="Assets\Scripts\Weapons\SimpleBullet.js" />
+     <Compile Include="Assets\Scripts\Weapons\SlowBulletFire.js" />
+     <Compile Include="Assets\Scripts\Weapons\SlowBulletFireWithNoise.js" />
+     <None Include="Assets\Shaders\BackgroundAndCharacters\AngryInclude.cginc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}</Project>
+      <Name>Assembly-CSharp-firstpass</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
+	
