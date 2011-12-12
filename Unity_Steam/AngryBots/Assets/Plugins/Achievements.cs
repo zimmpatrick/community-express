@@ -60,7 +60,6 @@ namespace SteamworksUnityHost
 			}
 			else
 			{
-				UnityEngine.Debug.Log("Creating Stats");
 				_stats = SteamUnityAPI_SteamUserStats();
 			}
 		}
@@ -82,15 +81,12 @@ namespace SteamworksUnityHost
 			}
 			else
 			{
-				UnityEngine.Debug.Log("Request Current Stats");
 				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
 			}
 		}
 
 		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
 		{
-			UnityEngine.Debug.Log("User Stats Received");
-			
 			_id = new SteamID(CallbackData.m_steamIDUser);
 
 			InitializeAchievementList(_requestedAchievements);
@@ -107,8 +103,6 @@ namespace SteamworksUnityHost
 
 			// Make sure we don't double up the list of Achievements
 			Clear();
-
-			UnityEngine.Debug.Log("Init Achievement List");
 
 			_requestedAchievements = requestedAchievements;
 
@@ -146,11 +140,8 @@ namespace SteamworksUnityHost
 
 		public void UnlockAchievement(string achievementName, bool storeStats)
 		{
-			UnityEngine.Debug.Log("CSharp Inside Unlocking Achievement");
-			
 			foreach (Achievement a in _achievementList)
 			{
-				UnityEngine.Debug.Log("Checking Achievement");
 				if (a.AchievementName == achievementName)
 				{
 					if (!a.IsAchieved)
@@ -161,7 +152,6 @@ namespace SteamworksUnityHost
 						}
 						else
 						{
-							UnityEngine.Debug.Log("CSharp Unlocking Achievement");
 							SteamUnityAPI_SteamUserStats_SetAchievement(_stats, a.AchievementName);
 						}
 

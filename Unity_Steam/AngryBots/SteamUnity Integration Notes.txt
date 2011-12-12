@@ -1,7 +1,10 @@
+ - The following DLLS need to be place in the Program Files\Unity\Editor directory:
+   - Steam, steam_api, steamclient, SteamworksUnity, SteamworksUnityHost, tier0_s, and vstdlib_s
  - In order to get the SteamUnity class to be available in JavaScript, I had to create a "Plugins" folder(in the Assets folder) and place the SteamUnity CSharp files into Plugins
    - This automatically created the Assembly-CSharp-firstpass project and added it to the solution(not sure if MonoDevelop created it or the Unity Editor)
  - To hook create an instance of the SteamUnity interface, I had to add a Component to the Player Object in the Editor(by dragging the script file onto a placed Player Object in the 3d View)
    - Then to grab it in Script, call GetComponent within any other Component also on the Player Object
    - To have events call back to the Player Object, Unity uses "signaling", such as the OnEnemyKilled signal/function I created
      - The Signal call was added in the Editor(though I'm sure there's some way to do it from Script), but the catch function for the Signal needs only be specified in Script(just need a function that's named the same as the name specified in the Signal)
-	 
+ - The weapon in Angry Bots exists within the Skeleton of the player, all the way down in the Right hand.
+    - In the Hierarchy view(lower left), expand Player, then player, then player_root, Bip001, Bip001 Spine, Bip001 Spine1, Bip001 Neck, Bip001 R Clavicle, etc down to main_weapon001

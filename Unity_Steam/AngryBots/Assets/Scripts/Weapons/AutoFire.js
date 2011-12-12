@@ -40,11 +40,19 @@ function Update () {
 			if (hitInfo.transform) {
 				// Get the health component of the target if any
 				var targetHealth : Health = hitInfo.transform.GetComponent.<Health> ();
-				if (targetHealth) {
+				if (targetHealth && targetHealth.health > 0.0)
+				{
 					// Apply damage
 					targetHealth.OnDamage (damagePerSecond / frequency, -spawnPoint.forward);
+					
+					if (targetHealth.health <= 0.0)
+					{
+						// NOTE: In theory by using gameObject instead of GameObject to find the player, we are searching within this instance
+						//       of this Weapon for our owning player...we will only know if this is the case once we add co-op
+						gameObject.FindWithTag("Player").GetComponent(PlayerMoveController).OnKilledEnemy();
+					}
 				}
-				
+
 				// Get the rigidbody if any
 				if (hitInfo.rigidbody) {
 					// Apply force to the target object at the position of the hit point
