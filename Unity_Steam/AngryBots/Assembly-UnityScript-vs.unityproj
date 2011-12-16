@@ -98,6 +98,7 @@
      <Compile Include="Assets\Scripts\Misc\ShowFps.js" />
      <Compile Include="Assets\Scripts\Misc\SimpleRotate.js" />
      <Compile Include="Assets\Scripts\Misc\StaticFollower.js" />
+     <Compile Include="Assets\Scripts\Misc\StatsAndAchievements.js" />
      <Compile Include="Assets\Scripts\Modules\DestroyObject.js" />
      <Compile Include="Assets\Scripts\Modules\EmitParticles.js" />
      <Compile Include="Assets\Scripts\Modules\EnemyArea.js" />
@@ -130,6 +131,7 @@
      <Compile Include="Assets\Scripts\Rain\RainManager.js" />
      <Compile Include="Assets\Scripts\Rain\RainsplashBox.js" />
      <Compile Include="Assets\Scripts\Rain\RainsplashManager.js" />
+     <Compile Include="Assets\Scripts\UI\FriendsList.js" />
      <Compile Include="Assets\Scripts\Weapons\AutoFire.js" />
      <Compile Include="Assets\Scripts\Weapons\CopyRotation.js" />
      <Compile Include="Assets\Scripts\Weapons\Health.js" />

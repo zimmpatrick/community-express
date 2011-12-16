@@ -1,5 +1,6 @@
  - The following DLLS need to be place in the Program Files\Unity\Editor directory:
    - Steam, steam_api, steamclient, SteamworksUnity, SteamworksUnityHost, tier0_s, and vstdlib_s
+ - Also, you must create a file called steam_appid.txt with the number 204540 as the only text inside it
  - In order to get the SteamUnity class to be available in JavaScript, I had to create a "Plugins" folder(in the Assets folder) and place the SteamUnity CSharp files into Plugins
    - This automatically created the Assembly-CSharp-firstpass project and added it to the solution(not sure if MonoDevelop created it or the Unity Editor)
  - To hook create an instance of the SteamUnity interface, I had to add a Component to the Player Object in the Editor(by dragging the script file onto a placed Player Object in the 3d View)

@@ -168,6 +168,28 @@ namespace SteamworksUnityHost
 			}
 		}
 
+		public void UnlockAchievement(Achievement achievement, bool storeStats)
+		{
+			if (!achievement.IsAchieved)
+			{
+				if (_gameserverStats != IntPtr.Zero)
+				{
+					SteamUnityAPI_SteamGameServerStats_SetUserAchievement(_gameserverStats, _id.ToUInt64(), achievement.AchievementName);
+				}
+				else
+				{
+					SteamUnityAPI_SteamUserStats_SetAchievement(_stats, achievement.AchievementName);
+				}
+
+				achievement.IsAchieved = true;
+
+				if (storeStats)
+				{
+					WriteStats();
+				}
+			}
+		}
+
 		public void WriteStats()
 		{
 			if (_gameserverStats != IntPtr.Zero)
@@ -185,7 +207,7 @@ namespace SteamworksUnityHost
 			get { return _id; }
 		}
 
-		public IList<Achievement> StatsList
+		public IList<Achievement> AchievementList
 		{
 			get { return _achievementList; }
 		}
