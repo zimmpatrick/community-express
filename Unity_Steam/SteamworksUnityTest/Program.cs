@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Threading;
-using SteamworksUnityHost;
+using CommunityExpressNS;
 
 namespace SteamworksUnityTest
 {
@@ -23,10 +23,10 @@ namespace SteamworksUnityTest
 
 		static int Main(string[] args)
 		{
-			SteamUnity s = SteamUnity.Instance;
+			CommunityExpress s = CommunityExpress.Instance;
 
 #if false
-			if (s.RestartAppIfNecessary(SteamUnity.k_uAppIdInvalid))
+			if (s.RestartAppIfNecessary(CommunityExpress.k_uAppIdInvalid))
 			{
 				// if Steam is not running or the game wasn't started through Steam, SteamAPI_RestartAppIfNecessary starts the 
 				// local Steam client and also launches this game again.

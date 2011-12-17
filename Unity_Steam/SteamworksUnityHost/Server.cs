@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	public class Server
 	{

@@ -4,7 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	//-----------------------------------------------------------------------------
 	// Purpose: set of relationships to other users
@@ -54,16 +54,16 @@ namespace SteamworksUnityHost
 
 	public class Friends : ICollection<Friend>
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamFriends();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamFriends_GetFriendCount(IntPtr friends);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendByIndex(IntPtr friends, int iFriend);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friends, UInt64 steamIDFriend);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamFriends_GetFriendPersonaState(IntPtr friends, UInt64 steamIDFriend);
 
 		private IntPtr _friends;

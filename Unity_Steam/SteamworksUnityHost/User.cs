@@ -4,23 +4,23 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Net;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	using HSteamUser = Int32;
 
 	public class User
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamUser();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUser_BLoggedOn(IntPtr user);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern HSteamUser SteamUnityAPI_SteamUser_GetHSteamUser(IntPtr user);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern UInt64 SteamUnityAPI_SteamUser_GetSteamID(IntPtr user);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern Int32 SteamUnityAPI_SteamUser_InitiateGameConnection(IntPtr user, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] authTicket, Int32 authTicketMaxSize, UInt64 serverSteamID, UInt32 serverIP, UInt16 serverPort, Boolean isSecure);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern void SteamUnityAPI_SteamUser_TerminateGameConnection(IntPtr user, UInt32 serverIP, UInt16 serverPort);
 
 		private const Int32 AuthTicketSizeMax = 2048;

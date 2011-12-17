@@ -4,37 +4,37 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
 
 	public class Achievements : ICollection<Achievement>
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
 			out Byte isAchieved);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetUserAchievement(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
 			out Byte isAchieved);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_SetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamGameServerStats_GetUserAchievement(IntPtr gameserverStats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string achievementName, out Byte isAchieved);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern bool SteamUnityAPI_SteamGameServerStats_SetUserAchievement(IntPtr stats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string achievementName);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
 
 		private IntPtr _stats = IntPtr.Zero;
@@ -77,7 +77,7 @@ namespace SteamworksUnityHost
 			if (_gameserverStats != IntPtr.Zero)
 			{
 				SteamAPICall_t result = SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
-				SteamUnity.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
+				CommunityExpress.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
 			}
 			else
 			{
@@ -91,7 +91,10 @@ namespace SteamworksUnityHost
 
 			InitializeAchievementList(_requestedAchievements);
 
-			_onUserStatsReceived(null, this);
+			if (_onUserStatsReceived != null)
+			{
+				_onUserStatsReceived(null, this);
+			}
 		}
 
 		public void InitializeAchievementList(IEnumerable<string> requestedAchievements)
@@ -165,6 +168,28 @@ namespace SteamworksUnityHost
 			}
 		}
 
+		public void UnlockAchievement(Achievement achievement, bool storeStats)
+		{
+			if (!achievement.IsAchieved)
+			{
+				if (_gameserverStats != IntPtr.Zero)
+				{
+					SteamUnityAPI_SteamGameServerStats_SetUserAchievement(_gameserverStats, _id.ToUInt64(), achievement.AchievementName);
+				}
+				else
+				{
+					SteamUnityAPI_SteamUserStats_SetAchievement(_stats, achievement.AchievementName);
+				}
+
+				achievement.IsAchieved = true;
+
+				if (storeStats)
+				{
+					WriteStats();
+				}
+			}
+		}
+
 		public void WriteStats()
 		{
 			if (_gameserverStats != IntPtr.Zero)
@@ -182,7 +207,7 @@ namespace SteamworksUnityHost
 			get { return _id; }
 		}
 
-		public IList<Achievement> StatsList
+		public IList<Achievement> AchievementList
 		{
 			get { return _achievementList; }
 		}

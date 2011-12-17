@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	public class RemoteStorage
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamRemoteStorage_GetFileCount(IntPtr remoteStorage);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(IntPtr remoteStorage, int iFile, out int nFileSizeInBytes);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamRemoteStorage_FileRead(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string fileName, 
 		   [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder sb, int nSize);
 

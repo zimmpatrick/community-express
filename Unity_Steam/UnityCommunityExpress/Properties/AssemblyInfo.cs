@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CommunityExpress")]
+[assembly: AssemblyTitle("UnityCommunityExpress")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Zimmdot")]
-[assembly: AssemblyProduct("CommunityExpress")]
-[assembly: AssemblyCopyright("Copyright © Zimmdot, LLC 2011")]
+[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyProduct("UnityCommunityExpress")]
+[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,14 +20,14 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("36c7d52c-c908-4bcd-9ace-7bc2623659f3")]
+[assembly: Guid("d5ba0693-90af-4175-8255-8a717830a93a")]
 
 // Version information for an assembly consists of the following four values:
 //
-//	  Major Version
-//	  Minor Version 
-//	  Build Number
-//	  Revision
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:

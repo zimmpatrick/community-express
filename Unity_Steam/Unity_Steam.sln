@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityHost", "Stea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityTest", "SteamworksUnityTest\SteamworksUnityTest.csproj", "{82C56495-10E6-4042-B182-296572231E19}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityCommunityExpress", "UnityCommunityExpress\UnityCommunityExpress.csproj", "{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,24 @@ Global
 		{82C56495-10E6-4042-B182-296572231E19}.Template|Win32.ActiveCfg = Release|x86
 		{82C56495-10E6-4042-B182-296572231E19}.Template|x86.ActiveCfg = Release|x86
 		{82C56495-10E6-4042-B182-296572231E19}.Template|x86.Build.0 = Release|x86
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Win32.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|x86.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Template|Any CPU.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Template|Any CPU.Build.0 = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Template|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Template|Mixed Platforms.Build.0 = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Template|Win32.ActiveCfg = Release|Any CPU
+		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Template|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

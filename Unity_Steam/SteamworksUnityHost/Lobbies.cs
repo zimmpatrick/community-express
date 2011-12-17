@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	public class Lobbies : ICollection<Lobby>
 	{

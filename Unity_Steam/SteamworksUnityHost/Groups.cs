@@ -4,20 +4,20 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	public class Groups : ICollection<Group>
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamFriends();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamFriends_GetClanCount(IntPtr friends);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern UInt64 SteamUnityAPI_SteamFriends_GetClanByIndex(IntPtr friends, int iClan);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamFriends_GetClanName(IntPtr friends, UInt64 steamIDClan);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamFriends_GetClanTag(IntPtr friends, UInt64 steamIDClan);
 

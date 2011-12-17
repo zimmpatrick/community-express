@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	// Currently read-only
 	public class SteamID

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
 
@@ -31,45 +31,45 @@ namespace SteamworksUnityHost
 
 	public class GameStats
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamGameStats();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamGameStats_GetNewSession(IntPtr gamestats, EGameStatsAccountType accountType,
 			UInt64 accountID, Int32 appID, UInt32 timeStarted);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamGameStats_EndSession(IntPtr gamestats, UInt64 sessionID, UInt32 timeEnded, Int32 reason);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeInt(IntPtr gamestats, UInt64 sessionID,
 			 [MarshalAs(UnmanagedType.LPStr)] String name, Int32 value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeInt64(IntPtr gamestats, UInt64 sessionID,
 			 [MarshalAs(UnmanagedType.LPStr)] String name, Int64 value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeFloat(IntPtr gamestats, UInt64 sessionID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, float value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeString(IntPtr gamestats, UInt64 sessionID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, [MarshalAs(UnmanagedType.LPStr)] String value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddNewRow(IntPtr gamestats, out UInt64 rowID, UInt64 sessionID,
 			[MarshalAs(UnmanagedType.LPStr)] String tableName);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddRowAttributeInt(IntPtr gamestats, UInt64 rowID,
 			 [MarshalAs(UnmanagedType.LPStr)] String name, Int32 value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddRowAttributeInt64(IntPtr gamestats, UInt64 rowID,
 			 [MarshalAs(UnmanagedType.LPStr)] String name, Int64 value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddRowAttributeFloat(IntPtr gamestats, UInt64 rowID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, float value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_AddRowAttributeString(IntPtr gamestats, UInt64 rowID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, [MarshalAs(UnmanagedType.LPStr)] String value);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_CommitRow(IntPtr gamestats, UInt64 rowID);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern EResult SteamUnityAPI_SteamGameStats_CommitOutstandingRows(IntPtr gamestats, UInt64 sessionID);
 
 		private IntPtr _gamestats;
@@ -105,15 +105,15 @@ namespace SteamworksUnityHost
 
 			if (accountID == null)
 			{
-				if (accountType != EGameStatsAccountType.k_EGameStatsAccountType_Steam && SteamUnity.Instance.IsGameServerInitialized)
+				if (accountType != EGameStatsAccountType.k_EGameStatsAccountType_Steam && CommunityExpress.Instance.IsGameServerInitialized)
 				{
 					_accountType = EGameStatsAccountType.k_EGameStatsAccountType_SteamGameServer;
-					_id = SteamUnity.Instance.GameServer.SteamID;
+					_id = CommunityExpress.Instance.GameServer.SteamID;
 				}
 				else
 				{
 					_accountType = EGameStatsAccountType.k_EGameStatsAccountType_Steam;
-					_id = SteamUnity.Instance.User.SteamID;
+					_id = CommunityExpress.Instance.User.SteamID;
 				}
 			}
 			else
@@ -125,7 +125,7 @@ namespace SteamworksUnityHost
 			DateTime time = DateTime.Now;
 
 			SteamAPICall_t result = SteamUnityAPI_SteamGameStats_GetNewSession(_gamestats, _accountType, _id.ToUInt64(), (Int32)SteamUnityAPI_SteamUtils_GetAppID(), (UInt32)time.ToFileTime());
-			SteamUnity.Instance.AddGameStatsSessionIssuedCallback(result, OnGameStatsSessionIssuedCallback);
+			CommunityExpress.Instance.AddGameStatsSessionIssuedCallback(result, OnGameStatsSessionIssuedCallback);
 		}
 
 		private void OnGameStatsSessionIssuedCallback(ref GameStatsSessionIssued_t CallbackData)

@@ -4,15 +4,15 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
 
-namespace SteamworksUnityHost
+namespace CommunityExpressNS
 {
 	public class Lobby : ICollection<Friend>
 	{
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("SteamworksUnity.dll")]
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
 
 		private IntPtr _matchmaking;
@@ -134,7 +134,7 @@ namespace SteamworksUnityHost
 
 		public IEnumerator<Friend> GetEnumerator()
 		{
-			return new FriendEnumator(this, SteamUnity.Instance.Friends);
+			return new FriendEnumator(this, CommunityExpress.Instance.Friends);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
