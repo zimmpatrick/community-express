@@ -84,15 +84,8 @@
      <None Include="Assets\Shaders\BackgroundAndCharacters\SuperSimpleSelfIllumination.shader" />
      <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
      <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
- <Reference Include="Assembly-UnityScript">
- <HintPath>Library\ScriptAssemblies\Assembly-UnityScript.dll</HintPath>
- </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass-vs.csproj">
-      <Project>{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}</Project>
-      <Name>Assembly-CSharp-firstpass-vs</Name>
-    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp-vs.csproj">
       <Project>{96973C44-81EA-6A79-E5F0-0EA67F954EB0}</Project>
       <Name>Assembly-CSharp-vs</Name>

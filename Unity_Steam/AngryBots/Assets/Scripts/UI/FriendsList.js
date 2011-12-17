@@ -8,7 +8,7 @@ function OnGUI()
 {
 	var y : int = 0;
 
-	for (var f : SteamworksUnityHost.Friend in SteamUnity.Instance.Friends)
+	for (var f : CommunityExpressNS.Friend in UnityCommunityExpress.Instance.Friends)
 	{
 		switch (f.PersonaState)
 		{

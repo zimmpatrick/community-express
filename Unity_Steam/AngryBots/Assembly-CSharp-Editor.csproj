@@ -1,95 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-	<ProductVersion>9.0.21022</ProductVersion>
-	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{87A6EEB7-6E60-DF95-BF55-641064500955}</ProjectGuid>
-	<OutputType>Library</OutputType>
-	<AppDesignerFolder>Properties</AppDesignerFolder>
-	<RootNamespace></RootNamespace>
-	<AssemblyName>Assembly-CSharp-Editor</AssemblyName>
-	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-	<FileAlignment>512</FileAlignment>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{87A6EEB7-6E60-DF95-BF55-641064500955}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AssemblyCSharpEditor</RootNamespace>
+    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-	<DebugSymbols>true</DebugSymbols>
-	<DebugType>full</DebugType>
-	<Optimize>false</Optimize>
-	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_3_4_2;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<NoWarn>0169</NoWarn>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_3_4_2;UNITY_3_4;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-	<DebugType>pdbonly</DebugType>
-	<Optimize>true</Optimize>
-	<OutputPath>Temp\bin\Release\</OutputPath>
-	<DefineConstants>TRACE</DefineConstants>
-	<ErrorReport>prompt</ErrorReport>
-	<WarningLevel>4</WarningLevel>
-	<NoWarn>0169</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-	<Reference Include="System" />
-    <Reference Include="System.XML" />
-	<Reference Include="System.Core" />
-	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
-	</Reference>
-	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
-	</Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Program Files %28x86%29\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Program Files %28x86%29\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Editor\CheckValidShaders.cs" />
-     <Compile Include="Assets\Editor\CopyMoodBox.cs" />
-     <Compile Include="Assets\Editor\CopyTransform.cs" />
-     <Compile Include="Assets\Editor\EditorObjExporter.cs" />
-     <Compile Include="Assets\Editor\ReflectionThreshholdTweaker.cs" />
-     <Compile Include="Assets\Editor\RevealMeshColliders.cs" />
-     <Compile Include="Assets\Editor\TransformGroup.cs" />
-     <Compile Include="Assets\Scripts\Editor\CleanProject.cs" />
-     <None Include="Assets\Shaders\Fx\Rain.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\RealtimeReflectionInWaterFlow.shader" />
-     <None Include="Assets\Shaders\Fx\Cursor.shader" />
-     <None Include="Assets\Shaders\Fx\ParticleAdditiveBlend.shader" />
-     <None Include="Assets\Shaders\Fx\AdditiveBlend.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\RealtimeReflectionReplacement.shader" />
-     <None Include="Assets\Shaders\Fx\Additive.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\ReflectiveBackgroundArbitrary.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\ReflectiveBackgroundSelfIllumination.shader" />
-     <None Include="Assets\Resources\HeightDepthOfField.shader" />
-     <None Include="Assets\Resources\BlurPassesForDof.shader" />
-     <None Include="Assets\Shaders\Fx\ScreenRefract.shader" />
-     <None Include="Assets\Shaders\Fx\RainSplash.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\Fallback.shader" />
-     <None Include="Assets\Shaders\Fx\Multiply.shader" />
-     <None Include="Assets\Shaders\Fx\Blend.shader" />
-     <None Include="Assets\Shaders\Fx\HeightFogBeforeTransparent.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\CharacterSelfIlluminationReflective.shader" />
-     <None Include="Assets\Resources\ColoredNoise.shader" />
-     <None Include="Assets\Shaders\Fx\InterlacePatternBlend.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\PlanarRealtimeReflection.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\ReflectiveBackgroundPlanar.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\EnemySelfIlluminationReflective.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\AngryInclude.cginc" />
-     <None Include="Assets\Resources\MobileBloom.shader" />
-     <None Include="Assets\Shaders\Fx\ParticleMultiply.shader" />
-     <None Include="Assets\Shaders\Fx\ParticleAdditive.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\AlphaCutoutCheapFallback.shader" />
-     <None Include="Assets\Shaders\Fx\LaserScope.shader" />
-     <None Include="Assets\Shaders\BackgroundAndCharacters\SuperSimpleSelfIllumination.shader" />
-     <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
-     <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
+    <Compile Include="Assets\Editor\CheckValidShaders.cs" />
+    <Compile Include="Assets\Editor\CopyMoodBox.cs" />
+    <Compile Include="Assets\Editor\CopyTransform.cs" />
+    <Compile Include="Assets\Editor\EditorObjExporter.cs" />
+    <Compile Include="Assets\Editor\ReflectionThreshholdTweaker.cs" />
+    <Compile Include="Assets\Editor\RevealMeshColliders.cs" />
+    <Compile Include="Assets\Editor\TransformGroup.cs" />
+    <Compile Include="Assets\Scripts\Editor\CleanProject.cs" />
+    <None Include="Assets\Shaders\Fx\Rain.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\RealtimeReflectionInWaterFlow.shader" />
+    <None Include="Assets\Shaders\Fx\Cursor.shader" />
+    <None Include="Assets\Shaders\Fx\ParticleAdditiveBlend.shader" />
+    <None Include="Assets\Shaders\Fx\AdditiveBlend.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\RealtimeReflectionReplacement.shader" />
+    <None Include="Assets\Shaders\Fx\Additive.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\ReflectiveBackgroundArbitrary.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\ReflectiveBackgroundSelfIllumination.shader" />
+    <None Include="Assets\Resources\HeightDepthOfField.shader" />
+    <None Include="Assets\Resources\BlurPassesForDof.shader" />
+    <None Include="Assets\Shaders\Fx\ScreenRefract.shader" />
+    <None Include="Assets\Shaders\Fx\RainSplash.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\Fallback.shader" />
+    <None Include="Assets\Shaders\Fx\Multiply.shader" />
+    <None Include="Assets\Shaders\Fx\Blend.shader" />
+    <None Include="Assets\Shaders\Fx\HeightFogBeforeTransparent.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\CharacterSelfIlluminationReflective.shader" />
+    <None Include="Assets\Resources\ColoredNoise.shader" />
+    <None Include="Assets\Shaders\Fx\InterlacePatternBlend.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\PlanarRealtimeReflection.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\ReflectiveBackgroundPlanar.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\EnemySelfIlluminationReflective.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\AngryInclude.cginc" />
+    <None Include="Assets\Resources\MobileBloom.shader" />
+    <None Include="Assets\Shaders\Fx\ParticleMultiply.shader" />
+    <None Include="Assets\Shaders\Fx\ParticleAdditive.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\AlphaCutoutCheapFallback.shader" />
+    <None Include="Assets\Shaders\Fx\LaserScope.shader" />
+    <None Include="Assets\Shaders\BackgroundAndCharacters\SuperSimpleSelfIllumination.shader" />
+    <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
+    <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}</Project>
-      <Name>Assembly-CSharp-firstpass</Name>
-    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{96973C44-81EA-6A79-E5F0-0EA67F954EB0}</Project>
       <Name>Assembly-CSharp</Name>
@@ -107,6 +104,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  
 </Project>
-	

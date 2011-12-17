@@ -16,10 +16,10 @@ public var cursorFacingCamera : float = 0;
 public var cursorSmallerWithDistance : float = 0;
 public var cursorSmallerWhenClose : float = 1;
 
-public var steamworks : SteamUnity;
-steamworks = GetComponent(SteamUnity);
-public var killsStat : SteamworksUnityHost.Stat = null;
-public var killsAchievement50 : SteamworksUnityHost.Achievement = null;
+public var communityExpress : UnityCommunityExpress;
+communityExpress = GetComponent(UnityCommunityExpress);
+public var killsStat : CommunityExpressNS.Stat = null;
+public var killsAchievement50 : CommunityExpressNS.Achievement = null;
 
 // Private memeber data
 private var mainCamera : Camera;
@@ -100,12 +100,12 @@ function Start () {
 	screenMovementForward = screenMovementSpace * Vector3.forward;
 	screenMovementRight = screenMovementSpace * Vector3.right;
 	
-	steamworks.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
+	communityExpress.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
 }
 
-function OnUserStatsReceived(stats : SteamworksUnityHost.Stats, achievements : SteamworksUnityHost.Achievements)
+function OnUserStatsReceived(stats : CommunityExpressNS.Stats, achievements : CommunityExpressNS.Achievements)
 {
-	steamworks.UserAchievements.InitializeAchievementList(["Kill50Enemies"]);
+	communityExpress.UserAchievements.InitializeAchievementList(["Kill50Enemies"]);
 }
 
 function OnDisable () {
@@ -284,23 +284,23 @@ function HandleCursorAlignment (cursorWorldPosition : Vector3) {
 function OnKilledEnemy()
 {
 	if (killsStat == null)
-		killsStat = steamworks.UserStats.StatsList[StatsAndAchievements.ANGRYBOTS_KillsStat];
+		killsStat = communityExpress.UserStats.StatsList[StatsAndAchievements.ANGRYBOTS_KillsStat];
 
 	var killsStatValue : int = killsStat.StatValue;
 	
 	killsStatValue++;
 	killsStat.StatValue = killsStatValue;
 	
-	steamworks.UserStats.WriteStats();
+	communityExpress.UserStats.WriteStats();
 
 	print("Enemy Killed "+killsStatValue);
 	
 	if (killsStatValue > 50)
 	{
 		if (killsAchievement50 == null)
-			killsAchievement50 = steamworks.UserAchievements.AchievementList[StatsAndAchievements.ANGRYBOTS_50KillsAchievement];
+			killsAchievement50 = communityExpress.UserAchievements.AchievementList[StatsAndAchievements.ANGRYBOTS_50KillsAchievement];
 
 		if (!killsAchievement50.IsAchieved)
-			steamworks.UserAchievements.UnlockAchievement(killsAchievement50, true);
+			communityExpress.UserAchievements.UnlockAchievement(killsAchievement50, true);
 	}
 }

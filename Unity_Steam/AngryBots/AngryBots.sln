@@ -1,8 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 
-Project("{AC2E7A75-4A41-2BBB-BD91-503490C130EB}") = "AngryBots", "Assembly-CSharp-firstpass.csproj", "{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}"
-EndProject
 Project("{AC2E7A75-4A41-2BBB-BD91-503490C130EB}") = "AngryBots", "Assembly-CSharp.csproj", "{96973C44-81EA-6A79-E5F0-0EA67F954EB0}"
 EndProject
 Project("{AC2E7A75-4A41-2BBB-BD91-503490C130EB}") = "AngryBots", "Assembly-CSharp-Editor.csproj", "{87A6EEB7-6E60-DF95-BF55-641064500955}"
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{061B1BC0-CB95-2ED2-7942-8297BDBD73D4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{96973C44-81EA-6A79-E5F0-0EA67F954EB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96973C44-81EA-6A79-E5F0-0EA67F954EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96973C44-81EA-6A79-E5F0-0EA67F954EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
