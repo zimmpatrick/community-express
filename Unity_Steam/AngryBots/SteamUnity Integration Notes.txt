@@ -1,11 +1,15 @@
- - The following DLLS need to be place in the Program Files\Unity\Editor directory:
-   - Steam, steam_api, steamclient, CommunityExpressSW, CommunityExpress, UnityCommunityExpress, tier0_s, and vstdlib_s
- - Also, you must create a file called steam_appid.txt with the number 204540 as the only text inside it
- - In order to get the SteamUnity class to be available in JavaScript, I had to create a "Plugins" folder(in the Assets folder) and place the SteamUnity CSharp files into Plugins
-   - This automatically created the Assembly-CSharp-firstpass project and added it to the solution(not sure if MonoDevelop created it or the Unity Editor)
- - To hook create an instance of the SteamUnity interface, I had to add a Component to the Player Object in the Editor(by dragging the script file onto a placed Player Object in the 3d View)
+ - The following DLLs need to be place in the Program Files\Unity\Editor directory:
+   - Steam, steam_api, steamclient, tier0_s, and vstdlib_s
+   - Also, you must create a file called steam_appid.txt in this folder with the number 204540 as the only text inside it
+ - The following DLLs need to reside in the (Unity Project)\Assets\Plugins directory:
+   - CommunityExpressSW, CommunityExpress, and UnityCommunityExpress
+   - To fix an issue with the DLLs not importing correctly, I had to change the PC Player's settings from .Net 2.0 Subset support to .Net 2.0
+   - Also note that the DLLs must be imported as Assets to be usable(in the Project list, just right click and select Import New Asset)
+   - You may also have to alter the Execution Order to ensure that the UnityCommunityExpress is "compiled" before the rest of the scripts
+ - To create an instance of the SteamUnity interface, I had to add a Component to the Player Object in the Editor(by dragging the script file onto a placed Player Object in the 3d View)
    - Then to grab it in Script, call GetComponent within any other Component also on the Player Object
    - To have events call back to the Player Object, Unity uses "signaling", such as the OnEnemyKilled signal/function I created
-     - The Signal call was added in the Editor(though I'm sure there's some way to do it from Script), but the catch function for the Signal needs only be specified in Script(just need a function that's named the same as the name specified in the Signal)
- - The weapon in Angry Bots exists within the Skeleton of the player, all the way down in the Right hand.
-    - In the Hierarchy view(lower left), expand Player, then player, then player_root, Bip001, Bip001 Spine, Bip001 Spine1, Bip001 Neck, Bip001 R Clavicle, etc down to main_weapon001
+     - The Signal call was added in script within the weapon class, as it instantly traces and damages enemies(it doesn't use projectiles for damage, just for visualization)
+       - For future reference(cuz it was a bitch to track down), the weapon in Angry Bots exists within the Skeleton of the player, all the way down in the Right hand.
+         - In the Hierarchy view(lower left), expand Player, then player, then player_root, Bip001, Bip001 Spine, Bip001 Spine1, Bip001 Neck, Bip001 R Clavicle, etc down to main_weapon001
+   

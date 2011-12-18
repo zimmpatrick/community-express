@@ -43,6 +43,12 @@
     <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>C:\Program Files %28x86%29\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
+    <Reference Include="CommunityExpress, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>Assets\Scripts\Plugins\CommunityExpress.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityCommunityExpress, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>Assets\Scripts\Plugins\UnityCommunityExpress.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\CheckValidShaders.cs" />

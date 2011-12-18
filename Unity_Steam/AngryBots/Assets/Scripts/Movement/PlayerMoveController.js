@@ -1,4 +1,7 @@
 #pragma strict
+#pragma downcast
+
+@script RequireComponent (UnityCommunityExpress)
 
 // Objects to drag in
 public var motor : MovementMotor;
@@ -100,12 +103,12 @@ function Start () {
 	screenMovementForward = screenMovementSpace * Vector3.forward;
 	screenMovementRight = screenMovementSpace * Vector3.right;
 	
-	communityExpress.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
+	//communityExpress.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
 }
 
 function OnUserStatsReceived(stats : CommunityExpressNS.Stats, achievements : CommunityExpressNS.Achievements)
 {
-	communityExpress.UserAchievements.InitializeAchievementList(["Kill50Enemies"]);
+	//communityExpress.UserAchievements.InitializeAchievementList(["Kill50Enemies"]);
 }
 
 function OnDisable () {

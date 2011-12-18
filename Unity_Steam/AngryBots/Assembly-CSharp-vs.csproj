@@ -80,6 +80,12 @@
      <None Include="Assets\Shaders\BackgroundAndCharacters\SuperSimpleSelfIllumination.shader" />
      <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
      <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
+ <Reference Include="CommunityExpress">
+ <HintPath>Assets\Scripts\Plugins\CommunityExpress.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityCommunityExpress">
+ <HintPath>Assets\Scripts\Plugins\UnityCommunityExpress.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
