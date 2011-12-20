@@ -84,11 +84,14 @@
      <None Include="Assets\Shaders\BackgroundAndCharacters\SuperSimpleSelfIllumination.shader" />
      <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
      <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
+ <Reference Include="Assembly-UnityScript">
+ <HintPath>Library\ScriptAssemblies\Assembly-UnityScript.dll</HintPath>
+ </Reference>
  <Reference Include="CommunityExpress">
- <HintPath>Assets\Scripts\Plugins\CommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\CommunityExpress.dll</HintPath>
  </Reference>
  <Reference Include="UnityCommunityExpress">
- <HintPath>Assets\Scripts\Plugins\UnityCommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\UnityCommunityExpress.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>

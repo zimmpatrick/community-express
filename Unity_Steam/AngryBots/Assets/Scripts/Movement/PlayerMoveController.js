@@ -19,6 +19,8 @@ public var cursorFacingCamera : float = 0;
 public var cursorSmallerWithDistance : float = 0;
 public var cursorSmallerWhenClose : float = 1;
 
+public var queryUserInput : boolean = true;
+
 public var communityExpress : UnityCommunityExpress;
 communityExpress = GetComponent(UnityCommunityExpress);
 public var killsStat : CommunityExpressNS.Stat = null;
@@ -47,7 +49,8 @@ private var screenMovementSpace : Quaternion;
 private var screenMovementForward : Vector3;
 private var screenMovementRight : Vector3;
 
-function Awake () {		
+function Awake ()
+{		
 	motor.movementDirection = Vector2.zero;
 	motor.facingDirection = Vector2.zero;
 	
@@ -63,7 +66,8 @@ function Awake () {
 	initOffsetToPlayer = mainCameraTransform.position - character.position;
 	
 	#if UNITY_IPHONE || UNITY_ANDROID
-		if (joystickPrefab) {
+		if (joystickPrefab)
+		{
 			// Create left joystick
 			var joystickLeftGO : GameObject = Instantiate (joystickPrefab) as GameObject;
 			joystickLeftGO.name = "Joystick Left";
@@ -75,9 +79,8 @@ function Awake () {
 			joystickRight = joystickRightGO.GetComponent.<Joystick> ();			
 		}
 	#else
-		if (cursorPrefab) {
+		if (cursorPrefab)
 			cursorObject = (Instantiate (cursorPrefab) as GameObject).transform;
-		}
 	#endif
 	
 	// Save camera offset so we can use it in the first frame
@@ -88,9 +91,12 @@ function Awake () {
 	
 	// caching movement plane
 	playerMovementPlane = new Plane (character.up, character.position + character.up * cursorPlaneHeight);
+
+	GetComponentInChildren(AutoFire).owner = this;
 }
 
-function Start () {
+function Start ()
+{
 	#if UNITY_IPHONE || UNITY_ANDROID
 		// Move to right side of screen
 		var guiTex : GUITexture = joystickRightGO.GetComponent.<GUITexture> ();
@@ -103,15 +109,17 @@ function Start () {
 	screenMovementForward = screenMovementSpace * Vector3.forward;
 	screenMovementRight = screenMovementSpace * Vector3.right;
 	
-	//communityExpress.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
+	if (networkView.isMine)
+		communityExpress.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
 }
 
 function OnUserStatsReceived(stats : CommunityExpressNS.Stats, achievements : CommunityExpressNS.Achievements)
 {
-	//communityExpress.UserAchievements.InitializeAchievementList(["Kill50Enemies"]);
+	communityExpress.UserAchievements.InitializeAchievementList(["Kill50Enemies"]);
 }
 
-function OnDisable () {
+function OnDisable ()
+{
 	if (joystickLeft) 
 		joystickLeft.enabled = false;
 	
@@ -119,7 +127,8 @@ function OnDisable () {
 		joystickRight.enabled = false;
 }
 
-function OnEnable () {
+function OnEnable ()
+{
 	if (joystickLeft) 
 		joystickLeft.enabled = true;
 	
@@ -127,106 +136,112 @@ function OnEnable () {
 		joystickRight.enabled = true;
 }
 
-function Update () {
-	// HANDLE CHARACTER MOVEMENT DIRECTION
-	#if UNITY_IPHONE || UNITY_ANDROID
-		motor.movementDirection = joystickLeft.position.x * screenMovementRight + joystickLeft.position.y * screenMovementForward;
-	#else
-		motor.movementDirection = Input.GetAxis ("Horizontal") * screenMovementRight + Input.GetAxis ("Vertical") * screenMovementForward;
-	#endif
-	
-	// Make sure the direction vector doesn't exceed a length of 1
-	// so the character can't move faster diagonally than horizontally or vertically
-	if (motor.movementDirection.sqrMagnitude > 1)
-		motor.movementDirection.Normalize();
-	
-	
-	// HANDLE CHARACTER FACING DIRECTION AND SCREEN FOCUS POINT
-	
-	// First update the camera position to take into account how much the character moved since last frame
-	//mainCameraTransform.position = Vector3.Lerp (mainCameraTransform.position, character.position + cameraOffset, Time.deltaTime * 45.0f * deathSmoothoutMultiplier);
-	
-	// Set up the movement plane of the character, so screenpositions
-	// can be converted into world positions on this plane
-	//playerMovementPlane = new Plane (Vector3.up, character.position + character.up * cursorPlaneHeight);
-	
-	// optimization (instead of newing Plane):
-	
-	playerMovementPlane.normal = character.up;
-	playerMovementPlane.distance = -character.position.y + cursorPlaneHeight;
-	
-	// used to adjust the camera based on cursor or joystick position
-	
-	var cameraAdjustmentVector : Vector3 = Vector3.zero;
-	
-	#if UNITY_IPHONE || UNITY_ANDROID
-	
-		// On mobiles, use the thumb stick and convert it into screen movement space
-		motor.facingDirection = joystickRight.position.x * screenMovementRight + joystickRight.position.y * screenMovementForward;
-				
-		cameraAdjustmentVector = motor.facingDirection;		
-	
-	#else
-	
-		#if !UNITY_EDITOR && (UNITY_XBOX360 || UNITY_PS3)
-
-			// On consoles use the analog sticks
-			var axisX : float = Input.GetAxis("LookHorizontal");
-			var axisY : float = Input.GetAxis("LookVertical");
-			motor.facingDirection = axisX * screenMovementRight + axisY * screenMovementForward;
-	
+function Update ()
+{
+	if(networkView.isMine)
+	{
+		// HANDLE CHARACTER MOVEMENT DIRECTION
+		#if UNITY_IPHONE || UNITY_ANDROID
+			motor.movementDirection = joystickLeft.position.x * screenMovementRight + joystickLeft.position.y * screenMovementForward;
+		#else
+			motor.movementDirection = Input.GetAxis ("Horizontal") * screenMovementRight + Input.GetAxis ("Vertical") * screenMovementForward;
+		#endif
+		
+		// Make sure the direction vector doesn't exceed a length of 1
+		// so the character can't move faster diagonally than horizontally or vertically
+		if (motor.movementDirection.sqrMagnitude > 1)
+			motor.movementDirection.Normalize();
+		
+		
+		// HANDLE CHARACTER FACING DIRECTION AND SCREEN FOCUS POINT
+		
+		// First update the camera position to take into account how much the character moved since last frame
+		//mainCameraTransform.position = Vector3.Lerp (mainCameraTransform.position, character.position + cameraOffset, Time.deltaTime * 45.0f * deathSmoothoutMultiplier);
+		
+		// Set up the movement plane of the character, so screenpositions
+		// can be converted into world positions on this plane
+		//playerMovementPlane = new Plane (Vector3.up, character.position + character.up * cursorPlaneHeight);
+		
+		// optimization (instead of newing Plane):
+		
+		playerMovementPlane.normal = character.up;
+		playerMovementPlane.distance = -character.position.y + cursorPlaneHeight;
+		
+		// used to adjust the camera based on cursor or joystick position
+		
+		var cameraAdjustmentVector : Vector3 = Vector3.zero;
+		
+		#if UNITY_IPHONE || UNITY_ANDROID
+		
+			// On mobiles, use the thumb stick and convert it into screen movement space
+			motor.facingDirection = joystickRight.position.x * screenMovementRight + joystickRight.position.y * screenMovementForward;
+					
 			cameraAdjustmentVector = motor.facingDirection;		
 		
 		#else
+		
+			#if !UNITY_EDITOR && (UNITY_XBOX360 || UNITY_PS3)
 	
-			// On PC, the cursor point is the mouse position
-			var cursorScreenPosition : Vector3 = Input.mousePosition;
-						
-			// Find out where the mouse ray intersects with the movement plane of the player
-			var cursorWorldPosition : Vector3 = ScreenPointToWorldPointOnPlane (cursorScreenPosition, playerMovementPlane, mainCamera);
+				// On consoles use the analog sticks
+				var axisX : float = Input.GetAxis("LookHorizontal");
+				var axisY : float = Input.GetAxis("LookVertical");
+				motor.facingDirection = axisX * screenMovementRight + axisY * screenMovementForward;
+		
+				cameraAdjustmentVector = motor.facingDirection;		
 			
-			var halfWidth : float = Screen.width / 2.0f;
-			var halfHeight : float = Screen.height / 2.0f;
-			var maxHalf : float = Mathf.Max (halfWidth, halfHeight);
-			
-			// Acquire the relative screen position			
-			var posRel : Vector3 = cursorScreenPosition - Vector3 (halfWidth, halfHeight, cursorScreenPosition.z);		
-			posRel.x /= maxHalf; 
-			posRel.y /= maxHalf;
-						
-			cameraAdjustmentVector = posRel.x * screenMovementRight + posRel.y * screenMovementForward;
-			cameraAdjustmentVector.y = 0.0;	
-									
-			// The facing direction is the direction from the character to the cursor world position
-			motor.facingDirection = (cursorWorldPosition - character.position);
-			motor.facingDirection.y = 0;			
-			
-			// Draw the cursor nicely
-			HandleCursorAlignment (cursorWorldPosition);
+			#else
+		
+				// On PC, the cursor point is the mouse position
+				var cursorScreenPosition : Vector3 = Input.mousePosition;
+							
+				// Find out where the mouse ray intersects with the movement plane of the player
+				var cursorWorldPosition : Vector3 = ScreenPointToWorldPointOnPlane (cursorScreenPosition, playerMovementPlane, mainCamera);
+				
+				var halfWidth : float = Screen.width / 2.0f;
+				var halfHeight : float = Screen.height / 2.0f;
+				var maxHalf : float = Mathf.Max (halfWidth, halfHeight);
+				
+				// Acquire the relative screen position			
+				var posRel : Vector3 = cursorScreenPosition - Vector3 (halfWidth, halfHeight, cursorScreenPosition.z);		
+				posRel.x /= maxHalf; 
+				posRel.y /= maxHalf;
+							
+				cameraAdjustmentVector = posRel.x * screenMovementRight + posRel.y * screenMovementForward;
+				cameraAdjustmentVector.y = 0.0;	
+										
+				// The facing direction is the direction from the character to the cursor world position
+				motor.facingDirection = (cursorWorldPosition - character.position);
+				motor.facingDirection.y = 0;			
+				
+				// Draw the cursor nicely
+				HandleCursorAlignment (cursorWorldPosition);
+				
+			#endif
 			
 		#endif
+			
+		// HANDLE CAMERA POSITION
+			
+		// Set the target position of the camera to point at the focus point
+		var cameraTargetPosition : Vector3 = character.position + initOffsetToPlayer + cameraAdjustmentVector * cameraPreview;
 		
-	#endif
+		// Apply some smoothing to the camera movement
+		mainCameraTransform.position = Vector3.SmoothDamp (mainCameraTransform.position, cameraTargetPosition, cameraVelocity, cameraSmoothing);
 		
-	// HANDLE CAMERA POSITION
-		
-	// Set the target position of the camera to point at the focus point
-	var cameraTargetPosition : Vector3 = character.position + initOffsetToPlayer + cameraAdjustmentVector * cameraPreview;
-	
-	// Apply some smoothing to the camera movement
-	mainCameraTransform.position = Vector3.SmoothDamp (mainCameraTransform.position, cameraTargetPosition, cameraVelocity, cameraSmoothing);
-	
-	// Save camera offset so we can use it in the next frame
-	cameraOffset = mainCameraTransform.position - character.position;
+		// Save camera offset so we can use it in the next frame
+		cameraOffset = mainCameraTransform.position - character.position;
+	}
 }
 
-public static function PlaneRayIntersection (plane : Plane, ray : Ray) : Vector3 {
+public static function PlaneRayIntersection (plane : Plane, ray : Ray) : Vector3
+{
 	var dist : float;
 	plane.Raycast (ray, dist);
 	return ray.GetPoint (dist);
 }
 
-public static function ScreenPointToWorldPointOnPlane (screenPoint : Vector3, plane : Plane, camera : Camera) : Vector3 {
+public static function ScreenPointToWorldPointOnPlane (screenPoint : Vector3, plane : Plane, camera : Camera) : Vector3
+{
 	// Set up a ray corresponding to the screen position
 	var ray : Ray = camera.ScreenPointToRay (screenPoint);
 	
@@ -234,7 +249,8 @@ public static function ScreenPointToWorldPointOnPlane (screenPoint : Vector3, pl
 	return PlaneRayIntersection (plane, ray);
 }
 
-function HandleCursorAlignment (cursorWorldPosition : Vector3) {
+function HandleCursorAlignment (cursorWorldPosition : Vector3)
+{
 	if (!cursorObject)
 		return;
 	
@@ -296,8 +312,6 @@ function OnKilledEnemy()
 	
 	communityExpress.UserStats.WriteStats();
 
-	print("Enemy Killed "+killsStatValue);
-	
 	if (killsStatValue > 50)
 	{
 		if (killsAchievement50 == null)

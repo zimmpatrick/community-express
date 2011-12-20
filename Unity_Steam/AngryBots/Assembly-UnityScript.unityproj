@@ -127,10 +127,16 @@
      <Compile Include="Assets\Scripts\Movement\MechMovementMotor.js" />
      <Compile Include="Assets\Scripts\Movement\MovementMotor.js" />
      <Compile Include="Assets\Scripts\Movement\PlayerMoveController.js" />
+     <Compile Include="Assets\Scripts\Network\NetworkLevelLoad.js" />
+     <Compile Include="Assets\Scripts\Network\PlayerNetworkInit.js" />
+     <Compile Include="Assets\Scripts\Network\PlayerSpawnPrefab.js" />
+     <Compile Include="Assets\Scripts\Network\SpawnPrefab.js" />
      <Compile Include="Assets\Scripts\Rain\RainBox.js" />
      <Compile Include="Assets\Scripts\Rain\RainManager.js" />
      <Compile Include="Assets\Scripts\Rain\RainsplashBox.js" />
      <Compile Include="Assets\Scripts\Rain\RainsplashManager.js" />
+     <Compile Include="Assets\Scripts\UI\ConnectGui.js" />
+     <Compile Include="Assets\Scripts\UI\ConnectGuiMasterServer.js" />
      <Compile Include="Assets\Scripts\UI\FriendsList.js" />
      <Compile Include="Assets\Scripts\Weapons\AutoFire.js" />
      <Compile Include="Assets\Scripts\Weapons\CopyRotation.js" />
@@ -174,10 +180,10 @@
      <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
      <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
  <Reference Include="CommunityExpress">
- <HintPath>Assets\Scripts\Plugins\CommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\CommunityExpress.dll</HintPath>
  </Reference>
  <Reference Include="UnityCommunityExpress">
- <HintPath>Assets\Scripts\Plugins\UnityCommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\UnityCommunityExpress.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

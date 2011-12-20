@@ -48,6 +48,9 @@
      <Compile Include="Assets\Scripts\Fx\ReflectionFx.cs" />
      <Compile Include="Assets\Scripts\Misc\DemoControl.cs" />
      <Compile Include="Assets\Scripts\Misc\InitLevelManager.cs" />
+     <Compile Include="Assets\Scripts\Network\NetworkInterpolatedTransform.cs" />
+     <Compile Include="Assets\Scripts\Network\NetworkRigidbody.cs" />
+     <Compile Include="Assets\Scripts\Network\NetworkSyncAnimation.cs" />
      <None Include="Assets\Shaders\Fx\Rain.shader" />
      <None Include="Assets\Shaders\BackgroundAndCharacters\RealtimeReflectionInWaterFlow.shader" />
      <None Include="Assets\Shaders\Fx\Cursor.shader" />
@@ -81,10 +84,10 @@
      <None Include="Assets\Shaders\Fx\ParticleBlend.shader" />
      <None Include="Assets\Shaders\Fx\InterlacePatternAdditive.shader" />
  <Reference Include="CommunityExpress">
- <HintPath>Assets\Scripts\Plugins\CommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\CommunityExpress.dll</HintPath>
  </Reference>
  <Reference Include="UnityCommunityExpress">
- <HintPath>Assets\Scripts\Plugins\UnityCommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\UnityCommunityExpress.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

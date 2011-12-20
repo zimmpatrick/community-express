@@ -13,10 +13,13 @@ var hitSoundVolume : float = 0.5;
 
 var muzzleFlashFront : GameObject;
 
+var owner : PlayerMoveController;
+
 private var lastFireTime : float = -1;
 private var raycast : PerFrameRaycast;
 
-function Awake () {
+function Awake ()
+{
 	muzzleFlashFront.active = false;
 	
 	raycast = GetComponent.<PerFrameRaycast> ();
@@ -24,10 +27,12 @@ function Awake () {
 		spawnPoint = transform;
 }
 
-function Update () {
-	if (firing) {
-		
-		if (Time.time > lastFireTime + 1 / frequency) {
+function Update ()
+{
+	if (firing)
+	{
+		if (Time.time > lastFireTime + 1 / frequency)
+		{
 			// Spawn visual bullet
 			var coneRandomRotation = Quaternion.Euler (Random.Range (-coneAngle, coneAngle), Random.Range (-coneAngle, coneAngle), 0);
 			var go : GameObject = Spawner.Spawn (bulletPrefab, spawnPoint.position, spawnPoint.rotation * coneRandomRotation) as GameObject;
@@ -37,7 +42,8 @@ function Update () {
 			
 			// Find the object hit by the raycast
 			var hitInfo : RaycastHit = raycast.GetHitInfo ();
-			if (hitInfo.transform) {
+			if (hitInfo.transform)
+			{
 				// Get the health component of the target if any
 				var targetHealth : Health = hitInfo.transform.GetComponent.<Health> ();
 				if (targetHealth && targetHealth.health > 0.0)
@@ -46,15 +52,12 @@ function Update () {
 					targetHealth.OnDamage (damagePerSecond / frequency, -spawnPoint.forward);
 					
 					if (targetHealth.health <= 0.0)
-					{
-						// NOTE: In theory by using gameObject instead of GameObject to find the player, we are searching within this instance
-						//       of this Weapon for our owning player...we will only know if this is the case once we add co-op
-						gameObject.FindWithTag("Player").GetComponent(PlayerMoveController).OnKilledEnemy();
-					}
+						owner.OnKilledEnemy();
 				}
 
 				// Get the rigidbody if any
-				if (hitInfo.rigidbody) {
+				if (hitInfo.rigidbody)
+				{
 					// Apply force to the target object at the position of the hit point
 					var force : Vector3 = transform.forward * (forcePerSecond / frequency);
 					hitInfo.rigidbody.AddForceAtPosition (force, hitInfo.point, ForceMode.Impulse);
@@ -66,15 +69,15 @@ function Update () {
 				
 				bullet.dist = hitInfo.distance;
 			}
-			else {
+			else
 				bullet.dist = 1000;
-			}
 		}
 	}
 }
 
-function OnStartFire () {
-	if (Time.timeScale == 0)
+function OnStartFire ()
+{
+	if (Time.timeScale == 0 || owner == null || !owner.networkView.isMine)
 		return;
 	
 	firing = true;
@@ -85,7 +88,8 @@ function OnStartFire () {
 		audio.Play ();
 }
 
-function OnStopFire () {
+function OnStopFire ()
+{
 	firing = false;
 	
 	muzzleFlashFront.active = false;
