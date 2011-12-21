@@ -62,6 +62,24 @@ function OnDisable () {
 }
 
 function Update () {
+	if (player == null)
+	{
+		if (!Network.isServer)
+			return;
+			
+		for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
+		{
+			if (go.networkView.isMine)
+			{
+				player = go.transform;
+				break;
+			}
+		}
+		
+		if (player == null)
+			return;
+	}
+
 	if (Time.time < noticeTime + 0.7) {
 		motor.movementDirection = Vector3.zero;
 		return;
@@ -95,7 +113,10 @@ function Update () {
 	proximityLevel = Mathf.Clamp01 (proximityLevel);
 	//proximityRenderer.material.color = Color.Lerp (Color.blue, Color.red, proximityLevel);
 	if (proximityLevel == 1)
-		Explode ();
+	{
+		Explode();
+		networkView.RPC("ClientExplode", RPCMode.OthersBuffered);
+	}
 	
 	if (Time.time > nextRaycastTime) {
 		nextRaycastTime = Time.time + 1;
@@ -123,6 +144,12 @@ function Update () {
 	if (Time.time > lastBlinkTime + 0.04) {
 		proximityRenderer.material.color = Color.white;
 	}
+}
+
+@RPC
+function ClientExplode()
+{
+	Explode();
 }
 
 function Explode () {

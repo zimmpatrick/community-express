@@ -1,6 +1,7 @@
 #pragma strict
 
-class MoveAnimation {
+class MoveAnimation
+{
 	// The animation clip
 	var clip : AnimationClip;
 	
@@ -57,7 +58,8 @@ private var lastAnimTime : float = 0;
 
 public var animationComponent : Animation;
 
-function Awake () {
+function Awake ()
+{
 	tr = rigid.transform;
 	lastPosition = tr.position;
 	
@@ -80,14 +82,21 @@ function Awake () {
 	//animation[turn.name].enabled = true;
 }
 
-function OnStartFire () {
-	if (Time.timeScale == 0)
+function OnStartFire()
+{
+	if (Time.timeScale == 0 || !networkView.isMine)
 		return;
 	
 	animationComponent[shootAdditive.name].enabled = true;
 }
 
-function OnStopFire () {
+function ClientStartFire()
+{
+	animationComponent[shootAdditive.name].enabled = true;
+}
+
+function OnStopFire()
+{
 	animationComponent[shootAdditive.name].enabled = false;
 }
 
@@ -101,7 +110,8 @@ function FixedUpdate () {
 	lastPosition = tr.position;
 }
 
-function Update () {
+function Update()
+{
 	idleWeight = Mathf.Lerp (idleWeight, Mathf.InverseLerp (minWalkSpeed, maxIdleSpeed, speed), Time.deltaTime * 10);
 	animationComponent[idle.name].weight = idleWeight;
 	
@@ -141,7 +151,8 @@ function Update () {
 	}
 }
 
-function LateUpdate () {
+function LateUpdate()
+{
 	var idle : float = Mathf.InverseLerp (minWalkSpeed, maxIdleSpeed, speed);
 	
 	if (idle < 1) {
@@ -174,7 +185,8 @@ function LateUpdate () {
 		lowerBodyForwardTarget = tr.forward;
 		lowerBodyForward = Quaternion.Euler (0, lowerBodyDeltaAngle, 0) * lowerBodyForwardTarget;
 	}
-	else {
+	else
+	{
 		// Turn the lower body towards it's target direction
 		lowerBodyForward = Vector3.RotateTowards (lowerBodyForward, lowerBodyForwardTarget, Time.deltaTime * 520 * Mathf.Deg2Rad, 1);
 		
@@ -201,6 +213,7 @@ function LateUpdate () {
 	
 }
 
-static function HorizontalAngle (direction : Vector3) {
+static function HorizontalAngle(direction : Vector3)
+{
 	return Mathf.Atan2 (direction.x, direction.z) * Mathf.Rad2Deg;
 }

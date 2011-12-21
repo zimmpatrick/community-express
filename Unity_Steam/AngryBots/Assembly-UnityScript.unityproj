@@ -128,9 +128,10 @@
      <Compile Include="Assets\Scripts\Movement\MovementMotor.js" />
      <Compile Include="Assets\Scripts\Movement\PlayerMoveController.js" />
      <Compile Include="Assets\Scripts\Network\NetworkLevelLoad.js" />
+     <Compile Include="Assets\Scripts\Network\ObjectNetworkInit.js" />
+     <Compile Include="Assets\Scripts\Network\ObjectSpawnPrefab.js" />
      <Compile Include="Assets\Scripts\Network\PlayerNetworkInit.js" />
      <Compile Include="Assets\Scripts\Network\PlayerSpawnPrefab.js" />
-     <Compile Include="Assets\Scripts\Network\SpawnPrefab.js" />
      <Compile Include="Assets\Scripts\Rain\RainBox.js" />
      <Compile Include="Assets\Scripts\Rain\RainManager.js" />
      <Compile Include="Assets\Scripts\Rain\RainsplashBox.js" />

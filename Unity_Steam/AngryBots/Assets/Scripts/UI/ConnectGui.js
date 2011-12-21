@@ -44,7 +44,7 @@ function OnGUI ()
 			Network.InitializeServer(32, listenPort, useNat);
 			// Notify our objects that the level and the network is ready
 			for (var go in FindObjectsOfType(GameObject))
-				go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);		
+				go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
 		}
 		GUILayout.EndVertical();
 		if (useNat)

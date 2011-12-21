@@ -8,35 +8,42 @@ private var animationComp : Animation;
 health = GetComponent.<Health> ();
 animationComp = GetComponentInChildren.<Animation> ();
 
-function Start () {
+function Start()
+{
 	UpdateHackingProgress ();
 	enabled = false;
 }
 
-function OnTriggerStay (other : Collider) {
+function OnTriggerStay(other : Collider)
+{
 	if (other.gameObject.tag == "Player")
 		health.OnDamage (Time.deltaTime, Vector3.zero);
 }
 
-function OnHacking () {
+function OnHacking()
+{
 	enabled = true;
 	UpdateHackingProgress ();
 }
 
-function OnHackingCompleted () {
+function OnHackingCompleted()
+{
 	audio.Play ();
 	animationComp.Stop ();
 	enabled = false;
 }
 
-function UpdateHackingProgress () {
+function UpdateHackingProgress()
+{
 	animationComp.gameObject.SampleAnimation (animationComp.clip, (1 - health.health / health.maxHealth) * animationComp.clip.length);
 }
 
-function Update () {;
+function Update()
+{
 	UpdateHackingProgress ();
 	
-	if (health.health == 0 || health.health == health.maxHealth) {
+	if (health.health == 0 || health.health == health.maxHealth)
+	{
 		UpdateHackingProgress ();
 		enabled = false;
 	}

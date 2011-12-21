@@ -34,9 +34,9 @@ function Update ()
 		if (Time.time > lastFireTime + 1 / frequency)
 		{
 			// Spawn visual bullet
-			var coneRandomRotation = Quaternion.Euler (Random.Range (-coneAngle, coneAngle), Random.Range (-coneAngle, coneAngle), 0);
+			var coneRandomRotation = Quaternion.Euler(Random.Range (-coneAngle, coneAngle), Random.Range (-coneAngle, coneAngle), 0);
 			var go : GameObject = Spawner.Spawn (bulletPrefab, spawnPoint.position, spawnPoint.rotation * coneRandomRotation) as GameObject;
-			var bullet : SimpleBullet = go.GetComponent.<SimpleBullet> ();
+			var bullet : SimpleBullet = go.GetComponent.<SimpleBullet>();
 			
 			lastFireTime = Time.time;
 			
@@ -44,17 +44,20 @@ function Update ()
 			var hitInfo : RaycastHit = raycast.GetHitInfo ();
 			if (hitInfo.transform)
 			{
-				// Get the health component of the target if any
-				var targetHealth : Health = hitInfo.transform.GetComponent.<Health> ();
-				if (targetHealth && targetHealth.health > 0.0)
+				if (owner.networkView.isMine)
 				{
-					// Apply damage
-					targetHealth.OnDamage (damagePerSecond / frequency, -spawnPoint.forward);
-					
-					if (targetHealth.health <= 0.0)
-						owner.OnKilledEnemy();
+					// Get the health component of the target if any
+					var targetHealth : Health = hitInfo.transform.GetComponent.<Health> ();
+					if (targetHealth && targetHealth.health > 0.0)
+					{
+						// Apply damage
+						targetHealth.OnDamage (damagePerSecond / frequency, -spawnPoint.forward);
+						
+						if (targetHealth.health <= 0.0)
+							owner.OnKilledEnemy();
+					}
 				}
-
+	
 				// Get the rigidbody if any
 				if (hitInfo.rigidbody)
 				{
@@ -75,25 +78,41 @@ function Update ()
 	}
 }
 
-function OnStartFire ()
+function OnStartFire()
 {
-	if (Time.timeScale == 0 || owner == null || !owner.networkView.isMine)
+	if (Time.timeScale == 0 || owner == null || !owner.networkView.isMine || firing)
 		return;
 	
+	ClientStartFire();
+	
+	owner.networkView.RPC("RPCStartFire", RPCMode.Others);
+}
+
+function ClientStartFire()
+{
+	if (firing)
+		return;
+
 	firing = true;
 	
 	muzzleFlashFront.active = true;
 	
 	if (audio)
-		audio.Play ();
+		audio.Play();
 }
 
 function OnStopFire ()
 {
+	if (!firing)
+		return;
+		
 	firing = false;
 	
 	muzzleFlashFront.active = false;
 	
 	if (audio)
 		audio.Stop ();
+
+	if (owner != null && owner.networkView.isMine)
+		owner.networkView.RPC("RPCStopFire", RPCMode.Others);
 }

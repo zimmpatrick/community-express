@@ -49,6 +49,8 @@ private var screenMovementSpace : Quaternion;
 private var screenMovementForward : Vector3;
 private var screenMovementRight : Vector3;
 
+private var weapon : AutoFire;
+
 function Awake ()
 {		
 	motor.movementDirection = Vector2.zero;
@@ -92,7 +94,8 @@ function Awake ()
 	// caching movement plane
 	playerMovementPlane = new Plane (character.up, character.position + character.up * cursorPlaneHeight);
 
-	GetComponentInChildren(AutoFire).owner = this;
+	weapon = GetComponentInChildren(AutoFire);
+	weapon.owner = this;
 }
 
 function Start ()
@@ -298,6 +301,20 @@ function HandleCursorAlignment (cursorWorldPosition : Vector3)
 	if (Input.GetKey(KeyCode.K)) cursorSmallerWithDistance += Time.deltaTime * 0.5;
 	if (Input.GetKey(KeyCode.L)) cursorSmallerWithDistance -= Time.deltaTime * 0.5;
 	cursorSmallerWithDistance = Mathf.Clamp01(cursorSmallerWithDistance);
+}
+
+@RPC
+function RPCStartFire()
+{
+	weapon.ClientStartFire();
+	GetComponent(PlayerAnimation).ClientStartFire();
+}
+
+@RPC
+function RPCStopFire()
+{
+	weapon.OnStopFire();
+	GetComponent(PlayerAnimation).OnStopFire();
 }
 
 function OnKilledEnemy()

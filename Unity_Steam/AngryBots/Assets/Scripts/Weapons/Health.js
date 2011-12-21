@@ -24,11 +24,14 @@ private var damageEffectCenterYOffset : float;
 private var colliderRadiusHeuristic : float = 1.0;
 
 
-function Awake () {
+function Awake ()
+{
 	enabled = false;
-	if (damagePrefab) {
+	if (damagePrefab)
+	{
 		if (damageEffectTransform == null)
 			damageEffectTransform = transform;
+			
 		var effect : GameObject = Spawner.Spawn (damagePrefab, Vector3.zero, Quaternion.identity);
 		effect.transform.parent = damageEffectTransform;
 		effect.transform.localPosition = Vector3.zero;
@@ -38,13 +41,22 @@ function Awake () {
 		damageEffectCenterYOffset = collider.bounds.extents.y;
 		
 	}
-	if (scorchMarkPrefab) {
+	
+	if (scorchMarkPrefab)
+	{
 		scorchMark = GameObject.Instantiate(scorchMarkPrefab, Vector3.zero, Quaternion.identity);
 		scorchMark.active = false;
 	}
 }
 
-function OnDamage (amount : float, fromDirection : Vector3) {
+@RPC
+function RPCOnDamage(amount : float, fromDirection : Vector3)
+{
+	DoDamage(amount, fromDirection);
+}
+
+function OnDamage (amount : float, fromDirection : Vector3)
+{
 	// Take no damage if invincible, dead, or if the damage is zero
 	if(invincible)
 		return;
@@ -52,7 +64,16 @@ function OnDamage (amount : float, fromDirection : Vector3) {
 		return;
 	if (amount <= 0)
 		return;
+		
+	print(this+" OnDamage "+amount+" "+health);
+
+	DoDamage(amount, fromDirection);
 	
+	networkView.RPC("RPCOnDamage", RPCMode.OthersBuffered, amount, fromDirection);
+}
+
+function DoDamage(amount : float, fromDirection : Vector3)
+{
 	// Decrease health by damage and send damage signals
 	
 	// @HACK: this hack will be removed for the final game
@@ -75,9 +96,11 @@ function OnDamage (amount : float, fromDirection : Vector3) {
 		enabled = true;
 	
 	// Show damage effect if there is one
-	if (damageEffect) {
+	if (damageEffect)
+	{
 		damageEffect.transform.rotation = Quaternion.LookRotation (fromDirection, Vector3.up);
-		if(!damageEffectCentered) {
+		if(!damageEffectCentered)
+		{
 			var dir : Vector3 = fromDirection;
 			dir.y = 0.0;
 			damageEffect.transform.position = (transform.position + Vector3.up * damageEffectCenterYOffset) + colliderRadiusHeuristic * dir;
@@ -90,14 +113,16 @@ function OnDamage (amount : float, fromDirection : Vector3) {
 	}
 	
 	// Die if no health left
-	if (health <= 0) {
+	if (health <= 0)
+	{
 		health = 0;
 		dead = true;
 		dieSignals.SendSignals (this);
 		enabled = false;
 		
 		// scorch marks
-		if (scorchMark) {
+		if (scorchMark)
+		{
 			scorchMark.active = true;
 			// @NOTE: maybe we can justify a raycast here so we can place the mark
 			// on slopes with proper normal alignments
@@ -110,26 +135,43 @@ function OnDamage (amount : float, fromDirection : Vector3) {
 	}
 }
 
-function OnEnable () {
+function OnEnable ()
+{
 	Regenerate ();	
 }
 
 // Regenerate health
 
-function Regenerate () {
-	if (regenerateSpeed > 0.0f) {
-		while (enabled) {
-			if (Time.time > lastDamageTime + 3) {
-				health += regenerateSpeed;
+function Regenerate ()
+{
+	if (regenerateSpeed > 0.0f)
+	{
+		while (enabled)
+		{
+			if (Time.time > lastDamageTime + 3)
+			{
+				if (networkView.isMine)
+				{
+					networkView.RPC("RPCRegenerate", RPCMode.OthersBuffered, regenerateSpeed);
+					health += regenerateSpeed;
+				}
 				
 				yield;
 				
-				if (health >= maxHealth) {
+				if (health >= maxHealth)
+				{
 					health = maxHealth;
 					enabled = false;
 				}
 			}
+			
 			yield WaitForSeconds (1.0f);
 		}
 	}
+}
+
+@RPC
+function RPCRegenerate(amount : float)
+{
+	health += amount;
 }

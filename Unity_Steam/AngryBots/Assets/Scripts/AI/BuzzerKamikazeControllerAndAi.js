@@ -16,36 +16,60 @@ private var rechargeTimer : float = 1.0f;
 private var audioSource : AudioSource;
 private var zapNoise : Vector3 = Vector3.zero;
 
-function Awake () {
+function Awake ()
+{
 	character = motor.transform;
-	player = GameObject.FindWithTag ("Player").transform;
+	player = GameObject.FindWithTag("Player").transform;
 	
 	spawnPos = character.position;
 	audioSource = GetComponent.<AudioSource> ();
 }
 
-function Start () {
+function Start()
+{
 	startTime = Time.time;
 	motor.movementTarget = spawnPos;
 	threatRange = false;	
 }
 
-function Update () {	
+function Update()
+{
+	if (player == null)
+	{
+		if (!Network.isServer)
+			return;
+			
+		for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
+		{
+			if (go.networkView.isMine)
+			{
+				player = go.transform;
+				break;
+			}
+		}
+		
+		if (player == null)
+			return;
+	}
+
 	motor.movementTarget = player.position;
 	direction = (player.position - character.position);
 	
 	threatRange = false;
-	if (direction.magnitude < 2.0f) {
+	if (direction.magnitude < 2.0f)
+	{
 		threatRange = true;
 		motor.movementTarget = Vector3.zero;
 	} 
 	
 	rechargeTimer -= Time.deltaTime;
 	
-	if (rechargeTimer < 0.0f && threatRange && Vector3.Dot (character.forward, direction) > 0.8f) {
+	if (rechargeTimer < 0.0f && threatRange && Vector3.Dot (character.forward, direction) > 0.8f)
+	{
 		zapNoise = Vector3 (Random.Range (-1.0f, 1.0f), 0.0f, Random.Range(-1.0f, 1.0f)) * 0.5f;		
 		var targetHealth : Health = player.GetComponent.<Health> ();
-		if (targetHealth) {
+		if (targetHealth)
+		{
 			var playerDir : Vector3 = player.position - character.position;
 			var playerDist : float = playerDir.magnitude;
 			playerDir /= playerDist;			
@@ -58,11 +82,18 @@ function Update () {
 	}
 }
 
-function DoElectricArc () {	
+@RPC
+function RPCDoElectricArc()
+{
+	DoElectricArc();
+}
+
+function DoElectricArc ()
+{	
 	if (electricArc.enabled)
 		return;
+
 	// Play attack sound
-	
 	audioSource.clip = zapSound;
 	audioSource.Play ();
 	//buzz.didChargeEffect = false;
@@ -74,7 +105,8 @@ function DoElectricArc () {
 	
 	// Offset  electric arc texture while it's visible
 	var stopTime : float = Time.time + 0.2;
-	while (Time.time < stopTime) {
+	while (Time.time < stopTime)
+	{
 		electricArc.SetPosition (0, electricArc.transform.position);
 		electricArc.SetPosition (1, player.position + zapNoise);
 		electricArc.sharedMaterial.mainTextureOffset.x = Random.value;
@@ -83,4 +115,7 @@ function DoElectricArc () {
 	
 	// Hide electric arc
 	electricArc.enabled = false;
+
+	if (Network.isServer)
+		networkView.RPC("RPCDoElectricArc", RPCMode.Others);
 }
