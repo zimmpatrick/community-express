@@ -6,6 +6,11 @@ using System.Runtime.InteropServices;
 namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
+    using System.Reflection;
+    using System.IO;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.Xml;
+    using System.Xml;
 
 	public sealed class CommunityExpress
 	{
@@ -18,7 +23,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_RunCallbacks();
 		[DllImport("CommunityExpressSW.dll")]
-		private static extern UInt64 SteamUnityAPI_SteamUtils_GetAppID();
+		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
 		[DllImport("CommunityExpressSW.dll")]
@@ -66,6 +71,7 @@ namespace CommunityExpressNS
 		private CommunityExpress() { }
 		~CommunityExpress() { Shutdown(); }
 
+
 		public const uint k_uAppIdInvalid = 0x0;
 
 		public static CommunityExpress Instance
@@ -82,10 +88,16 @@ namespace CommunityExpressNS
 		}
 
 		public bool Initialize()
-		{
+        {
 			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
 
-			return SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse));
+            if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse)))
+            {
+                ValidateLicense();
+                return true;
+            }
+
+            return false;
 		}
 
 		public void RunCallbacks()
@@ -370,8 +382,74 @@ namespace CommunityExpressNS
 
 		private UInt64 OnChallengeResponseCallback(UInt64 challenge)
 		{
-			// TODO: Put a real functional test in here
+			// Put a real functional test in here
 			return (UInt64)Math.Sqrt((double)challenge);
 		}
+
+        private void ValidateLicense()
+        {
+            string dllPath = Assembly.GetExecutingAssembly().Location;
+            string dllDirectory = Path.GetDirectoryName(dllPath);
+            string licensePath = Path.Combine(dllDirectory, "CESDKLicense.xml");
+
+            UInt32 appId = SteamUnityAPI_SteamUtils_GetAppID();
+
+            string xmlkey = Properties.Resources.CommunityExpressSDK;
+
+            // Create an RSA crypto service provider from the embedded
+            // XML document resource (the public key).
+            using (RSACryptoServiceProvider csp = new RSACryptoServiceProvider())
+            {
+                csp.FromXmlString(xmlkey);
+
+                // Load the signed XML license file.
+                XmlDocument xmldoc = new XmlDocument();
+                xmldoc.Load(licensePath);
+
+                // Create the signed XML object.
+                SignedXml sxml = new SignedXml(xmldoc);
+
+                try
+                {
+                    // Get the XML Signature node and load it into the signed XML object.
+                    XmlNode dsig = xmldoc.GetElementsByTagName("Signature",
+                        SignedXml.XmlDsigNamespaceUrl)[0];
+                    sxml.LoadXml((XmlElement)dsig);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Error: no signature found.", e);
+                }
+
+                // Verify the signature.
+                if (!sxml.CheckSignature(csp))
+                {
+                    throw new Exception(
+                        string.Format("Error: License '{0}' invalid.", licensePath));
+                }
+
+                try
+                {
+                    XmlNodeList appIdNode = xmldoc.GetElementsByTagName("AppId");
+                    if (appIdNode == null || appIdNode.Count == 0 ||
+                        string.IsNullOrEmpty(appIdNode[0].InnerText))
+                    {
+                        throw new Exception("AppId missing from license");
+                    }
+
+                    if (appIdNode[0].InnerText != appId.ToString())
+                    {
+                        throw new Exception(
+                            string.Format("AppId mismatch: {0} vs {1}",
+                            appIdNode[0].InnerText, appId));
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(
+                        string.Format("Error: License '{0}' invalid.", licensePath), e);
+                }
+            }
+        }
 	}
 }

@@ -150,7 +150,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmakingServers();
 		[DllImport("CommunityExpressSW.dll")]
-		private static extern UInt64 SteamUnityAPI_SteamUtils_GetAppID();
+		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(IntPtr matchmaking, ELobbyType lobbyType, Int32 maxMembers);
 		[DllImport("CommunityExpressSW.dll")]
