@@ -12,7 +12,6 @@ private var insideInterestArea : boolean = true;
 
 function Awake () {
 	character = transform;
-	player = GameObject.FindWithTag ("Player").transform;
 }
 
 function OnEnable () {
@@ -21,7 +20,9 @@ function OnEnable () {
 }
 
 function OnTriggerEnter (other : Collider) {
-	if (other.transform == player && CanSeePlayer ()) {
+	ObtainPlayerTarget();
+
+	if (other.transform == player && CanSeePlayer (player)) {
 		OnSpotted ();
 	}
 }
@@ -56,7 +57,12 @@ function OnLostTrack () {
 	}
 }
 
-function CanSeePlayer () : boolean {
+function CanSeePlayer (playerTarget : Transform) : boolean {
+	if (playerTarget != null)
+		player = playerTarget;
+	else if (player == null)
+		ObtainPlayerTarget();
+
 	var playerDirection : Vector3 = (player.position - character.position);
 	var hit : RaycastHit;
 	Physics.Raycast (character.position, playerDirection, hit, playerDirection.magnitude);
@@ -64,4 +70,20 @@ function CanSeePlayer () : boolean {
 		return true;
 	}
 	return false;
+}
+
+function ObtainPlayerTarget()
+{
+	var bestDistance : float = 99999999999.0;
+
+	for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
+	{
+		var distance : float = (go.transform.position - character.position).sqrMagnitude;
+	
+		if (distance < bestDistance)
+		{
+			player = go.transform;
+			bestDistance = distance;
+		}
+	}
 }

@@ -24,6 +24,7 @@ private var ai : AI;
 private var character : Transform;
 
 private var player : Transform;
+private var lastTargetTime : float;
 
 private var inRange : boolean = false;
 private var nextRaycastTime : float = 0;
@@ -32,15 +33,16 @@ private var proximityLevel : float = 0;
 private var lastBlinkTime : float = 0;
 private var noticeTime : float = 0;
 
-function Awake () {
+function Awake ()
+{
 	character = motor.transform;
-	player = GameObject.FindWithTag ("Player").transform;
 	ai = transform.parent.GetComponentInChildren.<AI> ();
 	if (!blinkComponents.Length)
 		blinkComponents = transform.parent.GetComponentsInChildren.<SelfIlluminationBlink> ();
 }
 
-function OnEnable () {
+function OnEnable ()
+{
 	inRange = false;
 	nextRaycastTime = Time.time;
 	lastRaycastSuccessfulTime = Time.time;
@@ -50,7 +52,8 @@ function OnEnable () {
 		blinkPlane.renderer.enabled = false;	
 }
 
-function OnDisable () {
+function OnDisable ()
+{
 	if (proximityRenderer == null)
 		Debug.LogError ("proximityRenderer is null", this);
 	else if (proximityRenderer.material == null)
@@ -61,23 +64,19 @@ function OnDisable () {
 		blinkPlane.renderer.enabled = false;
 }
 
-function Update () {
-	if (player == null)
+function Update ()
+{
+	if (player == null || Time.time - lastTargetTime > 0.2)
 	{
 		if (!Network.isServer)
 			return;
 			
-		for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
-		{
-			if (go.networkView.isMine)
-			{
-				player = go.transform;
-				break;
-			}
-		}
+		ObtainPlayerTarget();
 		
 		if (player == null)
 			return;
+			
+		lastTargetTime = Time.time;
 	}
 
 	if (Time.time < noticeTime + 0.7) {
@@ -115,12 +114,14 @@ function Update () {
 	if (proximityLevel == 1)
 	{
 		Explode();
-		networkView.RPC("ClientExplode", RPCMode.OthersBuffered);
+		networkView.RPC("RPCExplode", RPCMode.OthersBuffered);
 	}
 	
-	if (Time.time > nextRaycastTime) {
+	if (Time.time > nextRaycastTime)
+	{
 		nextRaycastTime = Time.time + 1;
-		if (ai.CanSeePlayer ()) {
+		if (ai.CanSeePlayer (player))
+		{
 			lastRaycastSuccessfulTime = Time.time;
 		}
 		else {
@@ -129,38 +130,79 @@ function Update () {
 			}
 		}
 	}
-	
-	var deltaBlink = 1 / Mathf.Lerp (2, 15, proximityLevel);
-	if (Time.time > lastBlinkTime + deltaBlink) {
-		lastBlinkTime = Time.time;
-		proximityRenderer.material.color = Color.red;
-		audioSource.Play ();
-		for (var comp : SelfIlluminationBlink in blinkComponents) {
-			comp.Blink ();	
-		}
-		if (blinkPlane) 
-			blinkPlane.renderer.enabled = !blinkPlane.renderer.enabled;
-	}
-	if (Time.time > lastBlinkTime + 0.04) {
-		proximityRenderer.material.color = Color.white;
-	}
+
+	UpdateBlink();	
+	networkView.RPC("RPCUpdateBlink", RPCMode.OthersBuffered, proximityLevel);
 }
 
 @RPC
-function ClientExplode()
+function RPCUpdateBlink(proxLevel : float)
 {
+	proximityLevel = proxLevel;
+	UpdateBlink();
+}
+
+function UpdateBlink()
+{
+	var deltaBlink = 1 / Mathf.Lerp (2, 15, proximityLevel);
+	if (Time.time > lastBlinkTime + deltaBlink)
+	{
+		lastBlinkTime = Time.time;
+		proximityRenderer.material.color = Color.red;
+		audioSource.Play ();
+		
+		for (var comp : SelfIlluminationBlink in blinkComponents)
+			comp.Blink ();	
+
+		if (blinkPlane) 
+			blinkPlane.renderer.enabled = !blinkPlane.renderer.enabled;
+	}
+
+	if (Time.time > lastBlinkTime + 0.04)
+		proximityRenderer.material.color = Color.white;
+}
+
+@RPC
+function RPCExplode()
+{
+	Debug.Log("RPCExplode");
 	Explode();
 }
 
-function Explode () {
-	var damageFraction : float = 1 - (Vector3.Distance (player.position, character.position) / damageRadius);
+function Explode ()
+{
+	Debug.Log("Explode");
+	if (Network.isServer)
+	{
+		Debug.Log("Explode2");
+		var damageFraction : float = 1 - (Vector3.Distance (player.position, character.position) / damageRadius);
+		
+		var targetHealth : Health = player.GetComponent.<Health> ();
+		if (targetHealth)
+			// Apply damage
+			targetHealth.OnDamage (damageAmount * damageFraction, character.position - player.position);
 	
-	var targetHealth : Health = player.GetComponent.<Health> ();
-	if (targetHealth) {
-		// Apply damage
-		targetHealth.OnDamage (damageAmount * damageFraction, character.position - player.position);
+		player.rigidbody.AddExplosionForce (10, character.position, damageRadius, 0.0, ForceMode.Impulse);
 	}
-	player.rigidbody.AddExplosionForce (10, character.position, damageRadius, 0.0, ForceMode.Impulse);
+	
+	Debug.Log("Explode3");
 	Spawner.Spawn (intentionalExplosion, transform.position, Quaternion.identity);
 	Spawner.Destroy (character.gameObject);
+	Debug.Log("Explode4");
+}
+
+function ObtainPlayerTarget()
+{
+	var bestDistance : float = 99999999999.0;
+
+	for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
+	{
+		var distance : float = (go.transform.position - character.position).sqrMagnitude;
+	
+		if (distance < bestDistance)
+		{
+			player = go.transform;
+			bestDistance = distance;
+		}
+	}
 }

@@ -49,8 +49,6 @@
      <Compile Include="Assets\Scripts\Misc\DemoControl.cs" />
      <Compile Include="Assets\Scripts\Misc\InitLevelManager.cs" />
      <Compile Include="Assets\Scripts\Network\NetworkInterpolatedTransform.cs" />
-     <Compile Include="Assets\Scripts\Network\NetworkRigidbody.cs" />
-     <Compile Include="Assets\Scripts\Network\NetworkSyncAnimation.cs" />
      <None Include="Assets\Shaders\Fx\Rain.shader" />
      <None Include="Assets\Shaders\BackgroundAndCharacters\RealtimeReflectionInWaterFlow.shader" />
      <None Include="Assets\Shaders\Fx\Cursor.shader" />

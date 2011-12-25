@@ -17,6 +17,9 @@ function Awake () {
 }
 
 function Update () {
+	if (!Network.isServer)
+		return;
+
 	motor.movementDirection = spawnPos - character.position;
 	motor.movementDirection.y = 0;
 	if (motor.movementDirection.sqrMagnitude > 1)

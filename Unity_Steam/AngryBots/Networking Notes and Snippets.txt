@@ -1,0 +1,19 @@
+- Network View objects are used to replicate a "single piece" of data, such as a transform, rigid body, or animation.  If you 
+  - Network View objects can be added to prefabs by selecting Component->Miscellaneous->Network View
+  - A standard replication setup on an enemy is to create a Network View for the Transform, Rigid Body, and Animation
+    - Also, any Component that has a script on it that needs an RPC must have its own Network View that is monitoring the main prefab(with State Sync set to Off)
+  
+-----------------------------------------------------------------------------------------------------------
+Remote Procedure Call Example
+-----------------------------------------------------------------------------------------------------------
+function SomeFunction()
+{
+	if (networkView != NetworkViewID.unassigned)
+		networkView.RPC("SendUserInput", RPCMode.Server, horizontalInput, verticalInput, tmpVal);
+}
+
+@RPC
+function SendUserInput(h : float, v : float, j : int)
+{
+	// Do things on other client
+}

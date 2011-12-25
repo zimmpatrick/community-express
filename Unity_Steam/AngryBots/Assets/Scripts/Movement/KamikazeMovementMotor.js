@@ -11,6 +11,9 @@ class KamikazeMovementMotor extends MovementMotor {
 	private var smoothedDirection : Vector3 = Vector3.zero;;
 			
 	function FixedUpdate () {
+		if (!Network.isServer)
+			return;
+
 		var dir : Vector3 = movementTarget - transform.position;
 		var zigzag : Vector3 = transform.right * (Mathf.PingPong (Time.time * zigZagSpeed, 2.0) - 1.0) * zigZagness;
 

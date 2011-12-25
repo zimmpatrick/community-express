@@ -7,6 +7,7 @@ public var zapSound : AudioClip;
 public var damageAmount : float = 5.0f;
 
 private var player : Transform;
+private var lastTargetTime : float;
 private var character : Transform;
 private var spawnPos : Vector3;
 private var startTime : float;
@@ -19,8 +20,7 @@ private var zapNoise : Vector3 = Vector3.zero;
 function Awake ()
 {
 	character = motor.transform;
-	player = GameObject.FindWithTag("Player").transform;
-	
+
 	spawnPos = character.position;
 	audioSource = GetComponent.<AudioSource> ();
 }
@@ -34,22 +34,17 @@ function Start()
 
 function Update()
 {
-	if (player == null)
+	if (player == null || Time.time - lastTargetTime > 0.2)
 	{
 		if (!Network.isServer)
 			return;
 			
-		for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
-		{
-			if (go.networkView.isMine)
-			{
-				player = go.transform;
-				break;
-			}
-		}
+		ObtainPlayerTarget();
 		
 		if (player == null)
 			return;
+			
+		lastTargetTime = Time.time;
 	}
 
 	motor.movementTarget = player.position;
@@ -77,6 +72,7 @@ function Update()
 		}		
 
 		DoElectricArc();	
+		networkView.RPC("RPCDoElectricArc", RPCMode.Others);
 		
 		rechargeTimer = Random.Range (1.0f, 2.0f);
 	}
@@ -115,7 +111,20 @@ function DoElectricArc ()
 	
 	// Hide electric arc
 	electricArc.enabled = false;
+}
 
-	if (Network.isServer)
-		networkView.RPC("RPCDoElectricArc", RPCMode.Others);
+function ObtainPlayerTarget()
+{
+	var bestDistance : float = 99999999999.0;
+
+	for (var go : GameObject in GameObject.FindGameObjectsWithTag("Player"))
+	{
+		var distance : float = (go.transform.position - character.position).sqrMagnitude;
+	
+		if (distance < bestDistance)
+		{
+			player = go.transform;
+			bestDistance = distance;
+		}
+	}
 }

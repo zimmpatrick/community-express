@@ -100,117 +100,125 @@ function OnStopFire()
 	animationComponent[shootAdditive.name].enabled = false;
 }
 
-function FixedUpdate () {
-	velocity = (tr.position - lastPosition) / Time.deltaTime;
+function FixedUpdate ()
+{
+	var newposition : Vector3 = tr.position + tr.localPosition;
+	
+	velocity = (newposition - lastPosition) / Time.deltaTime;
 	localVelocity = tr.InverseTransformDirection (velocity);
 	localVelocity.y = 0;
 	speed = localVelocity.magnitude;
 	angle = HorizontalAngle (localVelocity);
 	
-	lastPosition = tr.position;
+	lastPosition = newposition;
 }
 
 function Update()
 {
-	idleWeight = Mathf.Lerp (idleWeight, Mathf.InverseLerp (minWalkSpeed, maxIdleSpeed, speed), Time.deltaTime * 10);
-	animationComponent[idle.name].weight = idleWeight;
-	
-	if (speed > 0) {
-		var smallestDiff : float = Mathf.Infinity;
-		for (var moveAnimation : MoveAnimation in moveAnimations) {
-			var angleDiff : float = Mathf.Abs(Mathf.DeltaAngle (angle, moveAnimation.angle));
-			var speedDiff : float = Mathf.Abs (speed - moveAnimation.speed);
-			var diff : float = angleDiff + speedDiff;
-			if (moveAnimation == bestAnimation)
-				diff *= 0.9;
-			
-			if (diff < smallestDiff) {
-				bestAnimation = moveAnimation;
-				smallestDiff = diff;
+	if(networkView.isMine)
+	{
+		idleWeight = Mathf.Lerp (idleWeight, Mathf.InverseLerp (minWalkSpeed, maxIdleSpeed, speed), Time.deltaTime * 10);
+		animationComponent[idle.name].weight = idleWeight;
+		
+		if (speed > 0) {
+			var smallestDiff : float = Mathf.Infinity;
+			for (var moveAnimation : MoveAnimation in moveAnimations) {
+				var angleDiff : float = Mathf.Abs(Mathf.DeltaAngle (angle, moveAnimation.angle));
+				var speedDiff : float = Mathf.Abs (speed - moveAnimation.speed);
+				var diff : float = angleDiff + speedDiff;
+				if (moveAnimation == bestAnimation)
+					diff *= 0.9;
+				
+				if (diff < smallestDiff) {
+					bestAnimation = moveAnimation;
+					smallestDiff = diff;
+				}
 			}
+			
+			animationComponent.CrossFade (bestAnimation.clip.name);
+		}
+		else {
+			bestAnimation = null;
 		}
 		
-		animationComponent.CrossFade (bestAnimation.clip.name);
-	}
-	else {
-		bestAnimation = null;
-	}
-	
-	if (lowerBodyForward != lowerBodyForwardTarget && idleWeight >= 0.9)
-		animationComponent.CrossFade (turn.name, 0.05);
-	
-	if (bestAnimation && idleWeight < 0.9) {
-		var newAnimTime = Mathf.Repeat (animationComponent[bestAnimation.clip.name].normalizedTime * 2 + 0.1, 1);
-		if (newAnimTime < lastAnimTime) {
-			if (Time.time > lastFootstepTime + 0.1) {
-				footstepSignals.SendSignals (this);
-				lastFootstepTime = Time.time;
+		if (lowerBodyForward != lowerBodyForwardTarget && idleWeight >= 0.9)
+			animationComponent.CrossFade (turn.name, 0.05);
+		
+		if (bestAnimation && idleWeight < 0.9) {
+			var newAnimTime = Mathf.Repeat (animationComponent[bestAnimation.clip.name].normalizedTime * 2 + 0.1, 1);
+			if (newAnimTime < lastAnimTime) {
+				if (Time.time > lastFootstepTime + 0.1) {
+					footstepSignals.SendSignals (this);
+					lastFootstepTime = Time.time;
+				}
 			}
+			lastAnimTime = newAnimTime;
 		}
-		lastAnimTime = newAnimTime;
 	}
 }
 
 function LateUpdate()
 {
-	var idle : float = Mathf.InverseLerp (minWalkSpeed, maxIdleSpeed, speed);
-	
-	if (idle < 1) {
-		// Calculate a weighted average of the animation velocities that are currently used
-		var animatedLocalVelocity : Vector3 = Vector3.zero;
-		for (var moveAnimation : MoveAnimation in moveAnimations) {
-			// Ignore this animation if its weight is 0
-			if (animationComponent[moveAnimation.clip.name].weight == 0)
-				continue;
+	if(networkView.isMine)
+	{
+		var idle : float = Mathf.InverseLerp (minWalkSpeed, maxIdleSpeed, speed);
+		
+		if (idle < 1) {
+			// Calculate a weighted average of the animation velocities that are currently used
+			var animatedLocalVelocity : Vector3 = Vector3.zero;
+			for (var moveAnimation : MoveAnimation in moveAnimations) {
+				// Ignore this animation if its weight is 0
+				if (animationComponent[moveAnimation.clip.name].weight == 0)
+					continue;
+				
+				// Ignore this animation if its velocity is more than 90 degrees away from current velocity
+				if (Vector3.Dot (moveAnimation.velocity, localVelocity) <= 0)
+					continue;
+				
+				// Add velocity of this animation to the weighted average
+				animatedLocalVelocity += moveAnimation.velocity * animationComponent[moveAnimation.clip.name].weight;
+			}
 			
-			// Ignore this animation if its velocity is more than 90 degrees away from current velocity
-			if (Vector3.Dot (moveAnimation.velocity, localVelocity) <= 0)
-				continue;
+			// Calculate target angle to rotate lower body by in order
+			// to make feet run in the direction of the velocity
+			var lowerBodyDeltaAngleTarget : float = Mathf.DeltaAngle (
+				HorizontalAngle (tr.rotation * animatedLocalVelocity),
+				HorizontalAngle (velocity)
+			);
 			
-			// Add velocity of this animation to the weighted average
-			animatedLocalVelocity += moveAnimation.velocity * animationComponent[moveAnimation.clip.name].weight;
+			// Lerp the angle to smooth it a bit
+			lowerBodyDeltaAngle = Mathf.LerpAngle (lowerBodyDeltaAngle, lowerBodyDeltaAngleTarget, Time.deltaTime * 10);
+			
+			// Update these so they're ready for when we go into idle
+			lowerBodyForwardTarget = tr.forward;
+			lowerBodyForward = Quaternion.Euler (0, lowerBodyDeltaAngle, 0) * lowerBodyForwardTarget;
+		}
+		else
+		{
+			// Turn the lower body towards it's target direction
+			lowerBodyForward = Vector3.RotateTowards (lowerBodyForward, lowerBodyForwardTarget, Time.deltaTime * 520 * Mathf.Deg2Rad, 1);
+			
+			// Calculate delta angle to make the lower body stay in place
+			lowerBodyDeltaAngle = Mathf.DeltaAngle (
+				HorizontalAngle (tr.forward),
+				HorizontalAngle (lowerBodyForward)
+			);
+			
+			// If the body is twisted more than 80 degrees,
+			// set a new target direction for the lower body, so it begins turning
+			if (Mathf.Abs(lowerBodyDeltaAngle) > 80)
+				lowerBodyForwardTarget = tr.forward;
 		}
 		
-		// Calculate target angle to rotate lower body by in order
-		// to make feet run in the direction of the velocity
-		var lowerBodyDeltaAngleTarget : float = Mathf.DeltaAngle (
-			HorizontalAngle (tr.rotation * animatedLocalVelocity),
-			HorizontalAngle (velocity)
-		);
+		// Create a Quaternion rotation from the rotation angle
+		var lowerBodyDeltaRotation : Quaternion = Quaternion.Euler (0, lowerBodyDeltaAngle, 0);
 		
-		// Lerp the angle to smooth it a bit
-		lowerBodyDeltaAngle = Mathf.LerpAngle (lowerBodyDeltaAngle, lowerBodyDeltaAngleTarget, Time.deltaTime * 10);
+		// Rotate the whole body by the angle
+		rootBone.rotation = lowerBodyDeltaRotation * rootBone.rotation;
 		
-		// Update these so they're ready for when we go into idle
-		lowerBodyForwardTarget = tr.forward;
-		lowerBodyForward = Quaternion.Euler (0, lowerBodyDeltaAngle, 0) * lowerBodyForwardTarget;
+		// Counter-rotate the upper body so it won't be affected
+		upperBodyBone.rotation = Quaternion.Inverse (lowerBodyDeltaRotation) * upperBodyBone.rotation;
 	}
-	else
-	{
-		// Turn the lower body towards it's target direction
-		lowerBodyForward = Vector3.RotateTowards (lowerBodyForward, lowerBodyForwardTarget, Time.deltaTime * 520 * Mathf.Deg2Rad, 1);
-		
-		// Calculate delta angle to make the lower body stay in place
-		lowerBodyDeltaAngle = Mathf.DeltaAngle (
-			HorizontalAngle (tr.forward),
-			HorizontalAngle (lowerBodyForward)
-		);
-		
-		// If the body is twisted more than 80 degrees,
-		// set a new target direction for the lower body, so it begins turning
-		if (Mathf.Abs(lowerBodyDeltaAngle) > 80)
-			lowerBodyForwardTarget = tr.forward;
-	}
-	
-	// Create a Quaternion rotation from the rotation angle
-	var lowerBodyDeltaRotation : Quaternion = Quaternion.Euler (0, lowerBodyDeltaAngle, 0);
-	
-	// Rotate the whole body by the angle
-	rootBone.rotation = lowerBodyDeltaRotation * rootBone.rotation;
-	
-	// Counter-rotate the upper body so it won't be affected
-	upperBodyBone.rotation = Quaternion.Inverse (lowerBodyDeltaRotation) * upperBodyBone.rotation;
-	
 }
 
 static function HorizontalAngle(direction : Vector3)
