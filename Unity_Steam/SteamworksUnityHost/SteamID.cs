@@ -7,7 +7,7 @@ namespace CommunityExpressNS
 	// Currently read-only
 	public class SteamID
 	{
-		internal SteamID(UInt64 id)
+		public SteamID(UInt64 id)
 		{
 			_id = id;
 		}
