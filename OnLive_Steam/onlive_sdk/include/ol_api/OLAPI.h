@@ -48,6 +48,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <ol_api/OLID.h>
 #include <ol_api/OLTypes.h>
 #include "stddef.h"
+#include <Windows.h>
 
 namespace olapi
 {

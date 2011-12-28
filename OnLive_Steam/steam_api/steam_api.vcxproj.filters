@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\OnLive">
+      <UniqueIdentifier>{cc739da2-d098-4051-adb8-70462cc597d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -51,6 +54,27 @@
     <ClInclude Include="SteamMatchmakingServers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContent.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveVoice.h">
+      <Filter>Source Files\OnLive</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -64,6 +88,27 @@
     </ClCompile>
     <ClCompile Include="steam_gameserver.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContent.cpp">
+      <Filter>Source Files\OnLive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.cpp">
+      <Filter>Source Files\OnLive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.cpp">
+      <Filter>Source Files\OnLive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.cpp">
+      <Filter>Source Files\OnLive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.cpp">
+      <Filter>Source Files\OnLive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.cpp">
+      <Filter>Source Files\OnLive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveVoice.cpp">
+      <Filter>Source Files\OnLive</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

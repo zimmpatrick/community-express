@@ -25,6 +25,8 @@ SteamAPI::SteamUserStats gUserStats;
 SteamAPI::SteamNetworking gNetworking;
 SteamAPI::SteamMatchmakingServers gMatchmakingServers;
 
+#include "OnLiveIntegration.h"
+
 S_API void SteamAPI_Shutdown()
 {
 	TRACE( TEXT("SteamAPI_Shutdown()") );
@@ -45,12 +47,23 @@ S_API bool SteamAPI_RestartAppIfNecessary( uint32 unOwnAppID )
 S_API bool SteamAPI_Init()
 {
 	TRACE( TEXT("SteamAPI_Init()") );
+	OnLive::getInstance().startup();
+
+	OnLive::getInstance().setWindowedMode(true);
+
+	if (OnLive::getInstance().start(false))
+	{
+		OnLive::getInstance().bind();
+	}
+
 	return true;
 }
 
 S_API void SteamAPI_RunCallbacks()
 {
 	TRACE( TEXT("SteamAPI_RunCallbacks()") );
+
+	OnLive::getInstance().runFrame();
 }
 
 S_API void SteamAPI_RegisterCallback( class CCallbackBase *pCallback, int iCallback )

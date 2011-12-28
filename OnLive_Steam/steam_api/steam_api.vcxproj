@@ -45,15 +45,17 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;STEAM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Steamworks\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;STEAM_API_EXPORTS;USE_VOICE;USE_LEADERBOARD;USE_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Steamworks\public;..\onlive_sdk\include;..\onlive_sdk\include\ol_api;..\onlive_sdk\OLIntegration;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>OLAchievement.lib;OLAPI.lib;OLContent.lib;OLLauncher.lib;OLLeaderboard.lib;OLMedia.lib;OLOverlay.lib;OLVoice.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\onlive_sdk\lib\WinXP_32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "C:\UDK\UT Game\Binaries\Win32"</Command>
@@ -62,21 +64,30 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;STEAM_API_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Steamworks\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;STEAM_API_EXPORTS;USE_VOICE;USE_LEADERBOARD;USE_OVERLAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Steamworks\public;..\onlive_sdk\include;..\onlive_sdk\include\ol_api;..\onlive_sdk\OLIntegration;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>OLAchievement.lib;OLAPI.lib;OLContent.lib;OLLauncher.lib;OLLeaderboard.lib;OLMedia.lib;OLOverlay.lib;OLVoice.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\onlive_sdk\lib\WinXP_32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContent.h" />
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.h" />
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.h" />
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.h" />
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.h" />
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.h" />
+    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveVoice.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SteamApps.h" />
     <ClInclude Include="SteamClient.h" />
@@ -91,6 +102,13 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContent.cpp" />
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.cpp" />
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.cpp" />
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.cpp" />
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.cpp" />
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.cpp" />
+    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveVoice.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
