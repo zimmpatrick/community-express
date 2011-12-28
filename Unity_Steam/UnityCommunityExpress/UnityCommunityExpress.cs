@@ -22,7 +22,7 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		_instance = this;
 		_ceInstance = CommunityExpress.Instance;
 
-		return _ceInstance.Initialize(); ;
+		return _ceInstance.Initialize();
 	}
 
 	public bool RestartAppIfNecessary(uint unOwnAppID)

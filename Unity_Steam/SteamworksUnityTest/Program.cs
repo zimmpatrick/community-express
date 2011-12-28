@@ -138,7 +138,7 @@ namespace SteamworksUnityTest
 
 			GameServer gs = s.GameServer;
 			const UInt16 gsPort = 8793;
-			if (gs.Init(false, new IPAddress(0), 27015, gsPort, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
+			if (gs.Init(false, new IPAddress(0), gsPort, gsPort, 27015, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
 				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true,
 				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
 			{
