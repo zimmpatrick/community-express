@@ -1,0 +1,1909 @@
+OnLive Service Platform API - Change Log
+Version 1.201
+===============================================================================
+
+OnLive Confidential. Released under SDK License Agreement.
+Copyright ©2009 - 2010 OnLive, Inc. All rights reserved.
+
+===============================================================================
+
+
+Highlights of items that are included in this SDK:
+	New ESRB and PEGI Game ratings support
+	New Game server country code support
+	Improved OLMetadata Editing Tool for game ratings
+	Improved TCC and CHM Docs
+
+
+1.201.32.31 @ current
+	OLUser
+		Added ESRB/PEGI game rating systems,  and game server location to UserSystemSettings container
+
+	OLService
+		Removed time.h and windows.h from OLService header file
+	
+	OLIntegration
+		Lowered log level for log lines in various integration wrappers
+
+	Samples
+		Removed internal "TODO" comments
+		Updated SDKTest and OLContainer samples to print out all values in all the containers
+		Added detailed descriptions
+
+	Compliance
+		Added scripts to test is_windowed and is_vsync flags
+
+	SDK Test Harness
+		Changed all keys in yml file to be lower camel cased
+		Fixed a bug where leaderboard rows were being sorted incorrectly
+		Added support for getting the total achievement points for a user
+
+	OLMetadata
+		Added support for editing ESRB and PEGI in application yaml
+
+
+1.201.32.31 @ 90698
+	OLUser
+		Added "OL" Prefix to the Language defines
+
+	SDK Test Harness
+		Added new command to allow user to inject Overlay DLLs to a given path
+		Improved logging by displaying error code when file IO fails
+
+
+1.201.32.31 @ 90565
+	OLMedia
+		Fixed a bug in ViewerBeganSpectating() and ViewerEndedSpectating() that caused them 
+		to incorrectly return OL_INVALID_PARAM
+
+	OLMetadata Editor
+		Fixed numerous assorted crashes
+		Fixed validation checks
+		Fixed asset/leaderboard parsing
+		Added arcade support
+
+	OLIntegration
+		Fixed a bug where title stuck in an infinite loop when HostInitChannel()
+		and ClientInitChannel() calls failed and busy wait flag set to true.
+		Fixed a bug where InitVoice() call always return an OL_INTERNAL_ERROR status code
+		when busy flag is set to true.
+
+
+1.200.32.31 @ 90106
+	OLService
+		Added protection to the logging functions to notify developers if they
+                have a bad log format or missing parameters that would cause a crash.
+	
+	OLUser
+		Added OLKEY_RO_TouchPoints to the User System Settings container to identify
+                tow many touch points a client supports if it supports touch.
+
+	OLMetadata
+		Released OLMetadata version Beta. 
+	
+	Test Scripts
+		Removed Pause freeze related commands and scripts.
+
+	Docs
+		Added Docs for OLMetadata and MpaFPSTool.xlsm.
+
+	Samples
+		Fixed samples to not leak OLContext.
+
+	SDK Test Harness
+		Added commands to support voice, touch screen, and touch point
+		configuration in user system settings container.
+		Fixed a bug where assets are not showing up in Overlay Achievement Page.
+
+
+1.199.32.31 @ 89611
+	SDK Test Harness
+		Added MapFPSTool.xlsm to graphically map the framerate.scv file output from
+		overlay when it is in magic mouse mode.
+		Added magic mouse mode to overlay, from Overlay press CTRL-Shift MM to enter.
+		Removed the ability to change license type after the title is loaded.
+		User Achievements will no long be saved when title is in trial mode.
+		Fixed a bug where Admin/UAC check always gave out the wrong information.
+		Fixed a bug where Achievement scoring rounding behaved strangely.
+		Changed the location of User Achievement file to <Test Harness Directory>\db
+		Reformatted the Help menu.
+		Fixed a bug where the command line duplicated itself when the line length is greater
+		than the console buffer.
+		Fixed handling of virtual keys in the sdk samples.
+		Fixed a bug where Test Harness was sending ExitReceived() event more than once.
+
+	OLUser
+		Renamed RO_TOUCHPAD enum to RO_TOUCHSCREEN.
+
+	OLAchievement
+		Automated notices for OneOfSet Achievements now display the name of the achieved 
+		  item instead of the set name (If the item lacks a name, then the set name is still used.)
+		Added checks that the achievement IDs being passed into SetAchievement are of the correct type.
+
+	OLService
+		Fixed a bug where LogContainer function crashed when the container is empty.
+
+	Test Scripts
+		Fixed bad comments in Test004_SuspendMulti-InOSPpauseState.txt, Test004_SuspendMulti-InOSPpauseStateFreeze.txt,
+		and Test004_SuspendMulti-pauseMenu.txt
+
+
+1.199.31.31 @ 88120
+	General
+		Removed base SDK package.
+
+	OLService
+		Fixed a potential memory overwrite issue in all the container related functions.
+
+	OLIntegration
+		Fixed a logic bug in the busy wait init code in voice wrapper.
+
+	SDK Test Harness
+		Added commands "sw" to control isWindowed flag in ChangeResolution event.
+		Added commands "sv" to control vsyncOn flag in ChangeResolution event.
+		
+	
+1.198.30.30 @ 87991
+	General
+		Rename sdk release zip file to odk_*.zip.
+
+	OLUser
+		Removed freeze flag from Pause event.
+
+	OLApplication
+		Added isWindowed and vsyncOn flags to ChangeResolution Event.
+
+	Samples and OLIntegration Samples
+		Updated all samples with the new API.
+
+	SDK Test Harness
+		Removed pause(freeze) test and freeze command.
+		Added support for loading APP YAML that contains trial entry.
+
+	Assets
+		Updated the OnLive Controller assets.
+
+
+1.197.29.29 @ 87549
+	General
+		Fixed the backwards compatibility issue caused by allowing OLGet[API] 
+		functions being called twice.
+
+	Docs
+		Reformat the tables
+
+	SDK Test Harness
+		Fixed a bug where Test Harness crashed when title requests a list of achievements.
+		Updated invalid file list.
+		Added a comment "oh" to list all current open file and registry handles.
+
+	OLIntegration
+		Merged OnLiveVoice to OLSimpleVoice wrapper.
+		Added support for busy wait in Voice Wrapper.
+
+	OLIntegration samples
+		Fixed compile flag in voice sample's project file.
+
+
+1.196.29.29 @ 87308
+	SDK Test Harness
+		Fixed potential crashes when overlay is not used.
+	
+	OLAchievement
+		Added support for OLAchievement to allow OLID(NULL) for user and title.
+
+
+1.195.29.29 @ 87277
+	SDK Test Harness
+		Changed the UserStat.yml's format to be user driven.
+
+	Docs
+		Various typo and grammar fixes in the headers.
+
+
+1.194.29.29 @ 87164
+	General
+		Fixed a overflowed bug in the DLL's version info.
+
+	SDK Test Harness
+		Added version info.
+
+
+1.193.29.29 @ 87149
+	Docs
+		Various TCC updates and clean ups.
+
+
+1.192.29.29 @ 87086
+	General
+		Improved the logging in OLGet[API].
+		Improved parameter validation and error logging in all SDKs.
+		Added additional logging when titles return failure in the event handlers.
+
+	SDK Test Harness
+		Added new Directory - Compliance.
+		Exclude README_SCRIPTS.txt when scanning script directory.
+
+	Compliance
+		Added a Master Compliance report when script feeder completes.
+
+
+1.191.29.29 @ 86857
+	General
+		Changed all OLGet[API] functions to allow them to be called more than once and to
+		return the same handle each time.
+
+	Compliance
+		Added Log in SDK Test Harness when the title uses XInput.
+		Added a new section - Login state timer to compliance report.
+
+	Test Scripts
+		Added a test for XInput.
+		Removed WM_CLOSE tests.
+
+	SDK Test Harness
+		Fixed a bug that NtQuerySystemInformation always failed.
+		Fixed a bug that O drive didn't get unmounted properly when Test Harness shuts down unexpectedly.
+		Added support for showing the directory where O drive is mapped to.
+		Added a new status row to show the status in next session.
+
+
+1.190.29.29 @ 86490
+	Samples and OLIntegation Samples
+		Replaced onlive login flow with normal windows exit procedure when receiving WM_CLOSE message
+
+	Compliance
+		Removed WM_CLOSE test.
+
+	OLIntegration
+		Added support for unsolicited exit received.
+		Renamed DATA_TYPE_NONE to DATA_TYPE_STATUS_RESULT.
+	
+	OLIDGen
+		Added version info.
+
+
+1.189.29.29 @ 86397
+	OLLeaderboard
+		Renamed FLAGS_MAX enum values to be more clear.
+		Improved the parameter validation logging.
+
+	Compliance
+		Fixed a bug where Test Harness gave false positive results on serveral resolutions.
+		Fixed a bug where false positive result was given when title calls Exit() and exit cleanly when code 0x0.
+		Added \REGISTRY\MACHINE & \REGISTRY\USER to the handle info white list.
+
+	SDK Test Harness
+		Added support for RemoveBragClips() and GetSpectatingStreams() in OLMedia.
+		Fixed a typo in the invalid file list.
+		Removed user monitor check from compliance report; this is now being down at the startup of SDK Test Harness.
+		Removed dbghelp.dll from invalid file list.
+		Allowed User to skip Admin/UAC check if running on Vista/7 Home edition.
+		Refactor the Media Assets and YMALs.
+		Added run32.dll to invalid file list.
+		Added command "lf" to support feeding game logs to SDK Test Harness.
+		Added command "bce" to simulate brag clip monitor event.
+		Added command "sse" to simulate spectating stream monitor event.
+		Added command "cc" to show Test Harness console log in color.
+		Replaced "tr" command with "lt"; this command now takes a license type string and enum value.
+
+	Docs
+		Added TCC for OLLeaderboard and OLOverlay SDK.
+		Added new section 0.0.0 - Submission Requirements.
+		Added TCC item priority system.
+		Various TCC updates and clean ups.
+		
+	Overlay UI
+		The DLL shims now have the proper version in them.
+		Added error logging when the required DLLs are missing.
+
+	OLIntegration
+		Added OnLiveLeaderboard to OLIntegration.  
+		Added OLIntegration\OLLeaderboard sample
+
+	Samples
+		Rename OLContent, OLVoice, OLMedia, and OLAchievement samples to OLContentSample, OLVoiceSample, OLMediaSample, and OLAchievementSample.
+		
+	OLAchievement
+		Allowed OLAchievemenet functions to accept OLID(NULL) instead of making them provide the titleID.
+
+
+1.188.29.29 @ 85469
+	General
+		Added logging when title calls OLStartServices, dbg_SetSDKLogLevel, and 
+		DestroyContainer(with app/user session status container id).
+		Fixed a bug where LogContaienr function didn't log anything.
+
+	SDK Test Harness
+		SDK Test Harness now accepts user input while a script is running in SSH mode.
+		SDK Test Harness now only logs error when input timeout is reached, and overlay is not used.
+		Fixed a bug where Ctrl + C killed Test Harness right away in SSH mode.
+		Fixed a bug where calling GetBragClips in OLMedia SDK froze Test Harness.
+		Fixed a bug where GLU timeout didn't work if the title requested a stop and hangs after receiving ExitReceived().
+		Fixed a bug where Test Harness initiated unbind user and suspend events didn't have a GLU timeout set.
+		Always scan the folder when "ls" command is executed.
+		Improved the logging.
+		SDK Test Harness now displays the time your title takes during each login state.
+		Allowed SDK Test Harness config to take empty value.
+		Added cwd command to set the current working directory.
+		Added setexe command to set the name of the executable to be run from the current working directory.
+		Added setarg command to set the arguments for the executable to be launched.
+		Removed gid command, now it uses the text file path to determine if the game info dialog should show up.
+		Allowed load command to take just the executable name if current working directory is set.
+		Fixed a bug where SDK Test Harness always returned OL_MEDIA_NOT_FOUND when calling BragClipViewed().
+		Fixed a bug where calling ViewerBeginSpectating, ViewerEndSpectating, AudienceFeedbackForSpectatingStream,
+		and GetMediaIDs didn't return any result.
+		Added BragClip YAML.
+
+	OLIntegration
+		Changed the saving system to use a reference count instead of a bool for saving.
+		Added ability to get OLID from a tag name (or normalized tag name) in the simple voice wrapper.
+
+	OLAchievement
+		Fixed OLAchievement SDK's backwards compatibility issue.
+
+	Docs
+		Various TCC item update.
+		Updated OLLeaderboard SDK documentation in the header.
+		Removed WM_CLOSE from all the documentation.
+
+	Test Scripts
+		Added test scripts to cover user exit via overlay menu.
+		Removed ExitReceived-AfterClient scripts. They are duplicates of ExitReceived-GamePlay.
+		Removed <path to app> from the scripts; it is recommended to use cwd and setexe commands to set the 
+		working directory and executable name.
+		
+	Samples
+		Added sample for OLMedia SDK.
+
+
+1.187.28.28 @ 84592
+	OLService
+		Fixed a bug where GetContaienrValueAsInt was producing a lot of error logs.
+
+
+1.186.28.28 @ 84332
+	OLOverlay
+		Added a new internal enum to the OLOverlayIconTypes.
+
+
+1.185.28.28 @ 84197
+	OLIntegration
+		Fixed a bug where strings are not being passed properly between Log wrapper functions.
+
+	Docs
+		Added documentation for OLID generator.
+	
+	OLVoice
+		Added a new user state - OL_VOICE_USER_NO_MICROPHONE.
+
+
+1.184.28.28 @ 83767
+	OLVoice
+		Added a user status update to allow games and overlay to know when the user is active
+		and the talk mode.
+
+	SDK Test Harness
+		Fixed a bug where Test Harness returned leaderboard rows with empty values when the ranking stat is not found.
+
+	General
+		Properly return an internal error status code when the data is corrupted.
+		
+	OLIntegration
+		Update the Voice SDK wrapper to support user status event.
+
+
+1.183.27.27 @ 83523
+	Test Scripts
+		Replaced %s with ... in the comments.
+		Changed q to reset to support SDK Test Harness script feeder mode.
+
+	Compliance
+		Added commands to allow test harness to run through all scripts automatically (script feeder mode).
+		SDK Test Harness now deletes C:\ahulog directory at start up and copies all the logs and 
+		report to C:\ahulog\<app exe name>\<script name> in auto script feeder mode.
+
+	SDK Test Harness
+		Updated status info UI alignment.
+
+	Docs
+		Various TCC and CHM updates.
+		Added documentation about script feeder mode.
+
+
+1.182.27.27 @ 83109
+	OLService
+		Added new function SetContainerContext.
+		Made GetContainerValueAsInt and SetContainerValueFromInt to take __int64.
+
+	SDK Test Harness
+		Removed the ability to send WM_CLOSE.
+		Fully support OLLeaderboard SDK.
+		Added the ability to save user's stat info.
+		Added commands to allow user to see all stat ID that belongs to the title.
+		Added commands to allow user to set teh stat value of the current user.
+		Fixed a bug where Test Harness crashed when value or userlist is missing in the UserStat.yml
+		Fixed a bug where Session ID field was not set in the container.
+		Added URI compliant validation when parsing YMAL files.
+		Improved the logging when ID is invalid.
+		
+	Docs
+		Reformat Samples section.
+		Added Marketplace to the Glossary section.
+		Updated the format and description in READE_SCRIPT.txt.
+		Remove a duplicate entry for OLID in Glossary section.
+
+	OLLeaderboard
+		Fixed misspelled OL_LBST_Invalid enum.
+		Fixed a bug where the parameter validation in GetLeaderboardStatDefs() call was checking for wrong ID type.
+		Fixed a bug where the RowHeaderndex was missing in the container.
+		Fixed a bug where the marketing asset uri contained extra . in the file extension.
+		OL_NO_MATCHING_ROWS will be dispatched when all rows are filtered out.
+
+
+1.181.27.27 @ 82122
+	OLContent
+		GetUserPurchasedContentAddonIDs() now returns status code NO_ITEM_IN_LIST instead of an empty OLID list.
+
+	OLLeaderboard
+		Added more debug logging.
+		Fixed a bug where UserID was missing from the enum string map.
+		Fixed missing container name issue.
+		Added empty row to note the end of sending leaderboard rows.
+		Preserve the receive order of a containers in a list.
+		Added logic checks against array overflow and going off end of row list.
+
+	SDK Test Harness
+		Fixed a bug where load command was not able to take game arguments.
+
+
+1.180.26.25 @ 81872
+	OLLeaderboard
+		Initial version of OLLeaderboard SDK.
+
+	Samples
+		Created OLLeaderboard Sample.
+
+	Docs
+		Removed The Communication System and App Session Flow intros and Achievement Video Icon Naming Convention.
+
+
+1.179.25.25 @ 81628
+	OLApplication
+		Added OLKEY_RO_Version key to AppSession Status Container.
+	
+	Docs
+		Reformat the page layout.
+		Various update and typo fixes.		
+
+
+1.178.24.24 @ 81485
+	OLOverlay
+		Changed the default overlay menu from games page to service page.
+
+	Docs
+		Format update in content add-on section in CHM file.
+
+
+1.177.24.24 @ 81422
+	General
+		Made the logging more clear when the title is mixing OLHandleEvents and callback mode.
+		Added OLLauncher to the SDK release package and removed the UbiSoft only release.
+	
+	Docs
+		Added YAML file structure and examples to the achievements section.
+		Various update and typo fixes in TCC and CHM file.
+
+
+1.176.24.24
+	General
+		Made line endings consistent in yaml files
+
+	OLIntegration
+		Add guards against registering a NULL callback with context event dispatcher.
+	
+	SDK Test Harness
+		Force DLLs update even if the files are set to read only.
+		Logging typo fixes.
+
+	OLService
+		Fixed possible array index out of bound error.
+		Fixed false-positive error logging about HandleEvent error.
+		
+	Samples
+		Changed the OLIntegration Logging sample to not loop on logging.	
+		Implemented olapi::OLGetTitleID() in SDKTest sample.
+		Fixed a bug that the sample framework tries to double free the window.
+	
+	Docs
+		Updated SDK Integration Requirements doc.
+		Submission Guide clean up and update.
+
+	OLMedia
+		Print the URI using c string instead of std::string.
+
+	Compliance
+		Added missing wait for shutdown and 'q' command to single profile change script.
+
+
+1.175.24.24
+
+	SDK Test Harness
+		Test Harness will now log when title does not have OnLive or dependent DLLs when load from Test 
+		Harness.
+
+	OLIntegration
+		Major rewrite to remove passing around the class pointers.
+		Removed dead code and general cleanup.
+		Fixed the SDK initialization order issue.
+		Clean up the initialization code.
+		Removed circular dependency.
+
+
+1.174.24.24
+	OLIntegration
+		Achievement wrapper now has python to parse yaml into c++ headers for ease of use.
+
+	SDK Test Harness
+		Update compliance test scripts to match revised TCC.
+		Added "dth" and "dbgistestharness" command to toggle on/off sending dbg_IsTestHarness() event.
+		Test Harness will now log the exit code when the title exits.
+		Fixed the CRC message crash when the title has achievement data.
+		Fixed the naming on all of the SDK test scripts.
+		Added new test scripts to cover new TCC items.
+
+	Samples
+		SDKTest now stalls for two frames before advance the login state to OL_LOGIN_READY_FOR_CLIENT,
+		this is a demonstration for implementing TCC 1.0.14.
+		Removed dead code and general cleanup in OLIntegration samples
+
+	Documentation
+		Updated SDK Integration Requirements with relevant information.
+		Reorganized sections in SDK chm.
+	
+	Overlay
+		Fixed Overlay DLL crashes on exit.
+
+	
+1.173.24.24
+	Tools
+		Added OLMediaConverter that converts video files to .olmedia format.
+		Added OLMediaPlayer for viewing files in .olmedia format.
+
+
+1.172.24.24
+	General
+		OLGetXXX(...) will now return OL_SERVICES_ALREADY_STARTED if called after 
+		OLStartServices() has been called.
+
+	OLApplication
+		Added OLGetTitleID()
+
+	SDK Test Harness
+		Test Harness will now list userdata files that are open after a user has unbound.
+
+	Samples
+		Samples now build only with the vc projects.
+
+
+1.171.23.23
+	General
+		Added macros to oltypes.h help with contexts:
+		IS_ERROR_CONTEXT, IS_VALID_CONTEXT, IS_SOLICITED_CONTEXT, IS_UNSOLICITED_CONTEXT.
+
+	Overlay
+		Added support for titles that use DirectX 7.
+
+	OLMedia
+		Changed ErrorEvent to StatusResult.  
+
+
+1.170.22.22
+	SDK Test Harness
+		Fixed bug where SDK Test Harness would not run as a non-admin user.
+
+	OLVoice
+		Updated API to support push to talk mode for channels.
+
+
+1.169.21.21
+	General
+		Some SDK function will now return OL_BUSY if the title tries to call the function without waiting for the call result.
+
+	OLOverlay
+		Fixed a bug that OLOverlay::DisplayMenu function never returns a status result.
+		Allowed the title to bring up voice chat and achievement menus using OLOverlay::DisplayMenu function.
+
+
+1.168.21.21
+	OLIntegration
+		Added Voice and Simple Voice OLIntegration wrapper.
+
+	OLService
+		Fixed a bug that SDK OLService::Log function logs weird characters.
+
+
+1.166.20.20
+	OLVoice
+		Allow the title to set participant playback level and mute status in other channel.
+
+
+1.165.19.19
+	OLLauncher
+		Added reuse profile flag to ReturnFromSubproduct().
+
+
+1.141.17.17
+	Documentation
+		added Common Title Certification Failures to SDK Docs.
+
+
+1.140.17.17
+	OLMedia
+		Removed OLMediaErrorCode and replaced it with OLStatus.
+
+
+1.139.16.16
+	OLLauncher
+		Added reuse profile flag to StartProduct().
+
+
+1.138.15.15
+	OLAchievement
+		Added mediaClip to AchievementContainer.
+		Added last achievement update timestamp to AchievementContainer.
+
+
+1.135.15.15
+	OLService
+		Added functions to create containers and container list, log containers, and enumerate key value pairs in a container.
+
+	SDK Test Harness
+		Added "au" and "audio" command to set the number of audio channels.
+		Added "gid" command to toggle Game Info Dialog display.
+		Added "lang" and "language" command to set language title should be in.
+			
+	Packaging Tool
+		Updated packaging tool to 0.9.8.6. See packaging tool change log for details.
+
+
+1.134.15.15
+	Overlay
+		Added support for titles that use DirectX 8.
+
+	SDK Test Harness
+		Changed reading of AchievementDefs.yml to version 5 YAML.
+		SDK Test Harness now correctly registers the host OS.
+		WMClose now sent to all parent windows for a game process.
+		Added command to load a specified achievement.yaml.
+		Test harness now checks your title for non allowed 3rd party dlls.
+		Added command to set/unset achievements format sdk test harness.
+
+	Samples
+		Reformatted AchievementDefs.yml to version 5 YAML in OLAchievement sample.
+
+	assets
+		Added OnLive Game Controller images to asset folder.
+
+	OLService
+		Added functions to support reserved contexts: 
+			olapi::OLReserveNextContext()
+			olapi::OLIsContextReserved()
+			olapi::OLChangeContextDuration()
+			olapi::OLReleaseContext()
+			olapi::OLReleaseDurationContexts().
+
+
+1.132.15.15
+	TCC
+		Reordered and regrouped sections.
+		Removed item 4.0.1.
+		Added item 4.0.7.
+		
+	OLAchievement
+		Deprecated GetAchievementMarketingAssetIconContainerIDList and GetAchievementMarketingAssetVideoContainerIDList.
+		Added GetAchievementMediaIconContainerIDList and GetAchievementMediaVideoContainerIDList.
+
+		
+1.132.15.15
+	OLAchievement
+		Changed the display format for Automatic Achievement notifications.
+
+
+1.131.15.15
+	OLAchievement
+		Added individual icon support for OneOfSet elements.
+
+
+1.129.15.15
+	Samples
+		Updated Achievement Sample YAMLs to version 5.
+
+
+1.128.15.15
+	SDK Test Harness
+		Added support for test harness to emulate the media server for achievement icons in automatic alerts.
+
+
+1.125.15.15
+	Samples
+		Added icons for automatic Achievement alerts in OLAchievement sample.
+
+	OLVoice
+		Added option for user to be in listen only mode.
+
+
+1.116.13.13
+	OLAchievement
+		Added flags for alerting at different frequencies on an Int type achievement.
+
+
+1.115.12.11
+	Tools
+		Added OLIDGen.exe to external packaging.
+
+
+1.114.12.11
+	OLAchievement
+		Added ability to trigger brag clips on achievement completion if flag is set.
+		On unlocking an achievement, SDK triggers alert if flag is set.
+		Added flag to specify an achievement definition as a "rank".
+		Added flag to specify an achievement definition as hidden.
+
+
+1.113.11.11
+	Samples
+		OLAchievement sample in external package now has all dependencies.
+
+
+1.111.11.11
+	OLAchievement
+		Added Flags field.
+
+
+1.107.11.11
+	OLVoive
+		Added support for multiple channels.
+
+	OLAchievement
+		Added Compliance Checks for achievement API.
+
+	Docs
+		Added documentation for OLAchievement.
+		Reorder and group TCC items.
+
+	SDK Test Harness
+		Added compliance check for open files after game has called Ready for Stop/Ready For User.
+		Added ability to see definitions and current state of achievements.
+
+
+1.106.11.11
+	SDK Test Harness
+		Added achievement persistence across test harness runs.
+		Added ability to reset all achievements back to 0.
+		Added configuration to change the type or user input devises reported to the title.
+
+
+1.105.11.11
+	SDK Test Harness
+		Added loading APP.yml, ASSETS.yml, and AchievementDefs.yml files from the application folder
+		Hooked up appid and titleid to what is loaded in APP.yml
+		Returning containers for requests to get achievement icon or video marketing assets
+	
+	OLAchievement
+		When an achievement is unlocked, attempting to load 160x90 icons to trigger alert
+		If icons cannot be loaded, triggers a text-only alert on achievement unlock
+
+
+1.104.11.11
+	Documentation Update
+		General cleaned up on OLUser, OLAppSession, OLAPI, and OLService header.
+
+
+1.102.10.9
+	OLVoice
+		Added bool to start voice monitor for whether or not to join echo channel
+	
+	Documentation Update
+		General cleaned up on OLUser, OLAppSession, OLAPI, and OLService header.
+
+
+1.100.10.9
+	Samples
+		Changed the way how samples check for supported resolutions by building a list right after 
+		D3D device is initialized.
+
+	OLIntegration
+		Added is_resolution_supported() function to OLIngegration OnLiveFunctions class.
+		Fixed a bug that the resolution enums in ChangeResolution does not match the ones in OLApplication.h.
+
+	Documentation Update
+		Arranged boilerplate text and the tables for non-SDK and SDK TCC.
+		Various submission docs update.
+
+
+1.099.9.9
+	OLVoice
+		Added join_muted flag to JoinChannel
+
+	Documentation Update
+		Made Non-SDK TCC matches SDK TCC.
+		General cleaned up on OLUser, OLAppSession, OLAPI, and OLService header.
+
+	SDK Test Harness
+		Added several commands to support OLLauncher SDK, including settings the status results for API calls and 
+		the ability to set the launching product key and arguments.
+	
+		Fixed a bug that SDK Test Harness pops up an error dialog when user's system is shutting down while SDK Test
+		Harness is running.
+		
+	Sample
+		Fixed a bug that samples don't close the file handles opened by FindFirstFile function.
+		Refactored the utility code shared by all samples.
+
+
+1.098.9.9
+	OLVoice
+		Added headset descriptions for connected user
+		Fixed problem with enum and string value being misaligned
+
+	SDK Test Harness
+		Supported nested quotes in SDK Test Harness command line.
+		
+		Fixed a bug that OLLauncher::StartProduct call never returns OL_SUCCESS upon success.
+
+
+1.093.9.9
+	OLUser
+		Removed ConfirmExitGame(), SaveGameRequest(), LoadGameRequest(), and SetRequestResult() 
+		from OLUserSesssionEventHandler class.
+
+	Samples
+		Removed deprecated event handlers and functions from all samples.
+	
+	OLIntegration
+		Removed confirmExitGame(), SaveGameRequest(), LoadGameRequest(), and SetRequestResult() from 
+		OLIntegartion class.
+
+		Remove SUPPORT_SAVEGAME_ON_SUSPEND #define flag.  
+
+	SDK Test Harness
+		Removed "eg" command as ConfirmExitGame() no longer exists.
+
+	Documentation Update
+		Removed "eg" command and it's description from the SDK chm.
+
+	
+1.092.9
+	SDK Test Harness
+		Added "ownedAppIds" field to Users.yml under "ExtraInfo" with each user.
+
+
+1.091.8.7
+	SDK Test Harness
+		Added a command "bbc" / "backbuffercheck" to toggle on/off zero backbuffer check in OnLive Overlay.
+
+
+1.090.8.7
+	OLUser
+		Bug fix where Touchpad key was missing from UserSystemSettings
+
+
+1.088.8.7
+	OLUser
+		Added support for IOS Client Type and TouchPad controller type.
+
+
+1.086.8.7
+	SDK Test Harness
+		Fixed a ACL issue when running SDK Test Harness remotely in Windows XP environment.
+
+
+1.085.8.7
+	OLVoice
+		Clarified participant events, removed participant enumerations.
+
+
+1.084.8.7
+	OLVoice
+		Added many new methods and events.
+
+
+1.083.8.7
+	SDK Test Harness
+		Added "exr" and "exitreceived" commands to allow SDK Test Harness to send an unsolicited exit event to 
+		the title and triggers ExitReceived() callback.
+
+
+1.082.8.7
+	OLOverlay
+		Fixed a compatibility issue that causes GetInputFromKeyboard() API call always return OL_INVALID_PARAM.
+
+
+1.078.7.7
+	Samples
+		Samples now check if the requested resolution is supported by the monitor and the device before 
+		making their decision to switch to requested resolution.
+
+		Changing Resolution now doesn't require the window to be destroyed.
+
+
+1.077.7.7
+	OLVoice
+		Notify caller of channel URI on create
+
+
+1.075.7.7
+	OLVoice
+		Initial commit of OLVoice
+
+
+1.074.7.7
+	Samples
+		Improved container value logging.
+
+
+1.073.7.7
+	General
+		Fixed a bug that calling OLStopServices() after individual Stop SDK calls will result a 
+		crash.
+	
+	TCC
+		Fixed numbering scheme in both TCC and Non-SDK TCC.
+
+	SDK Test Harness
+		Fixed a bug that Keyboard hits and Cursor actions do not reset the input timeout.
+
+	Samples
+		Fixed "D3D device creation failure" when changing resolution during full-screen mode.
+
+
+1.072.7.7
+	Documentation Update
+		Added web marketplace mockups and new asset entries to OnLive Asset Submission Form.
+		
+		Updated SDK Integration Requirements in Word doc and OnLive_SDK.chm.
+		
+		Added more details about the Users.yml and Overlay DLL shims to OnLive_SDK.chm.
+		
+		
+	SDK Test Harness
+		Documented all available commands to the help menu.
+	
+		Added details about the special folders and tasks SDK Test Harness uses to emulate the OSP.
+
+		Completely support "demo" mode; Contents in O:\SESSION and O:\PROFILE are wiped out at the end of the
+		user session.
+
+		Added more details about the usage of each command in OnLive_SDK.chm.
+
+
+	Samples
+		Fixed misuses of OL_MAX_KEY_STRING_SIZE; OL_MAX_VALUE_STRING_SIZE should be used when getting
+		a value from a container.
+	
+
+1.071.6.6
+	SDK Test Harness
+		Added functionality to turn vibration support on/off (can be saved to configuration file also).
+
+		Added functionality to turn unhandled exception filter on/off (can be saved to configuration file also).
+
+		Removed the options for unbinduser command.
+
+		Removed "savegame" command, since SaveGameRequest() event has been deprecated.
+
+	OLIntegration
+		Corrected resolution switch statement in ChangeResolution() event handler.
+
+	Samples
+		Samples now correctly response to Pause() and Resume() events.
+
+		OLContainer
+			Added reading and logging the vibration support value in the user system settings container.
+
+
+1.070.6.6
+	README
+		Included information about OLIntegration samples to the README.txt.
+		
+		Included Visual Studio 2005 build crash information.
+
+	SDK Test Harness
+		Fixed a bug that user can interact with the game using gamepad while Overlay is on the screen
+		when running on SDK Test Harness.
+
+
+1.069.6.6
+	OLIntegration
+		ContextEventDispatcher - Added header documentation.
+		
+		Implemented StatusResult() calls in OLIntegration and updated samples to handle 
+		these when they occur.
+		
+		OLIntegration now uses the new SuspendSession() flow. Please refer to SuspendSession Event Sequence 
+		in OnLive_SDK.chm or SuspendSession() header comments in OLApplication.h.
+		
+		Provided the ability for games to pump Windows message while waiting for OSP's response. The function wait_aborted()
+		will be called with WaitAbortReason code when timeout occurs.
+	
+	Samples
+		Changed window properties so the samples cannot be resized when in windowed mode (for all sample apps).
+		
+		Updated OLContainers sample to not use deprecated container keys.
+		
+		Samples now call Exit(OL_EXITCODE_NORMAL) when they receive a WM_CLOSE message.
+		
+		Samples now follow the new SuspendSession() flow. Please refer to SuspendSession Event Sequence 
+		in OnLive_SDK.chm or SuspendSession() header comments in OLApplication.h.
+		
+		Added Helper.h to SDKShared folder. Helper.h stores some common shared helper function between samples.
+		
+		Samples now calls OnLive API function calls outside of event handlers. 
+	
+	OLOverlay
+		MessageBoxResult() no longer returns negative button index; if the user cancels the message box 
+		by pressing escape key or B button on the gamepad, a status code OL_CANCEL_BUTTON is returned.
+		
+		When ShowMessageBox() call fails, it no longer returns both negative button index in MessageBoxResult() and 
+		OL_OVERLAY_IN_USE status code in StatusResult().
+		
+		Fixed Virtual Keyboard's compatibility issue. GetInputFromKeyboard() now returns OL_CANCEL_BUTTON when 
+		user presses escape or button B on the gamepad after 1.068.5.5. Before 1.068.5.5, this function will return 
+		an empty string without any status code.
+
+	OLApplication
+		Fixed a documentation bug for the ApplicationStatus Container's OLKEY_RO_UpTime.
+		The uptime is measured in seconds, not milliseconds.
+		
+		The "user binding" timer is documented as 25 seconds; this is a more realistic value than 30 seconds,
+		since it accounts for travel time between the SDK and the OSP.
+		
+		The "user unbinding" or "suspend" timer is documented as 235 seconds; Your game will have up to 235 seconds from 
+		to UnbindUser or SuspendSession events to transit to OL_LOGIN_READY_TO_BIND  OR OL_LOGIN_READY_TO_STOP 
+		( depending on your title's start mode )
+		
+		Clarified the docs for the ChangeResolution event. Ideally, a title will finish the entire user binding
+		process as soon as possible (including changing into the new resolution).
+
+	TCC
+		TCC item 1.0.4 has been separated into 2 separate issues:
+			1.0.4 - Title must not switch out of full screen mode while a user is bound.
+			1.0.14 - Title must render at least 1 frame before setting the ready for client state.
+
+
+	SDK Test Harness
+		Allow Ctrl + C to forcibly turn off script reading.
+		
+		Status now shows the correct disk space usage in O:\PROFILE, O:\SESSION, and \TEMPORARY
+		
+		The User Profile now gets deleted properly when SDK Test Harness exits.
+		
+		SDK Test Harness now sends a Stop() event to the game when it receives a reply from Start() other than OL_SUCCESS.
+
+	General
+		Event handlers now have their specific return values. Returning invalid status code will be marked as 
+		compliance failure in SDK Compliance report. For example, if your game doesn't support a resolution, 
+		the ChangeResolution() event should return OL_RESOLUTION_INVALID.
+		
+		Rename the header files:
+			olapi.h			becomes OLAPI.h
+			olapplication.h becomes OLApplication.h
+			olid.h			becomes OLID.h
+			olservice.h		becomes OLService.h
+			oltypes.h		becomes OLTypes.h
+			oluser.h		becomes OLUser.h
+
+	OLTypes
+		OL_RESUME_SUCCESSFUL is now deprecated. Use OL_SUCCESS instead.
+		
+	OLID
+		Changed the rules and usage of OLID(value), value is now ignored and a 0 is always used.
+
+
+1.068.5.5
+	OLOverlay
+		Added title, description, default string, minimum character allowed, and input format support to Virtual Keyboard.
+		
+		Added OLVirtualKeyboardControl enum that representing the types of Overlay Virtual Keyboard controls.
+
+	OLTypes 
+		OLStringType is now deprecated.
+
+
+1.067.4.4	
+	OLIntegration - Samples
+		All non-OLIntegration samples now have an OLIntegration counterpart.
+		
+		Moved all common functionality from OLIntegration samples into a common	header file.
+		
+		Added comments to the top of each sample to explain clearly what the sample's purpose is.
+		
+	OLIntegration
+		Fixed bug where logging through OLIntegration was getting garbled.
+		
+	OLIntegration - OLOverlay
+		Created OnLiveOverlay.cpp/h to add OLOverlay functionality to OLIntegration.
+		
+	Samples
+		Fixed crash when switching back and forth between full screen and windowed mode.
+		
+		Fixed sample code project files and test harness to support being launched as a post-build step.
+		
+		Removed all make.bat files from samples, please use Microsoft Visual Studio project files.
+		
+	SDK Test Harness
+		Added settings config file and config command to save, load, reset to default or display settings.
+
+
+1.066.4.4	
+	OLService
+		Removed deprecated LOG and INITLOG macros.
+
+	OLOverlay
+		Supported backwards compatibility down to 1.044.4.4.
+		
+		Added OL_MAX_SPINNER_MESSAGE_SIZE to define max message size for a Spinner Dialog.
+		
+		ShowSpinnerDialog now dispatches a StatusResult event upon success as well as failure.
+		
+		DisplayMenu now dispatches a StatusResult event upon success as well as failure.
+		
+		GetInputFromKeyboard validates its input params and caps the length of input at 256 chars.
+		
+		ShowSpinnerDialog now dispatches a StatusResult() event upon success as well as failure.
+
+	Overlay
+		OnLive Overlay UI now supports Directx 10.
+		
+	TCC
+		Various TCC updates.
+
+	
+1.065.4.4	
+	Documentation Update
+		This release includes a major update of the OnLive SDK documentation 
+		(both inside the headers and in our CHM help file). The OnLive SDK 
+		CHM file now includes a more detailed "Modules" heading with organized
+		sections for each OnLive API. The CHM's documentation pages (under the
+		"The OnLive Software Development Kit" heading) have much more 
+		information as well.
+			
+	Logging Policy Changes
+		Titles are no longer entirely prohibited from logging messages with the
+		OnLive SDK logger in final builds. However, logging rates must stay below
+		1 log call per minute (on average) for log levels > OLLOG_DEBUG. You may
+		log up to 1 message per second for the OLLOG_DEBUG log level.
+	
+		See OLService::Log for details.
+
+	OLTypes
+		We've changed the value of #define OL_MAX_USERNAME_SIZE to match the max
+		string length we can store in our backend database.
+	
+	OLService
+		We've added a #define for the SDKInfo container's name, 
+		SDKINFO_CONTAINER_NAME.
+		
+		Container methods can now return a new OL_RETURN_VALUE_TRUNCATED status
+		error if you supply a buffer that's too small to hold the entire value.
+	
+	OLApplication
+		The unbind user timeout is 90 seconds, not 2 minutes as previously 
+		documented (this was a documentation bug, the behavior has not changed).
+		
+		The OL_MULTI_SESSION_ATTRACT OLStartMode has been deprecated. The OSP
+		will never send this start mode so you don't need to handle it.
+			
+		Updated return values for OLAppSessionEventHandler::Start method - you
+		should now return OL_FAIL if you don't support the start mode suggested
+		by the OSP (instead of OL_INVALID_PARAM). Please return OL_FAIL instead
+		of OL_ALREADY_STARTED too.
+		
+	OLUser
+		UserSessionStatus Container changes:
+			Renamed OLKEY_RO_UserSessionID to OLKEY_RO_MasterSessionID.
+			Renamed OLKEY_RO_UserAppSessionID to OLKEY_RO_UserSessionID.
+			
+		The latency and bandwidth values are deprecated and should not be 
+		used.
+		
+		The LoadGameRequest() event is deprecated; it will never be sent.
+			
+		Documentation update: the Pause/Resume events can be sent by the OSP as
+		a result of system events. For example while the GameInfo Overlay dialog
+		is present or while a user is trying to recover from a stalled
+		network connection.
+	
+	OLID
+		Removed OLID's ++ operators because they were misleading (they generated
+		a new random ID value instead of incrementing the exiting value). Use the
+		base class's generate() method instead to generate a new OLID ID.
+
+	SDK Test Harness
+		Removed the multi-session attract mode, since it's now deprecated 
+		(see OLApplication changes).
+			
+		Removed the LoadGameRequest UI command, since the underlying event has
+		been deprecated.
+
+
+1.064.4.4
+	SDK Test Harness
+		Changed "wait completeshutdown" command to "wait shutdown".
+	
+		Fixed OSP timeout sometimes being triggered for no reason.
+
+	Samples
+		Copied all non-OLIntegration samples into OLIntegration and fixed up make
+		files.
+	
+		Converted OLStartApp, OLPrivacy, and OLPause to OLIntegration.
+
+	OLIntegration
+		Added ContextEventDispatcher to allow context-based event calls without
+		modifying OLIntegration.
+
+	Compliance
+		Removed osptimeout (ot) command from all the test scripts.
+		
+		
+1.063.4.4
+	SDK Test Harness
+		Added "/param" to support passing command line arguments to the
+		game. 
+		
+		"load" command now takes 4th argument for game's command line
+		arguments.
+		
+		if "bu r" ( BindUser() event with resume = true ) is issued but no save
+		data found in O:\SESSION, SDK Test Harness will log as error and send
+		the BindUser() event with resume = false.
+	
+		CTRL+C now functions properly in SDK Test Harness.
+	
+		Added "qaspinner" command to toggle on/off login state spinner
+
+	Samples
+		Fixed a bug that all SDK samples become not responding when user tries
+		to move the window.
+		
+		All samples except for SDKTest now require a key press before calling
+		SetLoginState(OL_LOGIN_READY_TO_START).
+		
+		Fixed misleading session management code. WM_CLOSE will now correctly
+		call SetLoginState(OL_LOGIN_READY_TO_STOP).
+	
+		Changed Escape key to simulate user exits via game's exit UI.
+	
+		Changed Ctrl+C and Closing the window to simulate emergent exit.
+		
+		
+1.062.4.4
+	OLID		
+		Added of proper OLID = OLID and removed bool override. If you use
+		'if (OLID)' then replace it with if (OLID = 0).
+
+	SDK Test Harness
+		Added "status" command to bring up test harness status bar.
+	
+		Added abbreviated alias for compliance command, "cpl".
+		
+		Fixed issues with the close command not working.
+	
+		Fixed error conditions in "base SDK" build type.
+	
+		Upon load, Test Harness will now change the path to it's 
+		working directory.
+	
+		Added an "exit" alias for "quit".
+
+	OLAPI
+		Added OLAreServicesCommunicating and OLWaitServicesCommunicating to c 
+		exports.
+
+	Samples
+		SDKTest now uses OLWaitServicesCommunicating.
+
+	Docs
+		Changed certification@onlive.com to submissions@onlive.com as main 
+		contact point for CERT.
+
+
+1.061.4.4
+	General
+		SDK header docs improvements.
+
+	SDK Test Harness
+		Fixed WM_CLOSE issue affecting the "close" command.
+	
+	Allow u++ and u-- commands to switch in autostart mode. The switch 
+		will happen at next session.
+	
+		Cleaned up help menu.
+	
+		Added short commands for load, read, reset, and log commands.
+		
+	Compliance 
+		OSP timeout will now be reported in compliance report.
+	
+		Fixed a false-positive compliance result on WM_CLOSE.
+
+
+1.060.4.4
+	SDK Test Harness
+		Fixed “wait” and “waitskip” command bug which would cause the wait
+		commands to miss the result and wait forever.
+
+
+1.059.4.4
+	Compliance
+		Fixed empty report file name in compliance html report.
+
+
+1.058.4.4
+	SDK Test Harness
+		Fixed WM_CLOSE issue affecting the "close" command.
+	
+		Fixed "waitkey" command hangs in SSH environment.
+	
+		Reworded wait command description in help menu.
+
+
+1.057.4.4
+	SDK Test Harness
+		Added "\TEMPORARY and O:\SESSION usage query in SDK Test Harness Status.
+	
+		Change GLU timeout to OSP timeout. The Commands "gt" and "glutimeout" 
+		became "ot" and "osptimeout".
+	
+		Added support for quoted parameters in both command line and test harness 
+		commands.
+	
+		Added compliance test scripts to allow developer to perform the same
+		tests that the CERT team performs.
+
+
+1.056.4.4	
+	General
+		SDK header docs improvements.
+
+	SDK Test Harness
+		Added "waitskip" command to allow the next command to be executed and
+		skip certain numbers of line after the executed command base on the
+		return value.
+	
+		Added "waitkey" command to pause script reading until SDK Test Harness
+		receives input from user.
+		
+		Added "log" command to allow scripts to log to SDK Test Harness log.
+
+
+1.055.4.4	
+	Packaging Tool
+		Updated to Version 0.9.8.4
+	
+	When operating on a Release Mode package, Unpackager will now extract all
+		files. Any files selected for encryption will be extracted from the
+		.olc file but will remain encrypted.
+	
+		Added verification for invalid Title Version Number strings to resolve
+		possible crash.
+
+	SDK Test Harness
+		Added "/ssh/" launch argument that allows SDK Test Harness over SSH 
+		environment. Please refer OnLive SDK Test Harness SHH Guide.doc to find 
+		out how to setup SSH with SDK Test Harness.
+
+
+1.054.4.4
+	SDK Test Harness
+		Fixed a bug that SDK Test Harness fails on copying DLLs if the game is
+		loaded outside of SDK Test Harness.
+		
+		Fixed a bug that SDK Test Harness doesn't load the database correctly
+		when launched from a separate directory.
+	
+
+1.052.4.4
+	SDK Test Harness
+		Updated App Stop timeout to 15 seconds.
+	
+		Fixed a bug in OLStopServices that causes the game to hang.
+
+
+1.051.4.4
+	OLIntegration
+		Default support of SuspendSession to OFF.
+	
+	Added #define SUPPORT_SESSION_TYPES to easily turn on and off support
+	for single & multi session.
+
+	Compliance 
+		Fixed false-positive compliance result on Suspend, SaveGame Suspend.
+	
+	Updated compliance check to match the new application logout sequence.
+
+	SDK Test Harness
+		Updated SDK Test Harness logging to display resolutions with their 
+		String and enum value.
+		
+		
+1.050.4.4
+	OLTypes
+		Added more OLStatus codes to OLAPI::OLStatusToString function.
+	
+	SDK Test Harness
+		Command "load f <file_path>" will now perform compliance check if 
+		compliance check is previously turned on.
+
+	Compliance 
+		Compliance Log for each API is now moved to C:\ahlog instead of SDK
+		Test Harness directory.
+		
+
+1.048.4.4
+	General
+		Added freeimage license. The license can be found under the
+		tools\SDKTestHarness directory.
+
+
+1.047.4.4
+	SDK Test Harness
+		Added legal text for cg.dll, freeimage.dll & bitstream.
+	
+		Added "displayscript" command to allow script to be shown on the console.
+	
+		Added "wait" command to allow later commands to be executed after specific functions is called or states is reached.
+	
+		Added parameter to "stop" command to send a stop request without 
+		resetting SDKTest Harness.
+	
+		Added parameter to "load" command to load a game without resetting 
+		SDKTest Harness.
+	
+		Added a new SDKTest Harness script example.
+	
+		Added "glutimeout" command to toggle on/off GLU timeout emulation.
+	
+		Fixed several bugs in the delay command.
+
+	Packaging Tool
+		Updated to Version 0.9.8.3
+
+
+1.046.4.4
+	SDK ZIP
+		Change functionality for improves zip file output
+
+
+1.045.4.4	
+	Samples
+		Bug fixes for header file location.
+		
+		
+1.044.4.4
+	Packaging Tool
+		Updated Packaging Tool to fix olp.exe output issue.
+
+
+1.043.4.4	
+	Misc.
+		Various header file changes
+	
+	OLUser
+		LANGUAGE_ENGLISH, ... added.
+	
+	Samples
+		Updated all samples using the new OnLive Login and Exit flow.
+
+	SDK Test Harness
+		Version updating of existing SDK on launch from test harness added
+
+	OLIntegration
+		Single Session flow corrected.
+	
+		Bug in unbind fixed.		
+
+
+1.042.4.4
+	Samples
+		Bug fixes to various samples
+
+
+1.041.4.4
+	OLService
+		Added OLKEY_RO_VibrationSupported
+
+
+1.040.4.4
+	Documents
+		Added PDF of Submissions Forms to release.
+
+	TCC
+		13.0.1 Added
+		13.0.2 Added
+		10.0.7 Added
+		2.0.1.1	Additional clarification provided
+		1.0.4 Additional clarification provided
+	
+	OLID
+		Added a function isValid() to check if the String ID is URI compliant.
+
+	SDK Test Harness
+		During DB loading state, SDK Test Harness will exit if the ID in Users.yml
+		is not URI compliant.
+		
+		
+1.039.4.4
+	SDK Test Harness
+		Updated help item for resolution change command.
+		
+		Known Issue: On Windows Vista using this new SDK Test Harness.exe may
+		require you to run it once and then reboot your machine in order for
+		Overlay to be supported.
+
+	Documents
+		Submission forms are now protected Microsoft Word documents to allow
+		text entry to be done electronically.
+
+
+1.038.4.4
+	SDK Test Harness
+		Updated App Session Stop timeout to 5 seconds.
+	
+		Added Overlay support to SDK test harness, press the guide button on
+		your gamepad to activate.
+	
+		Added help item for resolution change command.
+
+	OnLive Packaging Tool
+		Added new Packaging Tool to OnLive SDK.
+
+	OLOverlay
+		Added new Overlay API to OnLive SDK.
+
+	Documents
+		Separated Submission Form and Asset Submission Form into two documents.
+	
+		Updated Submission Forms.
+	
+		Added timeout information to OLAppSession documentation.
+	
+		Added Saving Game Information to OLUserSession documentation.
+	
+	OLIntegration
+		Added to OnLive SDK. OLIntegration is a C++ wrapper for the OnLive SDK 
+		to assist your PC integration efforts. SDK Integration Requirements.pdf 
+		discusses some of the OLIntegration class, and basic integration 
+		requirements.
+
+	Overlay
+		Added "Exiting Game..." Overlay display when a game is unbinding the
+		user.
+
+	OLAppSession
+		Fixed a doxygen comment for 720x576 PAL resolution.
+	
+	
+1.037.4.3
+	Global
+		Added OL_BUSY response. This response means the operation or event could
+		not complete because it was busy. This is used in ConfirmExitGame.
+
+		SDK Test Harness
+		Added all resolution modes to "rez" command.
+		
+		Fixed a bug in multi-session O drive mounting causing it not to mount
+		on some machines.
+	
+		Removed redundant ChangeResolution request on start up. ChangeResolution
+		event will only be sent before BindUser event, unless the game is in
+		multi-session attract mode.
+	
+		Added limited support for launching the game as demo. The user's data
+		won't be saved between sessions.
+	
+		Added support for Session Start/Stop timeouts.
+	
+		Added support to mount drives and monitor apps that were not loaded
+		from test harness
+
+
+	OLUserSession
+		Added a new OLUIRequestType : OL_UIREQUEST_SUSPEND. Upon receiving this 
+		Request type in SaveGameRequest, the game should automatically 
+		save the current user progress to the O:\SESSION without informing the 
+		user.
+		
+		
+	OLAppSession
+		Provided more details on how to manage OnLive service login and exit flow
+		in both single and multi-session.
+	
+		Added a function OLResolutionToString that converts an OLResolution to 
+		a string.
+	
+		Calling SetLoginState(LOGIN_READY_TO_UNBIND) will now automatically bring
+		up a spinner dialog with "Exiting Game..." message.
+
+
+1.036.4.3
+	SDK Test Harness
+		Added "user++" and "user--" commands to allow switching users between
+		sessions.
+
+
+1.032.4.3
+	Compliance
+		Improved compliance check on ChangeResolution and Start() event.
+
+	SDK Test Harness
+		Fixed a bug that command "rez" changes the current resolution immediately
+		regardless if the flag is present or not.
+	
+		Fixed a bug in the virtual O drive sometimes was not properly unmounted.
+
+
+1.025.4.3
+	Samples
+		Fixed a bug that SDKTest log logs Audio configuration value as (NULL).
+
+	SDK Test Harness
+	Fixed a bug that change resolution command "rez" always logs 128 
+	(OLR_HDTV_720P).
+
+
+1.024.4.3
+	OLUserSession
+		Added OLAudio enum for Audio configuration.
+
+
+1.023.4.3
+	Documents
+		Technical Compliance Checklist, Submission  Guide and Submission Form
+		updated.
+
+	OLUserSession
+		Added OLKEY_RO_AudioConfiguration keys to UserSystemSettingsContainer.
+
+
+1.022.4.3
+	Compliance
+		Fixed a bug that compliance report always reports a failure on handling
+		SDKInfoContainerIDResult event.
+	
+		HandleEvent compliance check in compliance report now tells the user 
+		which event caused the failure.
+
+
+1.019.4.3
+	Samples
+		Fixed a bug that SDKTest doesn't exit when ESC key is pressed.
+	
+		Modified the comments on ESC key for all samples.
+
+
+1.017.4.3	
+	Global
+		Added new status codes to OLStatusToString function.
+
+	Samples
+		Removed all WM_SIZE handling in window procedure.
+	
+		Added usages of UserSystemSettings Container (SDK Version 1.009 
+		additions) to SDKTest sample.
+
+	SDK Test Harness
+		OLKEY_RO_Language, OLKEY_RO_TVOutputMode, OLKEY_RW_AudioVolume, 
+		OLKEY_RO_Region, and OLKEY_RO_Gamepad in UserSystemSettings Container 
+		now have values that respect to user's development environment.
+	
+		Removed normal option from savegame and loadgame request command.
+
+	Compliance
+		Fixed a bug that the fail counter in compliance report didn't increase.
+		
+		Compliance checker will indicate a failure if user's monitor doesn't
+		support 720p and 1024x768.
+	
+	
+1.016.4.3	
+	SDK Test Harness
+		Added monitor resolution check to see if user's monitor supports OnLive
+		specific resolution for games.
+
+	Compliance
+		Added Legal statements to compliance report.
+	
+		Fixed a bug that SetLoginState(OL_LOGIN_READY_TO_STOP) and Exit
+		(OL_EXITCODE_NORMAL) compliance check return false positive results.
+
+
+1.015.4.3	
+	Compliance
+		Fixed a bug that the compliance reports were sometimes generated in the 
+		wrong directory.
+		
+		Applications that wish to run a compliance check using SDK Test Harness
+		will be required to be loaded from SDK Test Harness.
+	
+	
+1.014.4.3
+	Global
+		Added a function OLStatusToString that converts an OLStatus to a string.
+
+	Compliance
+		Added compliance checking for the DestroySessionContainers and 
+		DestroySessionContainerLists functions.
+	
+		Fixed a bug that compliance report shows misleading start mode in 
+		summary section.
+	
+		Compliance checker will now report if an API function is called before
+		OnLive service is started.
+	
+		Added OLOverlay as part of compliance check.
+	
+	
+1.013.4.3
+	Samples
+		Removed some extra logs.
+
+
+1.012.3.2
+	Compliance
+		Fixed a bug that compliance report was not generated when the game's
+		SDK version doesn't match SDK Test Harness's SDK version.
+
+
+1.011.2.2	
+	Global
+		Updated msg version to 2, min version to 2. API's before msg version 2
+		are no longer message compatible.
+	
+	OLUserSession
+		Added OLKEY_RO_UserAppSessionID (user's app session id) to
+		UserSessionStatusContainer.
+	
+	Samples
+		Fixed SDKTest to get the session ID's in the correct place.
+		
+		
+1.010.0.0
+	SDK Test Harness
+		Fixed a bug in the heartbeat system.
+	
+		Fixed a bug that prevented user from running a script without an 
+		executable being loaded.
+	
+		Fixed a bug that SDK Test Harness prevented user from scrolling the 
+		window.
+	
+		Changed the default directory of load command to current working 
+		directory.
+
+	Samples
+		Fixed Windows message loop and procedure for WM_CLOSE/QUIT/DESTROY.
+	
+		Changed 'Esc' key to perform conforming exit in SDKTest.
+	
+		Added '@' key to simulate non-conforming exit in SDKTest.
+	
+		Added ILOG macro to prevent log feedback with OLAPI logs in SDKTest.
+
+
+1.009.0.0
+	Global
+		Removed O:\ACCOUNT directory.
+
+	Compliance
+		Applications that wish to run a compliance check using SDK Test Harness
+		will be required to use the current version of SDK.
+	
+	OLUserSession
+		Added OLKEY_RO_Platform, OLKEY_RO_Keyboard, OLKEY_RO_Mouse, and 
+		OLKEY_RO_Gamepad keys to UserSystemSettingsContainer.
+	
+		Added OLClientPlatform enum for type of client being used.
+
+
+1.007.0.0
+	SDK Test Harness
+		Added Compliance status to test harness help menu.
+	
+		Removed compliance logging from test harness.
+	
+	Compliance
+		Compliance report now only lists distinct error/warning messages.
+	
+	
+1.006.0.0
+	OLAppSession
+		Added OnLive recommended resolutions: OLR_CUST_1024x576, 
+		OLR_CUST_800X450, OLR_CUST_640X360, OLR_CUST_480X270, 
+		OLR_CUST_1600X900, and OLR_CUST_1440X810 to OLResolution enum.
+
+
+1.005.0.0
+	Compliance
+		Added a summary section to the report, which includes: Operating System,
+		application name, total number of tests performed, total testing time,
+		number of tests run per second, application start mode, number of user
+		sessions, number of app sessions, event handling mode,  application's 
+		SDK version, and current SDK version.
+	
+		Added OLOverlay into Compliance checklist.
+	
+		Added Compliance Log for each API.
+	
+	Samples
+		Moved Full Screen/Windowed mode toggle out from WinProc to Main loop.
+	
+		Fixed message box display bug.
+	
+		Fixed screen rendering bug when running in callback mode.
+
+
+1.004.0.0
+	OLService
+		Fixed a container destruction crash.
+	
+		Fixed a bug in setting the output log level.
+	
+	SDK Test Harness
+		SDK Test Harness will now detect an already running test harness (of the
+		same version) and use it instead of launching multiple exe's.
+	
+		Support of SetGamePrivacyStatus added to test harness.
+	
+	Samples
+		Samples now launch SDK Test Harness at the completion of a build and 
+		can be debugged using Visual Studio with the Debug command without any 
+		further setup. This depends upon setting an environment variable 
+		LAUNCH_HARNESS to YES.
+
+
+1.003.0.0
+	SDK Test Harness
+		Added the ability for application to interact with Overlay through 
+		Keyboard, Mouse, and Gamepad.
+
+
+1.002.0.0	
+	Samples
+		Fixed release builds in all samples.
+	
+		Added custom build step to copy OLAPI.dll to the sample output dir.
+	
+		Added Samples.sln to build all samples from a single solution.
+	
+		Added DestroyContainer to all appropriate event functions.
+	
+		Fixed use of minus/dash to not accept underscore character.
+	
+	SDK Test Harness
+		Added the ability for scripts to have comments (// or #, entire line
+		is a comment).
+	
+		Added request types to save game and load game events.
+	
+	Global
+		The API will delete a container for any event that receives a container
+		ID or container list ID and returns a non SUCCESS status code.
+
+
+1.001.0.0	
+	Global
+		OLS_NOT_STARTED enum changed to OL_NOT_STARTED. Docs updated.
+	
+	
+1.000.0.0
+	Global
+		Moved version information to olapiversion.h
+	
+	OLID
+		Fixed an ID generation problem.
+	
+	OLService
+		Fixed missing container issue.
