@@ -6,10 +6,20 @@ var remoteGUID = "";
 var useNat = false;
 private var connectionInfo = "";
 
-function Awake() 
+private var communityExpress : UnityCommunityExpress = null;
+
+function Awake()
 {
 	if (FindObjectOfType(ConnectGuiMasterServer))
 		this.enabled = false;
+
+	for (var go : GameObject in FindObjectsOfType(GameObject))
+	{
+		communityExpress = go.GetComponentInChildren(UnityCommunityExpress);
+		
+		if (communityExpress != null)
+			break;
+	}
 }
 
 function OnGUI ()
@@ -45,6 +55,8 @@ function OnGUI ()
 			// Notify our objects that the level and the network is ready
 			for (var go in FindObjectsOfType(GameObject))
 				go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
+				
+			Debug.Log("Game Server Init="+communityExpress.GameServer.Init(false, System.Net.IPAddress.Any, listenPort, listenPort, 27015, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure, "Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress", "1.0.0.0", "CE-Fake", 8, true, OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
 		}
 		GUILayout.EndVertical();
 		if (useNat)
@@ -80,15 +92,32 @@ function OnServerInitialized()
 	Debug.Log("==> Local IP/port is " + Network.player.ipAddress + "/" + Network.player.port + ". Use this on clients to connect directly.");
 }
 
-function OnConnectedToServer() {
+function OnConnectedToServer()
+{
 	// Notify our objects that the level and the network is ready
 	for (var go in FindObjectsOfType(GameObject))
 		go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);		
 }
 
-function OnDisconnectedFromServer () {
+function OnDisconnectedFromServer ()
+{
 	if (this.enabled != false)
 		Application.LoadLevel(Application.loadedLevel);
 	else
 		FindObjectOfType(NetworkLevelLoad).OnDisconnectedFromServer();
+}
+
+function OnGameServerClientApproved(approvedPlayer : CommunityExpressNS.SteamID)
+{
+	Debug.Log("OnGameServerClientApproved "+approvedPlayer);
+}
+
+function OnGameServerClientDenied(deniedPlayer : CommunityExpressNS.SteamID, denyReason : CommunityExpressNS.EDenyReason, optionalText : String)
+{
+	Debug.Log("OnGameServerClientDenied "+deniedPlayer+" "+denyReason+" "+optionalText);
+}
+
+function OnGameServerClientKick(playerToKick : CommunityExpressNS.SteamID, denyReason : CommunityExpressNS.EDenyReason)
+{
+	Debug.Log("OnGameServerClientKick "+playerToKick+" "+denyReason);
 }

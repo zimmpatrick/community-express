@@ -1,8 +1,6 @@
 #pragma strict
 #pragma downcast
 
-@script RequireComponent (UnityCommunityExpress)
-
 // Objects to drag in
 public var motor : MovementMotor;
 public var character : Transform;
@@ -21,10 +19,9 @@ public var cursorSmallerWhenClose : float = 1;
 
 public var queryUserInput : boolean = true;
 
-public var communityExpress : UnityCommunityExpress;
-communityExpress = GetComponent(UnityCommunityExpress);
-public var killsStat : CommunityExpressNS.Stat = null;
-public var killsAchievement50 : CommunityExpressNS.Achievement = null;
+private var communityExpress : UnityCommunityExpress = null;
+private var killsStat : CommunityExpressNS.Stat = null;
+private var killsAchievement50 : CommunityExpressNS.Achievement = null;
 
 // Private memeber data
 private var mainCamera : Camera;
@@ -52,7 +49,20 @@ private var screenMovementRight : Vector3;
 private var weapon : AutoFire;
 
 function Awake ()
-{		
+{
+	Debug.Log("Before "+communityExpress);
+	for (var go : GameObject in FindObjectsOfType(GameObject))
+	{
+		communityExpress = go.GetComponentInChildren(UnityCommunityExpress);
+		
+		if (communityExpress != null)
+		{
+			Debug.Log("Found It!");
+			break;
+		}
+	}
+	Debug.Log("After "+communityExpress);
+
 	motor.movementDirection = Vector2.zero;
 	motor.facingDirection = Vector2.zero;
 	
@@ -111,9 +121,41 @@ function Start ()
 	screenMovementSpace = Quaternion.Euler (0, mainCameraTransform.eulerAngles.y, 0);
 	screenMovementForward = screenMovementSpace * Vector3.forward;
 	screenMovementRight = screenMovementSpace * Vector3.right;
-	
+
 	if (networkView.isMine)
+	{
+		Debug.Log("PlayerMoveController - Start - isMine"+communityExpress);
 		communityExpress.UserStats.RequestCurrentStats(OnUserStatsReceived, ["Kills"]);
+		Debug.Log("PlayerMoveController - Start - isMine Done");
+	}
+	else if (Network.isServer)
+	{
+		Debug.Log("PlayerMoveController - Start - isServer");
+		networkView.RPC("RPCInitClientAuth", RPCMode.Others, communityExpress.GameServer.SteamID.ToUInt64());
+	}
+}
+
+@RPC
+function RPCInitClientAuth(serverID : ulong)
+{
+	Debug.Log("PlayerMoveController - RPCInitClientAuth");
+	if (networkView.isMine)
+	{
+		Debug.Log("PlayerMoveController - RPCInitClientAuth - isMine");
+		var authTicket : byte[];
+		communityExpress.User.InitiateClientAuthentication(authTicket, CommunityExpressNS.SteamID(serverID), System.Net.IPAddress.Parse(Network.player.externalIP), Network.player.externalPort, false);
+		networkView.RPC("RPCClientConnected", RPCMode.Server, authTicket);
+	}
+}
+
+@RPC
+function RPCClientConnected(authTicket : byte[])
+{
+	Debug.Log("PlayerMoveController - RPCClientConnected");
+	
+	var steamID : CommunityExpressNS.SteamID;
+	
+	communityExpress.GameServer.ClientConnected(System.Net.IPAddress.Parse(networkView.owner.externalIP), authTicket, steamID);
 }
 
 function OnUserStatsReceived(stats : CommunityExpressNS.Stats, achievements : CommunityExpressNS.Achievements)
@@ -233,6 +275,8 @@ function Update ()
 		
 		// Save camera offset so we can use it in the next frame
 		cameraOffset = mainCameraTransform.position - character.position;
+
+		communityExpress.RunCallbacks();
 	}
 }
 
@@ -328,6 +372,8 @@ function OnKilledEnemy()
 	killsStat.StatValue = killsStatValue;
 	
 	communityExpress.UserStats.WriteStats();
+	
+	Debug.Log("Kills: "+killsStat.StatValue);
 
 	if (killsStatValue > 50)
 	{
