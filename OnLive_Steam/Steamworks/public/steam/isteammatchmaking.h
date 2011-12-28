@@ -19,6 +19,7 @@
 // lobby type description
 enum ELobbyType
 {
+	k_ELobbyTypePrivate = 0,		// only way to join the lobby is to invite to someone else
 	k_ELobbyTypeFriendsOnly = 1,	// shows for friends or invitees, but not in lobby list
 	k_ELobbyTypePublic = 2,			// visible for friends and in lobby list
 	k_ELobbyTypeInvisible = 3,		// returned by search, but not visible to other friends 
@@ -204,7 +205,8 @@ public:
 	// this will send down all the metadata associated with a lobby
 	// this is an asynchronous call
 	// returns false if the local user is not connected to the Steam servers
-	// restart are returned by a LobbyDataUpdate_t callback
+	// results will be returned by a LobbyDataUpdate_t callback
+	// if the specified lobby doesn't exist, LobbyDataUpdate_t::m_bSuccess will be set to false
 	virtual bool RequestLobbyData( CSteamID steamIDLobby ) = 0;
 	
 	// sets the game server associated with the lobby
@@ -237,6 +239,13 @@ public:
 	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
 	// after completion, the local user will no longer be the owner
 	virtual bool SetLobbyOwner( CSteamID steamIDLobby, CSteamID steamIDNewOwner ) = 0;
+
+#ifdef _PS3
+	// changes who the lobby owner is
+	// you must be the lobby owner for this to succeed, and steamIDNewOwner must be in the lobby
+	// after completion, the local user will no longer be the owner
+	virtual void CheckForPSNGameBootInvite( unsigned int iGameBootAttributes  ) = 0;
+#endif
 };
 #define STEAMMATCHMAKING_INTERFACE_VERSION "SteamMatchMaking008"
 
@@ -500,6 +509,7 @@ struct LobbyInvite_t
 
 	uint64 m_ulSteamIDUser;		// Steam ID of the person making the invite
 	uint64 m_ulSteamIDLobby;	// Steam ID of the Lobby
+	uint64 m_ulGameID;			// GameID of the Lobby
 };
 
 
@@ -530,6 +540,8 @@ struct LobbyDataUpdate_t
 
 	uint64 m_ulSteamIDLobby;		// steamID of the Lobby
 	uint64 m_ulSteamIDMember;		// steamID of the member whose data changed, or the room itself
+	uint8 m_bSuccess;				// true if we lobby data was successfully changed; 
+									// will only be false if RequestLobbyData() was called on a lobby that no longer exists
 };
 
 
@@ -627,6 +639,21 @@ struct LobbyCreated_t
 
 // used by now obsolete RequestFriendsLobbiesResponse_t
 // enum { k_iCallback = k_iSteamMatchmakingCallbacks + 14 };
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Result of CheckForPSNGameBootInvite
+//			m_eResult == k_EResultOK on success
+//			at this point, the local user may not have finishing joining this lobby;
+//			game code should wait until the subsequent LobbyEnter_t callback is received
+//-----------------------------------------------------------------------------
+struct PSNGameBootInviteResult_t
+{
+	enum { k_iCallback = k_iSteamMatchmakingCallbacks + 15 };
+
+	bool m_bGameBootInviteExists;
+	CSteamID m_steamIDLobby;		// Should be valid if m_bGameBootInviteExists == true
+};
 #pragma pack( pop )
 
 

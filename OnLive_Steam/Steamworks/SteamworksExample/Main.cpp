@@ -1,19 +1,26 @@
-//====== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======
+//====== Copyright ï¿½ 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: Main file for the SteamworksExample app
 //
 //=============================================================================
 
 #include "stdafx.h"
-#include "GameEngine.h"
-#include "SpaceWarClient.h"
-#include "steam/steam_api.h"
 
+#if defined(WIN32)
+    #include "gameenginewin32.h"
+    #define atoll _atoi64
+#elif defined(OSX)
+	#include "GameEngine.h"
+	extern IGameEngine *CreateGameEngineOSX();
+#endif
+
+#include "SpaceWarClient.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Wrapper around SteamAPI_WriteMiniDump which can be used directly 
 // as a se translator
 //-----------------------------------------------------------------------------
+#ifdef _WIN32
 void MiniDumpFunction( unsigned int nExceptionCode, EXCEPTION_POINTERS *pException )
 {
 	// You can build and set an arbitrary comment to embed in the minidump here,
@@ -24,7 +31,21 @@ void MiniDumpFunction( unsigned int nExceptionCode, EXCEPTION_POINTERS *pExcepti
 	// The 0 here is a build ID, we don't set it
 	SteamAPI_WriteMiniDump( nExceptionCode, pException, 0 );
 }
+#endif
 
+
+//-----------------------------------------------------------------------------
+// Purpose: Helper to display critical errors
+//-----------------------------------------------------------------------------
+int Alert( const char *lpCaption, const char *lpText )
+{
+#ifndef _WIN32
+    fprintf( stderr, "Message: '%s', Detail: '%s'\n", lpCaption, lpText );
+	return 0;
+#else
+    return ::MessageBox( NULL, lpText, lpCaption, MB_OK );
+#endif
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: callback hook for debug text emitted from the Steam API
@@ -39,20 +60,96 @@ extern "C" void __cdecl SteamAPIDebugTextHook( int nSeverity, const char *pchDeb
 	{
 		// place to set a breakpoint for catching API errors
 		int x = 3;
-		x;
+		x = x;
 	}
 }
 
 
+//-----------------------------------------------------------------------------
+// Purpose: Extracts some feature from the command line
+//-----------------------------------------------------------------------------
+void ParseCommandLine( const char *pchCmdLine, const char **ppchServerAddress, const char **ppchLobbyID )
+{
+	// Look for the +connect ipaddress:port parameter in the command line,
+	// Steam will pass this when a user has used the Steam Server browser to find
+	// a server for our game and is trying to join it. 
+	const char *pchConnectParam = "+connect";
+	const char *pchConnect = strstr( pchCmdLine, pchConnectParam );
+	*ppchServerAddress = NULL;
+	if ( pchConnect && strlen( pchCmdLine ) > (pchConnect - pchCmdLine) + strlen( pchConnectParam ) + 1 )
+	{
+		// Address should be right after the +connect, +1 on the end to skip the space
+		*ppchServerAddress = pchCmdLine + ( pchConnect - pchCmdLine ) + strlen( pchConnectParam ) + 1;
+	}
+
+	// look for +connect_lobby lobbyid paramter on the command line
+	// Steam will pass this in if a user taken up an invite to a lobby
+	const char *pchConnectLobbyParam = "+connect_lobby";
+	const char *pchConnectLobby = strstr( pchCmdLine, pchConnectParam );
+	*ppchLobbyID = NULL;
+	if ( pchConnectLobby && strlen( pchCmdLine ) > (pchConnectLobby - pchCmdLine) + strlen( pchConnectLobbyParam ) + 1 )
+	{
+		// Address should be right after the +connect, +1 on the end to skip the space
+		*ppchLobbyID = pchCmdLine + ( pchConnectLobby - pchCmdLine ) + strlen( pchConnectLobbyParam ) + 1;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Main loop code shared between all platforms
+//-----------------------------------------------------------------------------
+void RunGameLoop( IGameEngine *pGameEngine, const char *pchServerAddress, const char *pchLobbyID )
+{
+	// Make sure it initialized ok
+	if ( pGameEngine->BReadyForUse() )
+	{
+		// Initialize the game
+		CSpaceWarClient *pGameClient = new CSpaceWarClient( pGameEngine );
+
+		// Black background
+		pGameEngine->SetBackgroundColor( 0, 0, 0, 0 );
+
+		// If +connect was used to specify a server address, connect now
+		pGameClient->ExecCommandLineConnect( pchServerAddress, pchLobbyID );
+
+		// test a user specific secret before entering main loop
+		Steamworks_TestSecret();
+
+		pGameClient->RetrieveEncryptedAppTicket();
+
+		while( !pGameEngine->BShuttingDown() )
+		{
+			if ( pGameEngine->StartFrame() )
+			{
+				pGameEngine->UpdateGameTickCount();
+
+				// Run a game frame
+				pGameClient->RunFrame();
+				pGameEngine->EndFrame();
+
+				// Sleep to limit frame rate
+				while( pGameEngine->BSleepForFrameRateLimit( MAX_CLIENT_AND_SERVER_FPS ) )
+				{
+					// Keep running the network on the client at a faster rate than the FPS limit
+					pGameClient->ReceiveNetworkData();
+				}
+			}			
+		}
+
+		delete pGameClient;
+	}
+
+	// Cleanup the game engine
+	delete pGameEngine;
+}
 
 
 //-----------------------------------------------------------------------------
 // Purpose: Real main entry point for the program
 //-----------------------------------------------------------------------------
-int APIENTRY RealMain(HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR     lpCmdLine,
-	int       nCmdShow)
+#ifndef _PS3
+
+static int RealMain( const char *pchCmdLine, HINSTANCE hInstance, int nCmdShow )
 {
 	
 	if ( SteamAPI_RestartAppIfNecessary( k_uAppIdInvalid ) )
@@ -71,7 +168,7 @@ int APIENTRY RealMain(HINSTANCE hInstance,
 	if ( !Steamworks_InitCEGLibrary() )
 	{
 		OutputDebugString( "Steamworks_InitCEGLibrary() failed\n" );
-		::MessageBox( NULL, "Steam must be running to play this game (InitDrmLibrary() failed).\n", "Fatal Error", MB_OK );
+		Alert( "Fatal Error", "Steam must be running to play this game (InitDrmLibrary() failed).\n" );
 		return EXIT_FAILURE;
 	}
 
@@ -85,7 +182,7 @@ int APIENTRY RealMain(HINSTANCE hInstance,
 	if ( !SteamAPI_Init() )
 	{
 		OutputDebugString( "SteamAPI_Init() failed\n" );
-		::MessageBox( NULL, "Steam must be running to play this game (SteamAPI_Init() failed).\n", "Fatal Error", MB_OK );
+		Alert( "Fatal Error", "Steam must be running to play this game (SteamAPI_Init() failed).\n" );
 		return EXIT_FAILURE;
 	}
 
@@ -99,143 +196,22 @@ int APIENTRY RealMain(HINSTANCE hInstance,
 	// with important UI in your game.
 	SteamUtils()->SetOverlayNotificationPosition( k_EPositionTopRight );
 
-	// Look for the +connect ipaddress:port parameter in the command line,
-	// Steam will pass this when a user has used the Steam Server browser to find
-	// a server for our game and is trying to join it. 
-	const char *pchConnectParam = "+connect";
-	char *pchCmdLine = ::GetCommandLine();
-	char *pchConnect = strstr( pchCmdLine, pchConnectParam );
-	char *pchServerAddress = NULL;
-	if ( pchConnect && strlen( pchCmdLine ) > (pchConnect - pchCmdLine) + strlen( pchConnectParam ) + 1 )
-	{
-		// Address should be right after the +connect, +1 on the end to skip the space
-		pchServerAddress = pchCmdLine + ( pchConnect - pchCmdLine ) + strlen( pchConnectParam ) + 1;
-	}
-
-	// look for +connect_lobby lobbyid paramter on the command line
-	// Steam will pass this in if a user taken up an invite to a lobby
-	const char *pchConnectLobbyParam = "+connect_lobby";
-	char *pchConnectLobby = strstr( pchCmdLine, pchConnectParam );
-	char *pchLobbyID = NULL;
-	if ( pchConnectLobby && strlen( pchCmdLine ) > (pchConnectLobby - pchCmdLine) + strlen( pchConnectLobbyParam ) + 1 )
-	{
-		// Address should be right after the +connect, +1 on the end to skip the space
-		pchLobbyID = pchCmdLine + ( pchConnectLobby - pchCmdLine ) + strlen( pchConnectLobbyParam ) + 1;
-	}
-
+	const char *pchServerAddress, *pchLobbyID;
+	ParseCommandLine( pchCmdLine, &pchServerAddress, &pchLobbyID );
 	// do a DRM self check
 	Steamworks_SelfCheck();
 
 	// Construct a new instance of the game engine 
 	// bugbug jmccaskey - make screen resolution dynamic, maybe take it on command line?
-	CGameEngine *pGameEngine = new CGameEngine( hInstance, nCmdShow, 1024, 768 );
-
-	// Make sure it initialized ok
-	if ( pGameEngine->BReadyForUse() )
-	{
-		// Initialize the game
-		CSpaceWarClient *pGameClient = new CSpaceWarClient( pGameEngine, SteamUser()->GetSteamID() );
-
-		// Black background
-		pGameEngine->SetBackgroundColor( 0, 0, 0, 0 );
-
-		// Set max FPS
-		pGameEngine->SetMaxFPS( MAX_CLIENT_AND_SERVER_FPS );
-
-		// If +connect was used to specify a server address, connect now
-		if ( pchServerAddress )
-		{
-			int32 octet0 = 0, octet1 = 0, octet2 = 0, octet3 = 0;
-			int32 uPort = 0;
-			int nConverted = sscanf( pchServerAddress, "%d.%d.%d.%d:%d", &octet0, &octet1, &octet2, &octet3, &uPort );
-			if ( nConverted == 5 )
-			{
-				char rgchIPAddress[128];
-				_snprintf( rgchIPAddress, ARRAYSIZE( rgchIPAddress ), "%d.%d.%d.%d", octet0, octet1, octet2, octet3 );
-				uint32 unIPAddress = ( octet3 ) + ( octet2 << 8 ) + ( octet1 << 16 ) + ( octet0 << 24 );
-				pGameClient->InitiateServerConnection( unIPAddress, uPort );
-			}
-		}
-
-		// if +connect_lobby was used to specify a lobby to join, connect now
-		if ( pchLobbyID )
-		{
-			CSteamID steamIDLobby( (uint64)_atoi64( pchLobbyID ) );
-			if ( steamIDLobby.IsValid() )
-			{
-				// act just like we had selected it from the menu
-				LobbyBrowserMenuItem_t menuItem = { steamIDLobby, k_EClientJoiningLobby };
-				pGameClient->OnMenuSelection( menuItem );
-			}
-		}
-
-		// test a user specific secret before entering main loop
-		Steamworks_TestSecret();
-
-		static const int m_flMaxFPS = 120;
-
-		// restrict this main game thread to the first processor, so queryperformance counter won't jump on crappy AMD cpus
-		DWORD dwThreadAffinityMask = 0x01;
-		::SetThreadAffinityMask( ::GetCurrentThread(), dwThreadAffinityMask );
-
-		uint64 ulPerfCounterToMillisecondsDivisor;
-		LARGE_INTEGER l;
-		::QueryPerformanceFrequency( &l );
-		ulPerfCounterToMillisecondsDivisor = l.QuadPart/1000;
-
-		::QueryPerformanceCounter( &l );
-		uint64 ulFirstQueryPerformanceCounterValue = l.QuadPart;
-		uint64 ulGameTickCount = 0;
-
-		while( !pGameEngine->BShuttingDown() )
-		{
-			if ( pGameEngine->StartFrame() )
-			{
-				// update timers
-				::QueryPerformanceCounter( &l );
-
-				ulGameTickCount = (l.QuadPart - ulFirstQueryPerformanceCounterValue) / ulPerfCounterToMillisecondsDivisor;
-				pGameEngine->SetGameTickCount( ulGameTickCount );
-
-				// Run a game frame
-				pGameClient->RunFrame();
-				pGameEngine->EndFrame();
-
-				// Frame rate limiting
-				float flDesiredFrameMilliseconds = 1000.0f/m_flMaxFPS;
-				while( 1 )
-				{
-					::QueryPerformanceCounter( &l );
-
-					ulGameTickCount = (l.QuadPart - ulFirstQueryPerformanceCounterValue) / ulPerfCounterToMillisecondsDivisor;
-
-					float flMillisecondsElapsed = (float)(ulGameTickCount - pGameEngine->GetGameTickCount());
-					if ( flMillisecondsElapsed < flDesiredFrameMilliseconds )
-					{
-						// run networking each frame first
-						pGameClient->ReceiveNetworkData();
-
-						// If enough time is left sleep, otherwise just keep spinning so we don't go over the limit...
-						if ( flDesiredFrameMilliseconds - flMillisecondsElapsed > 2.0f )
-						{
-							Sleep( 2 );
-						}
-						else
-						{
-							continue;
-						}
-					}
-					else
-						break;
-				} 
-			}			
-		}
-
-		delete pGameClient;
-	}
-
-	// Cleanup the game engine
-	delete pGameEngine;
+	IGameEngine *pGameEngine = 
+#if defined(_WIN32)
+        new CGameEngineWin32( hInstance, nCmdShow, 1024, 768 );
+#elif defined(OSX)
+        CreateGameEngineOSX();
+#endif
+    
+	// This call will block and run until the game exits
+	RunGameLoop( pGameEngine, pchServerAddress, pchLobbyID );
 
 	// Shutdown the SteamAPI
 	SteamAPI_Shutdown();
@@ -246,11 +222,12 @@ int APIENTRY RealMain(HINSTANCE hInstance,
 	// exit
 	return EXIT_SUCCESS;	
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
-// Purpose: Main entry point for the program
+// Purpose: Main entry point for the program -- win32
 //-----------------------------------------------------------------------------
+#ifdef WIN32
 int APIENTRY WinMain(HINSTANCE hInstance,
 					 HINSTANCE hPrevInstance,
 					 LPSTR     lpCmdLine,
@@ -267,16 +244,47 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 		// We don't want to mask exceptions (or report them to Steam!) when debugging.
 		// If you would like to step through the exception handler, attach a debugger
 		// after running the game outside of the debugger.
-		return RealMain( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+		return RealMain( lpCmdLine, hInstance, nCmdShow );
 	}
 
 	_set_se_translator( MiniDumpFunction );
 	try  // this try block allows the SE translator to work
 	{
-		return RealMain( hInstance, hPrevInstance, lpCmdLine, nCmdShow );
+		return RealMain( lpCmdLine, hInstance, nCmdShow );
 	}
 	catch( ... )
 	{
 		return -1;
 	}
 }
+#endif
+
+#ifdef OSX
+int main(int argc, const char **argv)
+{
+    char szCmdLine[1024];
+    char *pszStart = szCmdLine;
+    char * const pszEnd = szCmdLine + ARRAYSIZE(szCmdLine);
+
+    *szCmdLine = '\0';
+    
+    for ( int i = 1; i < argc; i++ )
+    {
+        const char *parm = argv[i];
+        while ( *parm && (pszStart < pszEnd) )
+        {
+            *pszStart++ = *parm++;
+        }
+        
+        if ( pszStart >= pszEnd )
+            break;
+        
+        if ( i < argc-1 )
+            *pszStart++ = ' ';
+    }
+    
+    szCmdLine[ARRAYSIZE(szCmdLine) - 1] = '\0';
+    
+    return RealMain( szCmdLine, 0, 0 );
+}
+#endif

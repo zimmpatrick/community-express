@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include "StatsAndAchievements.h"
 #include <math.h>
-#include "steam/isteamuserstats.h"
 #include "SpaceWarClient.h"
 
 #define ACHDISP_FONT_HEIGHT 20
@@ -36,15 +35,16 @@ Achievement_t g_rgAchievements[] =
 //  warning C4355: 'this' : used in base member initializer list
 //  This is OK because it's warning on setting up the Steam callbacks, they won't use this until after construction is done
 #pragma warning( disable : 4355 ) 
-CStatsAndAchievements::CStatsAndAchievements( CGameEngine *pGameEngine )
+CStatsAndAchievements::CStatsAndAchievements( IGameEngine *pGameEngine )
 	: 
-	m_pGameEngine( pGameEngine ), 
+	m_pGameEngine( pGameEngine ),
 	m_pSteamUser( NULL ),
 	m_pSteamUserStats( NULL ),
 	m_GameID( SteamUtils()->GetAppID() ),
 	m_CallbackUserStatsReceived( this, &CStatsAndAchievements::OnUserStatsReceived ),
 	m_CallbackUserStatsStored( this, &CStatsAndAchievements::OnUserStatsStored ),
-	m_CallbackAchievementStored( this, &CStatsAndAchievements::OnAchievementStored )
+	m_CallbackAchievementStored( this, &CStatsAndAchievements::OnAchievementStored ),
+	m_CallbackPS3TrophiesInstalled( this, &CStatsAndAchievements::OnPS3TrophiesInstalled )
 {
 	m_pSteamUser = SteamUser();
 	m_pSteamUserStats = SteamUserStats();
@@ -66,6 +66,9 @@ CStatsAndAchievements::CStatsAndAchievements( CGameEngine *pGameEngine )
 	m_hDisplayFont = pGameEngine->HCreateFont( ACHDISP_FONT_HEIGHT, FW_MEDIUM, false, "Arial" );
 	if ( !m_hDisplayFont )
 		OutputDebugString( "Stats font was not created properly, text won't draw\n" );
+
+	m_bInstalledPS3Trophies = false;
+	m_bStartedPS3TrophyInstall = false;
 }
 #pragma warning( pop )
 
@@ -74,8 +77,31 @@ CStatsAndAchievements::CStatsAndAchievements( CGameEngine *pGameEngine )
 //-----------------------------------------------------------------------------
 void CStatsAndAchievements::RunFrame()
 {
-	if ( !m_bRequestedStats )
+	// On PS3, must first install trophies before using the stats system
+	if ( !m_bInstalledPS3Trophies )
 	{
+#ifdef _PS3
+		// PS3 trophies should be installed before writing to disk. Check PS3TrophiesInstalled_t to determine
+		// if trophy installation failed because the machine is out of free HD space.
+		if ( !m_bStartedPS3TrophyInstall )
+		{
+			if ( !m_pSteamUserStats->InstallPS3Trophies() )
+			{
+				OutputDebugString( "Failed to install PS3 trophies. This is a fatal error\n" );
+				exit( 1 );
+			}
+
+			m_bStartedPS3TrophyInstall = true;
+		}
+
+		// wait for PS3TrophiesInstalled_t
+#else
+		m_bInstalledPS3Trophies = true;
+		m_bStartedPS3TrophyInstall = true;
+#endif
+	}
+	else if ( !m_bRequestedStats )
+	{		
 		// Is Steam Loaded? if no, can't get stats, done
 		if ( NULL == m_pSteamUserStats || NULL == m_pSteamUser )
 		{
@@ -83,14 +109,10 @@ void CStatsAndAchievements::RunFrame()
 			return;
 		}
 
-		// If yes, are we connected to the back end? if no, wait
-		if ( !m_pSteamUser->BLoggedOn() )
-		{
-			return;
-		}
+		LoadUserStatsOnPS3();
 
 		// If yes, request our stats
-		bool bSuccess = m_pSteamUserStats->RequestCurrentStats( );
+		bool bSuccess = m_pSteamUserStats->RequestCurrentStats();
 		
 		// This function should only return false if we weren't logged in, and we already checked that.
 		// But handle it being false again anyway, just ask again later.
@@ -296,6 +318,8 @@ void CStatsAndAchievements::OnUserStatsReceived( UserStatsReceived_t *pCallback 
 			m_pSteamUserStats->GetStat( "FeetTraveled", &m_flTotalFeetTraveled );
 			m_pSteamUserStats->GetStat( "MaxFeetTraveled", &m_flMaxFeetTraveled );
 			m_pSteamUserStats->GetStat( "AverageSpeed", &m_flAverageSpeed );
+
+			SaveUserStatsOnPS3();
 		}
 		else
 		{
@@ -318,6 +342,7 @@ void CStatsAndAchievements::OnUserStatsStored( UserStatsStored_t *pCallback )
 		if ( k_EResultOK == pCallback->m_eResult )
 		{
 			OutputDebugString( "StoreStats - success\n" );
+			SaveUserStatsOnPS3();
 		}
 		else if ( k_EResultInvalidParam == pCallback->m_eResult )
 		{
@@ -365,6 +390,33 @@ void CStatsAndAchievements::OnAchievementStored( UserAchievementStored_t *pCallb
 
 
 //-----------------------------------------------------------------------------
+// Purpose: An achievement was stored
+//-----------------------------------------------------------------------------
+void CStatsAndAchievements::OnPS3TrophiesInstalled( PS3TrophiesInstalled_t *pCallback )
+{
+	// we may get callbacks for other games' stats arriving, ignore them	 
+	if ( m_GameID.ToUint64() == pCallback->m_nGameID )
+	{
+		if ( pCallback->m_eResult != k_EResultOK )
+		{
+			// this is a fatal error. Usually the PS3 would have already displayed a fatal error to the user and forced the game to exit. If the system
+			// could not display that error, you should display the appropriate message to the user then exit.
+			char buffer[256];
+			if ( pCallback->m_eResult == k_EResultDiskFull )
+				_snprintf( buffer, 256, "Failed to install PS3 trophies because the HD is full (required space=%llu)\n", pCallback->m_ulRequiredDiskSpace );
+			else
+				_snprintf( buffer, 256, "Failed to install PS3 trophies (%d)", pCallback->m_eResult );
+
+			OutputDebugString( buffer );
+			exit( 1 );
+		}
+
+		m_bInstalledPS3Trophies = true;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: Display the user's stats and achievements
 //-----------------------------------------------------------------------------
 void CStatsAndAchievements::Render()
@@ -386,7 +438,7 @@ void CStatsAndAchievements::Render()
 
 		char rgchBuffer[256];
 		_snprintf( rgchBuffer, sizeof( rgchBuffer), "Unable to retrieve data from Steam\n" );
-		m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_VCENTER, rgchBuffer );
+		m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_VCENTER, rgchBuffer );
 
 
 		rect.left = 0;
@@ -395,7 +447,7 @@ void CStatsAndAchievements::Render()
 		rect.bottom = m_pGameEngine->GetViewportHeight();
 
 		_snprintf( rgchBuffer, sizeof( rgchBuffer ), "Press ESC to return to the Main Menu" );
-		m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_TOP, rgchBuffer );
+		m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_TOP, rgchBuffer );
 
 	}
 	else
@@ -485,7 +537,7 @@ void CStatsAndAchievements::Render()
 
 		char rgchBuffer[256];
 		_snprintf( rgchBuffer, sizeof( rgchBuffer ), "Press ESC to return to the Main Menu" );
-		m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_CENTER|DT_TOP, rgchBuffer );
+		m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_CENTER|TEXTPOS_TOP, rgchBuffer );
 
 	}
 }
@@ -518,7 +570,7 @@ void CStatsAndAchievements::DrawAchievementInfo( RECT &rect, Achievement_t &ach 
 		ach.m_bAchieved ? "Unlocked" : "Locked",
 		ach.m_rgchDescription );
 
-	m_pGameEngine->BDrawString( m_hDisplayFont, rect2, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_LEFT|DT_VCENTER, rgchBuffer );
+	m_pGameEngine->BDrawString( m_hDisplayFont, rect2, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_LEFT|TEXTPOS_VCENTER, rgchBuffer );
 }
 
 void CStatsAndAchievements::DrawStatInfo( RECT &rect, const char *pchName, float flValue )
@@ -526,5 +578,72 @@ void CStatsAndAchievements::DrawStatInfo( RECT &rect, const char *pchName, float
 	// todo: divide up so can draw image
 	char rgchBuffer[256];
 	_snprintf( rgchBuffer, sizeof( rgchBuffer), "%s: %.1f", pchName, flValue );
-	m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), DT_LEFT|DT_VCENTER, rgchBuffer );
+	m_pGameEngine->BDrawString( m_hDisplayFont, rect, D3DCOLOR_ARGB( 255, 25, 200, 25 ), TEXTPOS_LEFT|TEXTPOS_VCENTER, rgchBuffer );
+}
+
+bool CStatsAndAchievements::LoadUserStatsOnPS3()
+{
+#ifdef _PS3
+	// On PS3, we need to load the user's stats & achievement information from the save container. In this example, we are simply
+	// reading the data from a known location on disk
+	FILE *file = fopen( GetUserSaveDataPath(), "rb" );
+	if ( !file )
+	{
+		// we need to tell Steam that there is no data
+		SteamUserStats()->SetUserStatsData( NULL, 0 );
+		return true;
+	}
+
+	fseek( file, 0, SEEK_END );
+	long nSize = ftell( file );
+	fseek( file, 0, SEEK_SET );
+
+	byte *buffer = new byte[nSize];
+	fread( buffer, 1, nSize, file );
+	fclose( file );
+
+	bool bRet = SteamUserStats()->SetUserStatsData( buffer, nSize );
+	delete [] buffer;
+
+	return bRet;
+#else
+	return true;
+#endif
+}
+
+bool CStatsAndAchievements::SaveUserStatsOnPS3()
+{
+#ifdef _PS3
+	// On PS3, we need to save the user's stats & achievement information into the save container. In this example, we are simply
+	// saving the data to a known location on disk
+
+	// get required buffer size
+	uint32 unSize = 0;
+	if ( !SteamUserStats()->GetUserStatsData( NULL, 0, &unSize ) && unSize == 0 )
+		return false;
+
+	// get data
+	byte *buffer = new byte[unSize];
+	uint32 unWritten = 0;
+	bool bRet = SteamUserStats()->GetUserStatsData( buffer, unSize, &unWritten );
+	if ( bRet )
+	{
+		FILE *file = fopen( GetUserSaveDataPath(), "wb" );
+		if ( file )
+		{
+			bRet = (fwrite( buffer, 1, unWritten, file ) == unWritten);
+			fclose( file );
+		}
+		else
+		{
+			bRet = false;
+		}
+	}
+
+	delete [] buffer;
+
+	return bRet;
+#else
+	return true;
+#endif
 }

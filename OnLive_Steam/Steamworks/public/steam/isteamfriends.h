@@ -64,16 +64,6 @@ enum EFriendFlags
 };
 
 
-//-----------------------------------------------------------------------------
-// Purpose: avatar sizes, used in ISteamFriends::GetFriendAvatar()
-//-----------------------------------------------------------------------------
-enum EAvatarSize
-{
-	k_EAvatarSize32x32 = 0,
-	k_EAvatarSize64x64 = 1,
-};
-
-
 // friend game played information
 #pragma pack( push, 8 )
 struct FriendGameInfo_t
@@ -96,8 +86,29 @@ enum
 	k_cwchPersonaNameMax = 32,
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: user restriction flags
+//-----------------------------------------------------------------------------
+enum EUserRestriction
+{
+	k_nUserRestrictionNone		= 0,	// no known chat/content restriction
+	k_nUserRestrictionUnknown	= 1,	// we don't know yet (user offline)
+	k_nUserRestrictionAnyChat	= 2,	// user is not allowed to (or can't) send/recv any chat
+	k_nUserRestrictionVoiceChat	= 4,	// user is not allowed to (or can't) send/recv voice chat
+	k_nUserRestrictionGroupChat	= 8,	// user is not allowed to (or can't) send/recv group chat
+	k_nUserRestrictionRating	= 16,	// user is too young according to rating in current region
+};
+
+
+
 // size limit on chat room or member metadata
 const uint32 k_cubChatMetadataMax = 8192;
+
+// size limits on Rich Presence data
+enum { k_cchMaxRichPresenceKeys = 20 };
+enum { k_cchMaxRichPresenceKeyLength = 64 };
+enum { k_cchMaxRichPresenceValueLength = 256 };
+
 
 //-----------------------------------------------------------------------------
 // Purpose: interface to accessing information about individual users,
@@ -143,8 +154,6 @@ public:
 	// 
 	virtual const char *GetFriendPersonaName( CSteamID steamIDFriend ) = 0;
 
-	// gets the avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
-	virtual int GetFriendAvatar( CSteamID steamIDFriend, int eAvatarSize ) = 0;
 	// returns true if the friend is actually in a game, and fills in pFriendGameInfo with an extra details 
 	virtual bool GetFriendGamePlayed( CSteamID steamIDFriend, FriendGameInfo_t *pFriendGameInfo ) = 0;
 	// accesses old friends names - returns an empty string when their are no more items in the history
@@ -198,9 +207,77 @@ public:
 	// activates game overlay to open the invite dialog. Invitations will be sent for the provided lobby.
 	// You can also use ActivateGameOverlay( "LobbyInvite" ) to allow the user to create invitations for their current public lobby.
 	virtual void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby ) = 0;
+
+	// gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
+	virtual int GetSmallFriendAvatar( CSteamID steamIDFriend ) = 0;
+
+	// gets the medium (64x64) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
+	virtual int GetMediumFriendAvatar( CSteamID steamIDFriend ) = 0;
+
+	// gets the large (184x184) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
+	// returns -1 if this image has yet to be loaded, in this case wait for a AvatarImageLoaded_t callback and then call this again
+	virtual int GetLargeFriendAvatar( CSteamID steamIDFriend ) = 0;
+
+	// requests information about a user - persona name & avatar
+	// if bRequireNameOnly is set, then the avatar of a user isn't downloaded 
+	// - it's a lot slower to download avatars and churns the local cache, so if you don't need avatars, don't request them
+	// if returns true, it means that data is being requested, and a PersonaStateChanged_t callback will be posted when it's retrieved
+	// if returns false, it means that we already have all the details about that user, and functions can be called immediately
+	virtual bool RequestUserInformation( CSteamID steamIDUser, bool bRequireNameOnly ) = 0;
+
+	// requests information about a clan officer list
+	// when complete, data is returned in ClanOfficerListResponse_t call result
+	// this makes available the calls below
+	// you can only ask about clans that a user is a member of
+	// note that this won't download avatars automatically; if you get an officer,
+	// and no avatar image is available, call RequestUserInformation( steamID, false ) to download the avatar
+	virtual SteamAPICall_t RequestClanOfficerList( CSteamID steamIDClan ) = 0;
+
+	// iteration of clan officers - can only be done when a RequestClanOfficerList() call has completed
+	
+	// returns the steamID of the clan owner
+	virtual CSteamID GetClanOwner( CSteamID steamIDClan ) = 0;
+	// returns the number of officers in a clan (including the owner)
+	virtual int GetClanOfficerCount( CSteamID steamIDClan ) = 0;
+	// returns the steamID of a clan officer, by index, of range [0,GetClanOfficerCount)
+	virtual CSteamID GetClanOfficerByIndex( CSteamID steamIDClan, int iOfficer ) = 0;
+	// if current user is chat restricted, he can't send or receive any text/voice chat messages.
+	// the user can't see custom avatars. But the user can be online and send/recv game invites.
+	// a chat restricted user can't add friends or join any groups.
+	virtual uint32 GetUserRestrictions() = 0;
+
+	// Rich Presence data is automatically shared between friends who are in the same game
+	// Each user has a set of Key/Value pairs
+	// Up to 20 different keys can be set
+	// There are two magic keys:
+	//		"status"  - a UTF-8 string that will show up in the 'view game info' dialog in the Steam friends list
+	//		"connect" - a UTF-8 string that contains the command-line for how a friend can connect to a game
+	// GetFriendRichPresence() returns an empty string "" if no value is set
+	// SetRichPresence() to a NULL or an empty string deletes the key
+	// You can iterate the current set of keys for a friend with GetFriendRichPresenceKeyCount()
+	// and GetFriendRichPresenceKeyByIndex() (typically only used for debugging)
+	virtual bool SetRichPresence( const char *pchKey, const char *pchValue ) = 0;
+	virtual void ClearRichPresence() = 0;
+	virtual const char *GetFriendRichPresence( CSteamID steamIDFriend, const char *pchKey ) = 0;
+	virtual int GetFriendRichPresenceKeyCount( CSteamID steamIDFriend ) = 0;
+	virtual const char *GetFriendRichPresenceKeyByIndex( CSteamID steamIDFriend, int iKey ) = 0;
+
+	// rich invite support
+	// if the target accepts the invite, the pchConnectString gets added to the command-line for launching the game
+	// if the game is already running, a GameRichPresenceJoinRequested_t callback is posted containing the connect string
+	// invites can only be sent to friends
+	virtual bool InviteUserToGame( CSteamID steamIDFriend, const char *pchConnectString ) = 0;
+
+	// recently-played-with friends iteration
+	// this iterates the entire list of users recently played with, across games
+	// GetFriendCoplayTime() returns as a unix time
+	virtual int GetCoplayFriendCount() = 0;
+	virtual CSteamID GetCoplayFriend( int iCoplayFriend ) = 0;
+	virtual int GetFriendCoplayTime( CSteamID steamIDFriend ) = 0;
+	virtual AppId_t GetFriendCoplayGame( CSteamID steamIDFriend ) = 0;
 };
 
-#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends006"
+#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends009"
 
 // callbacks
 #pragma pack( push, 8 )
@@ -267,6 +344,53 @@ struct GameLobbyJoinRequested_t
 	enum { k_iCallback = k_iSteamFriendsCallbacks + 33 };
 	CSteamID m_steamIDLobby;
 	CSteamID m_steamIDFriend;		// the friend they did the join via (will be invalid if not directly via a friend)
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: called when an avatar is loaded in from a previous GetLargeFriendAvatar() call
+//			if the image wasn't already available
+//-----------------------------------------------------------------------------
+struct AvatarImageLoaded_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 34 };
+	CSteamID m_steamID; // steamid the avatar has been loaded for
+	int m_iImage; // the image index of the now loaded image
+	int m_iWide; // width of the loaded image
+	int m_iTall; // height of the loaded image
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: marks the return of a request officer list call
+//-----------------------------------------------------------------------------
+struct ClanOfficerListResponse_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 35 };
+	CSteamID m_steamIDClan;
+	int m_cOfficers;
+	uint8 m_bSuccess;
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: callback indicating updated data about friends rich presence information
+//-----------------------------------------------------------------------------
+struct FriendRichPresenceUpdate_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 36 };
+	CSteamID m_steamIDFriend;	// friend who's rich presence has changed
+	AppId_t m_nAppID;			// the appID of the game (should always be the current game)
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: called when the user tries to join a game from their friends list
+//			rich presence will have been set with the "connect" key which is set here
+//-----------------------------------------------------------------------------
+struct GameRichPresenceJoinRequested_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 37 };
+	CSteamID m_steamIDFriend;		// the friend they did the join via (will be invalid if not directly via a friend)
+	char m_rgchConnect[k_cchMaxRichPresenceValueLength];
 };
 
 #pragma pack( pop )

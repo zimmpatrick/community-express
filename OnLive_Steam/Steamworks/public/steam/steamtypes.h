@@ -26,6 +26,11 @@ typedef unsigned char uint8;
 #define X64BITS
 #endif
 
+// Make sure VALVE_BIG_ENDIAN gets set on PS3, may already be set previously in Valve internal code.
+#if !defined(VALVE_BIG_ENDIAN) && defined(_PS3)
+#define VALVE_BIG_ENDIAN
+#endif
+
 typedef unsigned char uint8;
 typedef signed char int8;
 
@@ -117,7 +122,7 @@ const CellID_t k_uCellIDInvalid = 0xFFFFFFFF;
 typedef uint64 SteamAPICall_t;
 const SteamAPICall_t k_uAPICallInvalid = 0x0;
 
-
+typedef uint32 AccountID_t;
 
 
 #endif // STEAMTYPES_H

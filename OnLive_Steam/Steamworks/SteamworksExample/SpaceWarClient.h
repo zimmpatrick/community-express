@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2008, Valve LLC, All rights reserved. ============
+//========= Copyright ï¿½ 1996-2008, Valve LLC, All rights reserved. ============
 //
 // Purpose: Main class for the space war game client
 //
@@ -15,12 +15,11 @@
 #include "StarField.h"
 #include "Sun.h"
 #include "Ship.h"
-#include "steam\steam_api.h"
 #include "StatsAndAchievements.h"
 #include "RemoteStorage.h"
-#include "BaseMenu.h"
 
 // Forward class declaration
+class CConnectingMenu;
 class CMainMenu; 
 class CQuitMenu;
 class CSpaceWarServer;
@@ -30,6 +29,7 @@ class CLobby;
 class CLeaderboards;
 class CP2PAuthPlayer;
 class CP2PAuthedGame;
+class CVoiceChat;
 
 // Height of the HUD font
 #define HUD_FONT_HEIGHT 18
@@ -84,12 +84,14 @@ struct LeaderboardMenuItem_t
 };
 
 
-
 class CSpaceWarClient 
 {
 public:
 	//Constructor
-	CSpaceWarClient( CGameEngine *pEngine, CSteamID steamIDUser );
+	CSpaceWarClient( IGameEngine *pEngine );
+
+	// Shared init for all constructors
+	void Init( IGameEngine *pGameEngine );
 
 	// Destructor
 	~CSpaceWarClient();
@@ -138,6 +140,7 @@ public:
 
 	void OnMenuSelection( LobbyMenuItem_t selection );
 	void OnMenuSelection( LeaderboardMenuItem_t selection );
+	void OnMenuSelection( ERemoteStorageSyncMenuCommand selection );
 
 	// Set game state
 	void SetGameState( EClientGameState eState );
@@ -153,13 +156,20 @@ public:
 	CSteamID GetLocalSteamID() { return m_SteamIDLocalUser; }
 
 	// Get the local players name
-	const char* GetLocalPlayerName() { return SteamFriends()->GetFriendPersonaName( m_SteamIDLocalUser ); }
+	const char* GetLocalPlayerName() 
+	{ 
+		return SteamFriends()->GetFriendPersonaName( m_SteamIDLocalUser ); 
+	}
 
 	// Scale screen size to "real" size
 	float PixelsToFeet( float flPixels );
 
 	// Get a Steam-supplied image
 	HGAMETEXTURE GetSteamImageAsTexture( int iImage );
+
+	void RetrieveEncryptedAppTicket();
+
+	void ExecCommandLineConnect( const char *pchServerAddress, const char *pchLobbyID );
 
 private:
 
@@ -170,7 +180,7 @@ private:
 	void OnReceiveServerAuthenticationResponse( bool bSuccess, uint32 uPlayerPosition );
 
 	// Receive a state update from the server
-	void OnReceiveServerUpdate( ServerSpaceWarUpdateData_t UpdateData );
+	void OnReceiveServerUpdate( ServerSpaceWarUpdateData_t *pUpdateData );
 
 	// Handle the server exiting
 	void OnReceiveServerExiting();
@@ -198,6 +208,9 @@ private:
 
 	// Draw text telling the user a connection attempt is in progress
 	void DrawConnectionAttemptText();
+
+	// Updates what we show to friends about what we're doing and how to connect
+	void UpdateRichPresenceConnectionInfo();
 
 	// Server we are connected to
 	CSpaceWarServer *m_pServer;
@@ -309,11 +322,14 @@ private:
 	// Main menu instance
 	CMainMenu *m_pMainMenu;
 
+	// Connecting menu instance
+	CConnectingMenu *m_pConnectingMenu;
+
 	// Pause menu instance
 	CQuitMenu *m_pQuitMenu;
 
 	// pointer to game engine instance we are running under
-	CGameEngine *m_pGameEngine;
+	IGameEngine *m_pGameEngine;
 
 	// track which steam image indexes we have textures for, and what handle that texture has
 	std::map<int, HGAMETEXTURE> m_MapSteamImagesToTextures;
@@ -336,21 +352,28 @@ private:
 	void OnLobbyEntered( LobbyEnter_t *pCallback, bool bIOFailure );
 	CCallResult<CSpaceWarClient, LobbyEnter_t> m_SteamCallResultLobbyEntered;
 
-	void OnLobbyDataChange( LobbyDataUpdate_t *pCallback, bool bIOFailure );
-	CCallResult<CSpaceWarClient, LobbyDataUpdate_t> m_SteamCallResultLobbyDataChange;
-	void OnLobbyChatUpdate( LobbyChatUpdate_t *pCallback, bool bIOFailure );
-	CCallResult<CSpaceWarClient, LobbyChatUpdate_t> m_SteamCallResultLobbyChatUpdate;
-
 	// callback for when the lobby game server has started
 	STEAM_CALLBACK( CSpaceWarClient, OnLobbyGameCreated, LobbyGameCreated_t, m_LobbyGameCreated );
+	STEAM_CALLBACK( CSpaceWarClient, OnGameJoinRequested, GameRichPresenceJoinRequested_t, m_GameJoinRequested );
+	STEAM_CALLBACK( CSpaceWarClient, OnAvatarImageLoaded, AvatarImageLoaded_t, m_AvatarImageLoadedCreated );
+
+	// callbacks for Steam connection state
+	STEAM_CALLBACK( CSpaceWarClient, OnSteamServersConnected, SteamServersConnected_t, m_SteamServersConnected );
+	STEAM_CALLBACK( CSpaceWarClient, OnSteamServersDisconnected, SteamServersDisconnected_t, m_SteamServersDisconnected );
+	STEAM_CALLBACK( CSpaceWarClient, OnSteamServerConnectFailure, SteamServerConnectFailure_t, m_SteamServerConnectFailure );
+	STEAM_CALLBACK( CSpaceWarClient, OnGameOverlayActivated, GameOverlayActivated_t, m_CallbackGameOverlayActivated );
 	
 	// lobby browser menu
 	CLobbyBrowser *m_pLobbyBrowser;
 
 	// local lobby display
 	CLobby *m_pLobby;
+	
 	// p2p game auth manager
 	CP2PAuthedGame *m_pP2PAuthedGame;
+	
+	// p2p voice chat 
+	CVoiceChat *m_pVoiceChat;
 
 	// connection handler
 	STEAM_CALLBACK( CSpaceWarClient, OnP2PSessionConnectFail, P2PSessionConnectFail_t, m_CallbackP2PSessionConnectFail );
@@ -360,8 +383,13 @@ private:
 
 	// Steam wants to shut down, Game for Windows applications should shutdown too
 	STEAM_CALLBACK( CSpaceWarClient, OnSteamShutdown, SteamShutdown_t, m_SteamShutdownCallback );
+
+	// Called when SteamUser()->RequestEncryptedAppTicket() returns asynchronously
+	void OnRequestEncryptedAppTicket( EncryptedAppTicketResponse_t *pEncryptedAppTicketResponse, bool bIOFailure );
+	CCallResult< CSpaceWarClient, EncryptedAppTicketResponse_t > m_SteamCallResultEncryptedAppTicket;
 };
 
+// Must define this stuff before BaseMenu.h as it depends on calling back into us through these accessors
 extern CSpaceWarClient *g_pSpaceWarClient;
 CSpaceWarClient *SpaceWarClient();
 

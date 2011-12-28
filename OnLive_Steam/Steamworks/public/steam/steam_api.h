@@ -20,6 +20,10 @@
 #include "isteamnetworking.h"
 #include "isteamremotestorage.h"
 
+#if defined( _PS3 )
+#include "steamps3params.h"
+#endif
+
 // Steam API export macro
 #if defined( _WIN32 ) && !defined( _X360 )
 	#if defined( STEAM_API_EXPORTS )
@@ -99,7 +103,12 @@ S_API ISteamClient *SteamClient();
 #ifdef VERSION_SAFE_STEAM_API_INTERFACES
 S_API bool SteamAPI_InitSafe();
 #else
+
+#if defined(_PS3)
+S_API bool SteamAPI_Init( SteamPS3Params_t *pParams );
+#else
 S_API bool SteamAPI_Init();
+#endif
 
 S_API ISteamUser *SteamUser();
 S_API ISteamFriends *SteamFriends();
@@ -110,6 +119,9 @@ S_API ISteamApps *SteamApps();
 S_API ISteamNetworking *SteamNetworking();
 S_API ISteamMatchmakingServers *SteamMatchmakingServers();
 S_API ISteamRemoteStorage *SteamRemoteStorage();
+#ifdef _PS3
+S_API ISteamPS3OverlayRender * SteamPS3OverlayRender();
+#endif
 #endif // VERSION_SAFE_STEAM_API_INTERFACES
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -383,6 +395,9 @@ public:
 	ISteamMatchmakingServers*	SteamMatchmakingServers()	{ return m_pSteamMatchmakingServers; }
 	ISteamNetworking*	SteamNetworking()					{ return m_pSteamNetworking; }
 	ISteamRemoteStorage* SteamRemoteStorage()				{ return m_pSteamRemoteStorage; }
+#ifdef _PS3
+	ISteamPS3OverlayRender* SteamPS3OverlayRender()		{ return m_pSteamPS3OverlayRender; }
+#endif
 
 private:
 	ISteamUser		*m_pSteamUser;
@@ -394,6 +409,9 @@ private:
 	ISteamMatchmakingServers	*m_pSteamMatchmakingServers;
 	ISteamNetworking	*m_pSteamNetworking;
 	ISteamRemoteStorage *m_pSteamRemoteStorage;
+#ifdef _PS3
+	ISteamPS3OverlayRender *m_pSteamPS3OverlayRender;
+#endif
 };
 
 inline CSteamAPIContext::CSteamAPIContext()
@@ -458,6 +476,10 @@ inline bool CSteamAPIContext::Init()
 	m_pSteamRemoteStorage = SteamClient()->GetISteamRemoteStorage( hSteamUser, hSteamPipe, STEAMREMOTESTORAGE_INTERFACE_VERSION );
 	if ( !m_pSteamRemoteStorage )
 		return false;
+
+#ifdef _PS3
+	m_pSteamPS3OverlayRender = SteamClient()->GetISteamPS3OverlayRender();
+#endif
 
 	return true;
 }

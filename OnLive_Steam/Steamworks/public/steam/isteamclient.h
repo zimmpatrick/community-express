@@ -24,6 +24,10 @@ typedef int32 HSteamUser;
 #endif
 extern "C" typedef void (__cdecl *SteamAPIWarningMessageHook_t)(int, const char *);
 
+#if defined( __SNC__ )
+	#pragma diag_suppress=1700	   // warning 1700: class "%s" has virtual functions but non-virtual destructor
+#endif
+
 // interface predec
 class ISteamUser;
 class ISteamGameServer;
@@ -38,6 +42,7 @@ class ISteamApps;
 class ISteamNetworking;
 class ISteamRemoteStorage;
 class ISteamGameServerStats;
+class ISteamPS3OverlayRender;
 
 //-----------------------------------------------------------------------------
 // Purpose: Interface to creating a new steam instance, or to
@@ -126,9 +131,16 @@ public:
 	// callbacks will occur directly after the API function is called that generated the warning or message
 	virtual void SetWarningMessageHook( SteamAPIWarningMessageHook_t pFunction ) = 0;
 
+	// Trigger global shutdown for the DLL
+	virtual bool BShutdownIfAllPipesClosed() = 0;
+
+#ifdef _PS3
+	virtual ISteamPS3OverlayRender *GetISteamPS3OverlayRender() = 0;
+#endif
+
 };
 
-#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient009"
+#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient010"
 
 //-----------------------------------------------------------------------------
 // Purpose: Base values for callback identifiers, each callback must
