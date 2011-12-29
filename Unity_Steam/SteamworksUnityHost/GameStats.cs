@@ -22,8 +22,8 @@ namespace CommunityExpressNS
 	{
 		public UInt64 m_ulSessionID;
 		public EResult m_eResult;
-		public Boolean m_bCollectingAny;
-		public Boolean m_bCollectingDetails;
+		public Byte m_bCollectingAny;
+		public Byte m_bCollectingDetails;
 	}
 
 	delegate void OnGameStatsSessionIssuedBySteam(ref GameStatsSessionIssued_t CallbackData);

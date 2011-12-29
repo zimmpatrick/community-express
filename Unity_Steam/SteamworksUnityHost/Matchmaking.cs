@@ -77,7 +77,7 @@ namespace CommunityExpressNS
 	{
 		public UInt64 m_ulSteamIDLobby;			// SteamID of the Lobby you have entered
 		public UInt32 m_rgfChatPermissions;		// Permissions of the current user
-		public Boolean m_bLocked;				// If true, then only invited users may join
+		public Byte m_bLocked;				// If true, then only invited users may join
 		public UInt32 m_EChatRoomEnterResponse;	// EChatRoomEnterResponse
 	}
 	
@@ -94,8 +94,8 @@ namespace CommunityExpressNS
 	{
 		public servernetadr_t m_NetAdr;				// IP/Query Port/Connection Port for this server
 		public Int32 m_nPing;						// current ping time in milliseconds
-		public Boolean m_bHadSuccessfulResponse;	// server has responded successfully in the past
-		public Boolean m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
+		public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
+		public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szGameDir;					// current game directory
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
@@ -106,8 +106,8 @@ namespace CommunityExpressNS
 		public Int32 m_nPlayers;					// current number of players on the server
 		public Int32 m_nMaxPlayers;					// Maximum players that can join this server
 		public Int32 m_nBotPlayers;					// Number of bots (i.e simulated players) on this server
-		public Boolean m_bPassword;					// true if this server needs a password to join
-		public Boolean m_bSecure;					// Is this server protected by VAC
+		public Byte m_bPassword;					// true if this server needs a password to join
+		public Byte m_bSecure;					// Is this server protected by VAC
 		public UInt32 m_ulTimeLastPlayed;			// time (in unix time) when this server was last played on (for favorite/history servers)
 		public Int32 m_nServerVersion;				// server version as reported to Steam
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
@@ -555,8 +555,8 @@ namespace CommunityExpressNS
 			IPAddress ipAddress = new IPAddress(new byte[] { (byte)(ip >> 24), (byte)(ip >> 16), (byte)(ip >> 8), (byte)ip });
 
 			Server server = new Server(callbackData.m_nServerVersion, ipAddress, callbackData.m_NetAdr.m_usConnectionPort, callbackData.m_NetAdr.m_usQueryPort, callbackData.m_nPing,
-				new String(callbackData.m_szServerName), new String(callbackData.m_szMap), new String(callbackData.m_szGameDescription), callbackData.m_bSecure,
-				callbackData.m_bPassword, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers);
+				new String(callbackData.m_szServerName), new String(callbackData.m_szMap), new String(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
+				callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers);
 
 			_serverList.Add(server);
 

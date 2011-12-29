@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
-    using System.Reflection;
-    using System.IO;
-    using System.Security.Cryptography;
-    using System.Security.Cryptography.Xml;
-    using System.Xml;
+	using System.Reflection;
+	using System.IO;
+	using System.Security.Cryptography;
+	using System.Security.Cryptography.Xml;
+	using System.Xml;
 
 	public sealed class CommunityExpress
 	{
@@ -88,16 +88,16 @@ namespace CommunityExpressNS
 		}
 
 		public bool Initialize()
-        {
+		{
 			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
 
-            if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse)))
-            {
-                ValidateLicense();
-                return true;
-            }
+			if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse)))
+			{
+				ValidateLicense();
+				return true;
+			}
 
-            return false;
+			return false;
 		}
 
 		public void RunCallbacks()
@@ -206,6 +206,11 @@ namespace CommunityExpressNS
 		public bool InitalizeGameServer()
 		{
 			return true;
+		}
+
+		public UInt32 AppID
+		{
+			get { return SteamUnityAPI_SteamUtils_GetAppID(); }
 		}
 
 		public RemoteStorage RemoteStorage
@@ -386,70 +391,70 @@ namespace CommunityExpressNS
 			return (UInt64)Math.Sqrt((double)challenge);
 		}
 
-        private void ValidateLicense()
-        {
-            string dllPath = Assembly.GetExecutingAssembly().Location;
-            string dllDirectory = Path.GetDirectoryName(dllPath);
-            string licensePath = Path.Combine(dllDirectory, "CESDKLicense.xml");
+		private void ValidateLicense()
+		{
+			string dllPath = Assembly.GetExecutingAssembly().Location;
+			string dllDirectory = Path.GetDirectoryName(dllPath);
+			string licensePath = Path.Combine(dllDirectory, "CESDKLicense.xml");
 
-            UInt32 appId = SteamUnityAPI_SteamUtils_GetAppID();
+			UInt32 appId = SteamUnityAPI_SteamUtils_GetAppID();
 
-            string xmlkey = Properties.Resources.CommunityExpressSDK;
+			string xmlkey = Properties.Resources.CommunityExpressSDK;
 
-            // Create an RSA crypto service provider from the embedded
-            // XML document resource (the public key).
-            using (RSACryptoServiceProvider csp = new RSACryptoServiceProvider())
-            {
-                csp.FromXmlString(xmlkey);
+			// Create an RSA crypto service provider from the embedded
+			// XML document resource (the public key).
+			using (RSACryptoServiceProvider csp = new RSACryptoServiceProvider())
+			{
+				csp.FromXmlString(xmlkey);
 
-                // Load the signed XML license file.
-                XmlDocument xmldoc = new XmlDocument();
-                xmldoc.Load(licensePath);
+				// Load the signed XML license file.
+				XmlDocument xmldoc = new XmlDocument();
+				xmldoc.Load(licensePath);
 
-                // Create the signed XML object.
-                SignedXml sxml = new SignedXml(xmldoc);
+				// Create the signed XML object.
+				SignedXml sxml = new SignedXml(xmldoc);
 
-                try
-                {
-                    // Get the XML Signature node and load it into the signed XML object.
-                    XmlNode dsig = xmldoc.GetElementsByTagName("Signature",
-                        SignedXml.XmlDsigNamespaceUrl)[0];
-                    sxml.LoadXml((XmlElement)dsig);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception("Error: no signature found.", e);
-                }
+				try
+				{
+					// Get the XML Signature node and load it into the signed XML object.
+					XmlNode dsig = xmldoc.GetElementsByTagName("Signature",
+						SignedXml.XmlDsigNamespaceUrl)[0];
+					sxml.LoadXml((XmlElement)dsig);
+				}
+				catch (Exception e)
+				{
+					throw new Exception("Error: no signature found.", e);
+				}
 
-                // Verify the signature.
-                if (!sxml.CheckSignature(csp))
-                {
-                    throw new Exception(
-                        string.Format("Error: License '{0}' invalid.", licensePath));
-                }
+				// Verify the signature.
+				if (!sxml.CheckSignature(csp))
+				{
+					throw new Exception(
+						string.Format("Error: License '{0}' invalid.", licensePath));
+				}
 
-                try
-                {
-                    XmlNodeList appIdNode = xmldoc.GetElementsByTagName("AppId");
-                    if (appIdNode == null || appIdNode.Count == 0 ||
-                        string.IsNullOrEmpty(appIdNode[0].InnerText))
-                    {
-                        throw new Exception("AppId missing from license");
-                    }
+				try
+				{
+					XmlNodeList appIdNode = xmldoc.GetElementsByTagName("AppId");
+					if (appIdNode == null || appIdNode.Count == 0 ||
+						string.IsNullOrEmpty(appIdNode[0].InnerText))
+					{
+						throw new Exception("AppId missing from license");
+					}
 
-                    if (appIdNode[0].InnerText != appId.ToString())
-                    {
-                        throw new Exception(
-                            string.Format("AppId mismatch: {0} vs {1}",
-                            appIdNode[0].InnerText, appId));
-                    }
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(
-                        string.Format("Error: License '{0}' invalid.", licensePath), e);
-                }
-            }
-        }
+					if (appIdNode[0].InnerText != appId.ToString())
+					{
+						throw new Exception(
+							string.Format("AppId mismatch: {0} vs {1}",
+							appIdNode[0].InnerText, appId));
+					}
+				}
+				catch (Exception e)
+				{
+					throw new Exception(
+						string.Format("Error: License '{0}' invalid.", licensePath), e);
+				}
+			}
+		}
 	}
 }

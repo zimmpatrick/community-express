@@ -40,6 +40,11 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		_ceInstance.Shutdown();
 	}
 
+	public UInt32 AppID
+	{
+		get { return _ceInstance.AppID; }
+	}
+
 	public RemoteStorage RemoteStorage
 	{
 		get
