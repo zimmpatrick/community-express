@@ -381,7 +381,7 @@ namespace CommunityExpressNS
 				_lobbyList.Add(_lobbyJoined);
 			}
 
-			_lobbyJoined.IsLocked = callbackData.m_bLocked;
+			_lobbyJoined.IsLocked = callbackData.m_bLocked != 0;
 			_lobbyJoined.ChatPermissions = callbackData.m_rgfChatPermissions;
 
 			_onLobbyJoined(_lobbyJoined, (EChatRoomEnterResponse)callbackData.m_EChatRoomEnterResponse);
