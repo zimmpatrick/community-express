@@ -30,7 +30,7 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		return _ceInstance.RestartAppIfNecessary(unOwnAppID);
 	}
 
-	public void RunCallbacks()
+	public void Update()
 	{
 		_ceInstance.RunCallbacks();
 	}
