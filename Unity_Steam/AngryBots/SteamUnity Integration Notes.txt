@@ -2,7 +2,7 @@
    - Steam, steam_api, steamclient, tier0_s, and vstdlib_s
    - Also, you must create a file called steam_appid.txt in this folder with the number 204540 as the only text inside it
  - The following DLLs need to reside in the (Unity Project)\Assets\Plugins directory:
-   - CommunityExpressSW, CommunityExpress, and UnityCommunityExpress
+   - CommunityExpress and UnityCommunityExpress
    - To fix an issue with the DLLs not importing correctly, I had to change the PC Player's settings from .Net 2.0 Subset support to .Net 2.0
    - Also note that the DLLs must be imported as Assets to be usable(in the Project list, just right click and select Import New Asset)
    - You may also have to alter the Execution Order to ensure that the UnityCommunityExpress is "compiled" before the rest of the scripts
@@ -12,4 +12,6 @@
      - The Signal call was added in script within the weapon class, as it instantly traces and damages enemies(it doesn't use projectiles for damage, just for visualization)
        - For future reference(cuz it was a bitch to track down), the weapon in Angry Bots exists within the Skeleton of the player, all the way down in the Right hand.
          - In the Hierarchy view(lower left), expand Player, then player, then player_root, Bip001, Bip001 Spine, Bip001 Spine1, Bip001 Neck, Bip001 R Clavicle, etc down to main_weapon001
-   
+ - When you play through the Unity Editor(either Build and Run or the Play button) the DLLs/steam_appid.txt in the Program Files/Unity/Editor folder are used
+   - When you run an executable, though, it uses the DLLs/steam_appid.txt in the same directory as the executable
+   - The DLLs in the Plugins directory may not even be used during execution time, they may only be used for compilation

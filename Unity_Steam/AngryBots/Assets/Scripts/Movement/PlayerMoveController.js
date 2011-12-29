@@ -156,6 +156,8 @@ function RPCClientConnected(authTicket : byte[])
 	var steamID : CommunityExpressNS.SteamID;
 	
 	communityExpress.GameServer.ClientConnected(System.Net.IPAddress.Parse(networkView.owner.externalIP), authTicket, steamID);
+	
+	communityExpress.GameServer.RequestUserStats(steamID, OnUserStatsReceived, ["Kills"]);
 }
 
 function OnUserStatsReceived(stats : CommunityExpressNS.Stats, achievements : CommunityExpressNS.Achievements)
@@ -275,8 +277,6 @@ function Update ()
 		
 		// Save camera offset so we can use it in the next frame
 		cameraOffset = mainCameraTransform.position - character.position;
-
-		communityExpress.RunCallbacks();
 	}
 }
 

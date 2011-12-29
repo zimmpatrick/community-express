@@ -1,0 +1,43 @@
+Copy DLLs into place:
+ - From the Steamworks SDK(preferably v1.17) copy the following DLLs into both your Program Files\Unity\Editor directory and the directory that you will be running your game's executable from(usually the base directory of your Unity Project folder in My Documents):
+   - Steam, steam_api, steamclient, tier0_s, and vstdlib_s
+ - In those same 2 directories, create a file called steam_appid.txt and enter your Steam AppID as the only text in there(our example uses 204540)
+ - From the Community Express SDK copy the following DLLs into your Program Files\Unity\Editor directory, your game's executable directory, and your project's Assets/Plugins directory(the Plugins directory may need to be created):
+   - CommunityExpress, CommunityExpressSW, and UnityCommunityExpress
+Modify Unity's Compatability setting:
+ - In the Unity Editor, modify the "PC and Mac Standalone" settings and change "Api Compatibility Level" from ".Net 2.0 Subset" support to ".Net 2.0"
+   - These can be modified by selecting File->Build Settings..., then selecting "PC and Mac Standalone" from the list in the lower left, and clicking Player Settings...
+Import the Community Express DLLs as Assets:
+ - Import the UnityCommunityExpress and CommunityExpress DLLs as Assets in the Project list(right click, select Import New Asset, select the DLLs in the Assets\Plugins directory)
+   - You may also have to alter the Execution Order to ensure that the UnityCommunityExpress is "compiled" before the rest of the scripts: 
+     - Click UnityCommunityExpress Script under the UnityCommunityExpress asset in the Project list and click "Execution Order..." at the top of the Inspector on the right side of the Editor
+	 - Drag the UnityCommunityExpress list onto the area that says Default Time, then drag UnityCommunityExpress above the Default Time entry(or to the top of the list, if other Scripts exist in that list already)
+Create an instance of Unity Community Express in the Editor:
+ -  Create an instance of the SteamUnity interface, by creating a Blank Game Object and adding a UnityCommunityExpress Component to it
+   - You can create a blank Game Object by selecting GameObject->Create Empty or pressing N while holding Control and Shift
+   - You can add a UnityCommunityExpress Component to it by dragging the UnityCommunityExpress Script from the Project list onto the newly created Game Object in the Hierarchy list
+Grabbing and using the Unity Community Express instance in Script:
+ - To grab this instance of UnityCommunityExpress in Script, you can utilize the following code snippet:
+
+	private var communityExpress : UnityCommunityExpress = null;
+	function Awake()
+	{
+		for (var go : GameObject in FindObjectsOfType(GameObject))
+		{
+			communityExpress = go.GetComponentInChildren(UnityCommunityExpress);
+			
+			if (communityExpress != null)
+				break;
+		}
+	}
+
+ - Alternatively, you could access the instance directly, since there should only ever be 1 Game Object containing exactly 1 Unity Community Express component
+	private var communityExpress : UnityCommunityExpress = UnityCommunityExpress.Instance;
+ - From here, all of the power of the Community Express API can be accessed via the Member Variables: User, UserStats, UserAchievements, GameServer, Matchmaking, Friends, etc.
+   - For Example:
+	communityExpress.UserStats.RequestCurrentStats(MyUserStatsReceivedCallback, ["Kills"]);
+	
+
+Reference on when each set of DLLs is used:
+ - When you play through the Unity Editor(either Build and Run or the Play button) the DLLs and steam_appid.txt in the Program Files/Unity/Editor folder are used
+ - When you run the game's executable directlry, it uses the DLLs and steam_appid.txt in the same directory with the executable

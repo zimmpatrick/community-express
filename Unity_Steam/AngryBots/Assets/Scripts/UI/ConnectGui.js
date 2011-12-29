@@ -6,6 +6,9 @@ var remoteGUID = "";
 var useNat = false;
 private var connectionInfo = "";
 
+private var showServerList : boolean = false;
+private var serverList : CommunityExpressNS.Servers = null;
+
 private var communityExpress : UnityCommunityExpress = null;
 
 function Awake()
@@ -29,44 +32,75 @@ function OnGUI ()
 	GUILayout.Space(200);
 	if (Network.peerType == NetworkPeerType.Disconnected)
 	{
-		useNat = GUILayout.Toggle(useNat, "Use NAT punchthrough");
-		GUILayout.EndHorizontal();
-		GUILayout.BeginHorizontal();
-		GUILayout.Space(200);
+		if (showServerList)
+		{
+			GUILayout.EndHorizontal();
+			if (serverList)
+			{
+				for (var server : CommunityExpressNS.Server in serverList)
+				{
+					GUILayout.BeginHorizontal();
+					GUILayout.Space(200);
+					GUILayout.Label(server.ServerName);
+					if (GUILayout.Button("Connect"))
+						Network.Connect(server.IP.ToString(), server.Port);						
+					GUILayout.EndHorizontal();
+				}
+			}
 
-		GUILayout.BeginVertical();
-		if (GUILayout.Button ("Connect"))
-		{
-			if (useNat)
-			{
-				if (!remoteGUID)
-					Debug.LogWarning("Invalid GUID given, must be a valid one as reported by Network.player.guid or returned in a HostData struture from the master server");
-				else
-					Network.Connect(remoteGUID);
-			}
-			else
-			{
-				Network.Connect(remoteIP, remotePort);
-			}
-		}
-		if (GUILayout.Button ("Start Server"))
-		{
-			Network.InitializeServer(32, listenPort, useNat);
-			// Notify our objects that the level and the network is ready
-			for (var go in FindObjectsOfType(GameObject))
-				go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
-				
-			Debug.Log("Game Server Init="+communityExpress.GameServer.Init(false, System.Net.IPAddress.Any, listenPort, listenPort, 27015, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure, "Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress", "1.0.0.0", "CE-Fake", 8, true, OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
-		}
-		GUILayout.EndVertical();
-		if (useNat)
-		{
-			remoteGUID = GUILayout.TextField(remoteGUID, GUILayout.MinWidth(145));
+			GUILayout.BeginHorizontal();
 		}
 		else
 		{
-			remoteIP = GUILayout.TextField(remoteIP, GUILayout.MinWidth(100));
-			remotePort = parseInt(GUILayout.TextField(remotePort.ToString()));
+			useNat = GUILayout.Toggle(useNat, "Use NAT punchthrough");
+			GUILayout.EndHorizontal();
+			GUILayout.BeginHorizontal();
+			GUILayout.Space(200);
+
+			GUILayout.BeginVertical();
+			
+			if (GUILayout.Button ("Connect"))
+			{
+				if (useNat)
+				{
+					if (!remoteGUID)
+						Debug.LogWarning("Invalid GUID given, must be a valid one as reported by Network.player.guid or returned in a HostData struture from the master server");
+					else
+						Network.Connect(remoteGUID);
+				}
+				else
+				{
+					Network.Connect(remoteIP, remotePort);
+				}
+			}
+
+			if (GUILayout.Button ("Start Server"))
+			{
+				Network.InitializeServer(32, listenPort, useNat);
+				// Notify our objects that the level and the network is ready
+				for (var go in FindObjectsOfType(GameObject))
+					go.SendMessage("OnNetworkLoadedLevel", SendMessageOptions.DontRequireReceiver);
+					
+				Debug.Log("Game Server Init="+communityExpress.GameServer.Init(false, System.Net.IPAddress.Any, listenPort, listenPort, 27015, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure, "Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress", "1.0.0.0", "CE-Fake", 8, true, OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
+			}
+
+			if (GUILayout.Button("Server List"))
+			{
+				showServerList = true;
+				communityExpress.Matchmaking.RequestInternetServerList(null, OnServerReceivedCallback, OnServerListReceivedCallback);
+			}
+
+			GUILayout.EndVertical();
+			
+			if (useNat)
+			{
+				remoteGUID = GUILayout.TextField(remoteGUID, GUILayout.MinWidth(145));
+			}
+			else
+			{
+				remoteIP = GUILayout.TextField(remoteIP, GUILayout.MinWidth(100));
+				remotePort = parseInt(GUILayout.TextField(remotePort.ToString()));
+			}
 		}
 	}
 	else
@@ -120,4 +154,14 @@ function OnGameServerClientDenied(deniedPlayer : CommunityExpressNS.SteamID, den
 function OnGameServerClientKick(playerToKick : CommunityExpressNS.SteamID, denyReason : CommunityExpressNS.EDenyReason)
 {
 	Debug.Log("OnGameServerClientKick "+playerToKick+" "+denyReason);
+}
+
+function OnServerReceivedCallback(servers : CommunityExpressNS.Servers, server : CommunityExpressNS.Server)
+{
+	serverList = servers;
+}
+
+function OnServerListReceivedCallback(servers : CommunityExpressNS.Servers)
+{
+	serverList = servers;
 }
