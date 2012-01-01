@@ -51,7 +51,22 @@ namespace SteamworksUnityTest
 			}
 
 			RemoteStorage r = s.RemoteStorage;
-			Console.WriteLine(r.Count);
+			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1}", r.Count, r.AvailableSpace);
+
+			r.WriteFile("CloudTest.txt", "I has file!");
+			s.RunCallbacks();
+
+			if (r.Count > 0)
+			{
+				foreach (File f in r)
+				{
+					Console.WriteLine("  {0}: {1}", f.FileName, f.ReadFile());
+				}
+			}
+
+			r.DeleteFile("CloudTest.txt");
+			s.RunCallbacks();
+			Console.WriteLine("  Remote Storage: Files={0} AvailableSpace={1}", r.Count, r.AvailableSpace);
 
 			User u = s.User;
 			Console.WriteLine(u.LoggedOn);
@@ -242,15 +257,6 @@ namespace SteamworksUnityTest
 			u.OnDisconnect();
 
 			Console.WriteLine("User Disconnected");
-
-			if (r.Count > 0)
-			{
-				foreach (File f in r)
-				{
-					string msg = f.ReadFile();
-					Console.WriteLine(msg);
-				}
-			}
 
 			Console.In.ReadLine();
 
