@@ -253,6 +253,47 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamRemoteStorage_FileRead(void * pSteamR
 	return pISteamRemoteStorage->FileRead(pchFile, pvData, cubDataToRead);
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_WriteFile(void * pSteamRemoteStorage, const char *pchFile, void *pvData, int32 cubData)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileWrite(pchFile, pvData, cubData);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_ForgetFile(void * pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileForget(pchFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_DeleteFile(void * pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileDelete(pchFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FileExists(void * pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileExists(pchFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FilePersisted(void * pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FilePersisted(pchFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void * pSteamRemoteStorage, int32 *pTotalSpace, int32 *pAvailableSpace)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->GetQuota(pTotalSpace, pAvailableSpace);
+}
 
 // How long to wait for a response from the server before resending our connection attempt
 #define SERVER_CONNECTION_RETRY_MILLISECONDS 350

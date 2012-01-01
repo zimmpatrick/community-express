@@ -51,7 +51,7 @@ namespace SteamworksUnityTest
 			}
 
 			RemoteStorage r = s.RemoteStorage;
-			Console.WriteLine(r.FileCount);
+			Console.WriteLine(r.Count);
 
 			User u = s.User;
 			Console.WriteLine(u.LoggedOn);
@@ -243,12 +243,13 @@ namespace SteamworksUnityTest
 
 			Console.WriteLine("User Disconnected");
 
-			if (r.FileCount > 0)
+			if (r.Count > 0)
 			{
-				int fileSize;
-				string name = r.GetFileNameAndSize(0, out fileSize);
-				string msg = r.FileRead(name, fileSize);
-				Console.WriteLine(msg);
+				foreach (File f in r)
+				{
+					string msg = f.ReadFile();
+					Console.WriteLine(msg);
+				}
 			}
 
 			Console.In.ReadLine();

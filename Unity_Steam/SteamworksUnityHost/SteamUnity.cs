@@ -45,6 +45,7 @@ namespace CommunityExpressNS
 		private static readonly CommunityExpress _instance = new CommunityExpress();
 		private bool _shutdown = false;
 
+		private User _user = null;
 		private GameServer _gameserver = null;
 		private Friends _friends = null;
 		private Groups _groups = null;
@@ -52,6 +53,7 @@ namespace CommunityExpressNS
 		private Achievements _achievements = null;
 		private Leaderboards _leaderboards = null;
 		private Matchmaking _matchmaking = null;
+		private RemoteStorage _remoteStorage = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -213,19 +215,16 @@ namespace CommunityExpressNS
 			get { return SteamUnityAPI_SteamUtils_GetAppID(); }
 		}
 
-		public RemoteStorage RemoteStorage
-		{
-			get
-			{
-				return new RemoteStorage();
-			}
-		}
-
 		public User User
 		{
 			get
 			{
-				return new User();
+				if (_user == null)
+				{
+					_user = new User();
+				}
+
+				return _user;
 			}
 		}
 
@@ -324,6 +323,19 @@ namespace CommunityExpressNS
 				}
 
 				return _matchmaking;
+			}
+		}
+
+		public RemoteStorage RemoteStorage
+		{
+			get
+			{
+				if (_remoteStorage == null)
+				{
+					_remoteStorage = new RemoteStorage();
+				}
+
+				return _remoteStorage;
 			}
 		}
 
