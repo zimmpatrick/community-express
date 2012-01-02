@@ -11,6 +11,8 @@ typedef void (__stdcall *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
 typedef void (__stdcall *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
 typedef void (__stdcall *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
 typedef void (__stdcall *FPOnServerListComplete)(HServerListRequest);
+typedef void (__stdcall *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
+typedef void (__stdcall *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
@@ -61,4 +63,6 @@ public:
 	FPOnLeaderboardEntriesRetrieved delegateOnLeaderboardEntriesRetrieved;
 	FPOnServerResponded delegateOnServerResponded;
 	FPOnServerListComplete delegateOnServerListComplete;
+	FPOnNetworkP2PSessionRequest delegateOnNetworkP2PSessionRequest;
+	FPOnNetworkP2PSessionConnectFailed delegateOnNetworkP2PSessionConnectFailed;
 };

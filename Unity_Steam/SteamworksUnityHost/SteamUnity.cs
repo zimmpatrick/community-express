@@ -54,6 +54,7 @@ namespace CommunityExpressNS
 		private Leaderboards _leaderboards = null;
 		private Matchmaking _matchmaking = null;
 		private RemoteStorage _remoteStorage = null;
+		private Networking _networking = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -133,6 +134,9 @@ namespace CommunityExpressNS
 					}
 				}
 			}
+
+			if (_networking != null && _networking.IsInitialized)
+				_networking.CheckForNewP2PPackets();
 
 			for (int i = 0; i < _gamestatsSessionIssuedCallHandles.Count; i++)
 			{
@@ -336,6 +340,19 @@ namespace CommunityExpressNS
 				}
 
 				return _remoteStorage;
+			}
+		}
+
+		public Networking Networking
+		{
+			get
+			{
+				if (_networking == null)
+				{
+					_networking = new Networking();
+				}
+
+				return _networking;
 			}
 		}
 

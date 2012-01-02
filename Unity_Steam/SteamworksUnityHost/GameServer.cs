@@ -104,16 +104,16 @@ namespace CommunityExpressNS
 		private List<SteamID> _playersConnected = new List<SteamID>();
 		private List<SteamID> _botsConnected = new List<SteamID>();
 
-		private OnGameServerClientApprovedBySteam _privateOnGameServerClientApproved = null;
+		private OnGameServerClientApprovedBySteam _internalOnGameServerClientApproved = null;
 		private OnGameServerClientApproved _onGameServerClientApproved;
 
-		private OnGameServerClientDeniedBySteam _privateOnGameServerClientDenied = null;
+		private OnGameServerClientDeniedBySteam _internalOnGameServerClientDenied = null;
 		private OnGameServerClientDenied _onGameServerClientDenied;
 
-		private OnGameServerClientKickFromSteam _privateOnGameServerClientKick = null;
+		private OnGameServerClientKickFromSteam _internalOnGameServerClientKick = null;
 		private OnGameServerClientKick _onGameServerClientKick;
 
-		private OnGameServerPolicyResponseFromSteam _privateOnGameServerPolicyResponse = null;
+		private OnGameServerPolicyResponseFromSteam _internalOnGameServerPolicyResponse = null;
 
 		internal GameServer()
 		{
@@ -141,18 +141,18 @@ namespace CommunityExpressNS
 			_onGameServerClientDenied = onGameServerClientDenied;
 			_onGameServerClientKick = onGameServerClientKick;
 
-			if (_privateOnGameServerClientApproved == null)
+			if (_internalOnGameServerClientApproved == null)
 			{
-				_privateOnGameServerClientApproved = new OnGameServerClientApprovedBySteam(OnGameServerClientApprovedCallback);
-				_privateOnGameServerClientDenied = new OnGameServerClientDeniedBySteam(OnGameServerClientDeniedCallback);
-				_privateOnGameServerClientKick = new OnGameServerClientKickFromSteam(OnGameServerClientKickCallback);
-				_privateOnGameServerPolicyResponse = new OnGameServerPolicyResponseFromSteam(OnGameServerPolicyResponseCallback);
+				_internalOnGameServerClientApproved = new OnGameServerClientApprovedBySteam(OnGameServerClientApprovedCallback);
+				_internalOnGameServerClientDenied = new OnGameServerClientDeniedBySteam(OnGameServerClientDeniedCallback);
+				_internalOnGameServerClientKick = new OnGameServerClientKickFromSteam(OnGameServerClientKickCallback);
+				_internalOnGameServerPolicyResponse = new OnGameServerPolicyResponseFromSteam(OnGameServerPolicyResponseCallback);
 			}
 
-			SteamUnityAPI_SteamGameServer_SetCallbacks(Marshal.GetFunctionPointerForDelegate(_privateOnGameServerClientApproved),
-				Marshal.GetFunctionPointerForDelegate(_privateOnGameServerClientDenied),
-				Marshal.GetFunctionPointerForDelegate(_privateOnGameServerClientKick),
-				Marshal.GetFunctionPointerForDelegate(_privateOnGameServerPolicyResponse));
+			SteamUnityAPI_SteamGameServer_SetCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientApproved),
+				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientDenied),
+				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientKick),
+				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerPolicyResponse));
 
 			if (SteamUnityAPI_SteamGameServer_Init(serverIP, masterServerPort, port, queryPort, serverMode, gameVersion))
 			{

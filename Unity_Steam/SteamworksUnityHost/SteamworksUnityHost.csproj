@@ -55,6 +55,7 @@
     <Compile Include="Lobbies.cs" />
     <Compile Include="Lobby.cs" />
     <Compile Include="Matchmaking.cs" />
+    <Compile Include="Networking.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

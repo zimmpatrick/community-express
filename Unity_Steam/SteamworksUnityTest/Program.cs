@@ -17,6 +17,7 @@ namespace SteamworksUnityTest
 		private static bool _lobbyCreated = false;
 		private static bool _lobbyListReceived = false;
 		private static bool _lobbyJoined = false;
+		private static bool _packetReceived = false;
 
 		private static Lobby _lobby;
 		private static Servers _serverList = null;
@@ -147,6 +148,17 @@ namespace SteamworksUnityTest
 				ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
 
 			while (!_leaderboardEntriesReceived)
+			{
+				s.RunCallbacks();
+			}
+
+			Networking n = s.Networking;
+			n.Init(true, null, null, MyOnP2PPacketReceived);
+
+			Console.WriteLine("Sending P2P Packet To Self");
+			n.SendP2PPacket(u.SteamID, "Blah Blah Blah", EP2PSend.k_EP2PSendReliable);
+
+			while (!_packetReceived)
 			{
 				s.RunCallbacks();
 			}
@@ -415,6 +427,13 @@ namespace SteamworksUnityTest
 		{
 			_serverList = serverList;
 			_serversReceived = true;
+		}
+
+		public static void MyOnP2PPacketReceived(SteamID steamID, Byte[] data, Int32 channel)
+		{
+			Console.WriteLine("  Packet Received from {0}: {1}", steamID.ToString(), System.Text.Encoding.ASCII.GetString(data));
+
+			_packetReceived = true;
 		}
 	}
 }
