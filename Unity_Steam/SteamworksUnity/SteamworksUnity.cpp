@@ -232,63 +232,63 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamRemoteStorage()
 	return SteamRemoteStorage();
 }
 
-STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamRemoteStorage_GetFileCount(void * pSteamRemoteStorage)
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamRemoteStorage_GetFileCount(void* pSteamRemoteStorage)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->GetFileCount();
 }
 
-STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(void * pSteamRemoteStorage, int iFile, int32 * pnFileSizeInBytes)
+STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(void* pSteamRemoteStorage, int iFile, int32 * pnFileSizeInBytes)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->GetFileNameAndSize(iFile, pnFileSizeInBytes);
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamRemoteStorage_FileRead(void * pSteamRemoteStorage, const char *pchFile, void *pvData, int32 cubDataToRead)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamRemoteStorage_FileRead(void* pSteamRemoteStorage, const char *pchFile, void *pvData, int32 cubDataToRead)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->FileRead(pchFile, pvData, cubDataToRead);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_WriteFile(void * pSteamRemoteStorage, const char *pchFile, void *pvData, int32 cubData)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_WriteFile(void* pSteamRemoteStorage, const char *pchFile, void *pvData, int32 cubData)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->FileWrite(pchFile, pvData, cubData);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_ForgetFile(void * pSteamRemoteStorage, const char *pchFile)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_ForgetFile(void* pSteamRemoteStorage, const char *pchFile)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->FileForget(pchFile);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_DeleteFile(void * pSteamRemoteStorage, const char *pchFile)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_DeleteFile(void* pSteamRemoteStorage, const char *pchFile)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->FileDelete(pchFile);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FileExists(void * pSteamRemoteStorage, const char *pchFile)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FileExists(void* pSteamRemoteStorage, const char *pchFile)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->FileExists(pchFile);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FilePersisted(void * pSteamRemoteStorage, const char *pchFile)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FilePersisted(void* pSteamRemoteStorage, const char *pchFile)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	return pISteamRemoteStorage->FilePersisted(pchFile);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void * pSteamRemoteStorage, int32 *pTotalSpace, int32 *pAvailableSpace)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void* pSteamRemoteStorage, int32 *pTotalSpace, int32 *pAvailableSpace)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
@@ -481,70 +481,70 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamFriends()
 	return SteamFriends();
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCount(void * pSteamFriends)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCount(void* pSteamFriends)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetFriendCount(k_EFriendFlagImmediate);
 }
 
-STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendByIndex(void * pSteamFriends, int iFriend)
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendByIndex(void* pSteamFriends, int iFriend)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetFriendByIndex(iFriend, k_EFriendFlagImmediate).ConvertToUint64();
 }
 
-STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamFriends_GetFriendPersonaName(void * pSteamFriends, uint64 steamIDFriend)
+STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamFriends_GetFriendPersonaName(void* pSteamFriends, uint64 steamIDFriend)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 	
 	return pISteamFriends->GetFriendPersonaName( CSteamID( steamIDFriend) );
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendPersonaState(void * pSteamFriends, uint64 steamIDFriend)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendPersonaState(void* pSteamFriends, uint64 steamIDFriend)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetFriendPersonaState( CSteamID( steamIDFriend) );
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetClanCount(void * pSteamFriends)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetClanCount(void* pSteamFriends)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetClanCount();
 }
 
-STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetClanByIndex(void * pSteamFriends, int iClan)
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetClanByIndex(void* pSteamFriends, int iClan)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetClanByIndex(iClan).ConvertToUint64();
 }
 
-STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamFriends_GetClanName(void * pSteamFriends, uint64 steamIDClan)
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamFriends_GetClanName(void* pSteamFriends, uint64 steamIDClan)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetClanName(steamIDClan);
 }
 
-STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamFriends_GetClanTag(void * pSteamFriends, uint64 steamIDClan)
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamFriends_GetClanTag(void* pSteamFriends, uint64 steamIDClan)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetClanTag(steamIDClan);
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCountFromSource(void * pSteamFriends, uint64 steamIDSource)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCountFromSource(void* pSteamFriends, uint64 steamIDSource)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	return pISteamFriends->GetFriendCountFromSource( CSteamID( steamIDSource) );
 }
 
-STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendFromSourceByIndex(void * pSteamFriends, uint64 steamIDSource, int iFriend)
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendFromSourceByIndex(void* pSteamFriends, uint64 steamIDSource, int iFriend)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
@@ -597,6 +597,42 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_TerminateGameConnection(void* p
 
 	return pISteamUser->TerminateGameConnection(unIPServer, usPortServer);
 }
+
+STEAMWORKSUNITY_API EUserHasLicenseForAppResult SteamUnityAPI_SteamUser_UserHasLicenseForApp(void* pSteamUser, uint64 steamID, AppId_t appID)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->UserHasLicenseForApp(steamID, appID);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUser_BIsBehindNAT(void* pSteamUser)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->BIsBehindNAT();
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_AdvertiseGame(void* pSteamUser, uint64 steamIDGameServer, uint32 unServerIP, uint16 usPort)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->AdvertiseGame(steamIDGameServer, unServerIP, usPort);
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUser_RequestEncryptedAppTicket(void* pSteamUser, void* pDataToInclude, int32 iDataLength)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->RequestEncryptedAppTicket(pDataToInclude, iDataLength);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUser_GetEncryptedAppTicket(void* pSteamUser, void* pTicket, int iMaxTicket, uint32 *pTicketSize)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->GetEncryptedAppTicket(pTicket, iMaxTicket, pTicketSize);
+}
+
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserStats()
 {

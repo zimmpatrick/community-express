@@ -62,6 +62,9 @@ namespace CommunityExpressNS
 		private List<SteamAPICall_t> _gamestatsSessionIssuedCallHandles = new List<SteamAPICall_t>();
 		private List<OnGameStatsSessionIssuedBySteam> _gamestatsSessionIssuedCallbacks = new List<OnGameStatsSessionIssuedBySteam>();
 
+		private SteamAPICall_t _userGetEncryptedAppTicketCallHandle = 0;
+		private OnUserGetEncryptedAppTicketFromSteam _userGetEncryptedAppTicketCallback;
+
 		private SteamAPICall_t _lobbyCreatedCallHandle = 0;
 		private OnMatchmakingLobbyCreatedBySteam _lobbyCreatedCallback;
 
@@ -153,6 +156,16 @@ namespace CommunityExpressNS
 					_gamestatsSessionIssuedCallbacks.RemoveAt(i);
 
 					i--;
+				}
+			}
+
+			if (_userGetEncryptedAppTicketCallHandle != 0)
+			{
+				Byte failed;
+				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_userGetEncryptedAppTicketCallHandle, out failed))
+				{
+					_userGetEncryptedAppTicketCallback();
+					_userGetEncryptedAppTicketCallHandle = 0;
 				}
 			}
 
@@ -389,6 +402,12 @@ namespace CommunityExpressNS
 		{
 			_gamestatsSessionIssuedCallHandles.Add(handle);
 			_gamestatsSessionIssuedCallbacks.Add(callback);
+		}
+
+		internal void AddUserGetEncryptedAppTicketCallback(SteamAPICall_t handle, OnUserGetEncryptedAppTicketFromSteam callback)
+		{
+			_userGetEncryptedAppTicketCallHandle = handle;
+			_userGetEncryptedAppTicketCallback = callback;
 		}
 
 		internal void AddCreateLobbyCallback(SteamAPICall_t handle, OnMatchmakingLobbyCreatedBySteam callback)
