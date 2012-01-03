@@ -408,7 +408,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SendUserDisconnect(void* 
 	return pISteamGameServer->SendUserDisconnect(steamIDClient);
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_UpdateServerStatus(void* pSteamGameServer, int32 iMaxClients, int32 iBots, const char* pchServerName, const char* pchSpectatorServerName, const char* pchMapName, bool bPassworded)
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_UpdateServerStatus(void* pSteamGameServer, int32 iMaxClients, int32 iBots, const char* pchServerName, const char* pchSpectatorServerName, uint16 usSpectatorPort, const char* pchRegionName, const char* pchMapName, bool bPassworded)
 {
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
@@ -416,6 +416,8 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_UpdateServerStatus(void* 
 	pISteamGameServer->SetBotPlayerCount(iBots);
 	pISteamGameServer->SetServerName(pchServerName);
 	pISteamGameServer->SetSpectatorServerName(pchSpectatorServerName);
+	pISteamGameServer->SetSpectatorPort(usSpectatorPort);
+	pISteamGameServer->SetRegion(pchRegionName);
 	pISteamGameServer->SetMapName(pchMapName);
 	pISteamGameServer->SetPasswordProtected(bPassworded);
 }
@@ -447,6 +449,30 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_LogOnAnonymous(void* pSte
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	pISteamGameServer->LogOnAnonymous();
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetKeyValues(void* pSteamGameServer, char** pKeys, char** pValues, int32 iCount)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	pISteamGameServer->ClearAllKeyValues();
+
+	for (int i = 0; i < iCount; i++)
+		pISteamGameServer->SetKeyValue(pKeys[i], pValues[i]);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetGameTags(void* pSteamGameServer, char* pchTags)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	pISteamGameServer->SetGameTags(pchTags);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetGameData(void* pSteamGameServer, char* pchData)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	pISteamGameServer->SetGameData(pchData);
 }
 
 
@@ -740,6 +766,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEn
 
 	return pISteamUserStats->GetDownloadedLeaderboardEntry(hSteamLeaderboardEntries, index, outLeaderboardEntry, pDetails, cDetailsMax);
 }
+
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameServerStats()
 {

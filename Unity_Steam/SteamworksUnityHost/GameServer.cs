@@ -72,8 +72,8 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_SteamGameServer_LogOnAnonymous(IntPtr gameserver);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_UpdateServerStatus(IntPtr gameserver, Int32 maxClients, Int32 bots,
-			[MarshalAs(UnmanagedType.LPStr)] String serverName, [MarshalAs(UnmanagedType.LPStr)] String spectatorServerName,
-			[MarshalAs(UnmanagedType.LPStr)] String mapName, Boolean passworded);
+			[MarshalAs(UnmanagedType.LPStr)] String serverName, [MarshalAs(UnmanagedType.LPStr)] String spectatorServerName, UInt16 spectatorPort,
+			[MarshalAs(UnmanagedType.LPStr)] String regionName, [MarshalAs(UnmanagedType.LPStr)] String mapName, Boolean passworded);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamGameServer_SendUserConnectAndAuthenticate(IntPtr gameserver, UInt32 ipClient,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] authTicket, UInt32 authTicketSize, out UInt64 steamIDClient);
@@ -85,21 +85,33 @@ namespace CommunityExpressNS
 		private static extern Boolean SteamUnityAPI_SteamGameServer_UpdateUserData(IntPtr gameserver, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, UInt32 score);
 		[DllImport("CommunityExpressSW.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_SetKeyValues(IntPtr gameserver,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values, Int32 count);
+		[DllImport("CommunityExpressSW.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_SetGameTags(IntPtr gameserver, [MarshalAs(UnmanagedType.LPStr)] String tags);
+		[DllImport("CommunityExpressSW.dll")]
+		private static extern void SteamUnityAPI_SteamGameServer_SetGameData(IntPtr gameserver, [MarshalAs(UnmanagedType.LPStr)] String data);
+		[DllImport("CommunityExpressSW.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_Shutdown();
 		
-		private IntPtr _gameserver;
+		private IntPtr _gameServer;
 
 		private Boolean _isInitialized = false;
 		private Boolean _vacSecured = false;
 		private Boolean _isDedicated = false;
 		private String _serverName;
 		private String _spectatorServerName;
+		private UInt16 _spectatorPort;
 		private String _regionName;
 		private String _gameName;
 		private String _gameDescription;
 		private UInt16 _maxClients = 0;
 		private Boolean _isPassworded = false;
 		private String _mapName;
+		private Dictionary<String, String> _keyValues;
+		private String _gameTags;
+		private String _gameData;
 		private List<SteamID> _playersPendingAuth = new List<SteamID>();
 		private List<SteamID> _playersConnected = new List<SteamID>();
 		private List<SteamID> _botsConnected = new List<SteamID>();
@@ -117,7 +129,7 @@ namespace CommunityExpressNS
 
 		internal GameServer()
 		{
-			_gameserver = SteamUnityAPI_SteamGameServer();
+			_gameServer = SteamUnityAPI_SteamGameServer();
 		}
 
 		~GameServer()
@@ -125,10 +137,10 @@ namespace CommunityExpressNS
 			Shutdown();
 		}
 
-		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, EServerMode serverMode,
-			String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription, String gameVersion, String mapName,
-			UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved, OnGameServerClientDenied onGameServerClientDenied,
-			OnGameServerClientKick onGameServerClientKick)
+		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
+			EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
+			String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved,
+			OnGameServerClientDenied onGameServerClientDenied, OnGameServerClientKick onGameServerClientKick)
 		{
 			Byte[] serverIPBytes = ip.GetAddressBytes();
 			UInt32 serverIP = (UInt32)serverIPBytes[0] << 24 | (UInt32)serverIPBytes[1] << 16 | (UInt32)serverIPBytes[2] << 8 | (UInt32)serverIPBytes[3];
@@ -157,10 +169,11 @@ namespace CommunityExpressNS
 			if (SteamUnityAPI_SteamGameServer_Init(serverIP, masterServerPort, port, queryPort, serverMode, gameVersion))
 			{
 				_isInitialized = true;
-				_gameserver = SteamUnityAPI_SteamGameServer();
+				_gameServer = SteamUnityAPI_SteamGameServer();
 				_isDedicated = isDedicated;
 				_serverName = serverName;
 				_spectatorServerName = spectatorServerName;
+				_spectatorPort = spectatorPort;
 				_mapName = mapName;
 				_regionName = regionName;
 				_gameName = gameName;
@@ -169,7 +182,7 @@ namespace CommunityExpressNS
 				_isPassworded = isPassworded;
 
 				SendBasicServerStatus();
-				SteamUnityAPI_SteamGameServer_LogOnAnonymous(_gameserver);
+				SteamUnityAPI_SteamGameServer_LogOnAnonymous(_gameServer);
 				SendUpdatedServerStatus();
 
 				return true;
@@ -184,7 +197,7 @@ namespace CommunityExpressNS
 			UInt32 clientIP = (UInt32)clientIPBytes[0] << 24 | (UInt32)clientIPBytes[1] << 16 | (UInt32)clientIPBytes[2] << 8 | (UInt32)clientIPBytes[3];
 			UInt64 clientSteamID;
 
-			if (SteamUnityAPI_SteamGameServer_SendUserConnectAndAuthenticate(_gameserver, clientIP, authTicket, (UInt32)authTicket.Length, out clientSteamID))
+			if (SteamUnityAPI_SteamGameServer_SendUserConnectAndAuthenticate(_gameServer, clientIP, authTicket, (UInt32)authTicket.Length, out clientSteamID))
 			{
 				steamIDClient = new SteamID(clientSteamID);
 				_playersPendingAuth.Add(steamIDClient);
@@ -201,7 +214,7 @@ namespace CommunityExpressNS
 
 		public SteamID AddBot()
 		{
-			SteamID ret = new SteamID(SteamUnityAPI_SteamGameServer_CreateUnauthenticatedUserConnection(_gameserver));
+			SteamID ret = new SteamID(SteamUnityAPI_SteamGameServer_CreateUnauthenticatedUserConnection(_gameServer));
 
 			_botsConnected.Add(ret);
 
@@ -210,7 +223,7 @@ namespace CommunityExpressNS
 
 		public Boolean UpdateUserDetails(SteamID steamID, String displayableName, UInt32 score)
 		{
-			return SteamUnityAPI_SteamGameServer_UpdateUserData(_gameserver, steamID.ToUInt64(), displayableName, score);
+			return SteamUnityAPI_SteamGameServer_UpdateUserData(_gameServer, steamID.ToUInt64(), displayableName, score);
 		}
 
 		public void ClientDisconnected(SteamID steamIDClient)
@@ -221,7 +234,7 @@ namespace CommunityExpressNS
 			{
 				if (s == steamIDClient)
 				{
-					SteamUnityAPI_SteamGameServer_SendUserDisconnect(_gameserver, steamIDClient.ToUInt64());
+					SteamUnityAPI_SteamGameServer_SendUserDisconnect(_gameServer, steamIDClient.ToUInt64());
 					found = true;
 					break;
 				}
@@ -233,7 +246,7 @@ namespace CommunityExpressNS
 				{
 					if (s == steamIDClient)
 					{
-						SteamUnityAPI_SteamGameServer_SendUserDisconnect(_gameserver, steamIDClient.ToUInt64());
+						SteamUnityAPI_SteamGameServer_SendUserDisconnect(_gameServer, steamIDClient.ToUInt64());
 						found = true;
 						break;
 					}
@@ -246,7 +259,7 @@ namespace CommunityExpressNS
 				{
 					if (s == steamIDClient)
 					{
-						SteamUnityAPI_SteamGameServer_SendUserDisconnect(_gameserver, steamIDClient.ToUInt64());
+						SteamUnityAPI_SteamGameServer_SendUserDisconnect(_gameServer, steamIDClient.ToUInt64());
 						found = true;
 						break;
 					}
@@ -323,12 +336,12 @@ namespace CommunityExpressNS
 
 		private void SendBasicServerStatus()
 		{
-			SteamUnityAPI_SteamGameServer_SetBasicServerData(_gameserver, _isDedicated, _gameName, _gameDescription);
+			SteamUnityAPI_SteamGameServer_SetBasicServerData(_gameServer, _isDedicated, _gameName, _gameDescription);
 		}
 
 		private void SendUpdatedServerStatus()
 		{
-			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameserver, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _mapName, _isPassworded);
+			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameServer, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _spectatorPort, _regionName, _mapName, _isPassworded);
 		}
 
 		public void RequestUserStats(SteamID steamID, OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
@@ -359,7 +372,7 @@ namespace CommunityExpressNS
 		{
 			get
 			{
-				UInt32 ip = SteamUnityAPI_SteamGameServer_GetPublicIP(_gameserver);
+				UInt32 ip = SteamUnityAPI_SteamGameServer_GetPublicIP(_gameServer);
 				return new IPAddress(new byte[] { (byte)(ip >> 24), (byte)(ip >> 16), (byte)(ip >> 8), (byte)ip });
 			}
 		}
@@ -371,7 +384,7 @@ namespace CommunityExpressNS
 
 		public SteamID SteamID
 		{
-			get { return new SteamID(SteamUnityAPI_SteamGameServer_GetSteamID(_gameserver)); }
+			get { return new SteamID(SteamUnityAPI_SteamGameServer_GetSteamID(_gameServer)); }
 		}
 
 		public Boolean IsDedicated
@@ -395,7 +408,7 @@ namespace CommunityExpressNS
 		public String RegionName
 		{
 			get { return _regionName; }
-			set { _regionName = value; SendBasicServerStatus(); }
+			set { _regionName = value; SendUpdatedServerStatus(); }
 		}
 
 		public String GameName
@@ -426,6 +439,37 @@ namespace CommunityExpressNS
 		{
 			get { return _mapName; }
 			set { _mapName = value; SendUpdatedServerStatus(); }
+		}
+
+		public Dictionary<String, String> KeyValues
+		{
+			get
+			{
+				return _keyValues;
+			}
+
+			set
+			{
+				_keyValues = value;
+
+				String[] keys = new String[] { }, values = new String[] { };
+				_keyValues.Keys.CopyTo(keys, 0);
+				_keyValues.Values.CopyTo(values, 0);
+
+				SteamUnityAPI_SteamGameServer_SetKeyValues(_gameServer, keys, values, _keyValues.Count);
+			}
+		}
+
+		public String GameTags
+		{
+			get { return _gameTags; }
+			set { _gameTags = value; SteamUnityAPI_SteamGameServer_SetGameTags(_gameServer, _gameTags); }
+		}
+
+		public String GameData
+		{
+			get { return _gameData; }
+			set { _gameData = value; SteamUnityAPI_SteamGameServer_SetGameTags(_gameServer, _gameData); }
 		}
 	}
 }
