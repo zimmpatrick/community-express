@@ -54,26 +54,11 @@
     <ClInclude Include="SteamMatchmakingServers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContent.h">
-      <Filter>Source Files\OnLive</Filter>
+    <ClInclude Include="SteamGameServerStats.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.h">
-      <Filter>Source Files\OnLive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.h">
-      <Filter>Source Files\OnLive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.h">
-      <Filter>Source Files\OnLive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.h">
-      <Filter>Source Files\OnLive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.h">
-      <Filter>Source Files\OnLive</Filter>
-    </ClInclude>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveVoice.h">
-      <Filter>Source Files\OnLive</Filter>
+    <ClInclude Include="SteamMasterServerUpdater.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,26 +74,10 @@
     <ClCompile Include="steam_gameserver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContent.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveVoice.cpp">
-      <Filter>Source Files\OnLive</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SteamGameServer.h">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

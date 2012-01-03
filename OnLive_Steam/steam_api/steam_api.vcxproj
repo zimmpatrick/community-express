@@ -81,17 +81,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContent.h" />
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.h" />
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.h" />
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.h" />
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.h" />
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.h" />
-    <ClInclude Include="..\onlive_sdk\OLIntegration\OnLiveVoice.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SteamApps.h" />
     <ClInclude Include="SteamClient.h" />
     <ClInclude Include="SteamFriends.h" />
+    <ClInclude Include="SteamGameServerStats.h" />
+    <ClInclude Include="SteamMasterServerUpdater.h" />
     <ClInclude Include="SteamMatchmaking.h" />
     <ClInclude Include="SteamMatchmakingServers.h" />
     <ClInclude Include="SteamNetworking.h" />
@@ -102,13 +97,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContent.cpp" />
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveContextEventDispatcher.cpp" />
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveFunctions.cpp" />
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveIntegration.cpp" />
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveLeaderboard.cpp" />
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveOverlay.cpp" />
-    <ClCompile Include="..\onlive_sdk\OLIntegration\OnLiveVoice.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -123,6 +111,9 @@
     </ClCompile>
     <ClCompile Include="steam_api.cpp" />
     <ClCompile Include="steam_gameserver.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SteamGameServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
