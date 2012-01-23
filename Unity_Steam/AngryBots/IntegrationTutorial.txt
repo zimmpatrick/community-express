@@ -41,3 +41,30 @@ Grabbing and using the Unity Community Express instance in Script:
 Reference on when each set of DLLs is used:
  - When you play through the Unity Editor(either Build and Run or the Play button) the DLLs and steam_appid.txt in the Program Files/Unity/Editor folder are used
  - When you run the game's executable directlry, it uses the DLLs and steam_appid.txt in the same directory with the executable
+
+ 
+Angry Bots Example Changes:
+ - Singleplayer/Client-side Stats and Achievement Example: Get 50 Kills
+   - First we created the Achievement on the Steamworks website
+   - Since we want to keep track of a players Kills between game sessions, we have also created a Stat for it(created on the Steamworks website)
+   - To always make sure our app is in sync with the player's Steam Stats and Achievements, we call RequestCurrentStats early on(in the Start function of PlayerMoveController.js)
+     - This calls the function specified as the first parameter once our game has received the player's Stats and Achievements(in our case, we used OnUserStatsReceived
+	 - Since RequestCurrentStats only generates the Stat objects automatically, we call InitializeAchievementList to generate the Achievement objects
+   - We then hooked up a new OnEnemyKilled callback function in PlayerMoveController.js for when an Enemy is killed in Update function in AutoFire.js
+   - In OnEnemyKilled, we grab and increment the Kills Stat first, then store it back into Steam by calling WriteStats(NOTE: This is an expensive call, so use it sparingly)
+   - If the Kills Stat is 50 or greater, we try to unlock the achievement by grabbing it and calling UnlockAchievement
+     - Before we just fire off the Achievement, though, we should check to see if it's already been unlocked, because just like WriteStats, unlocking an achievement isn't cheap
+ - Steam Friends List
+   - In FriendsList.js, we loop through each Friend in Friends
+   - Based on the PersonaState, we choose a color to draw the player's name in:
+     - Case 0 is Friend Offline
+	 - Case 1 is Friend Online
+	 - Case 2 is Friend Busy
+	 - Case 3 is Friend Away
+	 - Case 4 is Friend Snoozing
+ - Multiplayer Client/Server Authentication
+   - In PlayerMoveController's Start function, if we are the server and do not own this object, then this is a newly connected player, so we tell the client to RPCInitClientAuth
+     - We must send our server's SteamID to the client in order for them to start the authentication process
+   - On the client, we then call InitiateClientAuthentication(within the RPCInitClientAuth function), which generates a chunk of unreadable data that is called the AuthTicket(also known as a blob)
+   - We then send this AuthTicket to the server by calling RPCClientConnected, which then completes the authentication process by calling ClientConnected
+   - After this point, you can now use the Server Stats and Achievements interface to retrieve this player's Stats and Achievements(which we do by calling RequestUserStats)
