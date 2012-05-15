@@ -165,7 +165,7 @@ namespace SteamworksUnityTest
 
 			GameServer gs = s.GameServer;
 			const UInt16 gsPort = 8793;
-			if (gs.Init(false, new IPAddress(0), gsPort, gsPort, 27015, gsPort + 1, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
+			if (gs.Init(false, new IPAddress(0), gsPort, gsPort + 1, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
 				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true,
 				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
 			{
@@ -321,7 +321,11 @@ namespace SteamworksUnityTest
 				Console.WriteLine("Achievements: ");
 				foreach (Achievement a in achievements)
 				{
-					Console.WriteLine("  {0} - {1}", a.AchievementName, a.IsAchieved);
+					Byte[] iconData = a.IconData;
+					if (iconData != null)
+						Console.WriteLine("  {0} - {1} - {2}x{3}({4}) - {5}: {6}", a.AchievementName, a.IsAchieved, a.IconWidth, a.IconHeight, iconData.Length, a.DisplayName, a.DisplayDescription);
+					else
+						Console.WriteLine("  {0} - {1} - {2}: {3}", a.AchievementName, a.IsAchieved, a.DisplayName, a.DisplayDescription);
 				}
 			}
 
@@ -431,7 +435,7 @@ namespace SteamworksUnityTest
 
 		public static void MyOnP2PPacketReceived(SteamID steamID, Byte[] data, Int32 channel)
 		{
-			Console.WriteLine("  Packet Received from {0}: {1}", steamID.ToString(), System.Text.Encoding.ASCII.GetString(data));
+			//Console.WriteLine("  Packet Received from {0}: {1}", steamID.ToString(), System.Text.Encoding.ASCII.GetString(data));
 
 			_packetReceived = true;
 		}

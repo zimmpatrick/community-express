@@ -227,6 +227,16 @@ STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetAppID()
 	}
 }
 
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageSize(int32 iIconIndex, uint32 *pnWidth, uint32 *pnHeight)
+{
+	SteamUtils()->GetImageSize(iIconIndex, pnWidth, pnHeight);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageRGBA(int32 iIconIndex, uint8 *pData, int32 nDataSize)
+{
+	SteamUtils()->GetImageRGBA(iIconIndex, pData, nDataSize);
+}
+
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamRemoteStorage()
 {
 	return SteamRemoteStorage();
@@ -711,6 +721,20 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_SetAchievement(void* pStea
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	return pISteamUserStats->SetAchievement(pchName);
+}
+
+STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamUserStats_GetAchievementDisplayAttribute(void* pSteamUserStats, const char *pchName, const char *pchAttribute)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetAchievementDisplayAttribute(pchName, pchAttribute);
+}
+
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamUserStats_GetAchievementIcon(void* pSteamUserStats, const char *pchName)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetAchievementIcon(pchName);
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_StoreStats(void* pSteamUserStats)

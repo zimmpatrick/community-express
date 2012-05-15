@@ -112,7 +112,7 @@ namespace CommunityExpressNS
 				{
 					if (SteamUnityAPI_SteamGameServerStats_GetUserAchievement(_gameserverStats, _id.ToUInt64(), s, out achieved))
 					{
-						Add(new Achievement(this, s, achieved != 0));
+						Add(new Achievement(this, _stats, s, achieved != 0));
 					}
 				}
 			}
@@ -122,7 +122,7 @@ namespace CommunityExpressNS
 				{
 					if (SteamUnityAPI_SteamUserStats_GetUserAchievement(_stats, _id.ToUInt64(), s, out achieved))
 					{
-						Add(new Achievement(this, s, achieved != 0));
+						Add(new Achievement(this, _stats, s, achieved != 0));
 					}
 				}
 			}
@@ -132,7 +132,7 @@ namespace CommunityExpressNS
 				{
 					if (SteamUnityAPI_SteamUserStats_GetAchievement(_stats, s, out achieved))
 					{
-						Add(new Achievement(this, s, achieved != 0));
+						Add(new Achievement(this, _stats, s, achieved != 0));
 					}
 				}
 			}
