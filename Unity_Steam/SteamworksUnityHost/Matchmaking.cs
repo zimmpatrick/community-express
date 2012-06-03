@@ -416,8 +416,8 @@ namespace CommunityExpressNS
 
 			if (_serverFilters != null)
 			{
-				keys = new String[] { };
-				values = new String[] { };
+				keys = new String[_serverFilters.Keys.Count];
+				values = new String[_serverFilters.Values.Count];
 
 				_serverFilters.Keys.CopyTo(keys, 0);
 				_serverFilters.Values.CopyTo(values, 0);
@@ -556,7 +556,7 @@ namespace CommunityExpressNS
 
 			Server server = new Server(callbackData.m_nServerVersion, ipAddress, callbackData.m_NetAdr.m_usConnectionPort, callbackData.m_NetAdr.m_usQueryPort, callbackData.m_nPing,
 				new String(callbackData.m_szServerName), new String(callbackData.m_szMap), new String(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
-				callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers);
+				callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, new String(callbackData.m_szGameTags));
 
 			_serverList.Add(server);
 

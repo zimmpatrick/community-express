@@ -20,9 +20,10 @@ namespace CommunityExpressNS
 		private Int32 _players;
 		private Int32 _maxPlayers;
 		private Int32 _botPlayers;
+		private String _gameTags;
 
 		public Server(Int32 version, IPAddress ip, UInt16 port, UInt16 queryPort, Int32 ping, String serverName, String mapName, String gameDesc,
-			Boolean isSecure, Boolean isPassworded, Int32 players, Int32 maxPlayers, Int32 botPlayers)
+			Boolean isSecure, Boolean isPassworded, Int32 players, Int32 maxPlayers, Int32 botPlayers, String gameTags)
 		{
 			_version = version;
 			_ip = ip;
@@ -37,6 +38,7 @@ namespace CommunityExpressNS
 			_players = players;
 			_maxPlayers = maxPlayers;
 			_botPlayers = botPlayers;
+			_gameTags = gameTags;
 		}
 
 		public Int32 Version
@@ -102,6 +104,11 @@ namespace CommunityExpressNS
 		public Int32 BotPlayers
 		{
 			get { return _botPlayers; }
+		}
+
+		public String GameTags
+		{
+			get { return _gameTags; }
 		}
 	}
 }

@@ -253,7 +253,9 @@ namespace SteamworksUnityTest
 			s.RunCallbacks();
 
 			Console.WriteLine("Requesting Server List(Only our server will show details):");
-			m.RequestInternetServerList(null, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
+			Dictionary<string, string> filters = new Dictionary<string, string>();
+			filters.Add("gameName", "EON");
+			m.RequestInternetServerList(filters, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
 			while (!_serversReceived)
 			{
 				s.RunCallbacks();

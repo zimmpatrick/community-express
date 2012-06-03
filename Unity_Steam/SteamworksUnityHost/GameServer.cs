@@ -452,7 +452,7 @@ namespace CommunityExpressNS
 			{
 				_keyValues = value;
 
-				String[] keys = new String[] { }, values = new String[] { };
+				String[] keys = new String[_keyValues.Keys.Count], values = new String[_keyValues.Values.Count];
 				_keyValues.Keys.CopyTo(keys, 0);
 				_keyValues.Values.CopyTo(values, 0);
 
