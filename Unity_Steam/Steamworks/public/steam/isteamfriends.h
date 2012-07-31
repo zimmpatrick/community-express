@@ -38,6 +38,8 @@ const int k_cchMaxFriendsGroupName = 64;
 // maximum number of groups a single user is allowed
 const int k_cFriendsGroupLimit = 100;
 
+const int k_cEnumerateFollowersMax = 50;
+
 
 //-----------------------------------------------------------------------------
 // Purpose: list of states a friend can be in
@@ -110,6 +112,17 @@ enum EUserRestriction
 	k_nUserRestrictionVoiceChat	= 4,	// user is not allowed to (or can't) send/recv voice chat
 	k_nUserRestrictionGroupChat	= 8,	// user is not allowed to (or can't) send/recv group chat
 	k_nUserRestrictionRating	= 16,	// user is too young according to rating in current region
+	k_nUserRestrictionGameInvites	= 32,	// user cannot send or recv game invites (e.g. mobile)
+	k_nUserRestrictionTrading	= 64,	// user cannot participate in trading (console, mobile)
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: information about user sessions
+//-----------------------------------------------------------------------------
+struct FriendSessionStateInfo_t
+{
+	uint32 m_uiOnlineSessionInstances;
+	uint8 m_uiPublishedToFriendsSessionInstance;
 };
 
 
@@ -200,14 +213,14 @@ public:
 	virtual void SetInGameVoiceSpeaking( CSteamID steamIDUser, bool bSpeaking ) = 0;
 
 	// activates the game overlay, with an optional dialog to open 
-	// valid options are "Friends", "Community", "Players", "Settings", "LobbyInvite", "OfficialGameGroup", "Stats", "Achievements"
+	// valid options are "Friends", "Community", "Players", "Settings", "OfficialGameGroup", "Stats", "Achievements"
 	virtual void ActivateGameOverlay( const char *pchDialog ) = 0;
 
 	// activates game overlay to a specific place
 	// valid options are
 	//		"steamid" - opens the overlay web browser to the specified user or groups profile
 	//		"chat" - opens a chat window to the specified user, or joins the group chat 
-	//		"tradeinvite" - opens a chat window to the specified user and invites them to trade
+	//		"jointrade" - opens a window to a Steam Trading session that was started with the ISteamEconomy/StartTrade Web API
 	//		"stats" - opens the overlay web browser to the specified user's stats
 	//		"achievements" - opens the overlay web browser to the specified user's achievements
 	virtual void ActivateGameOverlayToUser( const char *pchDialog, CSteamID steamID ) = 0;
@@ -224,7 +237,6 @@ public:
 	virtual void SetPlayedWith( CSteamID steamIDUserPlayedWith ) = 0;
 
 	// activates game overlay to open the invite dialog. Invitations will be sent for the provided lobby.
-	// You can also use ActivateGameOverlay( "LobbyInvite" ) to allow the user to create invitations for their current public lobby.
 	virtual void ActivateGameOverlayInviteDialog( CSteamID steamIDLobby ) = 0;
 
 	// gets the small (32x32) avatar of the current user, which is a handle to be used in IClientUtils::GetImageRGBA(), or 0 if none set
@@ -319,6 +331,11 @@ public:
 	virtual bool SetListenForFriendsMessages( bool bInterceptEnabled ) = 0;
 	virtual bool ReplyToFriendMessage( CSteamID steamIDFriend, const char *pchMsgToSend ) = 0;
 	virtual int GetFriendMessage( CSteamID steamIDFriend, int iMessageID, void *pvData, int cubData, EChatEntryType *peChatEntryType ) = 0;
+
+	// following apis
+	virtual SteamAPICall_t GetFollowerCount( CSteamID steamID ) = 0;
+	virtual SteamAPICall_t IsFollowing( CSteamID steamID ) = 0;
+	virtual SteamAPICall_t EnumerateFollowingList( uint32 unStartIndex ) = 0;
 };
 
 #define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends011"
@@ -513,6 +530,33 @@ struct GameConnectedFriendChatMsg_t
 	int m_iMessageID;
 };
 
+
+struct FriendsGetFollowerCount_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 44 };
+	EResult m_eResult;
+	CSteamID m_steamID;
+	int m_nCount;
+};
+
+
+struct FriendsIsFollowing_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 45 };
+	EResult m_eResult;
+	CSteamID m_steamID;
+	bool m_bIsFollowing;
+};
+
+
+struct FriendsEnumerateFollowingList_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 46 };
+	EResult m_eResult;
+	CSteamID m_rgSteamID[ k_cEnumerateFollowersMax ];
+	int32 m_nResultsReturned;
+	int32 m_nTotalResultCount;
+};
 
 #pragma pack( pop )
 
