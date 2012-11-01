@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+// All rights reserved.
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -8,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CommunityExpress")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Zimmdot")]
+[assembly: AssemblyCompany("Zimmdot, LLC")]
 [assembly: AssemblyProduct("CommunityExpress")]
 [assembly: AssemblyCopyright("Copyright © Zimmdot, LLC 2011")]
 [assembly: AssemblyTrademark("")]

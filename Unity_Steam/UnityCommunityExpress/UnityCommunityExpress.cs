@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+// All rights reserved.
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;

@@ -1,5 +1,6 @@
 // SteamworksUnity.cpp : Defines the exported functions for the DLL application.
-//
+// Copyright (c) 2011-2012, Zimmdot, LLC
+// All rights reserved.
 
 #include "stdafx.h"
 #include <stdlib.h>

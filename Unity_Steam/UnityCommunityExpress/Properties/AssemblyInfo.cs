@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+// All rights reserved.
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

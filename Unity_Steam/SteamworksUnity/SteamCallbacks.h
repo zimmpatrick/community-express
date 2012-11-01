@@ -1,3 +1,6 @@
+// Copyright (c) 2011-2012, Zimmdot, LLC
+// All rights reserved.
+
 #pragma once
 
 #include "steam/steam_api.h"
