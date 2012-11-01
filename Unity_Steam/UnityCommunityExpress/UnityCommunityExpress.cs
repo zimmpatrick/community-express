@@ -1,129 +1,150 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 using CommunityExpressNS;
 
 public sealed class UnityCommunityExpress : MonoBehaviour
 {
-	private static UnityCommunityExpress _instance;
-	private static CommunityExpress _ceInstance;
+    private static UnityCommunityExpress _instance;
+    private static CommunityExpress _ceInstance;
 
-	public static UnityCommunityExpress Instance
-	{
-		get
-		{
-			return _instance;
-		}
-	}
+    public static UnityCommunityExpress Instance
+    {
+        get
+        {
+            return _instance;
+        }
+    }
 
-	public bool Awake()
-	{
-		_instance = this;
-		_ceInstance = CommunityExpress.Instance;
+    public bool Awake()
+    {
+        _instance = this;
+        _ceInstance = CommunityExpress.Instance;
 
-		return _ceInstance.Initialize();
-	}
+        return _ceInstance.Initialize();
+    }
 
-	public bool RestartAppIfNecessary(uint unOwnAppID)
-	{
-		return _ceInstance.RestartAppIfNecessary(unOwnAppID);
-	}
+    public bool RestartAppIfNecessary(uint unOwnAppID)
+    {
+        return _ceInstance.RestartAppIfNecessary(unOwnAppID);
+    }
 
-	public void Update()
-	{
-		_ceInstance.RunCallbacks();
-	}
+    public void Update()
+    {
+        _ceInstance.RunCallbacks();
+    }
 
-	public void Shutdown()
-	{
-		_ceInstance.Shutdown();
-	}
+    public void Shutdown()
+    {
+        _ceInstance.Shutdown();
+    }
 
-	public UInt32 AppID
-	{
-		get { return _ceInstance.AppID; }
-	}
+    public UInt32 AppID
+    {
+        get { return _ceInstance.AppID; }
+    }
 
-	public RemoteStorage RemoteStorage
-	{
-		get
-		{
-			return _ceInstance.RemoteStorage;
-		}
-	}
+    public RemoteStorage RemoteStorage
+    {
+        get
+        {
+            return _ceInstance.RemoteStorage;
+        }
+    }
 
-	public User User
-	{
-		get
-		{
-			return _ceInstance.User;
-		}
-	}
+    public User User
+    {
+        get
+        {
+            return _ceInstance.User;
+        }
+    }
 
-	public GameServer GameServer
-	{
-		get
-		{
-			return _ceInstance.GameServer;
-		}
-	}
+    public GameServer GameServer
+    {
+        get
+        {
+            return _ceInstance.GameServer;
+        }
+    }
 
-	public Friends Friends
-	{
-		get
-		{
-			return _ceInstance.Friends;
-		}
-	}
+    public Friends Friends
+    {
+        get
+        {
+            return _ceInstance.Friends;
+        }
+    }
 
-	public Groups Groups
-	{
-		get
-		{
-			return _ceInstance.Groups;
-		}
-	}
+    public Groups Groups
+    {
+        get
+        {
+            return _ceInstance.Groups;
+        }
+    }
 
-	public Stats UserStats
-	{
-		get
-		{
-			return _ceInstance.UserStats;
-		}
-	}
+    public Stats UserStats
+    {
+        get
+        {
+            return _ceInstance.UserStats;
+        }
+    }
 
-	public Achievements UserAchievements
-	{
-		get
-		{
-			return _ceInstance.UserAchievements;
-		}
-	}
+    public Achievements UserAchievements
+    {
+        get
+        {
+            return _ceInstance.UserAchievements;
+        }
+    }
 
-	public Leaderboards Leaderboards
-	{
-		get
-		{
-			return _ceInstance.Leaderboards; 
-		}
-	}
+    public Leaderboards Leaderboards
+    {
+        get
+        {
+            return _ceInstance.Leaderboards;
+        }
+    }
 
-	public Matchmaking Matchmaking
-	{
-		get
-		{
-			return _ceInstance.Matchmaking;
-		}
-	}
+    public Matchmaking Matchmaking
+    {
+        get
+        {
+            return _ceInstance.Matchmaking;
+        }
+    }
 
-	public GameStats CreateNewGameStats(OnGameStatsSessionInitialized onGameStatsSessionInitialized, Boolean gameserver, SteamID steamID = null)
-	{
-		return _ceInstance.CreateNewGameStats(onGameStatsSessionInitialized, gameserver, steamID);
-	}
+    public GameStats CreateNewGameStats(OnGameStatsSessionInitialized onGameStatsSessionInitialized, Boolean gameserver, SteamID steamID = null)
+    {
+        return _ceInstance.CreateNewGameStats(onGameStatsSessionInitialized, gameserver, steamID);
+    }
 
-	public Boolean IsGameServerInitialized
-	{
-		get { return _ceInstance.IsGameServerInitialized; }
-	}
+    public Boolean IsGameServerInitialized
+    {
+        get { return _ceInstance.IsGameServerInitialized; }
+    }
+
+    public Texture2D ConvertImageToTexture2D(Image i)
+    {
+        Texture2D texture = new Texture2D((int)i.Width, (int)i.Height, TextureFormat.RGBA32, false);
+        Color32[] colorArray = new Color32[i.Width * i.Height];
+        GCHandle h = GCHandle.Alloc(colorArray, GCHandleType.Pinned);
+        try
+        {
+            IntPtr dest = h.AddrOfPinnedObject();
+            i.GetPixels(dest, (int)i.Width * (int)i.Height * 4);
+        }
+        finally
+        {
+            h.Free();
+        }
+
+        texture.SetPixels32(colorArray);
+        texture.Apply();
+        return texture;
+    }
 }

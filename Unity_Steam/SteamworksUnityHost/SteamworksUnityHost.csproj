@@ -44,6 +44,7 @@
     <Compile Include="Achievements.cs" />
     <Compile Include="File.cs" />
     <Compile Include="GameStats.cs" />
+    <Compile Include="Image.cs" />
     <Compile Include="InGamePurchase.cs" />
     <Compile Include="InGamePurchasing.cs" />
     <Compile Include="ListEnumerator.cs" />

@@ -65,6 +65,10 @@ namespace CommunityExpressNS
 		private static extern String SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamFriends_GetFriendPersonaState(IntPtr friends, UInt64 steamIDFriend);
+		[DllImport("CommunityExpressSW.dll")]
+		private static extern int SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
+		[DllImport("CommunityExpressSW.dll")]
+		private static extern int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
 
 		private IntPtr _friends;
 
@@ -132,6 +136,28 @@ namespace CommunityExpressNS
 			int personaState = SteamUnityAPI_SteamFriends_GetFriendPersonaState(_friends, steamIDFriend.ToUInt64());
 			return (EPersonaState)personaState;
 		}
+
+        internal Image GetSmallFriendAvatar(SteamID steamIDFriend)
+        {
+            int id = SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(_friends, steamIDFriend.ToUInt64());
+            if (id != -1)
+            {
+                return new Image(id);
+            }
+
+            return null;
+        }
+
+        internal Image GetMediumFriendAvatar(SteamID steamIDFriend)
+        {
+            int id = SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(_friends, steamIDFriend.ToUInt64());
+            if (id != -1)
+            {
+                return new Image(id);
+            }
+
+            return null;
+        }
 
 		public int Count
 		{

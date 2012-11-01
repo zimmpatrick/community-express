@@ -13,21 +13,14 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern Int32 SteamUnityAPI_SteamUserStats_GetAchievementIcon(IntPtr stats,
 			[MarshalAs(UnmanagedType.LPStr)] string pchName);
-		[DllImport("CommunityExpressSW.dll")]
-		private static extern void SteamUnityAPI_SteamUtils_GetImageSize(Int32 iconIndex, out UInt32 iconWidth, out UInt32 iconHeight);
-		[DllImport("CommunityExpressSW.dll")]
-		private static extern void SteamUnityAPI_SteamUtils_GetImageRGBA(Int32 iconIndex,
-			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] data, Int32 dataSize);
-
+	
 		private IntPtr _stats;
 		private Achievements _achievements;
 		private String _achievementName;
 		private bool _isAchieved;
 		private String _displayName = null;
 		private String _displayDescription = null;
-		private Byte[] _iconData = null;
-		private UInt32 _iconWidth = 0;
-		private UInt32 _iconHeight = 0;
+        private Image _image = null;
 
 		public Achievement(Achievements achievements, IntPtr stats)
 		{
@@ -84,26 +77,29 @@ namespace CommunityExpressNS
 			}
 		}
 
+        public Image Icon
+        {
+            get {
+                if (_image == null && _stats != IntPtr.Zero)
+                {
+                    Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
+                    _image = new Image(iconImage);
+                }
+                return _image;
+            }
+        }
+
 		public Byte[] IconData
 		{
 			get
 			{
-				if (_iconData == null && _stats != IntPtr.Zero)
-				{
-					Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
-					if (iconImage != 0)
-					{
-						SteamUnityAPI_SteamUtils_GetImageSize(iconImage, out _iconWidth, out _iconHeight);
-						if (_iconWidth > 0 && _iconHeight > 0)
-						{
-							// Get the actual raw RGBA data from Steam and turn it into a texture in our game engine
-							_iconData = new Byte[_iconWidth * _iconHeight * 4];
-							SteamUnityAPI_SteamUtils_GetImageRGBA(iconImage, _iconData, (Int32)(_iconWidth * _iconHeight * 4));
-						}
-					}
-				}
+                Image icon = Icon;
+                if (icon != null)
+                {
+                    return icon.AsBytes();
+                }
 
-				return _iconData;
+                return null;
 			}
 		}
 
@@ -111,16 +107,13 @@ namespace CommunityExpressNS
 		{
 			get
 			{
-				if (_iconWidth == 0 && _stats != IntPtr.Zero)
+                Image icon = Icon;
+                if (icon != null)
 				{
-					Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
-					if (iconImage != 0)
-					{
-						SteamUnityAPI_SteamUtils_GetImageSize(iconImage, out _iconWidth, out _iconHeight);
-					}
+                    return icon.Width;
 				}
 
-				return _iconWidth;
+				return 0;
 			}
 		}
 
@@ -128,16 +121,13 @@ namespace CommunityExpressNS
 		{
 			get
 			{
-				if (_iconHeight == 0 && _stats != IntPtr.Zero)
+                Image icon = Icon;
+                if (icon != null)
 				{
-					Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
-					if (iconImage != 0)
-					{
-						SteamUnityAPI_SteamUtils_GetImageSize(iconImage, out _iconWidth, out _iconHeight);
-					}
+                    return icon.Height;
 				}
 
-				return _iconHeight;
+				return 0;
 			}
 		}
 	}

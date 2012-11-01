@@ -54,6 +54,16 @@ namespace SteamworksUnityTest
 				throw new Exception("Steam must be running to play this game (SteamAPI_Init() failed).");
 			}
 
+            Console.WriteLine("Signed in as: {0}", cesdk.User.PersonaName);
+           
+            Image image = cesdk.User.SmallAvatar;
+            if (image != null)
+                Console.WriteLine("Small: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
+         
+            image = cesdk.User.MediumAvatar;
+            if (image != null)
+                Console.WriteLine("Medium: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
+				
 			RemoteStorage remoteStorage = cesdk.RemoteStorage;
 			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1}", remoteStorage.Count, remoteStorage.AvailableSpace);
 

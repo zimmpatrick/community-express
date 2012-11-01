@@ -583,6 +583,20 @@ STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendFromSourceByIndex
 	return pISteamFriends->GetFriendFromSourceByIndex(steamIDSource, iFriend).ConvertToUint64();
 }
 
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+	
+	return pISteamFriends->GetSmallFriendAvatar( CSteamID(steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+	
+	return pISteamFriends->GetMediumFriendAvatar( CSteamID(steamIDFriend) );
+}
+
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUser()
 {
 	return SteamUser();
