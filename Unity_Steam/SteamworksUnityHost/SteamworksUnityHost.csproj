@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\JSON.Net\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Security" />
     <Reference Include="System.XML" />
@@ -41,6 +44,8 @@
     <Compile Include="Achievements.cs" />
     <Compile Include="File.cs" />
     <Compile Include="GameStats.cs" />
+    <Compile Include="InGamePurchase.cs" />
+    <Compile Include="InGamePurchasing.cs" />
     <Compile Include="ListEnumerator.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Friend.cs" />
@@ -69,6 +74,8 @@
     <Compile Include="SteamID.cs" />
     <Compile Include="SteamUnity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SteamWebAPI.cs" />
+    <Compile Include="SteamWebAPIRequest.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>

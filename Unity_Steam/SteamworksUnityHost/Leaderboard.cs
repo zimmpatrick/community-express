@@ -12,10 +12,10 @@ namespace CommunityExpressNS
 	struct LeaderboardEntry_t
 	{
 		public UInt64 m_steamIDUser;	// user with the entry - use SteamFriends()->GetFriendPersonaName() & SteamFriends()->GetFriendAvatar() to get more info
-		public Int32 m_nGlobalRank;	// [1..N], where N is the number of users with an entry in the leaderboard
+		public Int32 m_nGlobalRank;		// [1..N], where N is the number of users with an entry in the leaderboard
 		public Int32 m_nScore;			// score as set in the leaderboard
 		public Int32 m_cDetails;		// number of int32 details available for this entry
-		public UInt64 m_hUGC;		// handle for UGC attached to the entry
+		public UInt64 m_hUGC;			// handle for UGC attached to the entry
 	};
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]

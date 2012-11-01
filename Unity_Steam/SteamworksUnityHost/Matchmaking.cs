@@ -77,7 +77,7 @@ namespace CommunityExpressNS
 	{
 		public UInt64 m_ulSteamIDLobby;			// SteamID of the Lobby you have entered
 		public UInt32 m_rgfChatPermissions;		// Permissions of the current user
-		public Byte m_bLocked;				// If true, then only invited users may join
+		public Byte m_bLocked;					// If true, then only invited users may join
 		public UInt32 m_EChatRoomEnterResponse;	// EChatRoomEnterResponse
 	}
 	

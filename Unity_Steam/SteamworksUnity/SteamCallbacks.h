@@ -3,6 +3,7 @@
 #include "steam/steam_api.h"
 
 typedef void (__stdcall *FPOnUserStatsReceived)(UserStatsReceived_t*);
+typedef void (__stdcall *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
 typedef void (__stdcall *FPOnGameServerClientApprove)(GSClientApprove_t*);
 typedef void (__stdcall *FPOnGameServerClientDeny)(GSClientDeny_t*);
 typedef void (__stdcall *FPOnGameServerClientKick)(GSClientKick_t*);
@@ -18,6 +19,7 @@ class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
 public:
 	SteamCallbacks() : UserStatsReceivedCallback(this, &SteamCallbacks::OnUserStatsReceived)
+					 , TransactionAuthorizationReceivedCallback(this, &SteamCallbacks::OnTransactionAuthorizationReceived)
 					 , GameServerClientApproveCallback(this, &SteamCallbacks::OnGameServerClientApprove)
 					 , GameServerClientDenyCallback(this, &SteamCallbacks::OnGameServerClientDeny)
 					 , GameServerClientKickCallback(this, &SteamCallbacks::OnGameServerClientKick)
@@ -42,6 +44,7 @@ public:
 	virtual void RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response);
 
 	STEAM_CALLBACK(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback);
 
 	STEAM_GAMESERVER_CALLBACK(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
@@ -55,6 +58,7 @@ public:
 	CCallResult<SteamCallbacks, LeaderboardScoresDownloaded_t> SteamCallResultLeaderboardScoresDownloaded;
 
 	FPOnUserStatsReceived delegateOnUserStatsReceived;
+	FPOnTransactionAuthorizationReceived delegateOnTransactionAuthorizationReceived;
 	FPOnGameServerClientApprove delegateOnGameServerClientApprove;
 	FPOnGameServerClientDeny delegateOnGameServerClientDeny;
 	FPOnGameServerClientKick delegateOnGameServerClientKick;

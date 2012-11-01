@@ -107,6 +107,28 @@ STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
 	return SteamAPI_RunCallbacks();
 }
 
+STEAMWORKSUNITY_API const char * SteamUnityAPI_GetPersonaNameByID(uint64 steamIDFriend)
+{
+	return SteamFriends()->GetFriendPersonaName( CSteamID(steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SetTransactionAuthorizationCallback(FPOnTransactionAuthorizationReceived fpOnTransactionAuthorizationReceived)
+{
+	SteamCallbacks::getInstance().delegateOnTransactionAuthorizationReceived = fpOnTransactionAuthorizationReceived;
+}
+
+STEAMWORKSUNITY_API void* SteamUnityAPI_SteamApps()
+{
+	return SteamApps();
+}
+
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamApps_GetCurrentGameLanguage(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->GetCurrentGameLanguage();
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t hSteamAPICall, unsigned char &bFailed)
 {
 	bool result, failed;
@@ -1316,6 +1338,11 @@ void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallbackData)
 	delegateOnUserStatsReceived(pCallbackData);
 }
 
+void SteamCallbacks::OnTransactionAuthorizationReceived(MicroTxnAuthorizationResponse_t *pCallbackData)
+{
+	delegateOnTransactionAuthorizationReceived(pCallbackData);
+}
+
 void SteamCallbacks::OnGameServerClientApprove(GSClientApprove_t *pCallbackData)
 {
 	delegateOnGameServerClientApprove(pCallbackData);
@@ -1341,7 +1368,7 @@ void SteamCallbacks::OnLeaderboardRetrieved(LeaderboardFindResult_t *pCallbackDa
 	delegateOnLeaderboardRetrieved(pCallbackData);
 }
 
-void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *pCallbackData, bool bIOFailure )
+void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *pCallbackData, bool bIOFailure)
 {
 	delegateOnLeaderboardEntriesRetrieved(pCallbackData);
 }

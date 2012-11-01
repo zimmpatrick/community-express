@@ -55,6 +55,8 @@ namespace CommunityExpressNS
 		private Matchmaking _matchmaking = null;
 		private RemoteStorage _remoteStorage = null;
 		private Networking _networking = null;
+		private InGamePurchasing _inGamePurchasing = null;
+		private SteamWebAPI _steamWebAPI = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -366,6 +368,32 @@ namespace CommunityExpressNS
 				}
 
 				return _networking;
+			}
+		}
+
+		public InGamePurchasing InGamePurchasing
+		{
+			get
+			{
+				if (_inGamePurchasing == null)
+				{
+					_inGamePurchasing = new InGamePurchasing();
+				}
+
+				return _inGamePurchasing;
+			}
+		}
+
+		public SteamWebAPI SteamWebAPI
+		{
+			get
+			{
+				if (_steamWebAPI == null)
+				{
+					_steamWebAPI = new SteamWebAPI();
+				}
+
+				return _steamWebAPI;
 			}
 		}
 

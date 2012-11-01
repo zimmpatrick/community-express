@@ -11,6 +11,7 @@ namespace SteamworksUnityTest
 	{
 		private static bool _statsReceived = false;
 		private static bool _leaderboardEntriesReceived = false;
+		private static bool _inGamePurchaseCompleted = false;
 		private static bool _userAuthenticationCompleted = false;
 		//private static bool _gamestatsInitialized = false;
 		private static bool _serversReceived = false;
@@ -22,12 +23,14 @@ namespace SteamworksUnityTest
 		private static Lobby _lobby;
 		private static Servers _serverList = null;
 
+		private const String _webAPIKey = "6477773857A981BC6F4F50D7CAFD59E4";
+
 		static int Main(string[] args)
 		{
-			CommunityExpress s = CommunityExpress.Instance;
+			CommunityExpress cesdk = CommunityExpress.Instance;
 
 #if false
-			if (s.RestartAppIfNecessary(CommunityExpress.k_uAppIdInvalid))
+			if (cesdk.RestartAppIfNecessary(CommunityExpress.k_uAppIdInvalid))
 			{
 				// if Steam is not running or the game wasn't started through Steam, SteamAPI_RestartAppIfNecessary starts the 
 				// local Steam client and also launches this game again.
@@ -45,82 +48,82 @@ namespace SteamworksUnityTest
 			// This will also load the in-game steam overlay dll into your process.  That dll is normally
 			// injected by steam when it launches games, but by calling this you cause it to always load,
 			// even when not launched via steam.
-			if (!s.Initialize())
+			if (!cesdk.Initialize())
 			{
 				System.Diagnostics.Debug.WriteLine( "SteamAPI_Init() failed" );
 				throw new Exception("Steam must be running to play this game (SteamAPI_Init() failed).");
 			}
 
-			RemoteStorage r = s.RemoteStorage;
-			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1}", r.Count, r.AvailableSpace);
+			RemoteStorage remoteStorage = cesdk.RemoteStorage;
+			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1}", remoteStorage.Count, remoteStorage.AvailableSpace);
 
-			r.WriteFile("CloudTest.txt", "I has file!");
-			s.RunCallbacks();
+			remoteStorage.WriteFile("CloudTest.txt", "I has file!");
+			cesdk.RunCallbacks();
 
-			if (r.Count > 0)
+			if (remoteStorage.Count > 0)
 			{
-				foreach (File f in r)
+				foreach (File f in remoteStorage)
 				{
 					Console.WriteLine("  {0}: {1}", f.FileName, f.ReadFile());
 				}
 			}
 
-			r.DeleteFile("CloudTest.txt");
-			s.RunCallbacks();
-			Console.WriteLine("  Remote Storage: Files={0} AvailableSpace={1}", r.Count, r.AvailableSpace);
+			remoteStorage.DeleteFile("CloudTest.txt");
+			cesdk.RunCallbacks();
+			Console.WriteLine("  Remote Storage: Files={0} AvailableSpace={1}", remoteStorage.Count, remoteStorage.AvailableSpace);
 
-			User u = s.User;
-			Console.WriteLine(u.LoggedOn);
-			Console.WriteLine(u.SteamID);
+			User user = cesdk.User;
+			Console.WriteLine(user.LoggedOn);
+			Console.WriteLine(user.SteamID);
 
 			Console.WriteLine("Friends: ");
-			foreach (Friend f in s.Friends)
+			foreach (Friend friend in cesdk.Friends)
 			{
-				Console.WriteLine("  {0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
+				Console.WriteLine("  {0} - {1} - {2}", friend.SteamID, friend.PersonaName, friend.PersonaState);
 			}
 
 			Console.WriteLine("Groups/Clans: ");
-			foreach (Group g in s.Groups)
+			foreach (Group group in cesdk.Groups)
 			{
-				Console.WriteLine("  {0} - {1} - {2} - {3}", g.SteamID, g.ClanTag, g.GroupName, g.Count);
+				Console.WriteLine("  {0} - {1} - {2} - {3}", group.SteamID, group.ClanTag, group.GroupName, group.Count);
 
-				foreach (Friend f in g)
+				foreach (Friend friend in group)
 				{
-					Console.WriteLine("	 {0} - {1} - {2}", f.SteamID, f.PersonaName, f.PersonaState);
+					Console.WriteLine("	 {0} - {1} - {2}", friend.SteamID, friend.PersonaName, friend.PersonaState);
 				}
 			}
 
 			// Request a "list" of servers(should only be 1)
-			Matchmaking m = s.Matchmaking;
+			Matchmaking matchmaking = cesdk.Matchmaking;
 
-			m.CreateLobby(ELobbyType.k_ELobbyTypeInvisible, 2, MyOnLobbyCreated);
+			matchmaking.CreateLobby(ELobbyType.k_ELobbyTypeInvisible, 2, MyOnLobbyCreated);
 			while (!_lobbyCreated)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
-			m.RequestLobbyList(null, null, null, 0, ELobbyDistanceFilter.k_ELobbyDistanceFilterWorldwide, 100, null, MyOnLobbyListReceived);
+			matchmaking.RequestLobbyList(null, null, null, 0, ELobbyDistanceFilter.k_ELobbyDistanceFilterWorldwide, 100, null, MyOnLobbyListReceived);
 			while (!_lobbyListReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
-			m.JoinLobby(_lobby, MyOnLobbyJoined);
+			matchmaking.JoinLobby(_lobby, MyOnLobbyJoined);
 			while (!_lobbyJoined)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
-			m.LeaveLobby();
+			matchmaking.LeaveLobby();
 			Console.WriteLine("Exited from Lobby");
 
-			Stats stats = s.UserStats;
+			Stats stats = cesdk.UserStats;
 			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback, 
 				new string[] { "Kills", "DamageHealed" } );
 
 			while (!_statsReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
 			/*/ Testing of the Stats Write functionality
@@ -133,43 +136,60 @@ namespace SteamworksUnityTest
 
 			while (!_statsReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 			//*/
 
-			Achievements achievements = s.UserAchievements;
+			Achievements achievements = cesdk.UserAchievements;
 			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam",
 				"DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam",
 				"Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
 			MyOnUserStatsReceivedCallback(null, achievements);
 
-			Leaderboards leaderboards = s.Leaderboards;
+			Leaderboards leaderboards = cesdk.Leaderboards;
 			leaderboards.FindOrCreateLeaderboard(MyOnLeaderboardRetrievedCallback, "TestLeaderboard",
 				ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
 
 			while (!_leaderboardEntriesReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
-			Networking n = s.Networking;
-			n.Init(true, null, null, MyOnP2PPacketReceived);
+			Networking networking = cesdk.Networking;
+			networking.Init(true, null, null, MyOnP2PPacketReceived);
 
 			Console.WriteLine("Sending P2P Packet To Self");
-			n.SendP2PPacket(u.SteamID, "Blah Blah Blah", EP2PSend.k_EP2PSendReliable);
+			networking.SendP2PPacket(user.SteamID, "Blah Blah Blah", EP2PSend.k_EP2PSendReliable);
 
 			while (!_packetReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
-			GameServer gs = s.GameServer;
+			// NOTE: It is suggested that games call NewPurchase when the user enters the store rather than waiting until they are
+			//       ready to check out, as info about the user must be fetched from Steam's server before a purchase can be completed
+			Console.WriteLine("Creating fake in game purchase");
+			InGamePurchase purchase = cesdk.InGamePurchasing.NewPurchase(true, _webAPIKey, (UInt64)new Random().Next());
+			Console.WriteLine("Sleeping to mimic user perusing our store(OrderID: " + purchase.OrderID.ToString() + ")");
+			Thread.Sleep(5000);
+			purchase.AddItem(104, 1, 0.99, "Fake item description", "Fake category");
+			purchase.AddItem(104, 10, 0.50, "Fake item 2", "Fake category 2");
+			Console.WriteLine("Starting purchase process");
+			if (cesdk.InGamePurchasing.StartPurchase(purchase, MyOnInGamePurchaseComplete))
+			{
+				while (!_inGamePurchaseCompleted)
+				{
+					cesdk.RunCallbacks();
+				}
+			}
+
+			GameServer gameserver = cesdk.GameServer;
 			const UInt16 gsPort = 8793;
-			if (gs.Init(false, new IPAddress(0), gsPort, gsPort + 1, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
+			if (gameserver.Init(false, new IPAddress(0), gsPort, gsPort + 1, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
 				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true,
 				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
 			{
-				Console.WriteLine("GameServer: {0}", gs.SteamID);
+				Console.WriteLine("GameServer: {0}", gameserver.SteamID);
 			}
 			else
 			{
@@ -178,46 +198,46 @@ namespace SteamworksUnityTest
 
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
-			if (u.InitiateClientAuthentication(out authTicket, gs.SteamID, IPAddress.Loopback, gsPort, true))
+			if (user.InitiateClientAuthentication(out authTicket, gameserver.SteamID, IPAddress.Loopback, gsPort, true))
 			{
 				// The client would have had to send up the authTicket and then the server would learn the client's Steam ID here
 				SteamID steamIDClient;
 
-				if (gs.ClientConnected(IPAddress.Loopback, authTicket, out steamIDClient))
+				if (gameserver.ClientConnected(IPAddress.Loopback, authTicket, out steamIDClient))
 				{
 					while (!_userAuthenticationCompleted)
 					{
-						s.RunCallbacks();
+						cesdk.RunCallbacks();
 					}
 				}
 			}
 
 			Console.WriteLine("Requesting Stats through Game Server");
-			gs.RequestUserStats(u.SteamID, MyOnUserStatsReceivedCallback,
+			gameserver.RequestUserStats(user.SteamID, MyOnUserStatsReceivedCallback,
 				new string[] { "Kills", "DamageHealed", "Testing1" });
 
 			_statsReceived = false;
 			while (!_statsReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
 			Console.WriteLine("Requesting Achievements through Game Server");
-			gs.RequestUserAchievements(u.SteamID, MyOnUserStatsReceivedCallback,
+			gameserver.RequestUserAchievements(user.SteamID, MyOnUserStatsReceivedCallback,
 				new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam", "DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam",
 					"WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam", "Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
 
 			_statsReceived = false;
 			while (!_statsReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
 			// There's currently no way to test Game Stats =/
-/*			GameStats gamestats = s.CreateNewGameStats(MyOnGameStatsSessionInitialized, false);
+/*			GameStats gamestats = cesdk.CreateNewGameStats(MyOnGameStatsSessionInitialized, false);
 			while (!_gamestatsInitialized)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
 			if (gamestats.IsInitialized)
@@ -239,26 +259,26 @@ namespace SteamworksUnityTest
 				Console.WriteLine("Done writing fake Game Stats");
 			}
 */
-			gs.ServerName = "Updated KF Server";
+			gameserver.ServerName = "Updated KF Server";
 
-			SteamID bot = gs.AddBot();
+			SteamID bot = gameserver.AddBot();
 
-			gs.UpdateUserDetails(bot, "FakeBot", 68);
-			gs.UpdateUserDetails(u.SteamID, "FakePlayer", 69);
+			gameserver.UpdateUserDetails(bot, "FakeBot", 68);
+			gameserver.UpdateUserDetails(user.SteamID, "FakePlayer", 69);
 
 			// Give the system plenty of time to get the server into the server list
 			Thread.Sleep(1000);
-			s.RunCallbacks();
+			cesdk.RunCallbacks();
 			Thread.Sleep(1000);
-			s.RunCallbacks();
+			cesdk.RunCallbacks();
 
 			Console.WriteLine("Requesting Server List(Only our server will show details):");
 			Dictionary<string, string> filters = new Dictionary<string, string>();
 			filters.Add("gameName", "EON");
-			m.RequestInternetServerList(filters, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
+			matchmaking.RequestInternetServerList(filters, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
 			while (!_serversReceived)
 			{
-				s.RunCallbacks();
+				cesdk.RunCallbacks();
 			}
 
 			Console.WriteLine("");
@@ -267,8 +287,8 @@ namespace SteamworksUnityTest
 			Console.WriteLine("Delaying 1 second before Disconnecting User");
 			Thread.Sleep(1000);
 
-			gs.ClientDisconnected(u.SteamID);
-			u.OnDisconnect();
+			gameserver.ClientDisconnected(user.SteamID);
+			user.OnDisconnect();
 
 			Console.WriteLine("User Disconnected");
 
@@ -375,6 +395,12 @@ namespace SteamworksUnityTest
 			{
 				Console.WriteLine("  Failed to Retreive Leaderboard Entries");
 			}
+		}
+
+		public static void MyOnInGamePurchaseComplete(InGamePurchase purchase, bool success)
+		{
+			Console.WriteLine("In Game Purchase(" + purchase.OrderID.ToString() +") Complete: " + success.ToString());
+			_inGamePurchaseCompleted = true;
 		}
 
 /*		public static void MyOnGameStatsSessionInitialized(GameStats gamestats)
