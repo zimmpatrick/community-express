@@ -33,14 +33,14 @@ namespace CommunityExpressNS
 			get { return _id; }
 		}
 
-        public Image SmallAvatar
-        {
-            get { return _friends.GetSmallFriendAvatar(_id); }
-        }
+		public Image SmallAvatar
+		{
+			get { return _friends.GetSmallFriendAvatar(_id); }
+		}
 
-        public Image MediumAvatar
-        {
-            get { return _friends.GetMediumFriendAvatar(_id); }
-        }
+		public Image MediumAvatar
+		{
+			get { return _friends.GetMediumFriendAvatar(_id); }
+		}
 	}
 }

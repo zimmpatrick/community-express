@@ -23,7 +23,7 @@ namespace CommunityExpressNS
 		private bool _isAchieved;
 		private String _displayName = null;
 		private String _displayDescription = null;
-        private Image _image = null;
+		private Image _image = null;
 
 		public Achievement(Achievements achievements, IntPtr stats)
 		{
@@ -80,29 +80,30 @@ namespace CommunityExpressNS
 			}
 		}
 
-        public Image Icon
-        {
-            get {
-                if (_image == null && _stats != IntPtr.Zero)
-                {
-                    Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
-                    _image = new Image(iconImage);
-                }
-                return _image;
-            }
-        }
+		public Image Icon
+		{
+			get {
+				if (_image == null && _stats != IntPtr.Zero)
+				{
+					Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
+					_image = new Image(iconImage);
+				}
+
+				return _image;
+			}
+		}
 
 		public Byte[] IconData
 		{
 			get
 			{
-                Image icon = Icon;
-                if (icon != null)
-                {
-                    return icon.AsBytes();
-                }
+				Image icon = Icon;
+				if (icon != null)
+				{
+					return icon.AsBytes();
+				}
 
-                return null;
+				return null;
 			}
 		}
 
@@ -110,10 +111,10 @@ namespace CommunityExpressNS
 		{
 			get
 			{
-                Image icon = Icon;
-                if (icon != null)
+				Image icon = Icon;
+				if (icon != null)
 				{
-                    return icon.Width;
+					return icon.Width;
 				}
 
 				return 0;
@@ -124,10 +125,10 @@ namespace CommunityExpressNS
 		{
 			get
 			{
-                Image icon = Icon;
-                if (icon != null)
+				Image icon = Icon;
+				if (icon != null)
 				{
-                    return icon.Height;
+					return icon.Height;
 				}
 
 				return 0;

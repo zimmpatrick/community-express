@@ -22,7 +22,7 @@ namespace CommunityExpressNS
 
 	delegate void OnUserGetEncryptedAppTicketFromSteam();
 	public delegate void OnUserEncryptedAppTicketCreated(Byte[] ticket);
-	
+
 	public class User
 	{
 		[DllImport("CommunityExpressSW.dll")]
@@ -48,16 +48,16 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamUser_RequestEncryptedAppTicket(IntPtr user, IntPtr dataToInclude, Int32 dataLength);
 		[DllImport("CommunityExpressSW.dll")]
-		private static extern Boolean SteamUnityAPI_SteamUser_GetEncryptedAppTicket(IntPtr user, 
+		private static extern Boolean SteamUnityAPI_SteamUser_GetEncryptedAppTicket(IntPtr user,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] ticket, int maxTicket, out UInt32 ticketSize);
-        [DllImport("CommunityExpressSW.dll")]
-        [return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-        private static extern String SteamUnityAPI_GetPersonaNameByID(UInt64 steamID);
+		[DllImport("CommunityExpressSW.dll")]
+		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
+		private static extern String SteamUnityAPI_GetPersonaNameByID(UInt64 steamID);
 
 		private const Int32 AuthTicketSizeMax = 2048;
 
 		private IntPtr _user;
-        private Friends _friends; // for user avatar
+		private Friends _friends; // for user avatar
 
 		private UInt32 _serverIP = 0;
 		private UInt16 _serverPort;
@@ -67,7 +67,7 @@ namespace CommunityExpressNS
 		internal User()
 		{
 			_user = SteamUnityAPI_SteamUser();
-            _friends = new Friends();
+			_friends = new Friends();
 		}
 
 		~User()
@@ -181,19 +181,19 @@ namespace CommunityExpressNS
 			get { return new SteamID(SteamUnityAPI_SteamUser_GetSteamID(_user)); }
 		}
 
-        public String PersonaName
-        {
-            get { return SteamUnityAPI_GetPersonaNameByID(SteamID.ToUInt64()); }
-        }
+		public String PersonaName
+		{
+			get { return SteamUnityAPI_GetPersonaNameByID(SteamID.ToUInt64()); }
+		}
 
-        public Image SmallAvatar
-        {
-            get { return _friends.GetSmallFriendAvatar(SteamID); }
-        }
-        
-        public Image MediumAvatar
-        {
-            get { return _friends.GetMediumFriendAvatar(SteamID); }
-        }
+		public Image SmallAvatar
+		{
+			get { return _friends.GetSmallFriendAvatar(SteamID); }
+		}
+
+		public Image MediumAvatar
+		{
+			get { return _friends.GetMediumFriendAvatar(SteamID); }
+		}
 	}
 }

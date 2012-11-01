@@ -140,27 +140,27 @@ namespace CommunityExpressNS
 			return (EPersonaState)personaState;
 		}
 
-        internal Image GetSmallFriendAvatar(SteamID steamIDFriend)
-        {
-            int id = SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(_friends, steamIDFriend.ToUInt64());
-            if (id != -1)
-            {
-                return new Image(id);
-            }
+		internal Image GetSmallFriendAvatar(SteamID steamIDFriend)
+		{
+			int id = SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(_friends, steamIDFriend.ToUInt64());
+			if (id != -1)
+			{
+				return new Image(id);
+			}
 
-            return null;
-        }
+			return null;
+		}
 
-        internal Image GetMediumFriendAvatar(SteamID steamIDFriend)
-        {
-            int id = SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(_friends, steamIDFriend.ToUInt64());
-            if (id != -1)
-            {
-                return new Image(id);
-            }
+		internal Image GetMediumFriendAvatar(SteamID steamIDFriend)
+		{
+			int id = SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(_friends, steamIDFriend.ToUInt64());
+			if (id != -1)
+			{
+				return new Image(id);
+			}
 
-            return null;
-        }
+			return null;
+		}
 
 		public int Count
 		{
