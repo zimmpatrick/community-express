@@ -132,6 +132,7 @@ public sealed class UnityCommunityExpress : MonoBehaviour
     {
         Texture2D texture = new Texture2D((int)i.Width, (int)i.Height, TextureFormat.RGBA32, false);
         Color32[] colorArray = new Color32[i.Width * i.Height];
+        Color32[] colorRow = new Color32[i.Width];
         GCHandle h = GCHandle.Alloc(colorArray, GCHandleType.Pinned);
         try
         {
@@ -141,6 +142,14 @@ public sealed class UnityCommunityExpress : MonoBehaviour
         finally
         {
             h.Free();
+        }
+
+        // Flip image in array
+        for (int y = 0; y < texture.height / 2; y++)
+        {
+            Array.Copy(colorArray, y * texture.width, colorRow, 0, texture.width);
+            Array.Copy(colorArray, (texture.height - y - 1) * texture.width, colorArray, y * texture.width, texture.width);
+            Array.Copy(colorRow, 0, colorArray, (texture.height - y - 1) * texture.width, texture.width);
         }
 
         texture.SetPixels32(colorArray);
