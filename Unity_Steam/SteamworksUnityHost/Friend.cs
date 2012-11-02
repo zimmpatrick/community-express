@@ -18,6 +18,11 @@ namespace CommunityExpressNS
 			_id = id;
 		}
 
+		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
+		{
+			_friends.GetLargeFriendAvatar(_id, largeAvatarReceivedCallback);
+		}
+
 		public string PersonaName
 		{
 			get { return _friends.GetFriendPersonaName(_id); }
@@ -41,6 +46,11 @@ namespace CommunityExpressNS
 		public Image MediumAvatar
 		{
 			get { return _friends.GetMediumFriendAvatar(_id); }
+		}
+
+		public Image LargeAvatar
+		{
+			get { return _friends.GetLargeFriendAvatar(_id, null); }
 		}
 	}
 }

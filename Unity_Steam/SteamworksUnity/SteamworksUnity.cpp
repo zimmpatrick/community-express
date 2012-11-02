@@ -577,6 +577,15 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(void* p
 	return pISteamFriends->GetMediumFriendAvatar( CSteamID(steamIDFriend) );
 }
 
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(void* pSteamFriends, uint64 steamIDFriend, FPOnAvatarReceived fpOnAvatarReceived)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+	
+	SteamCallbacks::getInstance().delegateOnAvatarReceived = fpOnAvatarReceived;
+
+	return pISteamFriends->GetLargeFriendAvatar( CSteamID(steamIDFriend) );
+}
+
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUser()
 {
 	return SteamUser();
@@ -1229,6 +1238,11 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamNetworking_CloseP2PChannel(void* pSt
 
 		
 // Steam Callbacks are used to bridge Steam's responses back to our app
+void SteamCallbacks::OnAvatarReceived(AvatarImageLoaded_t *pCallbackData)
+{
+	delegateOnAvatarReceived(pCallbackData);
+}
+
 void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallbackData)
 {
 	delegateOnUserStatsReceived(pCallbackData);

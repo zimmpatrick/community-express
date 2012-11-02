@@ -12,6 +12,7 @@ namespace SteamworksUnityTest
 {
 	class Program
 	{
+		private static bool _largeAvatarReceived = false;
 		private static bool _statsReceived = false;
 		private static bool _leaderboardEntriesReceived = false;
 		private static bool _inGamePurchaseCompleted = false;
@@ -63,13 +64,24 @@ namespace SteamworksUnityTest
 			{
 				Console.WriteLine("Small: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
 			}
-         
+
 			image = cesdk.User.MediumAvatar;
 			if (image != null)
 			{
 				Console.WriteLine("Medium: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
 			}
-				
+
+			cesdk.User.GetLargeAvatar(MyOnUserLargeAvatarReceived);
+			while (!_largeAvatarReceived)
+			{
+				cesdk.RunCallbacks();
+			}
+			image = cesdk.User.LargeAvatar;
+			if (image != null)
+			{
+				Console.WriteLine("Large: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
+			}
+
 			RemoteStorage remoteStorage = cesdk.RemoteStorage;
 			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1}", remoteStorage.Count, remoteStorage.AvailableSpace);
 
@@ -285,6 +297,13 @@ namespace SteamworksUnityTest
 			Console.In.ReadLine();
 
 			return 0;
+		}
+
+		public static void MyOnUserLargeAvatarReceived(SteamID steamID, Image avatar)
+		{
+			_largeAvatarReceived = true;
+
+			Console.WriteLine("OnUserLargeAvatarReceived - {0}", steamID.ToString());
 		}
 
 		public static void MyOnGSClientApproved(SteamID approvedPlayer)

@@ -161,6 +161,11 @@ namespace CommunityExpressNS
 			_onUserEncryptedAppTicketCreated(ticket);
 		}
 
+		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
+		{
+			_friends.GetLargeFriendAvatar(SteamID, largeAvatarReceivedCallback);
+		}
+
 		public Boolean IsBehindNAT
 		{
 			get { return SteamUnityAPI_SteamUser_BIsBehindNAT(_user); }
@@ -194,6 +199,11 @@ namespace CommunityExpressNS
 		public Image MediumAvatar
 		{
 			get { return _friends.GetMediumFriendAvatar(SteamID); }
+		}
+
+		public Image LargeAvatar
+		{
+			get { return _friends.GetLargeFriendAvatar(SteamID, null); }
 		}
 	}
 }

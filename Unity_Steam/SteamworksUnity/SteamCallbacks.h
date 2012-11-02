@@ -5,6 +5,7 @@
 
 #include "steam/steam_api.h"
 
+typedef void (__stdcall *FPOnAvatarReceived)(AvatarImageLoaded_t*);
 typedef void (__stdcall *FPOnUserStatsReceived)(UserStatsReceived_t*);
 typedef void (__stdcall *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
 typedef void (__stdcall *FPOnGameServerClientApprove)(GSClientApprove_t*);
@@ -21,7 +22,8 @@ typedef void (__stdcall *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFa
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
 public:
-	SteamCallbacks() : UserStatsReceivedCallback(this, &SteamCallbacks::OnUserStatsReceived)
+	SteamCallbacks() : AvatarReceivedCallback(this, &SteamCallbacks::OnAvatarReceived)
+					 , UserStatsReceivedCallback(this, &SteamCallbacks::OnUserStatsReceived)
 					 , TransactionAuthorizationReceivedCallback(this, &SteamCallbacks::OnTransactionAuthorizationReceived)
 					 , GameServerClientApproveCallback(this, &SteamCallbacks::OnGameServerClientApprove)
 					 , GameServerClientDenyCallback(this, &SteamCallbacks::OnGameServerClientDeny)
@@ -46,6 +48,7 @@ public:
 	// A list refresh you had initiated is now 100% completed
 	virtual void RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response);
 
+	STEAM_CALLBACK(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback);
 	STEAM_CALLBACK(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
 	STEAM_CALLBACK(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback);
 
@@ -60,6 +63,7 @@ public:
 	void OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *pCallbackData, bool bIOFailure);
 	CCallResult<SteamCallbacks, LeaderboardScoresDownloaded_t> SteamCallResultLeaderboardScoresDownloaded;
 
+	FPOnAvatarReceived delegateOnAvatarReceived;
 	FPOnUserStatsReceived delegateOnUserStatsReceived;
 	FPOnTransactionAuthorizationReceived delegateOnTransactionAuthorizationReceived;
 	FPOnGameServerClientApprove delegateOnGameServerClientApprove;

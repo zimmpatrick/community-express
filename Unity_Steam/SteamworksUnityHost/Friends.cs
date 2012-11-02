@@ -55,6 +55,18 @@ namespace CommunityExpressNS
 		k_EFriendFlagAll = 0xFFFF,
 	};
 
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	struct AvatarImageLoaded_t
+	{
+		public UInt64 m_steamID; // steamid the avatar has been loaded for
+		public int m_iImage; // the image index of the now loaded image
+		public int m_iWide; // width of the loaded image
+		public int m_iTall; // height of the loaded image
+	}
+
+	delegate void OnLargeAvatarReceivedFromSteam(ref AvatarImageLoaded_t CallbackData);
+	public delegate void OnLargeAvatarReceived(SteamID steamID, Image avatar);
+
 	public class Friends : ICollection<Friend>
 	{
 		[DllImport("CommunityExpressSW.dll")]
@@ -72,8 +84,12 @@ namespace CommunityExpressNS
 		private static extern int SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
+		[DllImport("CommunityExpressSW.dll")]
+		private static extern int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(IntPtr friends, UInt64 steamIDFriend, IntPtr OnAvatarReceivedCallback);
 
 		private IntPtr _friends;
+		private OnLargeAvatarReceivedFromSteam _internalOnLargeAvatarReceived = null;
+		private OnLargeAvatarReceived _largeAvatarReceivedCallback;
 
 		private class FriendEnumator : IEnumerator<Friend>
 		{
@@ -160,6 +176,36 @@ namespace CommunityExpressNS
 			}
 
 			return null;
+		}
+
+		internal Image GetLargeFriendAvatar(SteamID steamIDFriend, OnLargeAvatarReceived largeAvatarReceivedCallback)
+		{
+			_largeAvatarReceivedCallback = largeAvatarReceivedCallback;
+
+			if (_internalOnLargeAvatarReceived == null)
+			{
+				_internalOnLargeAvatarReceived = new OnLargeAvatarReceivedFromSteam(InternalOnLargeAvatarReceived);
+			}
+
+			int id = SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(_friends, steamIDFriend.ToUInt64(), Marshal.GetFunctionPointerForDelegate(_internalOnLargeAvatarReceived));
+			if (id != -1)
+			{
+				Image img = new Image(id);
+
+				if (_largeAvatarReceivedCallback != null)
+				{
+					_largeAvatarReceivedCallback(steamIDFriend, img);
+				}
+
+				return img;
+			}
+
+			return null;
+		}
+
+		private void InternalOnLargeAvatarReceived(ref AvatarImageLoaded_t CallbackData)
+		{
+			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));
 		}
 
 		public int Count
