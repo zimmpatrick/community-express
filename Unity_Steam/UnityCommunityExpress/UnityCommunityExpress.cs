@@ -96,11 +96,6 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		get { return _ceInstance.InGamePurchasing; }
 	}
 
-	public GameStats CreateNewGameStats(OnGameStatsSessionInitialized onGameStatsSessionInitialized, Boolean gameserver, SteamID steamID = null)
-	{
-		return _ceInstance.CreateNewGameStats(onGameStatsSessionInitialized, gameserver, steamID);
-	}
-
 	public Boolean IsGameServerInitialized
 	{
 		get { return _ceInstance.IsGameServerInitialized; }

@@ -16,7 +16,6 @@ namespace SteamworksUnityTest
 		private static bool _leaderboardEntriesReceived = false;
 		private static bool _inGamePurchaseCompleted = false;
 		private static bool _userAuthenticationCompleted = false;
-		//private static bool _gamestatsInitialized = false;
 		private static bool _serversReceived = false;
 		private static bool _lobbyCreated = false;
 		private static bool _lobbyListReceived = false;
@@ -250,32 +249,6 @@ namespace SteamworksUnityTest
 				cesdk.RunCallbacks();
 			}
 
-			// There's currently no way to test Game Stats =/
-/*			GameStats gamestats = cesdk.CreateNewGameStats(MyOnGameStatsSessionInitialized, false);
-			while (!_gamestatsInitialized)
-			{
-				cesdk.RunCallbacks();
-			}
-
-			if (gamestats.IsInitialized)
-			{
-				Console.WriteLine("Writing some fake Game Stats");
-
-				gamestats.AddSessionValue("FakeIntValue", 100);
-				gamestats.AddSessionValue("FakeInt64Value", UInt64.MaxValue - 10);
-				gamestats.AddSessionValue("FakeFloatValue", 1.013f);
-				gamestats.AddSessionValue("FakeStringValue", "Stringy");
-				UInt64 rowId = gamestats.CreateNewRow("FakeTable");
-				gamestats.AddRowValue(rowId, "FakeIntValue", 100);
-				gamestats.AddRowValue(rowId, "FakeInt64Value", UInt64.MaxValue - 10);
-				gamestats.AddRowValue(rowId, "FakeFloatValue", 1.013f);
-				gamestats.AddRowValue(rowId, "FakeStringValue", "Stringy");
-				gamestats.CommitRow(rowId);
-				gamestats.EndCurrentSession();
-
-				Console.WriteLine("Done writing fake Game Stats");
-			}
-*/
 			gameserver.ServerName = "Updated KF Server";
 
 			SteamID bot = gameserver.AddBot();
@@ -420,20 +393,6 @@ namespace SteamworksUnityTest
 			_inGamePurchaseCompleted = true;
 		}
 
-/*		public static void MyOnGameStatsSessionInitialized(GameStats gamestats)
-		{
-			if (gamestats != null)
-			{
-				Console.WriteLine("GameStats object Initialized");
-			}
-			else
-			{
-				Console.WriteLine("GameStats object Initialization failed");
-			}
-
-			_gamestatsInitialized = true;
-		}
-*/
 		public static void MyOnLobbyCreated(Lobby lobby)
 		{
 			Console.WriteLine("Lobby Created {0}", lobby.SteamID);

@@ -32,8 +32,6 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t callHandle, out GSStatsReceived_t result, out Byte failed);
 		[DllImport("CommunityExpressSW.dll")]
-		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(SteamAPICall_t callHandle, out GameStatsSessionIssued_t result, out Byte failed);
-		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPICall_t callHandle, out LobbyCreated_t result, out Byte failed);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t callHandle, out LobbyMatchList_t result, out Byte failed);
@@ -63,9 +61,6 @@ namespace CommunityExpressNS
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
-
-		private List<SteamAPICall_t> _gamestatsSessionIssuedCallHandles = new List<SteamAPICall_t>();
-		private List<OnGameStatsSessionIssuedBySteam> _gamestatsSessionIssuedCallbacks = new List<OnGameStatsSessionIssuedBySteam>();
 
 		private SteamAPICall_t _userGetEncryptedAppTicketCallHandle = 0;
 		private OnUserGetEncryptedAppTicketFromSteam _userGetEncryptedAppTicketCallback;
@@ -145,24 +140,6 @@ namespace CommunityExpressNS
 
 			if (_networking != null && _networking.IsInitialized)
 				_networking.CheckForNewP2PPackets();
-
-			for (int i = 0; i < _gamestatsSessionIssuedCallHandles.Count; i++)
-			{
-				SteamAPICall_t h = _gamestatsSessionIssuedCallHandles[i];
-
-				Byte failed;
-				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
-				{
-					GameStatsSessionIssued_t callbackData = new GameStatsSessionIssued_t();
-					SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(h, out callbackData, out failed);
-
-					_gamestatsSessionIssuedCallbacks[i](ref callbackData);
-					_gamestatsSessionIssuedCallHandles.RemoveAt(i);
-					_gamestatsSessionIssuedCallbacks.RemoveAt(i);
-
-					i--;
-				}
-			}
 
 			if (_userGetEncryptedAppTicketCallHandle != 0)
 			{
@@ -400,24 +377,6 @@ namespace CommunityExpressNS
 			}
 		}
 
-		public GameStats CreateNewGameStats(OnGameStatsSessionInitialized onGameStatsSessionInitialized, Boolean gameserver, SteamID steamID = null)
-		{
-			GameStats gamestats;
-
-			gamestats = new GameStats();
-
-			if (gameserver)
-			{
-				gamestats.StartNewSession(onGameStatsSessionInitialized, EGameStatsAccountType.k_EGameStatsAccountType_SteamGameServer, steamID);
-			}
-			else
-			{
-				gamestats.StartNewSession(onGameStatsSessionInitialized, EGameStatsAccountType.k_EGameStatsAccountType_Steam, steamID);
-			}
-
-			return gamestats;
-		}
-
 		public Boolean IsGameServerInitialized
 		{
 			get { return _gameserver != null && _gameserver.IsInitialized; }
@@ -427,12 +386,6 @@ namespace CommunityExpressNS
 		{
 			_gameserverUserStatsReceivedCallHandles.Add(handle);
 			_gameserverUserStatsReceivedCallbacks.Add(callback);
-		}
-
-		internal void AddGameStatsSessionIssuedCallback(SteamAPICall_t handle, OnGameStatsSessionIssuedBySteam callback)
-		{
-			_gamestatsSessionIssuedCallHandles.Add(handle);
-			_gamestatsSessionIssuedCallbacks.Add(callback);
 		}
 
 		internal void AddUserGetEncryptedAppTicketCallback(SteamAPICall_t handle, OnUserGetEncryptedAppTicketFromSteam callback)

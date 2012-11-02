@@ -12,9 +12,6 @@
 // also lets us get ourselves listed in the Steam master server so the server browser can find us
 #include "steam/steam_gameserver.h"
 
-// Game Stat API code from Steam, lets us store game session statistics and details
-#include "steam/isteamgamestats.h"
-
 // Steam Callbacks class is used to connect Steam's responses to our API
 #include "SteamCallbacks.h"
 
@@ -149,24 +146,6 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICal
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t hSteamAPICall, GSStatsReceived_t &CallbackData, unsigned char &bFailed)
-{
-	bool result, failed;
-
-	if (SteamGameServer())
-	{
-		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
-	}
-	else
-	{
-		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
-	}
-
-	bFailed = failed ? 1 : 0;
-
-	return result;
-}
-
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameStatsSessionIssuedResult(SteamAPICall_t hSteamAPICall, GameStatsSessionIssued_t &CallbackData, unsigned char &bFailed)
 {
 	bool result, failed;
 
@@ -1177,104 +1156,6 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(vo
 	}
 
 	return pISteamMatchmakingServers->ReleaseRequest(hRequest);
-}
-
-
-STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameStats()
-{
-	//return SteamGameStats();
-	return NULL;
-}
-
-STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameStats_GetNewSession(void* pSteamGameStats, EGameStatsAccountType nAccountType, uint64 steamIDAccount, int32 nAppID, uint32 rtTimeStarted)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->GetNewSession(nAccountType, steamIDAccount, nAppID, rtTimeStarted);
-}
-
-STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameStats_EndSession(void* pSteamGameStats, uint64 ulSessionID, uint32 rtTimeEnded, int32 nReasonCode)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->EndSession(ulSessionID, rtTimeEnded, nReasonCode);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeint(void* pSteamGameStats, uint64 ulSessionID, char* pchName, int32 iValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddSessionAttributeInt(ulSessionID, pchName, iValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeint64(void* pSteamGameStats, uint64 ulSessionID, char* pchName, int64 iValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddSessionAttributeInt64(ulSessionID, pchName, iValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeFloat(void* pSteamGameStats, uint64 ulSessionID, char* pchName, float fValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddSessionAttributeFloat(ulSessionID, pchName, fValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddSessionAttributeString(void* pSteamGameStats, uint64 ulSessionID, char* pchName, char* pchValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddSessionAttributeString(ulSessionID, pchName, pchValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddNewRow(void* pSteamGameStats, uint64 &ulRowID, uint64 ulSessionID, char* pchTableName)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddNewRow(&ulRowID, ulSessionID, pchTableName);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddRowAttributeint(void* pSteamGameStats, uint64 ulRowID, char* pchName, int32 iValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddRowAttributeInt(ulRowID, pchName, iValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddRowAttributeint64(void* pSteamGameStats, uint64 ulRowID, char* pchName, int64 iValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddRowAttributeInt64(ulRowID, pchName, iValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddRowAttributeFloat(void* pSteamGameStats, uint64 ulRowID, char* pchName, float fValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddRowAttributeFloat(ulRowID, pchName, fValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_AddRowAttributeString(void* pSteamGameStats, uint64 ulRowID, char* pchName, char* pchValue)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->AddRowAtributeString(ulRowID, pchName, pchValue);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_CommitRow(void* pSteamGameStats, uint64 ulRowID)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->CommitRow(ulRowID);
-}
-
-STEAMWORKSUNITY_API EResult SteamUnityAPI_SteamGameStats_CommitOutstandingRows(void* pSteamGameStats, uint64 ulSessionID)
-{
-	ISteamGameStats * pISteamGameStats = static_cast<ISteamGameStats*>( pSteamGameStats );
-
-	return pISteamGameStats->CommitOutstandingRows(ulSessionID);
 }
 
 
