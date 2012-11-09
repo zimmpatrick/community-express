@@ -123,6 +123,19 @@ namespace CommunityExpressNS
 			return SteamUnityAPI_SteamRemoteStorage_FilePersisted(_remoteStorage, fileName);
 		}
 
+        public File GetFile(String fileName)
+        {
+            foreach (File file in this)
+            {
+                if (file.FileName.ToLower()  == fileName.ToLower())
+                {
+                    return file;
+                }
+            }
+
+            return null;
+        }
+
 		public Int32 AvailableSpace
 		{
 			get

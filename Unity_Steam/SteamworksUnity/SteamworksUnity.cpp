@@ -28,6 +28,8 @@
 #endif
 
 typedef uint64 (__stdcall *FPOnChallengeResponse)(uint64 challenge);
+typedef void (__stdcall *FSteamAPIDebugTextHook)(int nSeverity, const char *pchDebugText);
+typedef void (__cdecl *FSteamAPIDebugTextHookCD)(int nSeverity, const char *pchDebugText);
 
 // checks if a local Steam client is running 
 STEAMWORKSUNITY_API bool SteamUnityAPI_IsSteamRunning()
@@ -76,13 +78,14 @@ DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam )
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse)
 {
-	hLicenseThread = CreateThread( 
+	/* hLicenseThread = CreateThread( 
 		NULL,				   // default security attributes
 		0,					  // use default stack size  
 		MyLicenseThreadFunction,	   // thread function name
 		pFPOnChallengeResponse,		// argument to thread function 
 		0,					  // use default creation flags 
 		NULL);   // returns the thread identifier 
+		*/
 
 	return SteamAPI_Init();
 }
@@ -99,6 +102,35 @@ STEAMWORKSUNITY_API void SteamUnityAPI_Shutdown()
 
 	return SteamAPI_Shutdown();
 }
+
+FSteamAPIDebugTextHook hook = NULL;
+
+//-----------------------------------------------------------------------------
+// Purpose: callback hook for debug text emitted from the Steam API
+//-----------------------------------------------------------------------------
+extern "C" void __cdecl CSteamAPIDebugTextHook( int nSeverity, const char *pchDebugText )
+{
+	// if you're running in the debugger, only warnings (nSeverity >= 1) will be sent
+	// if you add -debug_steamapi to the command-line, a lot of extra informational messages will also be sent
+	if (hook) hook(nSeverity, pchDebugText);
+
+	if ( nSeverity >= 1 )
+	{
+		// place to set a breakpoint for catching API errors
+		int x = 3;
+		x = x;
+	}
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SetWarningMessageHook(FSteamAPIDebugTextHook SteamAPIDebugTextHook)
+{	
+	// set our debug handler
+	hook = SteamAPIDebugTextHook;
+
+	SteamClient()->SetWarningMessageHook( CSteamAPIDebugTextHook );
+}
+
+
 
 STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
 {
