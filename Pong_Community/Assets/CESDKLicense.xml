@@ -1,0 +1,17 @@
+﻿<License>
+  <AppId>480</AppId>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+      <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <DigestValue>4AbD5lqZBgKIDhhfXErV/KAzBQU=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue>aZswBurjKPTE/1DGRvOA2YDeJfG2fPF49OliQj0yq4tV91m2IFoZU9pkQo6zk/4p4qMb2PIjRli/1eOzSGfI5EDXHKj2Pp1565cudPuLa8E9To31J8LM3RNlkCFFefvptVcYS4fUDusEJ4pR+2VgvbxddQAioWLiSe69GbVYIWQ=</SignatureValue>
+  </Signature>
+</License>
