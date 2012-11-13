@@ -62,20 +62,20 @@ namespace CommunityExpressNS
 		k_EChatRoomEnterResponseYouBlockedMember = 11, // Join failed - you have blocked some member already in the chat
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyCreated_t
 	{
 		public EResult m_eResult;
 		public UInt64 m_ulSteamIDLobby;		// chat room, zero if failed
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyMatchList_t
 	{
 		public UInt32 m_nLobbiesMatching;		// Number of lobbies that matched search criteria and we have SteamIDs for
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyEnter_t
 	{
 		public UInt64 m_ulSteamIDLobby;			// SteamID of the Lobby you have entered
@@ -84,7 +84,7 @@ namespace CommunityExpressNS
 		public UInt32 m_EChatRoomEnterResponse;	// EChatRoomEnterResponse
 	}
 	
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct servernetadr_t
 	{
 		public UInt16 m_usConnectionPort;	// (in HOST byte order)
@@ -92,24 +92,24 @@ namespace CommunityExpressNS
 		public UInt32 m_unIP;
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct gameserveritem_t
 	{
 		public servernetadr_t m_NetAdr;				// IP/Query Port/Connection Port for this server
 		public Int32 m_nPing;						// current ping time in milliseconds
-		public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
-		public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
+        public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
+        public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szGameDir;					// current game directory
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szMap;						// current map
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public char[] m_szGameDescription;			// game description
-		public UInt32 m_nAppID;						// Steam App ID of this server
+        public UInt32 m_nAppID;						// Steam App ID of this server
 		public Int32 m_nPlayers;					// current number of players on the server
 		public Int32 m_nMaxPlayers;					// Maximum players that can join this server
 		public Int32 m_nBotPlayers;					// Number of bots (i.e simulated players) on this server
-		public Byte m_bPassword;					// true if this server needs a password to join
+        public Byte m_bPassword;					// true if this server needs a password to join
 		public Byte m_bSecure;					// Is this server protected by VAC
 		public UInt32 m_ulTimeLastPlayed;			// time (in unix time) when this server was last played on (for favorite/history servers)
 		public Int32 m_nServerVersion;				// server version as reported to Steam
@@ -559,7 +559,7 @@ namespace CommunityExpressNS
 
 			Server server = new Server(callbackData.m_nServerVersion, ipAddress, callbackData.m_NetAdr.m_usConnectionPort, callbackData.m_NetAdr.m_usQueryPort, callbackData.m_nPing,
 				new String(callbackData.m_szServerName), new String(callbackData.m_szMap), new String(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
-				callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, new String(callbackData.m_szGameTags));
+                callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, new String(callbackData.m_szGameTags));
 
 			_serverList.Add(server);
 
