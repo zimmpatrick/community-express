@@ -6,21 +6,30 @@ public class PaddleControl : MonoBehaviour {
 	public float paddleSpeed = 30;
 	public bool cantMove = false;
 	private bool firstTimeHit = false;
+	private string curColor = "";
 
 	void FixedUpdate () {
-		switch(Menu.Instance.userColor){
-			case "white":
-				renderer.material.color = Color.white;
-			break;
-			case "blue":
-				renderer.material.color = Color.blue;
-			break;
-			case "red":
-				renderer.material.color = Color.red;
-			break;
-			case "green":
-				renderer.material.color = Color.green;
-			break;
+		if(networkView.isMine){
+			networkView.RPC("ChangeNetworkColor", RPCMode.Server, Menu.Instance.userColor);
+			switch(Menu.Instance.userColor){
+				case "white":
+					renderer.material.color = Color.white;
+				break;
+				case "blue":
+					renderer.material.color = Color.blue;
+				break;
+				case "red":
+					renderer.material.color = Color.red;
+				break;
+				case "green":
+					renderer.material.color = Color.green;
+				break;
+			}
+			if(curColor!=Menu.Instance.userColor){
+				
+				
+			}
+			curColor = Menu.Instance.userColor;
 		}
 		if(Menu.Instance.isStart&&networkView.isMine){
 			
@@ -38,20 +47,39 @@ public class PaddleControl : MonoBehaviour {
 		}
 	}
 	
+	[RPC]void ChangeNetworkColor(string newColor){
+		Debug.Log(newColor + "   " + Menu.Instance.userColor);
+		switch(newColor){
+				case "white":
+					renderer.material.color = Color.white;
+				break;
+				case "blue":
+					renderer.material.color = Color.blue;
+				break;
+				case "red":
+					renderer.material.color = Color.red;
+				break;
+				case "green":
+					renderer.material.color = Color.green;
+				break;
+			}
+	}
+	
 	void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-{
-    if (stream.isWriting)
-    {
-        Vector3 pos = transform.position;
-        stream.Serialize(ref pos);
-    }
-    else
-    {
-        Vector3 posRec = Vector3.zero;
-        stream.Serialize(ref posRec);
-        transform.position = posRec;
-    }
-}
+	{
+	    if (stream.isWriting)
+	    {
+	        Vector3 pos = transform.position;
+	        stream.Serialize(ref pos);
+			
+	    }
+	    else
+	    {
+	        Vector3 posRec = Vector3.zero;
+	        stream.Serialize(ref posRec);
+	        transform.position = posRec;
+	    }
+	}
 
 
 	

@@ -70,7 +70,7 @@ namespace CommunityExpressNS
 		private static extern UInt32 SteamUnityAPI_SteamGameServer_GetPublicIP(IntPtr gameserver);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetBasicServerData(IntPtr gameserver, Boolean isDedicated,
-			[MarshalAs(UnmanagedType.LPStr)] String gameName, [MarshalAs(UnmanagedType.LPStr)] String gameDescription);
+            [MarshalAs(UnmanagedType.LPStr)] String gameName, [MarshalAs(UnmanagedType.LPStr)] String gameDescription, [MarshalAs(UnmanagedType.LPStr)] String modDir);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern void SteamUnityAPI_SteamGameServer_LogOnAnonymous(IntPtr gameserver);
 		[DllImport("CommunityExpressSW.dll")]
@@ -115,6 +115,7 @@ namespace CommunityExpressNS
 		private Dictionary<String, String> _keyValues;
 		private String _gameTags;
 		private String _gameData;
+        private String _modDir;
 		private List<SteamID> _playersPendingAuth = new List<SteamID>();
 		private List<SteamID> _playersConnected = new List<SteamID>();
 		private List<SteamID> _botsConnected = new List<SteamID>();
@@ -140,9 +141,20 @@ namespace CommunityExpressNS
 			Shutdown();
 		}
 
+        public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
+            EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
+            String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved,
+            OnGameServerClientDenied onGameServerClientDenied, OnGameServerClientKick onGameServerClientKick)
+        {
+            return Init(isDedicated, ip, port, queryPort, masterServerPort, spectatorPort,
+            serverMode, serverName, spectatorServerName, regionName, gameName, gameDescription,
+            gameVersion, mapName, maxClients, isPassworded, string.Empty, onGameServerClientApproved,
+            onGameServerClientDenied, onGameServerClientKick);
+        }
+
 		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
 			EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
-			String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved,
+			String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, String modDir, OnGameServerClientApproved onGameServerClientApproved,
 			OnGameServerClientDenied onGameServerClientDenied, OnGameServerClientKick onGameServerClientKick)
 		{
 			Byte[] serverIPBytes = ip.GetAddressBytes();
@@ -183,6 +195,7 @@ namespace CommunityExpressNS
 				_gameDescription = gameDescription;
 				_maxClients = maxClients;
 				_isPassworded = isPassworded;
+                _modDir = modDir;
 
 				SendBasicServerStatus();
 				SteamUnityAPI_SteamGameServer_LogOnAnonymous(_gameServer);
@@ -339,7 +352,7 @@ namespace CommunityExpressNS
 
 		private void SendBasicServerStatus()
 		{
-			SteamUnityAPI_SteamGameServer_SetBasicServerData(_gameServer, _isDedicated, _gameName, _gameDescription);
+			SteamUnityAPI_SteamGameServer_SetBasicServerData(_gameServer, _isDedicated, _gameName, _gameDescription, _modDir);
 		}
 
 		private void SendUpdatedServerStatus()

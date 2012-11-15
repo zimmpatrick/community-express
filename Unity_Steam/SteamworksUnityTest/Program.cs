@@ -183,6 +183,7 @@ namespace SteamworksUnityTest
 				cesdk.RunCallbacks();
 			}
 
+            /*
 			Networking networking = cesdk.Networking;
 			networking.Init(true, null, null, MyOnP2PPacketReceived);
 
@@ -193,6 +194,10 @@ namespace SteamworksUnityTest
 			{
 				cesdk.RunCallbacks();
 			}
+
+            */
+
+            /*
 
 			// NOTE: It is suggested that games call NewPurchase when the user enters the store rather than waiting until they are
 			//       ready to check out, as info about the user must be fetched from Steam's server before a purchase can be completed
@@ -210,11 +215,13 @@ namespace SteamworksUnityTest
 					cesdk.RunCallbacks();
 				}
 			}
-
-			GameServer gameserver = cesdk.GameServer;
+            
+            */
+            
+            GameServer gameserver = cesdk.GameServer;
 			const UInt16 gsPort = 8793;
 			if (gameserver.Init(false, new IPAddress(0), gsPort, gsPort + 1, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
-				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true,
+				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true, 
 				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
 			{
 				Console.WriteLine("GameServer: {0}", gameserver.SteamID);
@@ -223,6 +230,8 @@ namespace SteamworksUnityTest
 			{
 				Console.WriteLine("GameServer Failed to Initialize");
 			}
+
+            /*
 
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
@@ -239,7 +248,9 @@ namespace SteamworksUnityTest
 					}
 				}
 			}
+            */
 
+            /*
 			Console.WriteLine("Requesting Stats through Game Server");
 			gameserver.RequestUserStats(user.SteamID, MyOnUserStatsReceivedCallback,
 				new string[] { "Kills", "DamageHealed", "Testing1" });
@@ -273,10 +284,13 @@ namespace SteamworksUnityTest
 			cesdk.RunCallbacks();
 			Thread.Sleep(1000);
 			cesdk.RunCallbacks();
+            */
 
 			Console.WriteLine("Requesting Server List(Only our server will show details):");
 			Dictionary<string, string> filters = new Dictionary<string, string>();
-			filters.Add("gameName", "EON");
+            // filters.Add("gamedir", "EON");
+            //filters.Add("secure", "1");
+            filters.Add("secure", "1");
 			matchmaking.RequestInternetServerList(filters, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
 			while (!_serversReceived)
 			{

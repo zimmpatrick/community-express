@@ -48,6 +48,7 @@
      <Compile Include="Assets\_Script\Menu.cs" />
      <Compile Include="Assets\_Script\PaddleControl.cs" />
      <Compile Include="Assets\_Script\PlayerController.cs" />
+     <None Include="Assets\steam_appid.txt" />
      <None Include="Assets\CESDKLicense.xml" />
  <Reference Include="CommunityExpress">
  <HintPath>Assets\CommunityExpress.dll</HintPath>

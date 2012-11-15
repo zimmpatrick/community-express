@@ -10,108 +10,121 @@ namespace CommunityExpressNS
 {
 	public class Server
 	{
-		private Int32 _version;
-		private IPAddress _ip;
-		private UInt16 _port;
-		private UInt16 _queryPort;
-		private Int32 _ping;
-		private String _serverName;
-		private String _mapName;
-		private String _gameDescription;
-		private Boolean _isSecure;
-		private Boolean _isPassworded;
-		private Int32 _players;
-		private Int32 _maxPlayers;
-		private Int32 _botPlayers;
-		private String _gameTags;
-
-		public Server(Int32 version, IPAddress ip, UInt16 port, UInt16 queryPort, Int32 ping, String serverName, String mapName, String gameDesc,
-			Boolean isSecure, Boolean isPassworded, Int32 players, Int32 maxPlayers, Int32 botPlayers, String gameTags)
+		internal Server(Int32 version, IPAddress ip, UInt16 port, UInt16 queryPort, Int32 ping, String serverName, String mapName, String gameDesc,
+            Boolean isSecure, Boolean isPassworded, Int32 players, Int32 maxPlayers, Int32 botPlayers, String gameTags, String gameDir, UInt32 appId)
 		{
-			_version = version;
-			_ip = ip;
-			_port = port;
-			_queryPort = queryPort;
-			_ping = ping;
-			_serverName = serverName;
-			_mapName = mapName;
-			_gameDescription = gameDesc;
-			_isSecure = isSecure;
-			_isPassworded = isPassworded;
-			_players = players;
-			_maxPlayers = maxPlayers;
-			_botPlayers = botPlayers;
-			_gameTags = gameTags;
+			Version = version;
+			IP = ip;
+			Port = port;
+			QueryPort = queryPort;
+			Ping = ping;
+			ServerName = serverName;
+			MapName = mapName;
+			GameDescription = gameDesc;
+			IsSecure = isSecure;
+			IsPassworded = isPassworded;
+			Players = players;
+			MaxPlayers = maxPlayers;
+			BotPlayers = botPlayers;
+			GameTags = gameTags;
+            GameDir = gameDir;
+            AppId = appId;
 		}
 
-		public Int32 Version
-		{
-			get { return _version; }
-		}
+        public Int32 Version
+        {
+            get;
+            private set;
+        }
 
 		public IPAddress IP
 		{
-			get { return _ip; }
+            get;
+            private set;
 		}
 
-		public UInt16 Port
-		{
-			get { return _port; }
-		}
+        public UInt16 Port
+        {
+            get;
+            private set;
+        }
 
-		public UInt16 QueryPort
-		{
-			get { return _queryPort; }
-		}
+        public UInt16 QueryPort
+        {
+            get;
+            private set;
+        }
 
-		public Int32 Ping
-		{
-			get { return _ping; }
-		}
+        public Int32 Ping
+        {
+            get;
+            private set;
+        }
 
-		public String ServerName
-		{
-			get { return _serverName; }
-		}
+        public UInt32 AppId
+        {
+            get;
+            private set;
+        }
 
-		public String MapName
-		{
-			get { return _mapName; }
-		}
+        public String ServerName
+        {
+            get;
+            private set;
+        }
 
-		public String GameDescription
-		{
-			get { return _gameDescription; }
-		}
+        public String MapName
+        {
+            get;
+            private set;
+        }
 
-		public Boolean IsSecure
-		{
-			get { return _isSecure; }
-		}
+        public String GameDescription
+        {
+            get;
+            private set;
+        }
 
-		public Boolean IsPassworded
-		{
-			get { return _isPassworded; }
-		}
+        public String GameDir
+        {
+            get;
+            private set;
+        }
 
-		public Int32 Players
-		{
-			get { return _players; }
-		}
+        public Boolean IsSecure
+        {
+            get;
+            private set;
+        }
 
-		public Int32 MaxPlayers
-		{
-			get { return _maxPlayers; }
-		}
+        public Boolean IsPassworded
+        {
+            get;
+            private set;
+        }
 
-		public Int32 BotPlayers
-		{
-			get { return _botPlayers; }
-		}
+        public Int32 Players
+        {
+            get;
+            private set;
+        }
 
-		public String GameTags
-		{
-			get { return _gameTags; }
-		}
+        public Int32 MaxPlayers
+        {
+            get;
+            private set;
+        }
+
+        public Int32 BotPlayers
+        {
+            get;
+            private set;
+        }
+
+        public String GameTags
+        {
+            get;
+            private set;
+        }
 	}
 }

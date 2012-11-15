@@ -28,7 +28,6 @@ public class Menu : MonoBehaviour {
 	public string userColor;
 	public int numHits = 0;
 	public int hitDisp = 0;
-	private bool PlayerConnected = false;
 	public bool PlayerOneReady = false;
 	public bool PlayerTwoReady = false;
 	public Texture2D PlayerOneImage;
@@ -40,7 +39,6 @@ public class Menu : MonoBehaviour {
 	void Start () {
 		
 		Instance = this;
-		Time.timeScale=5;
 		GameObject go = GameObject.Find("CommunityExpress");
 		communityExpress = go.GetComponentInChildren(typeof(UnityCommunityExpress)) as UnityCommunityExpress;
 		myPersona = UnityCommunityExpress.Instance.User;
@@ -97,7 +95,8 @@ public class Menu : MonoBehaviour {
 	}
 
     void OnPlayerConnected(NetworkPlayer player) {
-		PlayerConnected = true;
+		Debug.Log("Player connected");
+		
     }
 	void OnConnectedToServer() {
 		Object tempObj;
@@ -115,6 +114,7 @@ public class Menu : MonoBehaviour {
 	void OnServerListReceivedCallback(CommunityExpressNS.Servers servers)
 	{
 		serverList = servers;
+		Debug.Log(" not running");
 	}
 	
     void OnFailedToConnect(NetworkConnectionError error) {
@@ -145,15 +145,14 @@ public class Menu : MonoBehaviour {
 			foreach (CommunityExpressNS.Server server in serverList)
 			{
 				i++;
-				if(server.ServerName=="Unity Community Express Server"){
 				GUILayout.BeginHorizontal();
 				GUILayout.Space(50);
 				GUILayout.Label(server.ServerName);
 				if (GUILayout.Button("Connect"))
-					Network.Connect(server.IP.ToString(), server.Port);						
+					Network.Connect(server.IP.ToString(), 27015);						
 				GUILayout.EndHorizontal();
 				
-				}
+				
 				
 				myText=i.ToString();
 			}
@@ -163,19 +162,17 @@ public class Menu : MonoBehaviour {
 		{
 			//showServerList = true;
 			Dictionary<string, string> filters = new Dictionary<string, string>();
-			filters.Add("Unity Community Express Server", "CommunityExpress");
-			
-			communityExpress.Matchmaking.RequestInternetServerList(null, OnServerReceivedCallback, OnServerListReceivedCallback);
-			//communityExpress.Matchmaking.
+			filters.Add("gamedir", "pong");
+			communityExpress.Matchmaking.RequestInternetServerList(filters, OnServerReceivedCallback, OnServerListReceivedCallback);
 		}
 		if(isPTP){
 			ushort listenPort = 8793;
 			ushort masterPort = 27015;
-			IPAddress ipAd = IPAddress.Parse(Network.player.ipAddress);// ipAd = IPAd Network.player.ipAddress;
+			IPAddress ipAd = IPAddress.Any; // IPAddress.Parse(Network.player.ipAddress);
 			if(GUI.Button(new Rect(Screen.width/2-75, Screen.height/2, 150, 30), "Create Game")){
-				Network.InitializeServer(32, 8793);
-				communityExpress.GameServer.Init(false,System.Net.IPAddress.Any , listenPort, listenPort, masterPort, masterPort, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure,"Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress","1.0.0.0", "CE-Fake", 8, false,OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick);
-				Debug.Log(communityExpress.GameServer.ServerName);
+				Network.InitializeServer(32, masterPort, true);
+				
+				Debug.Log(communityExpress.GameServer.Init(false, ipAd, listenPort, listenPort, masterPort, masterPort, CommunityExpressNS.EServerMode.eServerModeNoAuthentication,"Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress","1.0.0.0", "CE-Fake", 8, false, "pong", OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
 				tempObj = Network.Instantiate(paddleOne, new Vector3(-130, 0, -20), Quaternion.identity, 0);
 				Network.Instantiate(ball2, new Vector3(30, 0, -20), Quaternion.identity, 0);
 				tempObj.name = "PlayerOne";

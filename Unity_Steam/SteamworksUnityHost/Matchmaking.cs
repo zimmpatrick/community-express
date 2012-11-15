@@ -549,7 +549,24 @@ namespace CommunityExpressNS
 			return _serverList;
 		}
 
-		private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
+        private int StrLen(char[] buffer)
+        {
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (buffer[i] == '\0') return i;
+            }
+
+            return buffer.Length;
+        }
+
+        private String CharArrayToString(char[] buffer)
+        {
+            if (buffer == null) return string.Empty;
+
+            return new String(buffer, 0, StrLen(buffer));
+        }
+
+        private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
 		{
 			if (request != _serverListRequest)
 				return;
@@ -558,8 +575,9 @@ namespace CommunityExpressNS
 			IPAddress ipAddress = new IPAddress(new byte[] { (byte)(ip >> 24), (byte)(ip >> 16), (byte)(ip >> 8), (byte)ip });
 
 			Server server = new Server(callbackData.m_nServerVersion, ipAddress, callbackData.m_NetAdr.m_usConnectionPort, callbackData.m_NetAdr.m_usQueryPort, callbackData.m_nPing,
-				new String(callbackData.m_szServerName), new String(callbackData.m_szMap), new String(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
-                callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, new String(callbackData.m_szGameTags));
+                CharArrayToString(callbackData.m_szServerName), CharArrayToString(callbackData.m_szMap), CharArrayToString(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
+                callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, CharArrayToString(callbackData.m_szGameTags),
+                CharArrayToString(callbackData.m_szGameDir), callbackData.m_nAppID);
 
 			_serverList.Add(server);
 

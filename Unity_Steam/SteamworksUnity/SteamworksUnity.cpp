@@ -475,14 +475,21 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_UpdateUserData(void* pSte
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_Shutdown()
 {
+	// Notify Steam master server we are going offline
+	SteamGameServer()->EnableHeartbeats( false );
+
+	// Disconnect from the steam servers
+	SteamGameServer()->LogOff();
+
 	return SteamGameServer_Shutdown();
 }
 
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetBasicServerData(void* pSteamGameServer, bool bDedicated, const char* pchGameName, const char* pchGameDesc)
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetBasicServerData(void* pSteamGameServer, bool bDedicated, const char* pchGameName, const char* pchGameDesc, const char * pchModDir)
 {
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
-
+	
+	pISteamGameServer->SetModDir(pchModDir);
 	pISteamGameServer->SetDedicatedServer(bDedicated);
 	pISteamGameServer->SetProduct(pchGameName);
 	pISteamGameServer->SetGameDescription(pchGameDesc);
@@ -493,6 +500,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_LogOnAnonymous(void* pSte
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	pISteamGameServer->LogOnAnonymous();
+	pISteamGameServer->EnableHeartbeats( true );
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetKeyValues(void* pSteamGameServer, char** pKeys, char** pValues, int32 iCount)
@@ -1324,6 +1332,9 @@ void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 
 void SteamCallbacks::ServerFailedToRespond(HServerListRequest hRequest, int iServer)
 {
+	gameserveritem_t* callbackData = SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+
+	printf("");
 }
 
 void SteamCallbacks::RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response)
