@@ -30,10 +30,12 @@ public class Menu : MonoBehaviour {
 	public int hitDisp = 0;
 	public bool PlayerOneReady = false;
 	public bool PlayerTwoReady = false;
+	public bool isPlayerTwo = false;
 	public Texture2D PlayerOneImage;
 	public Texture2D PlayerTwoImage;
 	string[] achievement = {"ACH_WIN_ONE_GAME"};
 	private CommunityExpressNS.Servers serverList = null;
+	public GameObject textObj;
 	
 	// Use this for initialization
 	void Start () {
@@ -99,10 +101,11 @@ public class Menu : MonoBehaviour {
 		
     }
 	void OnConnectedToServer() {
-		Object tempObj;
-		
+		GameObject tempObj;
+		tempObj = Network.Instantiate(textObj, new Vector3(0.1f, 0.1f, 0), Quaternion.identity, 0) as GameObject;
+		tempObj.guiText.text = myPersona.PersonaName;
 		Network.Instantiate(ball2, new Vector3(-30, 0, -20), Quaternion.identity, 0);
-		tempObj = Network.Instantiate(paddleTwo, new Vector3(130, 0, -20), Quaternion.identity, 1);
+		tempObj = Network.Instantiate(paddleTwo, new Vector3(130, 0, -20), Quaternion.identity, 1) as GameObject;
 		tempObj.name = "PlayerTwo";
     }
 	
@@ -172,7 +175,7 @@ public class Menu : MonoBehaviour {
 			if(GUI.Button(new Rect(Screen.width/2-75, Screen.height/2, 150, 30), "Create Game")){
 				Network.InitializeServer(32, masterPort, true);
 				
-				Debug.Log(communityExpress.GameServer.Init(false, ipAd, listenPort, listenPort, masterPort, masterPort, CommunityExpressNS.EServerMode.eServerModeNoAuthentication,"Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress","1.0.0.0", "CE-Fake", 8, false, "pong", OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
+				Debug.Log(communityExpress.GameServer.Init(false, ipAd, listenPort, listenPort, masterPort, masterPort, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure,"Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress","1.0.0.0", "CE-Fake", 8, false, "pong", OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
 				tempObj = Network.Instantiate(paddleOne, new Vector3(-130, 0, -20), Quaternion.identity, 0);
 				Network.Instantiate(ball2, new Vector3(30, 0, -20), Quaternion.identity, 0);
 				tempObj.name = "PlayerOne";
@@ -180,6 +183,7 @@ public class Menu : MonoBehaviour {
 			}
 			if(GUI.Button(new Rect(Screen.width/2-75, Screen.height/2 + 50, 150, 30), "Join Game")){
 				//Network.Connect("10.21.1.103", 8793);
+				isPlayerTwo=true;
 				isPTP=false;
 			}
 		}
@@ -188,11 +192,11 @@ public class Menu : MonoBehaviour {
 		}
 		
 			
-		GUI.Box(new Rect(15, 15, 200, 64), "");
-		GUI.DrawTexture(new Rect(15, 15, 64, 64), UnityCommunityExpress.Instance.ConvertImageToTexture2D(myPersona.MediumAvatar));
-		GUI.Label(new Rect(80, 20, 200, 20), myPersona.PersonaName.ToString(), userOnlineTextStyle);
-		GUI.Label(new Rect(80, 15+25, 200, 20), "Current Score " + numHits.ToString(), userOnlineTextStyle);
-		GUI.Label(new Rect(80, 15+45, 200, 20), "Highest Score " + hitDisp.ToString(), userOnlineTextStyle);
+//		GUI.Box(new Rect(15, 15, 200, 64), "");
+//		GUI.DrawTexture(new Rect(15, 15, 64, 64), UnityCommunityExpress.Instance.ConvertImageToTexture2D(myPersona.MediumAvatar));
+//		GUI.Label(new Rect(80, 20, 200, 20), myPersona.PersonaName.ToString(), userOnlineTextStyle);
+//		GUI.Label(new Rect(80, 15+25, 200, 20), "Current Score " + numHits.ToString(), userOnlineTextStyle);
+//		GUI.Label(new Rect(80, 15+45, 200, 20), "Highest Score " + hitDisp.ToString(), userOnlineTextStyle);
 		int y = 15;
 		if(GUI.Button(new Rect(250, 15, 100, 30), "Friends")){
 			ShowFriends = !ShowFriends;
@@ -229,6 +233,42 @@ public class Menu : MonoBehaviour {
 		
 					case CommunityExpressNS.EPersonaState.EPersonaStateSnooze:
 						GUI.Label(new Rect(320, y*3.5f+25, 200, 20), f.PersonaName.ToString(), userSnoozeTextStyle);
+						break;
+				}
+				
+				
+				GUI.DrawTexture(new Rect(250, y*3.5f, 64, 64), UnityCommunityExpress.Instance.ConvertImageToTexture2D(f.MediumAvatar));
+				//GUI.Label(new Rect(220, y*4, 200, 20), f.PersonaName.ToString());
+				y += 20;
+			}
+			
+			ICollection<CommunityExpressNS.Friend> players = UnityCommunityExpress.Instance.GameServer.GetPlayersConnected();
+			
+			Debug.Log("blah blah " + players.Count);
+			foreach (CommunityExpressNS.Friend f in players)
+			{
+				
+				GUI.Box(new Rect(250, y*3.5f, 200, 64), "");
+				switch (f.PersonaState)
+				{
+					case CommunityExpressNS.EPersonaState.EPersonaStateOffline:
+						GUI.Label(new Rect(320, y*3.5f+25, 200, 20), "SF: " + f.PersonaName.ToString(), userOfflineTextStyle);
+						break;
+		
+					case CommunityExpressNS.EPersonaState.EPersonaStateOnline:
+						GUI.Label(new Rect(320, y*3.5f+25, 200, 20), "SF: " + f.PersonaName.ToString(), userOnlineTextStyle);
+						break;
+		
+					case CommunityExpressNS.EPersonaState.EPersonaStateBusy:
+						GUI.Label(new Rect(320, y*3.5f+25, 200, 20), "SF: " + f.PersonaName.ToString(), userBusyTextStyle);
+						break;
+		
+					case CommunityExpressNS.EPersonaState.EPersonaStateAway:
+						GUI.Label(new Rect(320, y*3.5f+25, 200, 20), "SF: " + f.PersonaName.ToString(), userAwayTextStyle);
+						break;
+		
+					case CommunityExpressNS.EPersonaState.EPersonaStateSnooze:
+						GUI.Label(new Rect(320, y*3.5f+25, 200, 20), "SF: " + f.PersonaName.ToString(), userSnoozeTextStyle);
 						break;
 				}
 				

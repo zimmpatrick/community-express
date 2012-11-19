@@ -83,7 +83,7 @@ namespace SteamworksUnityTest
 			}
 
 			RemoteStorage remoteStorage = cesdk.RemoteStorage;
-			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("tits.asd"), remoteStorage.GetFileSize("titty"));s
+			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("tits.asd"), remoteStorage.GetFileSize("titty"));
 			remoteStorage.WriteFile("CloudTest.txt", "I has file!");
 			cesdk.RunCallbacks();
 

@@ -42,9 +42,9 @@
 	#define TEXT(x)				x
 #endif
 
-typedef uint64 (STDCALL *FPOnChallengeResponse)(uint64 challenge);
-typedef void (STDCALL *FSteamAPIDebugTextHook)(int nSeverity, const char *pchDebugText);
-typedef void (CDECL *FSteamAPIDebugTextHookCD)(int nSeverity, const char *pchDebugText);
+typedef uint64 (ZIMM_STDCALL *FPOnChallengeResponse)(uint64 challenge);
+typedef void (ZIMM_STDCALL *FSteamAPIDebugTextHook)(int nSeverity, const char *pchDebugText);
+typedef void (ZIMM_CDECL *FSteamAPIDebugTextHookCD)(int nSeverity, const char *pchDebugText);
 
 // checks if a local Steam client is running 
 STEAMWORKSUNITY_API bool SteamUnityAPI_IsSteamRunning()
@@ -129,7 +129,7 @@ FSteamAPIDebugTextHook hook = NULL;
 //-----------------------------------------------------------------------------
 // Purpose: callback hook for debug text emitted from the Steam API
 //-----------------------------------------------------------------------------
-extern "C" void __cdecl CSteamAPIDebugTextHook( int nSeverity, const char *pchDebugText )
+extern "C" void ZIMM_CDECL CSteamAPIDebugTextHook( int nSeverity, const char *pchDebugText )
 {
 	// if you're running in the debugger, only warnings (nSeverity >= 1) will be sent
 	// if you add -debug_steamapi to the command-line, a lot of extra informational messages will also be sent
@@ -561,18 +561,18 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamFriends()
 	return SteamFriends();
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCount(void* pSteamFriends)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCount(void* pSteamFriends, int iFriendFlags)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
-	return pISteamFriends->GetFriendCount(k_EFriendFlagImmediate);
+	return pISteamFriends->GetFriendCount(iFriendFlags);
 }
 
-STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendByIndex(void* pSteamFriends, int iFriend)
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamFriends_GetFriendByIndex(void* pSteamFriends, int iFriend, int iFriendFlags)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
-	return pISteamFriends->GetFriendByIndex(iFriend, k_EFriendFlagImmediate).ConvertToUint64();
+	return pISteamFriends->GetFriendByIndex(iFriend, iFriendFlags).ConvertToUint64();
 }
 
 STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamFriends_GetFriendPersonaName(void* pSteamFriends, uint64 steamIDFriend)

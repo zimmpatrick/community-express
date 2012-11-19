@@ -345,6 +345,19 @@ namespace CommunityExpressNS
 			}
 		}
 
+        public ICollection<Friend> GetPlayersConnected()
+        {
+            List<Friend> friends = new List<Friend>();
+
+            foreach (SteamID id in _playersConnected)
+            {
+                friends.Add(new Friend(CommunityExpress.Instance.Friends, 
+                    id));
+            }
+
+            return friends;
+        }
+
 		private void OnGameServerPolicyResponseCallback(ref GSPolicyResponse_t callbackData)
 		{
 			_vacSecured = callbackData.m_bSecure != 0;

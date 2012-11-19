@@ -6,28 +6,28 @@
 #include "steam/steam_api.h"
 
 #ifdef _WIN32
-	#define STDCALL		__stdcall
-	#define CDECL		__cdecl
-	#define CALLBACK	STD_CALL
+	#define ZIMM_STDCALL	__stdcall
+	#define ZIMM_CDECL		__cdecl
+	#define ZIMM_CALLBACK	ZIMM_STDCALL
 #elif defined(__APPLE__)
-	#define STDCALL		__attribute__((stdcall))
-	#define CDECL		__attribute__((cdecl))
-	#define CALLBACK	CDECL
+	#define ZIMM_STDCALL	__attribute__((stdcall))
+	#define ZIMM_CDECL		__attribute__((cdecl))
+	#define ZIMM_CALLBACK	CDECL
 #endif
 
-typedef void (CALLBACK *FPOnAvatarReceived)(AvatarImageLoaded_t*);
-typedef void (CALLBACK *FPOnUserStatsReceived)(UserStatsReceived_t*);
-typedef void (CALLBACK *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
-typedef void (CALLBACK *FPOnGameServerClientApprove)(GSClientApprove_t*);
-typedef void (CALLBACK *FPOnGameServerClientDeny)(GSClientDeny_t*);
-typedef void (CALLBACK *FPOnGameServerClientKick)(GSClientKick_t*);
-typedef void (CALLBACK *FPOnGameServerPolicyResponse)(GSPolicyResponse_t*);
-typedef void (CALLBACK *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
-typedef void (CALLBACK *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
-typedef void (CALLBACK *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
-typedef void (CALLBACK *FPOnServerListComplete)(HServerListRequest);
-typedef void (CALLBACK *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
-typedef void (CALLBACK *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
+typedef void (ZIMM_CALLBACK *FPOnAvatarReceived)(AvatarImageLoaded_t*);
+typedef void (ZIMM_CALLBACK *FPOnUserStatsReceived)(UserStatsReceived_t*);
+typedef void (ZIMM_CALLBACK *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
+typedef void (ZIMM_CALLBACK *FPOnGameServerClientApprove)(GSClientApprove_t*);
+typedef void (ZIMM_CALLBACK *FPOnGameServerClientDeny)(GSClientDeny_t*);
+typedef void (ZIMM_CALLBACK *FPOnGameServerClientKick)(GSClientKick_t*);
+typedef void (ZIMM_CALLBACK *FPOnGameServerPolicyResponse)(GSPolicyResponse_t*);
+typedef void (ZIMM_CALLBACK *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
+typedef void (ZIMM_CALLBACK *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
+typedef void (ZIMM_CALLBACK *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
+typedef void (ZIMM_CALLBACK *FPOnServerListComplete)(HServerListRequest);
+typedef void (ZIMM_CALLBACK *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
+typedef void (ZIMM_CALLBACK *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {

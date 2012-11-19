@@ -72,9 +72,9 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamFriends();
 		[DllImport("CommunityExpressSW")]
-		private static extern int SteamUnityAPI_SteamFriends_GetFriendCount(IntPtr friends);
+		private static extern int SteamUnityAPI_SteamFriends_GetFriendCount(IntPtr friends, int friendFlags);
 		[DllImport("CommunityExpressSW")]
-		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendByIndex(IntPtr friends, int iFriend);
+		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendByIndex(IntPtr friends, int iFriend, int friendFlags);
 		[DllImport("CommunityExpressSW")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friends, UInt64 steamIDFriend);
@@ -87,7 +87,8 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(IntPtr friends, UInt64 steamIDFriend, IntPtr OnAvatarReceivedCallback);
 
-		private IntPtr _friends;
+        private IntPtr _friends;
+        private EFriendFlags _friendFlags;
 		private OnLargeAvatarReceivedFromSteam _internalOnLargeAvatarReceived = null;
 		private OnLargeAvatarReceived _largeAvatarReceivedCallback;
 
@@ -96,7 +97,7 @@ namespace CommunityExpressNS
 			private int _index;
 			private Friends _friends;
 
-			public FriendEnumator(Friends friends)
+            public FriendEnumator(Friends friends)
 			{
 				_friends = friends;
 				_index = -1;
@@ -106,7 +107,7 @@ namespace CommunityExpressNS
 			{
 				get
 				{
-					SteamID id = _friends.GetFriendByIndex(_index);
+                    SteamID id = _friends.GetFriendByIndex(_index);
 					return new Friend(_friends, id);
 				}
 			}
@@ -138,11 +139,18 @@ namespace CommunityExpressNS
 		internal Friends()
 		{
 			_friends = SteamUnityAPI_SteamFriends();
+            _friendFlags = EFriendFlags.k_EFriendFlagImmediate;
 		}
 
+        internal Friends(EFriendFlags friendFlags)
+        {
+            _friends = SteamUnityAPI_SteamFriends();
+            _friendFlags = friendFlags;
+        }
+        
 		private SteamID GetFriendByIndex(int iFriend)
 		{
-			return new SteamID(SteamUnityAPI_SteamFriends_GetFriendByIndex(_friends, iFriend));
+            return new SteamID(SteamUnityAPI_SteamFriends_GetFriendByIndex(_friends, iFriend, (int)_friendFlags));
 		}
 
 		internal String GetFriendPersonaName(SteamID steamIDFriend)
@@ -210,7 +218,7 @@ namespace CommunityExpressNS
 
 		public int Count
 		{
-			get { return SteamUnityAPI_SteamFriends_GetFriendCount(_friends); }
+            get { return SteamUnityAPI_SteamFriends_GetFriendCount(_friends, (int)_friendFlags); }
 		}
 
 		public bool IsReadOnly

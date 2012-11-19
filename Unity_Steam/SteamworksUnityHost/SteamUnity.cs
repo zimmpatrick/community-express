@@ -59,6 +59,7 @@ namespace CommunityExpressNS
 		private Friends _friends = null;
 		private Groups _groups = null;
 		private Stats _userStats = null;
+		private Friends _serverFriends = null;
 		private Achievements _achievements = null;
 		private Leaderboards _leaderboards = null;
 		private Matchmaking _matchmaking = null;
@@ -280,12 +281,7 @@ namespace CommunityExpressNS
 			{
 				if (_groups == null)
 				{
-					if (_friends == null)
-					{
-						_friends = new Friends();
-					}
-
-					_groups = new Groups(_friends);
+                    _groups = new Groups(Friends);
 				}
 
 				return _groups;
