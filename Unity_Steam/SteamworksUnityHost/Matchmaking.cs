@@ -148,65 +148,65 @@ namespace CommunityExpressNS
 
 	public class Matchmaking
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmakingServers();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(IntPtr matchmaking, ELobbyType lobbyType, Int32 maxMembers);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, [MarshalAs(UnmanagedType.LPStr)] String value, ELobbyComparison comparisonType);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value, ELobbyComparison comparisonType);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(IntPtr matchmaking, int slotsAvailable);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(IntPtr matchmaking, ELobbyDistanceFilter lobbyDistanceFilter);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListResultCountFilter(IntPtr matchmaking, int maxResults);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(IntPtr matchmaking);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_LeaveLobby(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(IntPtr matchmaking, Int32 lobbyIndex);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestLANServerList(IntPtr matchmakingServers, AppId_t appId,
 			IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestSpectatorServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestHistoryServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFavoriteServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFriendServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(IntPtr matchmakingServers, HServerListRequest request);
 
 		public const HServerListRequest HServerListRequest_Invalid = 0x0;

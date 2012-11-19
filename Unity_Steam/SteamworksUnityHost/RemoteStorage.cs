@@ -11,24 +11,24 @@ namespace CommunityExpressNS
 {
 	public class RemoteStorage : ICollection<File>
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamRemoteStorage_GetFileCount(IntPtr remoteStorage);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(IntPtr remoteStorage, int iFile, out int nFileSizeInBytes);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_WriteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName,
 			IntPtr fileContents, int fileContentsLength);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_ForgetFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_DeleteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FileExists(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FilePersisted(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_GetQuota(IntPtr remoteStorage, out Int32 totalSpace, out Int32 availableSpace);
 
 		private IntPtr _remoteStorage;

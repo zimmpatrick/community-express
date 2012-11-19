@@ -24,7 +24,7 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		_ceInstance = CommunityExpress.Instance;
         _ceInstance.Logger = new CommunityExpress.OnLog(onLog);
 
-		_ceInstance.Initialize();
+		print("SteamAPI_Init {1}" + _ceInstance.Initialize());
 	}
 
     public void OnDestroy()

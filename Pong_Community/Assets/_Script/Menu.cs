@@ -67,7 +67,7 @@ public class Menu : MonoBehaviour {
 		hitDisp = (int)HighestHitCount.StatValue;
 		communityExpress.UserAchievements.InitializeAchievementList(achievement);
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		if(!isStart && Input.GetKeyDown(KeyCode.Return)){

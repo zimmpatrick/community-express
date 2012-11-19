@@ -11,11 +11,11 @@ namespace CommunityExpressNS
 {
 	public class Group : ICollection<Friend>
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamFriends();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamFriends_GetFriendCountFromSource(IntPtr friends, UInt64 steamIDSource);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendFromSourceByIndex(IntPtr friends, UInt64 steamIDSource, int iFriend);
 
 		private IntPtr _friends;

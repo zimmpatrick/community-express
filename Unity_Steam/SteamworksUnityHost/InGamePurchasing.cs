@@ -22,18 +22,18 @@ namespace CommunityExpressNS
 
 	public class InGamePurchasing
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SetTransactionAuthorizationCallback(IntPtr OnTransactionAuthorizationReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUser();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamUser_GetSteamID(IntPtr user);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamApps();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamApps_GetCurrentGameLanguage(IntPtr apps);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
 
 		private IntPtr _user;

@@ -10,16 +10,16 @@ namespace CommunityExpressNS
 {
 	public class File
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamRemoteStorage_FileRead(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string fileName,
 		   [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder sb, int nSize);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_ForgetFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_DeleteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FileExists(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FilePersisted(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 
 		private String _fileName;

@@ -56,46 +56,46 @@ namespace CommunityExpressNS
 
 	public class GameServer
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServer();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServer_Init(UInt32 ip, UInt16 masterServerPort, UInt16 port, UInt16 queryPort,
 			EServerMode serverMode, [MarshalAs(UnmanagedType.LPStr)] String gameVersion);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetCallbacks(IntPtr OnGameServerClientApproved, IntPtr OnGameServerClientDeny,
 			IntPtr OnGameServerClientKick, IntPtr OnGameServerPolicyResponse);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamGameServer_GetSteamID(IntPtr gameserver);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamGameServer_GetPublicIP(IntPtr gameserver);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetBasicServerData(IntPtr gameserver, Boolean isDedicated,
             [MarshalAs(UnmanagedType.LPStr)] String gameName, [MarshalAs(UnmanagedType.LPStr)] String gameDescription, [MarshalAs(UnmanagedType.LPStr)] String modDir);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_LogOnAnonymous(IntPtr gameserver);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_UpdateServerStatus(IntPtr gameserver, Int32 maxClients, Int32 bots,
 			[MarshalAs(UnmanagedType.LPStr)] String serverName, [MarshalAs(UnmanagedType.LPStr)] String spectatorServerName, UInt16 spectatorPort,
 			[MarshalAs(UnmanagedType.LPStr)] String regionName, [MarshalAs(UnmanagedType.LPStr)] String mapName, Boolean passworded);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServer_SendUserConnectAndAuthenticate(IntPtr gameserver, UInt32 ipClient,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] authTicket, UInt32 authTicketSize, out UInt64 steamIDClient);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamGameServer_CreateUnauthenticatedUserConnection(IntPtr gameserver);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SendUserDisconnect(IntPtr gameserver, UInt64 steamIDClient);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServer_UpdateUserData(IntPtr gameserver, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] String name, UInt32 score);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetKeyValues(IntPtr gameserver,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values, Int32 count);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetGameTags(IntPtr gameserver, [MarshalAs(UnmanagedType.LPStr)] String tags);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetGameData(IntPtr gameserver, [MarshalAs(UnmanagedType.LPStr)] String data);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_Shutdown();
 		
 		private IntPtr _gameServer;

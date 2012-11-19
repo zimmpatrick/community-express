@@ -10,10 +10,10 @@ namespace CommunityExpressNS
 {
 	public class Achievement
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats_GetAchievementDisplayAttribute(IntPtr stats,
 			[MarshalAs(UnmanagedType.LPStr)] string pchName, [MarshalAs(UnmanagedType.LPStr)] string pchAttribute);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamUserStats_GetAchievementIcon(IntPtr stats,
 			[MarshalAs(UnmanagedType.LPStr)] string pchName);
 	

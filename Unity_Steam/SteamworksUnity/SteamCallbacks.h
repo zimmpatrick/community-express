@@ -5,19 +5,29 @@
 
 #include "steam/steam_api.h"
 
-typedef void (__stdcall *FPOnAvatarReceived)(AvatarImageLoaded_t*);
-typedef void (__stdcall *FPOnUserStatsReceived)(UserStatsReceived_t*);
-typedef void (__stdcall *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
-typedef void (__stdcall *FPOnGameServerClientApprove)(GSClientApprove_t*);
-typedef void (__stdcall *FPOnGameServerClientDeny)(GSClientDeny_t*);
-typedef void (__stdcall *FPOnGameServerClientKick)(GSClientKick_t*);
-typedef void (__stdcall *FPOnGameServerPolicyResponse)(GSPolicyResponse_t*);
-typedef void (__stdcall *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
-typedef void (__stdcall *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
-typedef void (__stdcall *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
-typedef void (__stdcall *FPOnServerListComplete)(HServerListRequest);
-typedef void (__stdcall *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
-typedef void (__stdcall *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
+#ifdef _WIN32
+	#define STDCALL		__stdcall
+	#define CDECL		__cdecl
+	#define CALLBACK	STD_CALL
+#elif defined(__APPLE__)
+	#define STDCALL		__attribute__((stdcall))
+	#define CDECL		__attribute__((cdecl))
+	#define CALLBACK	CDECL
+#endif
+
+typedef void (CALLBACK *FPOnAvatarReceived)(AvatarImageLoaded_t*);
+typedef void (CALLBACK *FPOnUserStatsReceived)(UserStatsReceived_t*);
+typedef void (CALLBACK *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
+typedef void (CALLBACK *FPOnGameServerClientApprove)(GSClientApprove_t*);
+typedef void (CALLBACK *FPOnGameServerClientDeny)(GSClientDeny_t*);
+typedef void (CALLBACK *FPOnGameServerClientKick)(GSClientKick_t*);
+typedef void (CALLBACK *FPOnGameServerPolicyResponse)(GSPolicyResponse_t*);
+typedef void (CALLBACK *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
+typedef void (CALLBACK *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
+typedef void (CALLBACK *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
+typedef void (CALLBACK *FPOnServerListComplete)(HServerListRequest);
+typedef void (CALLBACK *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
+typedef void (CALLBACK *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {

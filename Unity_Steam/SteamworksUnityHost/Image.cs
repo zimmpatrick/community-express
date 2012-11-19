@@ -7,12 +7,12 @@ namespace CommunityExpressNS
 {
     public class Image
     {
-        [DllImport("CommunityExpressSW.dll")]
+        [DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUtils_GetImageSize(Int32 iconIndex, out UInt32 iconWidth, out UInt32 iconHeight);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUtils_GetImageRGBA(Int32 iconIndex,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] data, Int32 dataSize);
-		[DllImport("CommunityExpressSW.dll", EntryPoint="SteamUnityAPI_SteamUtils_GetImageRGBA")]
+		[DllImport("CommunityExpressSW", EntryPoint="SteamUnityAPI_SteamUtils_GetImageRGBA")]
 		private static extern void SteamUnityAPI_SteamUtils_GetImageRGBA_Ptr(Int32 iconIndex, IntPtr data, Int32 dataSize);
 
         private Int32 _steamImage;
