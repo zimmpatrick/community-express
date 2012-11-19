@@ -31,39 +31,39 @@ namespace CommunityExpressNS
 
 	public class Stats : ICollection<Stat>
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
 			out Int32 value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
 			out float value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string statName, out float value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string statName, float value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
 
 		private IntPtr _stats = IntPtr.Zero;

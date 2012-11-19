@@ -13,31 +13,31 @@ namespace CommunityExpressNS
 
 	public class Achievements : ICollection<Achievement>
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
 			out Byte isAchieved);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetUserAchievement(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
 			out Byte isAchieved);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_SetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamGameServerStats_GetUserAchievement(IntPtr gameserverStats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string achievementName, out Byte isAchieved);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamGameServerStats_SetUserAchievement(IntPtr stats, UInt64 steamID,
 			[MarshalAs(UnmanagedType.LPStr)] string achievementName);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
 
 		private IntPtr _stats = IntPtr.Zero;

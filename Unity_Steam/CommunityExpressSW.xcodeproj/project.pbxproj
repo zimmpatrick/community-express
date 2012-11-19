@@ -1,0 +1,295 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DA90B14716592FAB00E5E1C6 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA90B14616592FAB00E5E1C6 /* CoreFoundation.framework */; };
+		DA90B14D16592FAB00E5E1C6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA90B14B16592FAB00E5E1C6 /* InfoPlist.strings */; };
+		DA90B1561659310300E5E1C6 /* SteamworksUnity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DA90B1551659310300E5E1C6 /* SteamworksUnity.cpp */; };
+		DA90B158165931A800E5E1C6 /* libsteam_api.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DA90B157165931A800E5E1C6 /* libsteam_api.dylib */; };
+		DA90B15A165931C600E5E1C6 /* libsteam_api.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = DA90B157165931A800E5E1C6 /* libsteam_api.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DA90B159165931BC00E5E1C6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				DA90B15A165931C600E5E1C6 /* libsteam_api.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		DA90B14316592FAB00E5E1C6 /* CommunityExpressSW.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CommunityExpressSW.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA90B14616592FAB00E5E1C6 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		DA90B14A16592FAB00E5E1C6 /* CommunityExpressSW-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CommunityExpressSW-Info.plist"; sourceTree = "<group>"; };
+		DA90B14C16592FAB00E5E1C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA90B14E16592FAB00E5E1C6 /* CommunityExpressSW-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CommunityExpressSW-Prefix.pch"; sourceTree = "<group>"; };
+		DA90B1541659310300E5E1C6 /* SteamCallbacks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SteamCallbacks.h; path = SteamworksUnity/SteamCallbacks.h; sourceTree = SOURCE_ROOT; };
+		DA90B1551659310300E5E1C6 /* SteamworksUnity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SteamworksUnity.cpp; path = SteamworksUnity/SteamworksUnity.cpp; sourceTree = SOURCE_ROOT; };
+		DA90B157165931A800E5E1C6 /* libsteam_api.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsteam_api.dylib; path = Steamworks/redistributable_bin/osx32/libsteam_api.dylib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DA90B14016592FAB00E5E1C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA90B14716592FAB00E5E1C6 /* CoreFoundation.framework in Frameworks */,
+				DA90B158165931A800E5E1C6 /* libsteam_api.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DA90B13816592FAB00E5E1C6 = {
+			isa = PBXGroup;
+			children = (
+				DA90B14816592FAB00E5E1C6 /* CommunityExpressSW */,
+				DA90B14516592FAB00E5E1C6 /* Frameworks */,
+				DA90B14416592FAB00E5E1C6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DA90B14416592FAB00E5E1C6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DA90B14316592FAB00E5E1C6 /* CommunityExpressSW.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DA90B14516592FAB00E5E1C6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DA90B157165931A800E5E1C6 /* libsteam_api.dylib */,
+				DA90B14616592FAB00E5E1C6 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DA90B14816592FAB00E5E1C6 /* CommunityExpressSW */ = {
+			isa = PBXGroup;
+			children = (
+				DA90B1541659310300E5E1C6 /* SteamCallbacks.h */,
+				DA90B1551659310300E5E1C6 /* SteamworksUnity.cpp */,
+				DA90B14916592FAB00E5E1C6 /* Supporting Files */,
+			);
+			path = CommunityExpressSW;
+			sourceTree = "<group>";
+		};
+		DA90B14916592FAB00E5E1C6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				DA90B14A16592FAB00E5E1C6 /* CommunityExpressSW-Info.plist */,
+				DA90B14B16592FAB00E5E1C6 /* InfoPlist.strings */,
+				DA90B14E16592FAB00E5E1C6 /* CommunityExpressSW-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DA90B14216592FAB00E5E1C6 /* CommunityExpressSW */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA90B15116592FAB00E5E1C6 /* Build configuration list for PBXNativeTarget "CommunityExpressSW" */;
+			buildPhases = (
+				DA90B13F16592FAB00E5E1C6 /* Sources */,
+				DA90B14016592FAB00E5E1C6 /* Frameworks */,
+				DA90B14116592FAB00E5E1C6 /* Resources */,
+				DA90B159165931BC00E5E1C6 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CommunityExpressSW;
+			productName = CommunityExpressSW;
+			productReference = DA90B14316592FAB00E5E1C6 /* CommunityExpressSW.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DA90B13A16592FAB00E5E1C6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = Xienen;
+			};
+			buildConfigurationList = DA90B13D16592FAB00E5E1C6 /* Build configuration list for PBXProject "CommunityExpressSW" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = DA90B13816592FAB00E5E1C6;
+			productRefGroup = DA90B14416592FAB00E5E1C6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DA90B14216592FAB00E5E1C6 /* CommunityExpressSW */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DA90B14116592FAB00E5E1C6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA90B14D16592FAB00E5E1C6 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DA90B13F16592FAB00E5E1C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA90B1561659310300E5E1C6 /* SteamworksUnity.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DA90B14B16592FAB00E5E1C6 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DA90B14C16592FAB00E5E1C6 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DA90B14F16592FAB00E5E1C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		DA90B15016592FAB00E5E1C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		DA90B15216592FAB00E5E1C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CommunityExpressSW/CommunityExpressSW-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					STEAMWORKSUNITY_EXPORTS,
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = ./Steamworks/public/;
+				INFOPLIST_FILE = "CommunityExpressSW/CommunityExpressSW-Info.plist";
+				INSTALL_PATH = "@loader_path";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/Steamworks/redistributable_bin/osx32\"";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		DA90B15316592FAB00E5E1C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CommunityExpressSW/CommunityExpressSW-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					STEAMWORKSUNITY_EXPORTS,
+				);
+				HEADER_SEARCH_PATHS = ./Steamworks/public/;
+				INFOPLIST_FILE = "CommunityExpressSW/CommunityExpressSW-Info.plist";
+				INSTALL_PATH = "@loader_path";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/Steamworks/redistributable_bin/osx32\"";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DA90B13D16592FAB00E5E1C6 /* Build configuration list for PBXProject "CommunityExpressSW" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA90B14F16592FAB00E5E1C6 /* Debug */,
+				DA90B15016592FAB00E5E1C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA90B15116592FAB00E5E1C6 /* Build configuration list for PBXNativeTarget "CommunityExpressSW" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA90B15216592FAB00E5E1C6 /* Debug */,
+				DA90B15316592FAB00E5E1C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DA90B13A16592FAB00E5E1C6 /* Project object */;
+}

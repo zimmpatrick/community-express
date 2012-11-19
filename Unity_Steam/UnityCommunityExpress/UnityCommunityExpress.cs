@@ -18,13 +18,20 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		get { return _instance; }
 	}
 
-	public bool Awake()
+	public void Awake()
 	{
 		_instance = this;
 		_ceInstance = CommunityExpress.Instance;
+        _ceInstance.Logger = new CommunityExpress.OnLog(onLog);
 
-		return _ceInstance.Initialize();
+		print("SteamAPI_Init {1}" + _ceInstance.Initialize());
 	}
+
+    public void OnDestroy()
+    {
+        _ceInstance.Shutdown();
+        _instance = null;
+    }
 
 	public bool RestartAppIfNecessary(uint unOwnAppID)
 	{
@@ -129,4 +136,9 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		texture.Apply();
 		return texture;
 	}
+
+    private void onLog(string msg)
+    {
+        print(msg);
+    }
 }

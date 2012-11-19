@@ -2,7 +2,10 @@
 // Copyright (c) 2011-2012, Zimmdot, LLC
 // All rights reserved.
 
+#ifdef _WIN32
 #include "stdafx.h"
+#endif
+
 #include <stdlib.h>
 
 // steam api header file
@@ -21,13 +24,27 @@
 // that uses this DLL. This way any other project whose source files include this file see 
 // STEAMWORKSUNITY_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
-#ifdef STEAMWORKSUNITY_EXPORTS
-#define STEAMWORKSUNITY_API extern "C" __declspec(dllexport)
-#else
-#define STEAMWORKSUNITY_API extern "C" __declspec(dllimport)
+#ifdef _WIN32
+	#ifdef STEAMWORKSUNITY_EXPORTS
+		#define STEAMWORKSUNITY_API extern "C" __declspec(dllexport)
+	#else
+		#define STEAMWORKSUNITY_API extern "C" __declspec(dllimport)
+	#endif
+#elif defined(__APPLE__)
+	#ifdef STEAMWORKSUNITY_EXPORTS
+		#define STEAMWORKSUNITY_API extern "C" __attribute__((visibility("default")))
+	#else
+		#define STEAMWORKSUNITY_API extern "C"
+	#endif
+
+	#define strcpy_s(x,y,z)		strncpy(x,z,y); x[y-1]='\0';
+	#define OutputDebugString	printf
+	#define TEXT(x)				x
 #endif
 
-typedef uint64 (__stdcall *FPOnChallengeResponse)(uint64 challenge);
+typedef uint64 (STDCALL *FPOnChallengeResponse)(uint64 challenge);
+typedef void (STDCALL *FSteamAPIDebugTextHook)(int nSeverity, const char *pchDebugText);
+typedef void (CDECL *FSteamAPIDebugTextHookCD)(int nSeverity, const char *pchDebugText);
 
 // checks if a local Steam client is running 
 STEAMWORKSUNITY_API bool SteamUnityAPI_IsSteamRunning()
@@ -51,6 +68,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_RestartAppIfNecessary( uint32 unOwnAppID 
 	return SteamAPI_RestartAppIfNecessary( unOwnAppID );
 }
 
+#ifdef _WIN32
 HANDLE hLicenseThread = NULL;
 
 DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam ) 
@@ -73,32 +91,67 @@ DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam )
 		Sleep(1000 * value % 5);
 	}
 }
+#endif
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse)
 {
-	hLicenseThread = CreateThread( 
+#ifdef _WIN32
+	/* hLicenseThread = CreateThread(
 		NULL,				   // default security attributes
 		0,					  // use default stack size  
 		MyLicenseThreadFunction,	   // thread function name
 		pFPOnChallengeResponse,		// argument to thread function 
 		0,					  // use default creation flags 
 		NULL);   // returns the thread identifier 
-
+		*/
+#endif
+	
 	return SteamAPI_Init();
 }
 
 // STEAMWORKSUNITY_API void SteamUnityAPI_Init(); (see below)
 STEAMWORKSUNITY_API void SteamUnityAPI_Shutdown()
 {
+#if _WIN32
 	if (hLicenseThread)
 	{
 		// TODO, clean this up to pass events, etc
 		TerminateThread(hLicenseThread, 0);
 		hLicenseThread = 0;
 	}
+#endif
 
 	return SteamAPI_Shutdown();
 }
+
+FSteamAPIDebugTextHook hook = NULL;
+
+//-----------------------------------------------------------------------------
+// Purpose: callback hook for debug text emitted from the Steam API
+//-----------------------------------------------------------------------------
+extern "C" void __cdecl CSteamAPIDebugTextHook( int nSeverity, const char *pchDebugText )
+{
+	// if you're running in the debugger, only warnings (nSeverity >= 1) will be sent
+	// if you add -debug_steamapi to the command-line, a lot of extra informational messages will also be sent
+	if (hook) hook(nSeverity, pchDebugText);
+
+	if ( nSeverity >= 1 )
+	{
+		// place to set a breakpoint for catching API errors
+		int x = 3;
+		x = x;
+	}
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SetWarningMessageHook(FSteamAPIDebugTextHook SteamAPIDebugTextHook)
+{	
+	// set our debug handler
+	hook = SteamAPIDebugTextHook;
+
+	SteamClient()->SetWarningMessageHook( CSteamAPIDebugTextHook );
+}
+
+
 
 STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
 {
@@ -364,7 +417,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_Init(uint32 unIP, uint16 
 	// and kicking users who are VAC banned
 	if ( !SteamGameServer_Init( unIP, usMasterServerPort, usPort, usQueryPort, eServerMode, pchGameVersion ) )
 	{
-		OutputDebugString( TEXT("SteamGameServer_Init call failed\n") );
+		OutputDebugString(TEXT("SteamGameServer_Init call failed\n") );
 		return false;
 	}
 
@@ -450,14 +503,21 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_UpdateUserData(void* pSte
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_Shutdown()
 {
+	// Notify Steam master server we are going offline
+	SteamGameServer()->EnableHeartbeats( false );
+
+	// Disconnect from the steam servers
+	SteamGameServer()->LogOff();
+
 	return SteamGameServer_Shutdown();
 }
 
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetBasicServerData(void* pSteamGameServer, bool bDedicated, const char* pchGameName, const char* pchGameDesc)
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetBasicServerData(void* pSteamGameServer, bool bDedicated, const char* pchGameName, const char* pchGameDesc, const char * pchModDir)
 {
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
-
+	
+	pISteamGameServer->SetModDir(pchModDir);
 	pISteamGameServer->SetDedicatedServer(bDedicated);
 	pISteamGameServer->SetProduct(pchGameName);
 	pISteamGameServer->SetGameDescription(pchGameDesc);
@@ -468,6 +528,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_LogOnAnonymous(void* pSte
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	pISteamGameServer->LogOnAnonymous();
+	pISteamGameServer->EnableHeartbeats( true );
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetKeyValues(void* pSteamGameServer, char** pKeys, char** pValues, int32 iCount)
@@ -1053,8 +1114,8 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
 		for (uint32 i = 0; i < uiKeyValueCount; i++)
 		{
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szKey, 256, pKeys[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szValue, 256, pValues[i]);
 		}
 
 		return pISteamMatchmakingServers->RequestInternetServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
@@ -1085,8 +1146,8 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
 		for (uint32 i = 0; i < uiKeyValueCount; i++)
 		{
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szKey, 256, pKeys[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szValue, 256, pValues[i]);
 		}
 
 		return pISteamMatchmakingServers->RequestSpectatorServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
@@ -1107,8 +1168,8 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
 		for (uint32 i = 0; i < uiKeyValueCount; i++)
 		{
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szKey, 256, pKeys[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szValue, 256, pValues[i]);
 		}
 
 		return pISteamMatchmakingServers->RequestHistoryServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
@@ -1129,8 +1190,8 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
 		for (uint32 i = 0; i < uiKeyValueCount; i++)
 		{
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szKey, 256, pKeys[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szValue, 256, pValues[i]);
 		}
 
 		return pISteamMatchmakingServers->RequestFavoritesServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
@@ -1151,8 +1212,8 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 		g_pKeyValuePairs = new MatchMakingKeyValuePair_t[uiKeyValueCount];
 		for (uint32 i = 0; i < uiKeyValueCount; i++)
 		{
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szKey, pKeys[i]);
-			strcpy_s<256>(g_pKeyValuePairs[i].m_szValue, pValues[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szKey, 256, pKeys[i]);
+			strcpy_s(g_pKeyValuePairs[i].m_szValue, 256, pValues[i]);
 		}
 
 		return pISteamMatchmakingServers->RequestFriendsServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
@@ -1299,6 +1360,9 @@ void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 
 void SteamCallbacks::ServerFailedToRespond(HServerListRequest hRequest, int iServer)
 {
+	gameserveritem_t* callbackData = SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+
+	printf("");
 }
 
 void SteamCallbacks::RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response)

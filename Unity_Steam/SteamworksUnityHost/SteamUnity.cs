@@ -17,31 +17,39 @@ namespace CommunityExpressNS
 
 	public sealed class CommunityExpress
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_RestartAppIfNecessary(uint unOwnAppID);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_Init(IntPtr OnChallengeResponse);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_RunCallbacks();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_RunCallbacks();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t callHandle, out GSStatsReceived_t result, out Byte failed);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPICall_t callHandle, out LobbyCreated_t result, out Byte failed);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t callHandle, out LobbyMatchList_t result, out Byte failed);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPICall_t callHandle, out LobbyEnter_t result, out Byte failed);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_Shutdown();
+		[DllImport("CommunityExpressSW")]
+		private static extern bool SteamUnityAPI_SetWarningMessageHook(IntPtr OnSteamAPIDebugTextHook);
 
 		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
 		private OnChallengeResponseFromSteam _challengeResponse;
+
+		delegate void OnSteamAPIDebugTextHook(Int32 nSeverity, IntPtr pchDebugText);
+		private OnSteamAPIDebugTextHook _steamAPIDebugTextHook;
+        
+		public delegate void OnLog(string msg);
+		private OnLog _logger = null;
 
 		private static readonly CommunityExpress _instance = new CommunityExpress();
 		private bool _shutdown = false;
@@ -99,11 +107,24 @@ namespace CommunityExpressNS
 
 			if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse)))
 			{
-				ValidateLicense();
+				_steamAPIDebugTextHook = new OnSteamAPIDebugTextHook(OnSteamAPIDebugTextHookCallback);
+				SteamUnityAPI_SetWarningMessageHook(Marshal.GetFunctionPointerForDelegate(_steamAPIDebugTextHook));
+
+				//ValidateLicense();
 				return true;
 			}
 
 			return false;
+		}
+
+		public void Log(string msg)
+		{
+			if (_logger != null)
+			{
+				_logger(msg);
+			}
+
+			System.Diagnostics.Debug.WriteLine(msg);
 		}
 
 		public void RunCallbacks()
@@ -377,6 +398,11 @@ namespace CommunityExpressNS
 			}
 		}
 
+		public OnLog Logger
+		{
+			set { _logger = value; }
+		}
+
 		public Boolean IsGameServerInitialized
 		{
 			get { return _gameserver != null && _gameserver.IsInitialized; }
@@ -415,6 +441,13 @@ namespace CommunityExpressNS
 		{
 			_lobbyJoinedCallHandle = handle;
 			_lobbyJoinedCallback = callback;
+		}
+
+		private void OnSteamAPIDebugTextHookCallback(Int32 nSeverity, IntPtr pchDebugText)
+		{
+			String msg = Marshal.PtrToStringAnsi(pchDebugText);
+
+			Log(msg);
 		}
 
 		private UInt64 OnChallengeResponseCallback(UInt64 challenge)

@@ -11,11 +11,11 @@ namespace CommunityExpressNS
 {
 	public class Lobby : ICollection<Friend>
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
 
 		private IntPtr _matchmaking;

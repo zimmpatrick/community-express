@@ -62,20 +62,20 @@ namespace CommunityExpressNS
 		k_EChatRoomEnterResponseYouBlockedMember = 11, // Join failed - you have blocked some member already in the chat
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyCreated_t
 	{
 		public EResult m_eResult;
 		public UInt64 m_ulSteamIDLobby;		// chat room, zero if failed
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyMatchList_t
 	{
 		public UInt32 m_nLobbiesMatching;		// Number of lobbies that matched search criteria and we have SteamIDs for
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyEnter_t
 	{
 		public UInt64 m_ulSteamIDLobby;			// SteamID of the Lobby you have entered
@@ -84,7 +84,7 @@ namespace CommunityExpressNS
 		public UInt32 m_EChatRoomEnterResponse;	// EChatRoomEnterResponse
 	}
 	
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct servernetadr_t
 	{
 		public UInt16 m_usConnectionPort;	// (in HOST byte order)
@@ -92,24 +92,24 @@ namespace CommunityExpressNS
 		public UInt32 m_unIP;
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct gameserveritem_t
 	{
 		public servernetadr_t m_NetAdr;				// IP/Query Port/Connection Port for this server
 		public Int32 m_nPing;						// current ping time in milliseconds
-		public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
-		public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
+        public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
+        public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szGameDir;					// current game directory
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szMap;						// current map
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public char[] m_szGameDescription;			// game description
-		public UInt32 m_nAppID;						// Steam App ID of this server
+        public UInt32 m_nAppID;						// Steam App ID of this server
 		public Int32 m_nPlayers;					// current number of players on the server
 		public Int32 m_nMaxPlayers;					// Maximum players that can join this server
 		public Int32 m_nBotPlayers;					// Number of bots (i.e simulated players) on this server
-		public Byte m_bPassword;					// true if this server needs a password to join
+        public Byte m_bPassword;					// true if this server needs a password to join
 		public Byte m_bSecure;					// Is this server protected by VAC
 		public UInt32 m_ulTimeLastPlayed;			// time (in unix time) when this server was last played on (for favorite/history servers)
 		public Int32 m_nServerVersion;				// server version as reported to Steam
@@ -148,65 +148,65 @@ namespace CommunityExpressNS
 
 	public class Matchmaking
 	{
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmakingServers();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(IntPtr matchmaking, ELobbyType lobbyType, Int32 maxMembers);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, [MarshalAs(UnmanagedType.LPStr)] String value, ELobbyComparison comparisonType);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value, ELobbyComparison comparisonType);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(IntPtr matchmaking, int slotsAvailable);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(IntPtr matchmaking, ELobbyDistanceFilter lobbyDistanceFilter);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListResultCountFilter(IntPtr matchmaking, int maxResults);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListCompatibleMembersFilter(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(IntPtr matchmaking);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_LeaveLobby(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(IntPtr matchmaking, Int32 lobbyIndex);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestLANServerList(IntPtr matchmakingServers, AppId_t appId,
 			IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestSpectatorServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestHistoryServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFavoriteServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestFriendServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] values,
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
-		[DllImport("CommunityExpressSW.dll")]
+		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(IntPtr matchmakingServers, HServerListRequest request);
 
 		public const HServerListRequest HServerListRequest_Invalid = 0x0;
@@ -549,7 +549,24 @@ namespace CommunityExpressNS
 			return _serverList;
 		}
 
-		private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
+        private int StrLen(char[] buffer)
+        {
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (buffer[i] == '\0') return i;
+            }
+
+            return buffer.Length;
+        }
+
+        private String CharArrayToString(char[] buffer)
+        {
+            if (buffer == null) return string.Empty;
+
+            return new String(buffer, 0, StrLen(buffer));
+        }
+
+        private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
 		{
 			if (request != _serverListRequest)
 				return;
@@ -558,8 +575,9 @@ namespace CommunityExpressNS
 			IPAddress ipAddress = new IPAddress(new byte[] { (byte)(ip >> 24), (byte)(ip >> 16), (byte)(ip >> 8), (byte)ip });
 
 			Server server = new Server(callbackData.m_nServerVersion, ipAddress, callbackData.m_NetAdr.m_usConnectionPort, callbackData.m_NetAdr.m_usQueryPort, callbackData.m_nPing,
-				new String(callbackData.m_szServerName), new String(callbackData.m_szMap), new String(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
-				callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, new String(callbackData.m_szGameTags));
+                CharArrayToString(callbackData.m_szServerName), CharArrayToString(callbackData.m_szMap), CharArrayToString(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
+                callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, CharArrayToString(callbackData.m_szGameTags),
+                CharArrayToString(callbackData.m_szGameDir), callbackData.m_nAppID);
 
 			_serverList.Add(server);
 
