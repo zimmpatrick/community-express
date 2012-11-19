@@ -251,6 +251,13 @@ STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamRemoteStorage_GetFileCount(void* pS
 	return pISteamRemoteStorage->GetFileCount();
 }
 
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamRemoteStorage_GetFileSize(void* pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->GetFileSize(pchFile);
+}
+
 STEAMWORKSUNITY_API const char * SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(void* pSteamRemoteStorage, int iFile, int32 * pnFileSizeInBytes)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );

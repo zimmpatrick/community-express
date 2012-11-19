@@ -37,6 +37,11 @@ namespace CommunityExpressNS
 			get { return _score; }
 		}
 
+        public String PersonaName
+        {
+            get { return CommunityExpress.Instance.Friends.GetFriendPersonaName(_id); }
+        }
+
 		public IList<Int32> ScoreDetails
 		{
 			get { return _scoreDetails; }

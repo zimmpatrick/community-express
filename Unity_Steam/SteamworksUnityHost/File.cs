@@ -10,10 +10,13 @@ namespace CommunityExpressNS
 {
 	public class File
 	{
-		[DllImport("CommunityExpressSW.dll")]
-		private static extern int SteamUnityAPI_SteamRemoteStorage_FileRead(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string fileName,
-		   [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder sb, int nSize);
-		[DllImport("CommunityExpressSW.dll")]
+        [DllImport("CommunityExpressSW.dll")]
+        private static extern int SteamUnityAPI_SteamRemoteStorage_FileRead(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string fileName,
+           [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder sb, int nSize);
+        [DllImport("CommunityExpressSW.dll")]
+        private static extern int SteamUnityAPI_SteamRemoteStorage_FileRead(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string fileName,
+           [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] data, int nSize);
+        [DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_ForgetFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 		[DllImport("CommunityExpressSW.dll")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_DeleteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
@@ -57,6 +60,13 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamRemoteStorage_FileRead(CommunityExpress.Instance.RemoteStorage.SteamPointer, _fileName, sb, _fileSize);
 			return sb.ToString();
 		}
+
+        public Byte[] ReadBytes()
+        {
+            Byte[] ret = new Byte[_fileSize];
+            SteamUnityAPI_SteamRemoteStorage_FileRead(CommunityExpress.Instance.RemoteStorage.SteamPointer, _fileName, ret, _fileSize);
+            return ret;
+        }
 
 		public Boolean Forget()
 		{

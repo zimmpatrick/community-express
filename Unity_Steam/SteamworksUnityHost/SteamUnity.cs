@@ -99,7 +99,7 @@ namespace CommunityExpressNS
 
 			if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse)))
 			{
-				//ValidateLicense();
+				ValidateLicense();
 				return true;
 			}
 
