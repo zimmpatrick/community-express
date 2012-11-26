@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
-	public class LeaderboardEntries : ICollection<LeaderboardEntry>
+	public class LeaderboardEntries : IList<LeaderboardEntry>
 	{
 		private Leaderboard _leaderboard;
 
@@ -92,5 +92,33 @@ namespace CommunityExpressNS
 		{
 			return GetEnumerator();
 		}
+
+        public LeaderboardEntry this[int index] 
+        {
+            get
+            {
+                return _leaderboardEntryList[index];
+            }
+
+            set
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        public int IndexOf(LeaderboardEntry item)
+        {
+            return _leaderboardEntryList.IndexOf(item);
+        }
+
+        public void Insert(int index, LeaderboardEntry item)
+        {
+            throw new NotSupportedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotSupportedException();
+        }
 	}
 }

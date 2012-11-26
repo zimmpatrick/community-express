@@ -11,7 +11,7 @@ namespace CommunityExpressNS
 	using SteamLeaderboard_t = UInt64;
 	using SteamLeaderboardEntries_t = UInt64;
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LeaderboardEntry_t
 	{
 		public UInt64 m_steamIDUser;	// user with the entry - use SteamFriends()->GetFriendPersonaName() & SteamFriends()->GetFriendAvatar() to get more info
@@ -21,7 +21,7 @@ namespace CommunityExpressNS
 		public UInt64 m_hUGC;			// handle for UGC attached to the entry
 	};
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LeaderboardScoresDownloaded_t
 	{
 		public SteamLeaderboard_t m_hSteamLeaderboard;
@@ -144,16 +144,17 @@ namespace CommunityExpressNS
 
 		private void OnLeaderboardEntriesRetrievedCallback(ref LeaderboardScoresDownloaded_t callbackData)
 		{
-			if (callbackData.m_cEntryCount > 0)
+            if (callbackData.m_cEntryCount > 0)
 			{
 				int entryCount = callbackData.m_cEntryCount;
 				LeaderboardEntry_t leaderboardEntry = new LeaderboardEntry_t();
+
 				LeaderboardEntries leaderboardEntries = new LeaderboardEntries(this);
 				Int32[] details = new Int32[_maxDetails];
 
 				for (int index = 0; index < entryCount; index++)
 				{
-					if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, callbackData.m_hSteamLeaderboardEntries, index, ref leaderboardEntry, details, _maxDetails))
+                    if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, callbackData.m_hSteamLeaderboardEntries, index, ref leaderboardEntry, details, _maxDetails))
 					{
 						List<Int32> scoreDetails = null;
 
@@ -169,9 +170,9 @@ namespace CommunityExpressNS
 				_onLeaderboardEntriesRetrieved(leaderboardEntries);
 			}
 			else
-			{
+            {
 				_onLeaderboardEntriesRetrieved(null);
-			}
+            }
 		}
 
 		public void Refresh(OnLeaderboardRetrieved onLeaderboardRefreshComplete)
