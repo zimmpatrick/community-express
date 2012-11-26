@@ -44,7 +44,7 @@ namespace CommunityExpressNS
 	};
 
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LeaderboardFindResult_t
 	{
 		public SteamLeaderboard_t m_hSteamLeaderboard;	// handle to the leaderboard serarched for, 0 if no leaderboard found

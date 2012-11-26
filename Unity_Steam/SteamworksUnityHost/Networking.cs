@@ -47,13 +47,13 @@ namespace CommunityExpressNS
 
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct P2PSessionRequest_t
 	{
 		public UInt64 m_steamID;
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct P2PSessionConnectFail_t
 	{
 		public UInt64 m_steamID;

@@ -10,14 +10,14 @@ using System.Net;
 namespace CommunityExpressNS
 {
 	// client has been approved to connect to this game server
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct GSClientApprove_t
 	{
 		public UInt64 m_SteamID;
 	};
 
 	// client has been denied to connection to this game server
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct GSClientDeny_t
 	{
 		public UInt64 m_SteamID;
@@ -27,7 +27,7 @@ namespace CommunityExpressNS
 	};
 
 	// request the game server should kick the user
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct GSClientKick_t
 	{
 		public UInt64 m_SteamID;
@@ -36,7 +36,7 @@ namespace CommunityExpressNS
 
 	// received when the game server requests to be displayed as secure (VAC protected)
 	// m_bSecure is true if the game server should display itself as secure to users, false otherwise
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct GSPolicyResponse_t
 	{
 		public Byte m_bSecure;

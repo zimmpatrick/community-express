@@ -11,7 +11,7 @@ namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct UserStatsReceived_t
 	{
 		public UInt64 m_nGameID;		// Game these stats are for
@@ -19,7 +19,7 @@ namespace CommunityExpressNS
 		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
 	}
 
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct GSStatsReceived_t
 	{
 		public EResult m_eResult;		// Success / error fetching the stats
