@@ -22,7 +22,6 @@ public class PaddleControl : MonoBehaviour {
 		//tempObj = Network.Instantiate(gText, new Vector3(randX, randY , 0), Quaternion.identity,0) as GameObject;
 		
 		myName=communityExpress.User.PersonaName;
-		Debug.Log("running");
 		//tempObj.guiText.text = communityExpress.User.PersonaName;
 	}
 	
