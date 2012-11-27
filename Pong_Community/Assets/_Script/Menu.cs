@@ -45,7 +45,6 @@ public class Menu : MonoBehaviour {
 		myPersona = UnityCommunityExpress.Instance.User;
 		string[] stats = { "NumWins" };
 		communityExpress.UserStats.RequestCurrentStats(OnUserStatsRecieved, stats);
-		
 		if(!communityExpress.RemoteStorage.FileExists("UserColor")){
 			communityExpress.RemoteStorage.WriteFile("UserColor", "white");
 			userColor = "white";
@@ -55,6 +54,7 @@ public class Menu : MonoBehaviour {
 			//Debug.Log(string.Format("File: {0}, {1}, {2}", file.Exists, file.FileSize, file.FileName));
 			
 			userColor = file.ReadFile();
+			
 			Debug.Log(userColor);
 		}
 	}
@@ -107,7 +107,9 @@ public class Menu : MonoBehaviour {
 	
 	void OnServerReceivedCallback(CommunityExpressNS.Servers servers, CommunityExpressNS.Server server)
 	{
+		Debug.Log(servers.Count);
 		serverList = servers;
+		Debug.Log("running");
 	}
 	
 	void OnServerListReceivedCallback(CommunityExpressNS.Servers servers)
@@ -133,15 +135,15 @@ public class Menu : MonoBehaviour {
 	void OnGameServerClientKick(CommunityExpressNS.SteamID playerToKick , CommunityExpressNS.EDenyReason denyReason)
 	{
 		Debug.Log("OnGameServerClientKick "+playerToKick+" "+denyReason);
+		
 	}
 
 	void OnGUI(){
 		Object tempObj;
 		string myText="";
 		
-		
 		//Create server and Server browser
-		if(isPTP){
+		//if(isPTP){
 			ushort listenPort = 8793;
 			ushort masterPort = 27015;
 			IPAddress ipAd = IPAddress.Any; // IPAddress.Parse(Network.player.ipAddress);
@@ -184,7 +186,7 @@ public class Menu : MonoBehaviour {
 				}
 				GUI.Button(new Rect(Screen.width/2+75, Screen.height/2 + 50, 150, 30), myText);
 			}
-		}
+		//}
 		if(!isStart&&!isPTP){
 			GUI.Box(new Rect(Screen.width/2-75, Screen.height/2, 150, 100), "Player One = " + PlayerOneReady.ToString() + "\n" + "Player Two = " + PlayerTwoReady.ToString());
 		}
@@ -256,29 +258,28 @@ public class Menu : MonoBehaviour {
 				SetColor("green");
 			}
 		}
-		
-		
+	
 	}
 		
 	public void AddHitCounter(){
-		hitDisp--;
-		HighestHitCount.StatValue = hitDisp;
-		communityExpress.UserStats.WriteStats();
+		numHits++;
 	}
 	
 	public void UnlockAchievement(){
 		if (hitPaddle == null)
 			hitPaddle = communityExpress.UserAchievements.AchievementList[0];
-
+			
 		if (!hitPaddle.IsAchieved)
 			communityExpress.UserAchievements.UnlockAchievement(hitPaddle, true);
 	}
 	
 	public void GameOver(){
-		if(hitDisp>numHits){
-			Debug.Log(HighestHitCount.StatValue);
-			hitDisp=0;
+		if(hitDisp<numHits){
+			hitDisp=numHits;
+			HighestHitCount.StatValue = hitDisp;
+			communityExpress.UserStats.WriteStats();
 		}
+		LeaderBoard.Instance.UpdateLeaderboard(hitDisp);
 		isStart = false;
 		ball.transform.position = new Vector3(0, 0, -21);
 	}

@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\_Script\BallController.cs" />
+     <Compile Include="Assets\_Script\CreateLobby.cs" />
      <Compile Include="Assets\_Script\LeaderBoard.cs" />
      <Compile Include="Assets\_Script\Menu.cs" />
      <Compile Include="Assets\_Script\NetworkPlayerInfo.cs" />

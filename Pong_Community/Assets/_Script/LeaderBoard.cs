@@ -6,12 +6,13 @@ public class LeaderBoard : MonoBehaviour {
 	
 	public List<int> scoreDetails = new List<int>();
 	public CommunityExpressNS.Leaderboard pongLead;
+	public CommunityExpressNS.LeaderboardEntries pongEntries;
+	public bool ShowLeaderboard = false;
+	public static LeaderBoard Instance;
 	
 	// Use this for initialization
 	void Start () {
-		scoreDetails.Add(3);
-		scoreDetails.Add(3);
-		Debug.Log("Leaderboard Requested");
+		Instance = this;
 		//UnityCommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard(OnLeaderBoardRetrieved, "Pong Lead", CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending,CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNone);
 		//CommunityExpressNS.OnLeaderboardRetrieved
 		
@@ -22,10 +23,8 @@ public class LeaderBoard : MonoBehaviour {
 		Debug.Log(leaderBoard.LeaderboardName);
 		Debug.Log(UnityCommunityExpress.Instance.Leaderboards.Count);
 		pongLead = leaderBoard;
-		//pongLead.UploadLeaderboardScore(CommunityExpressNS.ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate,24,scoreDetails);
-		leaderBoard.UploadLeaderboardScore(CommunityExpressNS.ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 24, scoreDetails);
-		leaderBoard.UploadLeaderboardScore(CommunityExpressNS.ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 44, scoreDetails);
-		//leaderBoard.RequestLeaderboardEntries(0, 2, 1, OnLeaderBoardEntriesRetrieved);
+		
+		pongLead.RequestLeaderboardEntries(0, 30, 2, OnLeaderBoardEntriesRetrieved);
 	}
 			
 	// Update is called once per frame
@@ -41,10 +40,8 @@ public class LeaderBoard : MonoBehaviour {
 	void OnLeaderBoardEntriesRetrieved(CommunityExpressNS.LeaderboardEntries leadEntries){
 		if (leadEntries!=null)
 		{
-			Debug.Log(leadEntries);
-			Debug.Log(leadEntries.Count);
-			Debug.Log(leadEntries[0].PersonaName);
-			Debug.Log(leadEntries[0].ScoreDetails[0]);
+			pongEntries=leadEntries;
+			ShowLeaderboard=!ShowLeaderboard;
 		}
 		else
 		{
@@ -54,16 +51,30 @@ public class LeaderBoard : MonoBehaviour {
 	}
 	
 	void OnGUI(){
-		if(GUI.Button(new Rect(100, 100, 50, 50), "haha")){
-			Debug.Log(UnityCommunityExpress.Instance.Leaderboards.Count);
-			UnityCommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard(OnLeaderBoardRetrieved, "Pong Lead", CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending,CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
-			//pongLead.RequestLeaderboardEntries(0, 2, 1, OnLeaderBoardEntriesRetrieved);
-			Debug.Log(UnityCommunityExpress.Instance.Leaderboards.Count);
-			Debug.Log("Done");
+		if(GUI.Button(new Rect(400, 15, 150, 30), "Leaderboards")){
+			UnityCommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard(OnLeaderBoardRetrieved, 
+																				"Pong Lead", 
+																				CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending,
+																				CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
 		}
-		if(GUI.Button(new Rect(200, 200, 50, 50), "check")){
-			pongLead.RequestLeaderboardEntries(0, 30, 2, OnLeaderBoardEntriesRetrieved);
+		
+		if(ShowLeaderboard){
+			
+			int ledY = 80;
+			foreach(CommunityExpressNS.LeaderboardEntry led in pongEntries){
+				GUI.Label(new Rect(400,50,150, 30), "Player");
+				GUI.Label(new Rect(500,50,150, 30), "Score");
+				GUILayout.BeginHorizontal();
+					GUI.Label(new Rect(400,ledY,150, 30), led.PersonaName);
+					GUI.Label(new Rect(500,ledY,150, 30), led.Score.ToString());
+				GUILayout.EndHorizontal();
+				ledY+=30;
+			}
 		}
+	}
+	
+	public void UpdateLeaderboard(int highestScore){
+		pongLead.UploadLeaderboardScore(CommunityExpressNS.ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodKeepBest, highestScore, scoreDetails);
 	}
 	
 }
