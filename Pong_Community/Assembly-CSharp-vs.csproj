@@ -44,23 +44,22 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\_Script\BallController.cs" />
-     <Compile Include="Assets\_Script\CreateLobby.cs" />
-     <Compile Include="Assets\_Script\LeaderBoard.cs" />
-     <Compile Include="Assets\_Script\Menu.cs" />
-     <Compile Include="Assets\_Script\NetworkPlayerInfo.cs" />
-     <Compile Include="Assets\_Script\PaddleControl.cs" />
-     <Compile Include="Assets\_Script\PlayerController.cs" />
+     <Compile Include="Assets\SampleGame\_Script\BallController.cs" />
+     <Compile Include="Assets\SampleGame\_Script\CreateLobby.cs" />
+     <Compile Include="Assets\SampleGame\_Script\LeaderBoard.cs" />
+     <Compile Include="Assets\SampleGame\_Script\Menu.cs" />
+     <Compile Include="Assets\SampleGame\_Script\NetworkPlayerInfo.cs" />
+     <Compile Include="Assets\SampleGame\_Script\PaddleControl.cs" />
+     <Compile Include="Assets\SampleGame\_Script\PlayerController.cs" />
      <None Include="Assets\steam_appid.txt" />
-     <None Include="Assets\CESDKLicense.xml" />
  <Reference Include="CommunityExpress">
- <HintPath>Assets\CommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\CommunityExpress.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
- <HintPath>Assets\Newtonsoft.Json.dll</HintPath>
+ <HintPath>Assets\Plugins\Newtonsoft.Json.dll</HintPath>
  </Reference>
  <Reference Include="UnityCommunityExpress">
- <HintPath>Assets\UnityCommunityExpress.dll</HintPath>
+ <HintPath>Assets\Plugins\UnityCommunityExpress.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
