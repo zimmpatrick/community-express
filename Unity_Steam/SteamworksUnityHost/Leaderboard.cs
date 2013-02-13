@@ -61,6 +61,7 @@ namespace CommunityExpressNS
 
 		private SteamLeaderboard_t _leaderboard;
 		private String _leaderboardName;
+        private Int32 _entryCount;
 		private ELeaderboardSortMethod _sortMethod;
 		private ELeaderboardDisplayType _displayType;
 
@@ -72,12 +73,13 @@ namespace CommunityExpressNS
 		private OnLeaderboardEntriesRetrievedFromSteam _internalOnLeaderboardEntriesRetrieved = null;
 		private OnLeaderboardEntriesRetrieved _onLeaderboardEntriesRetrieved;
 
-		internal Leaderboard(Leaderboards leaderboards, SteamLeaderboard_t leaderboard, String leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType)
+		internal Leaderboard(Leaderboards leaderboards, SteamLeaderboard_t leaderboard, String leaderboardName, Int32 entryCount, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType)
 		{
 			_stats = SteamUnityAPI_SteamUserStats();
 			_leaderboards = leaderboards;
 			_leaderboard = leaderboard;
 			_leaderboardName = leaderboardName;
+            _entryCount = entryCount;
 			_sortMethod = sortMethod;
 			_displayType = displayType;
 		}
@@ -207,6 +209,11 @@ namespace CommunityExpressNS
 		{
 			get { return _leaderboardName; }
 		}
+
+        public Int32 EntryCount
+        {
+            get { return _entryCount; }
+        }
 
 		public ELeaderboardSortMethod SortMethod
 		{

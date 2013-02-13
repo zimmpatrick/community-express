@@ -876,6 +876,13 @@ STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamUserStats_GetLeaderboardName(
 	return pISteamUserStats->GetLeaderboardName(hSteamLeaderboard);
 }
 
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(void* pSteamUserStats, SteamLeaderboard_t hSteamLeaderboard)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->GetLeaderboardEntryCount(hSteamLeaderboard);
+}
+
 STEAMWORKSUNITY_API ELeaderboardSortMethod SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(void* pSteamUserStats, SteamLeaderboard_t hSteamLeaderboard)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );

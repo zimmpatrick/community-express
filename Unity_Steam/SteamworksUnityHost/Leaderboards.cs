@@ -68,6 +68,8 @@ namespace CommunityExpressNS
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
+        private static extern Int32 SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(IntPtr stats, SteamLeaderboard_t leaderboard);
+		[DllImport("CommunityExpressSW")]
 		private static extern ELeaderboardSortMethod SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
 		private static extern ELeaderboardDisplayType SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(IntPtr stats, SteamLeaderboard_t leaderboard);
@@ -155,7 +157,11 @@ namespace CommunityExpressNS
 
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{
-				leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard, SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard), SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard), SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard));
+				leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard,
+                                              SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard),
+                                              SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(_stats, findLearderboardResult.m_hSteamLeaderboard),
+                                              SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard),
+                                              SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard));
 				Add(leaderboard);
 			}
 

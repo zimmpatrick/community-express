@@ -380,7 +380,7 @@ namespace SteamworksUnityTest
 		{
 			if (leaderboard != null)
 			{
-				Console.WriteLine("Leaderboard Retrieved: {0} - {1} - {2}", leaderboard.LeaderboardName, leaderboard.SortMethod, leaderboard.DisplayType);
+                Console.WriteLine("Leaderboard Retrieved: {0} - {1} - {2} - {3}", leaderboard.LeaderboardName, leaderboard.EntryCount, leaderboard.SortMethod, leaderboard.DisplayType);
 
 				leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 913, new List<Int32> { 123, 456, 789 });
 
