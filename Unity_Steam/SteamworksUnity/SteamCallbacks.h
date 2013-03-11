@@ -12,7 +12,7 @@
 #elif defined(__APPLE__)
 	#define ZIMM_STDCALL	__attribute__((stdcall))
 	#define ZIMM_CDECL		__attribute__((cdecl))
-	#define ZIMM_CALLBACK	CDECL
+	#define ZIMM_CALLBACK	ZIMM_CDECL
 #endif
 
 typedef void (ZIMM_CALLBACK *FPOnAvatarReceived)(AvatarImageLoaded_t*);
