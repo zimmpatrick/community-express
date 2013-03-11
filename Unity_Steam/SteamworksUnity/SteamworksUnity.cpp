@@ -151,7 +151,15 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SetWarningMessageHook(FSteamAPIDebugTextH
 	SteamClient()->SetWarningMessageHook( CSteamAPIDebugTextHook );
 }
 
+STEAMWORKSUNITY_API void SteamUnityAPI_WriteMiniDump(uint32 unExceptionCode, void* pExceptionInfo, uint32 unBuildID)
+{
+	SteamAPI_WriteMiniDump(unExceptionCode, pExceptionInfo, unBuildID);
+}
 
+STEAMWORKSUNITY_API void SteamUnityAPI_SetMiniDumpComment(const char* pchComment)
+{
+	SteamAPI_SetMiniDumpComment(pchComment);
+}
 
 STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
 {
@@ -652,6 +660,34 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(void* pS
 	SteamCallbacks::getInstance().delegateOnAvatarReceived = fpOnAvatarReceived;
 
 	return pISteamFriends->GetLargeFriendAvatar( CSteamID(steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlay(void* pSteamFriends, const char* pchDialog)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->ActivateGameOverlay(pchDialog);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(void* pSteamFriends, const char* pchDialog, uint64 steamIDUser)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->ActivateGameOverlayToUser(pchDialog, steamIDUser);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlayToWebPage(void* pSteamFriends, const char* pchURL)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->ActivateGameOverlayToWebPage(pchURL);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(void* pSteamFriends, AppId_t iApp, EOverlayToStoreFlag eFlag)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->ActivateGameOverlayToStore(iApp, eFlag);
 }
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUser()

@@ -9,6 +9,8 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
+    using AppId_t = UInt32;
+
 	//-----------------------------------------------------------------------------
 	// Purpose: set of relationships to other users
 	//-----------------------------------------------------------------------------
@@ -55,7 +57,17 @@ namespace CommunityExpressNS
 		k_EFriendFlagAll = 0xFFFF,
 	};
 
-	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    //-----------------------------------------------------------------------------
+    // Purpose flags are passed as parameters to the store
+    //-----------------------------------------------------------------------------
+    public enum EOverlayToStoreFlag
+    {
+        k_EOverlayToStoreFlag_None = 0,
+        k_EOverlayToStoreFlag_AddToCart = 1,
+        k_EOverlayToStoreFlag_AddToCartAndShow = 2,
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct AvatarImageLoaded_t
 	{
 		public UInt64 m_steamID; // steamid the avatar has been loaded for
@@ -86,6 +98,14 @@ namespace CommunityExpressNS
 		private static extern int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(IntPtr friends, UInt64 steamIDFriend, IntPtr OnAvatarReceivedCallback);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlay([MarshalAs(UnmanagedType.LPStr)] String dialog);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser([MarshalAs(UnmanagedType.LPStr)] String dialog, UInt64 steamIDUser);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToWebPage([MarshalAs(UnmanagedType.LPStr)] String url);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(AppId_t appID, EOverlayToStoreFlag flag);
 
         private IntPtr _friends;
         private EFriendFlags _friendFlags;
@@ -216,7 +236,27 @@ namespace CommunityExpressNS
 			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));
 		}
 
-		public int Count
+        public void ActivateGameOverlay(String dialog)
+        {
+            SteamUnityAPI_SteamFriends_ActivateGameOverlay(dialog);
+        }
+
+        public void ActivateGameOverlayToUser(String dialog, SteamID user)
+        {
+            SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(dialog, user.ToUInt64());
+        }
+
+        public void ActivateGameOverlayToWebPage(String url)
+        {
+            SteamUnityAPI_SteamFriends_ActivateGameOverlayToWebPage(url);
+        }
+
+        public void ActivateGameOverlayToStore(AppId_t appID, EOverlayToStoreFlag flag)
+        {
+            SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(appID, flag);
+        }
+
+        public int Count
 		{
             get { return SteamUnityAPI_SteamFriends_GetFriendCount(_friends, (int)_friendFlags); }
 		}

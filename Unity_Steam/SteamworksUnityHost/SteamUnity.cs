@@ -41,6 +41,10 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_Shutdown();
 		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SetWarningMessageHook(IntPtr OnSteamAPIDebugTextHook);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SetMiniDumpComment([MarshalAs(UnmanagedType.LPStr)] String comment);
 
 		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
 		private OnChallengeResponseFromSteam _challengeResponse;
@@ -83,11 +87,10 @@ namespace CommunityExpressNS
 		private SteamAPICall_t _lobbyJoinedCallHandle = 0;
 		private OnMatchmakingLobbyJoinedFromSteam _lobbyJoinedCallback;
 
-		private CommunityExpress() { }
+        public const uint k_uAppIdInvalid = 0x0;
+
+        private CommunityExpress() { }
 		~CommunityExpress() { Shutdown(); }
-
-
-		public const uint k_uAppIdInvalid = 0x0;
 
 		public static CommunityExpress Instance
 		{
@@ -102,7 +105,17 @@ namespace CommunityExpressNS
 			return SteamUnityAPI_RestartAppIfNecessary(unOwnAppID);
 		}
 
-		public bool Initialize()
+        public void WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID)
+        {
+            SteamUnityAPI_WriteMiniDump(exceptionCode, exceptionInfo, buildID);
+        }
+
+        public void SetMiniDumpComment(String comment)
+        {
+            SteamUnityAPI_SetMiniDumpComment(comment);
+        }
+
+        public bool Initialize()
 		{
 			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
 
@@ -111,7 +124,7 @@ namespace CommunityExpressNS
 				_steamAPIDebugTextHook = new OnSteamAPIDebugTextHook(OnSteamAPIDebugTextHookCallback);
 				SteamUnityAPI_SetWarningMessageHook(Marshal.GetFunctionPointerForDelegate(_steamAPIDebugTextHook));
 
-				ValidateLicense();
+				//ValidateLicense();
 				return true;
 			}
 
