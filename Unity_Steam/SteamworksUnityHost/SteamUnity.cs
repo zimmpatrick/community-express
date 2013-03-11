@@ -111,7 +111,7 @@ namespace CommunityExpressNS
 				_steamAPIDebugTextHook = new OnSteamAPIDebugTextHook(OnSteamAPIDebugTextHookCallback);
 				SteamUnityAPI_SetWarningMessageHook(Marshal.GetFunctionPointerForDelegate(_steamAPIDebugTextHook));
 
-				//ValidateLicense();
+				ValidateLicense();
 				return true;
 			}
 

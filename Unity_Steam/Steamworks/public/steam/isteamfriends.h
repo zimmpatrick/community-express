@@ -80,7 +80,13 @@ enum EFriendFlags
 
 
 // friend game played information
+#if defined( VALVE_CALLBACK_PACK_SMALL )
+#pragma pack( push, 4 )
+#elif defined( VALVE_CALLBACK_PACK_LARGE )
 #pragma pack( push, 8 )
+#else
+#error isteamclient.h must be included
+#endif 
 struct FriendGameInfo_t
 {
 	CGameID m_gameID;
@@ -90,7 +96,6 @@ struct FriendGameInfo_t
 	CSteamID m_steamIDLobby;
 };
 #pragma pack( pop )
-
 
 // maximum number of characters in a user's name. Two flavors; one for UTF-8 and one for UTF-16.
 // The UTF-8 version has to be very generous to accomodate characters that get large when encoded
@@ -135,6 +140,13 @@ enum { k_cchMaxRichPresenceKeys = 20 };
 enum { k_cchMaxRichPresenceKeyLength = 64 };
 enum { k_cchMaxRichPresenceValueLength = 256 };
 
+// These values are passed as parameters to the store
+enum EOverlayToStoreFlag
+{
+	k_EOverlayToStoreFlag_None = 0,
+	k_EOverlayToStoreFlag_AddToCart = 1,
+	k_EOverlayToStoreFlag_AddToCartAndShow = 2,
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: interface to accessing information about individual users,
@@ -149,9 +161,15 @@ public:
 	// like all the other interface functions that return a char *, it's important that this pointer is not saved
 	// off; it will eventually be free'd or re-allocated
 	virtual const char *GetPersonaName() = 0;
-	
-	// sets the player name, stores it on the server and publishes the changes to all friends who are online
-	virtual void SetPersonaName( const char *pchPersonaName ) = 0;
+
+	// Sets the player name, stores it on the server and publishes the changes to all friends who are online.
+	// Changes take place locally immediately, and a PersonaStateChange_t is posted, presuming success.
+	//
+	// The final results are available through the return value SteamAPICall_t, using SetPersonaNameResponse_t.
+	//
+	// If the name change fails to happen on the server, then an additional global PersonaStateChange_t will be posted
+	// to change the name back, in addition to the SetPersonaNameResponse_t callback.
+	virtual SteamAPICall_t SetPersonaName( const char *pchPersonaName ) = 0;
 
 	// gets the status of the current user
 	virtual EPersonaState GetPersonaState() = 0;
@@ -230,7 +248,7 @@ public:
 	virtual void ActivateGameOverlayToWebPage( const char *pchURL ) = 0;
 
 	// activates game overlay to store page for app
-	virtual void ActivateGameOverlayToStore( AppId_t nAppID ) = 0;
+	virtual void ActivateGameOverlayToStore( AppId_t nAppID, EOverlayToStoreFlag eFlag ) = 0;
 
 	// Mark a target user as 'played with'. This is a client-side only feature that requires that the calling user is 
 	// in game 
@@ -338,10 +356,16 @@ public:
 	virtual SteamAPICall_t EnumerateFollowingList( uint32 unStartIndex ) = 0;
 };
 
-#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends011"
+#define STEAMFRIENDS_INTERFACE_VERSION "SteamFriends013"
 
 // callbacks
+#if defined( VALVE_CALLBACK_PACK_SMALL )
+#pragma pack( push, 4 )
+#elif defined( VALVE_CALLBACK_PACK_LARGE )
 #pragma pack( push, 8 )
+#else
+#error isteamclient.h must be included
+#endif 
 
 //-----------------------------------------------------------------------------
 // Purpose: called when a friends' status changes
@@ -359,18 +383,20 @@ struct PersonaStateChange_t
 // these flags describe what the client has learned has changed recently, so on startup you'll see a name, avatar & relationship change for every friend
 enum EPersonaChange
 {
-	k_EPersonaChangeName		= 0x001,
-	k_EPersonaChangeStatus		= 0x002,
-	k_EPersonaChangeComeOnline	= 0x004,
-	k_EPersonaChangeGoneOffline	= 0x008,
-	k_EPersonaChangeGamePlayed	= 0x010,
-	k_EPersonaChangeGameServer	= 0x020,
-	k_EPersonaChangeAvatar		= 0x040,
-	k_EPersonaChangeJoinedSource= 0x080,
-	k_EPersonaChangeLeftSource	= 0x100,
-	k_EPersonaChangeRelationshipChanged = 0x200,
-	k_EPersonaChangeNameFirstSet = 0x400,
-	k_EPersonaChangeFacebookInfo = 0x800,
+	k_EPersonaChangeName		= 0x0001,
+	k_EPersonaChangeStatus		= 0x0002,
+	k_EPersonaChangeComeOnline	= 0x0004,
+	k_EPersonaChangeGoneOffline	= 0x0008,
+	k_EPersonaChangeGamePlayed	= 0x0010,
+	k_EPersonaChangeGameServer	= 0x0020,
+	k_EPersonaChangeAvatar		= 0x0040,
+	k_EPersonaChangeJoinedSource= 0x0080,
+	k_EPersonaChangeLeftSource	= 0x0100,
+	k_EPersonaChangeRelationshipChanged = 0x0200,
+	k_EPersonaChangeNameFirstSet = 0x0400,
+	k_EPersonaChangeFacebookInfo = 0x0800,
+	k_EPersonaChangeNickname =	0x1000,
+	k_EPersonaChangeSteamLevel = 0x2000,
 };
 
 
@@ -557,6 +583,19 @@ struct FriendsEnumerateFollowingList_t
 	int32 m_nResultsReturned;
 	int32 m_nTotalResultCount;
 };
+
+//-----------------------------------------------------------------------------
+// Purpose: reports the result of an attempt to change the user's persona name
+//-----------------------------------------------------------------------------
+struct SetPersonaNameResponse_t
+{
+	enum { k_iCallback = k_iSteamFriendsCallbacks + 47 };
+
+	bool m_bSuccess; // true if name change succeeded completely.
+	bool m_bLocalSuccess; // true if name change was retained locally.  (We might not have been able to communicate with Steam)
+	EResult m_result; // detailed result code
+};
+
 
 #pragma pack( pop )
 

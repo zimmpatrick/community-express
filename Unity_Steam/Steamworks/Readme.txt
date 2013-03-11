@@ -1,6 +1,6 @@
 ================================================================
 
-Copyright © 1996-2011, Valve Corporation, All rights reserved.
+Copyright © 1996-2012, Valve Corporation, All rights reserved.
 
 ================================================================
 
@@ -12,31 +12,119 @@ website at: http://partner.steamgames.com
 Revision History:
 
 ----------------------------------------------------------------
+v1.23a	25th February 2013
+----------------------------------------------------------------
+
+Windows:
+* Fix passing command-line parameters across SteamApi_RestartAppIfNeccessary()
+
+----------------------------------------------------------------
+v1.23	19th February 2013
+----------------------------------------------------------------
+
+Cloud:
+* Added ISteamScreenshots::TagPublishedFile() which allows tagging workshop content that is visible or active when a screenshot is taken.
+* Added ISteamRemoteStorage::UGCDownloadToLocation() which allows a developer to specify a location on disk to download workshop content.
+
+Setup tool:
+* Added Arabic to the supported languages for the PC Gold Master Setup Tool
+* Fixed regression in localized EULA support in Mac OS X Gold Master Setup Tool
+
+Windows:
+* Fix SteamAPI_RestartAppIfNecessary() on 64 bit Windows
+* When launching a game's development build from outside of Steam, fixed using steam_appid.txt in the Steam Overlay and for authorizing microtransactions (broken in the SDK 1.22)
+
+Mac:
+* Fixed many Steam callbacks not working for 64 bit OS X games due to mismatched structure alignment between the SDK and the Steam client
+* Implemented SteamAPI_RestartAppIfNecessary()
+
+Linux:
+* Removed the need to redistribute libtier0_s.so and libvstdlib_s.so
+* Fixed finding and loading steamclient.so, so LD_LIBRARY_PATH does not need to be set for game to talk with Steam
+* Implemented SteamAPI_RestartAppIfNecessary()
+
+
+----------------------------------------------------------------
+v1.22	12th December 2012
+----------------------------------------------------------------
+
+Apps
+* Added new API call ISteamApps::MarkContentCorrupt() so a game can hint Steam that some of it's local content seems corrupt. Steam will verify the content next time the game is started.
+* Added new API call ISteamApps::GetCurrentBetaName() so a game can get the current content beta branch name if the user chose to opt-in to a content beta.
+
+Cloud 
+* Added an offset parameter to ISteamRemoteStorage::UGCRead() to allow reading files in chunks, and increased the limit from 100MB to 200MB when downloading files this way.
+
+HTTP
+* Added support for streaming HTTP requests with ISteamHTTP::SendHTTPRequestAndStreamResponse() and ISteamHTTP::GetHTTPStreamingResponseBodyData()
+
+Linux
+* Updated libsteam_api.so to find Steam in its new install location
+
+
+----------------------------------------------------------------
+v1.21	25th October 2012
+----------------------------------------------------------------
+
+Big Picture
+* Added ISteamUtils::ShowGamepadTextInput() to enable usage of the Big Picture gamepad text input control in-game. UI is rendered by the Steam Overlay.
+* Added ISteamUtils::GetEnteredGamepadTextLength() and ISteamUtils::GetEnteredGamepadTextInput() to retrieve entered gamepad text.
+* Added GamepadTextInputDismissed_t callback to detect when the user has entered gamepad data.
+
+
+----------------------------------------------------------------
+v1.20	30th August 2012
+----------------------------------------------------------------
+
+SteamPipe
+* Added local server and builder tools for new content system.
+
+Mac
+* OSX Supports 64 bit build targets.
+* Spacewar has been updated to be buildable as a 64 bit OSX sample application.
+
+Friends
+* Added a callback for the result of ISteamFriends::SetPersonaName().
+* Changed ISteamFriends::ActivateGameOverlayToStore() to take an additional parameter so app can be directly added to the cart.
+
+Cloud
+* Added ISteamRemoteStorage::FileWriteStreamOpen(), FileWriteStreamWriteChunk(), FileWriteStreamClose() and FileWriteStreamCancel() for streaming operations.
+* Changed parameters to ISteamRemoteStorage::PublisheVideo().
+* Added file type to ISteamRemoteStorage::GetPublishedFileDetails() callback result (RemoteStorageGetPublishedFileDetailsResult_t).
+* Added a callback to indicate that a published file that a user owns was deleted (RemoteStoragePublishedFileDeleted_t).
+
+ISteamUserStats
+* Added ISteamUserStats::GetNumAchievements() and ISteamUserStats::GetAchievementName().
+
+
+----------------------------------------------------------------
 v1.19	22nd March 2012
 ----------------------------------------------------------------
+
 Friends
 * Added ISteamFriends::GetFollowerCount()
 * Added ISteamFriends::IsFollowing()
 * Added ISteamFriends::EnumerateFollowingList()
 
 Cloud
-*Added ISteamRemoteStorage::UpdatePublishedFileSetChangeDescription()
-*Added ISteamRemoteStorage::GetPublishedItemVoteDetails()
-*Added ISteamRemoteStorage::UpdateUserPublishedItemVote()
-*Added ISteamRemoteStorage::GetUserPublishedItemVoteDetails()
-*Added ISteamRemoteStorage::EnumerateUserSharedWorkshopFiles()
-*Added ISteamRemoteStorage::PublishVideo()
-*Added ISteamRemoteStorage::SetUserPublishedFileAction()
-*Added ISteamRemoteStorage::EnumeratePublishedFilesByUserAction()
-*Added ISteamRemoteStorage::EnumeratePublishedWorkshopFiles()
+* Added ISteamRemoteStorage::UpdatePublishedFileSetChangeDescription()
+* Added ISteamRemoteStorage::GetPublishedItemVoteDetails()
+* Added ISteamRemoteStorage::UpdateUserPublishedItemVote()
+* Added ISteamRemoteStorage::GetUserPublishedItemVoteDetails()
+* Added ISteamRemoteStorage::EnumerateUserSharedWorkshopFiles()
+* Added ISteamRemoteStorage::PublishVideo()
+* Added ISteamRemoteStorage::SetUserPublishedFileAction()
+* Added ISteamRemoteStorage::EnumeratePublishedFilesByUserAction()
+* Added ISteamRemoteStorage::EnumeratePublishedWorkshopFiles()
 
 ISteamGameServer
-*Updated callback for SteamGameServer::ComputeNewPlayerCompatibility to include the steam id the compatibility was calculated for
+* Updated callback for SteamGameServer::ComputeNewPlayerCompatibility to include the steam id the compatibility was calculated for
 
 
 ----------------------------------------------------------------
 v1.18	7th February 2012
 ----------------------------------------------------------------
+
 Cloud
 * Removed ISteamRemoteStorage::PublishFile() and consolidated the API to PublishWorkshopFile()
 * Updated ISteamRemoteStorage::PublishWorkshopFile() to better define the type of workshop file being published
@@ -51,6 +139,7 @@ Apps:
 ----------------------------------------------------------------
 v1.17	2nd November 2011
 ----------------------------------------------------------------
+
 Cloud
 * Added ISteamRemoteStorage::PublishFile(), PublishWorkshopFile(), UpdatePublishedFile(), DeletePublishedFile() which enables sharing, updating, and unsharing of cloud content with the Steam community
 * Added ISteamRemoteStorage::EnumerateUserPublishedFiles to enumerate content that a user has shared with the Steam community
@@ -77,6 +166,7 @@ Tools
 ----------------------------------------------------------------
 v1.16	29th July 2011
 ----------------------------------------------------------------
+
 HTTP
 * added ISteamHTTP::SetHTTPRequestRawPostBody() to set the raw body of a POST request
 Screenshots

@@ -14,6 +14,48 @@
 #include "steamtypes.h"
 #include "steamclientpublic.h"
 
+// Define compile time assert macros to let us validate the structure sizes.
+#define VALVE_COMPILE_TIME_ASSERT( pred ) typedef char compile_time_assert_type[(pred) ? 1 : -1];
+
+#if defined(__linux__) || defined(__APPLE__) 
+// The 32-bit version of gcc has the alignment requirement for uint64 and double set to
+// 4 meaning that even with #pragma pack(8) these types will only be four-byte aligned.
+// The 64-bit version of gcc has the alignment requirement for these types set to
+// 8 meaning that unless we use #pragma pack(4) our structures will get bigger.
+// The 64-bit structure packing has to match the 32-bit structure packing for each platform.
+#define VALVE_CALLBACK_PACK_SMALL
+#else
+#define VALVE_CALLBACK_PACK_LARGE
+#endif
+
+#if defined( VALVE_CALLBACK_PACK_SMALL )
+#pragma pack( push, 4 )
+#elif defined( VALVE_CALLBACK_PACK_LARGE )
+#pragma pack( push, 8 )
+#else
+#error ???
+#endif 
+
+typedef struct
+{
+    uint32 m_u32;
+    uint64 m_u64;
+    uint16 m_u16;
+    double m_d;
+} ValvePackingSentinel_t;
+
+#pragma pack( pop )
+
+
+#if defined(VALVE_CALLBACK_PACK_SMALL)
+VALVE_COMPILE_TIME_ASSERT( sizeof(ValvePackingSentinel_t) == 24 )
+#elif defined(VALVE_CALLBACK_PACK_LARGE)
+VALVE_COMPILE_TIME_ASSERT( sizeof(ValvePackingSentinel_t) == 32 )
+#else
+#error ???
+#endif
+
+
 // handle to a communication pipe to the Steam client
 typedef int32 HSteamPipe;
 // handle to single instance of a steam user
@@ -44,6 +86,7 @@ class ISteamScreenshots;
 class ISteamGameServerStats;
 class ISteamPS3OverlayRender;
 class ISteamHTTP;
+class ISteamUnifiedMessages;
 
 //-----------------------------------------------------------------------------
 // Purpose: Interface to creating a new steam instance, or to
@@ -143,6 +186,8 @@ public:
 	// Expose HTTP interface
 	virtual ISteamHTTP *GetISteamHTTP( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
+	// Exposes the ISteamUnifiedMessages interface
+	virtual ISteamUnifiedMessages *GetISteamUnifiedMessages( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
 };
 
@@ -176,5 +221,123 @@ enum { k_iClientHTTPCallbacks = 2100 };
 enum { k_iClientScreenshotsCallbacks = 2200 };
 enum { k_iSteamScreenshotsCallbacks = 2300 };
 enum { k_iClientAudioCallbacks = 2400 };
+enum { k_iClientUnifiedMessagesCallbacks = 2500 };
+
+
+//-----------------------------------------------------------------------------
+// The CALLBACK macros are for client side callback logging enabled with
+// log_callback <first callnbackID> <last callbackID>
+// Do not change any of these. 
+//-----------------------------------------------------------------------------
+
+class CSteamCallback
+{
+public:
+	virtual const char *GetCallbackName() const = 0;
+	virtual uint32 GetCallbackID() const = 0;
+	virtual uint8 *GetFixedData() const = 0;
+	virtual uint32 GetFixedSize() const = 0;
+	virtual uint32 GetNumMemberVariables() const = 0;
+	virtual bool GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize, uint32 &varCount, const char **pszName, const char **pszType  ) const = 0;
+};
+
+#define DEFINE_CALLBACK( callbackname, callbackid ) \
+struct callbackname##_t { \
+	enum { k_iCallback = callbackid }; \
+	static callbackname##_t *GetNullPointer() { return 0; }
+
+#define CALLBACK_MEMBER( varidx, vartype, varname ) \
+	public: vartype varname ; \
+	static void GetMemberVar_##varidx( unsigned int &varOffset, unsigned int &varSize, uint32 &varCount, const char **pszName, const char **pszType ) { \
+			varOffset = (unsigned int)(size_t)&GetNullPointer()->varname; \
+			varSize = sizeof( vartype ); \
+			varCount = 1; \
+			*pszName = #varname; *pszType = #vartype; }
+
+#define CALLBACK_ARRAY( varidx, vartype, varname, varcount ) \
+	public: vartype varname [ varcount ]; \
+	static void GetMemberVar_##varidx( unsigned int &varOffset, unsigned int &varSize, uint32 &varCount, const char **pszName, const char **pszType ) { \
+	varOffset = (unsigned int)(size_t)&GetNullPointer()->varname[0]; \
+	varSize = sizeof( vartype ); \
+	varCount = varcount; \
+	*pszName = #varname; *pszType = #vartype; }
+
+
+#define END_CALLBACK_INTERNAL_BEGIN( callbackname, numvars )  }; \
+class C##callbackname : public CSteamCallback { \
+public: callbackname##_t m_Data; \
+	C##callbackname () { memset( &m_Data, 0, sizeof(m_Data) ); } \
+	virtual const char *GetCallbackName() const { return #callbackname; } \
+	virtual uint32  GetCallbackID() const { return callbackname##_t::k_iCallback; } \
+	virtual uint32  GetFixedSize() const { return sizeof( m_Data ); } \
+	virtual uint8  *GetFixedData() const { return (uint8*)&m_Data; } \
+	virtual uint32  GetNumMemberVariables() const { return numvars; } \
+	virtual bool    GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize,  uint32 &varCount, const char **pszName, const char **pszType ) const { \
+	switch ( index ) { default : return false;
+
+
+#define END_CALLBACK_INTERNAL_SWITCH( varidx ) case varidx : m_Data.GetMemberVar_##varidx( varOffset, varSize, varCount, pszName, pszType ); return true;
+
+#define END_CALLBACK_INTERNAL_END() }; }; };
+
+#define END_DEFINE_CALLBACK_0( callbackname )  }; \
+class C##callbackname : public CSteamCallback { \
+public: callbackname##_t m_Data; \
+	virtual const char *GetCallbackName() const { return #callbackname; } \
+	virtual uint32  GetCallbackID() const { return callbackname##_t::k_iCallback; } \
+	virtual uint32  GetFixedSize() const { return sizeof( m_Data ); } \
+	virtual uint8  *GetFixedData() const { return (uint8*)&m_Data; } \
+	virtual uint32  GetNumMemberVariables() const { return 0; } \
+	virtual bool    GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize,  uint32 &varCount, const char **pszName, const char **pszType ) const { return false; } \
+	}; \
+	
+
+#define END_DEFINE_CALLBACK_1( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 1 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
+	END_CALLBACK_INTERNAL_END()
+
+#define END_DEFINE_CALLBACK_2( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 2 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
+	END_CALLBACK_INTERNAL_END()
+
+#define END_DEFINE_CALLBACK_3( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 3 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
+	END_CALLBACK_INTERNAL_END()
+
+#define END_DEFINE_CALLBACK_4( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 4 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
+	END_CALLBACK_INTERNAL_END()
+
+
+#define END_DEFINE_CALLBACK_6( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 6 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 4 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 5 ) \
+	END_CALLBACK_INTERNAL_END()
+
+#define END_DEFINE_CALLBACK_7( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 7 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 4 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 5 ) \
+	END_CALLBACK_INTERNAL_SWITCH( 6 ) \
+	END_CALLBACK_INTERNAL_END()
 
 #endif // ISTEAMCLIENT_H
