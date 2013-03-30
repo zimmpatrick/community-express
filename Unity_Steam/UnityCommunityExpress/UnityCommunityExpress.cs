@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -22,16 +22,16 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 	{
 		_instance = this;
 		_ceInstance = CommunityExpress.Instance;
-        _ceInstance.Logger = new CommunityExpress.OnLog(onLog);
+		_ceInstance.Logger = new CommunityExpress.OnLog(onLog);
 
 		print("SteamAPI_Init {1}" + _ceInstance.Initialize());
 	}
 
-    public void OnDestroy()
-    {
-        _ceInstance.Shutdown();
-        _instance = null;
-    }
+	public void OnDestroy()
+	{
+		_ceInstance.Shutdown();
+		_instance = null;
+	}
 
 	public bool RestartAppIfNecessary(uint unOwnAppID)
 	{
@@ -53,9 +53,9 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		get { return _ceInstance.AppID; }
 	}
 
-	public RemoteStorage RemoteStorage
+	public App App
 	{
-		get { return _ceInstance.RemoteStorage; }
+		get { return _ceInstance.App; }
 	}
 
 	public User User
@@ -98,9 +98,29 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		get { return _ceInstance.Matchmaking; }
 	}
 
+	public RemoteStorage RemoteStorage
+	{
+		get { return _ceInstance.RemoteStorage; }
+	}
+
+	public Networking Networking
+	{
+		get { return _ceInstance.Networking; }
+	}
+
 	public InGamePurchasing InGamePurchasing
 	{
 		get { return _ceInstance.InGamePurchasing; }
+	}
+
+	public SteamWebAPI SteamWebAPI
+	{
+		get { return _ceInstance.SteamWebAPI; }
+	}
+
+	public BigPicture BigPicture
+	{
+		get { return _ceInstance.BigPicture; }
 	}
 
 	public Boolean IsGameServerInitialized
@@ -137,8 +157,8 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 		return texture;
 	}
 
-    private void onLog(string msg)
-    {
-        print(msg);
-    }
+	private void onLog(string msg)
+	{
+		print(msg);
+	}
 }

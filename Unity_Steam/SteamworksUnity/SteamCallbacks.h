@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2012, Zimmdot, LLC
+// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 #pragma once
@@ -28,6 +28,11 @@ typedef void (ZIMM_CALLBACK *FPOnServerResponded)(HServerListRequest,gameserveri
 typedef void (ZIMM_CALLBACK *FPOnServerListComplete)(HServerListRequest);
 typedef void (ZIMM_CALLBACK *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
 typedef void (ZIMM_CALLBACK *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
+typedef void (ZIMM_CALLBACK *FPOnGamepadTextInputDismissed)(GamepadTextInputDismissed_t*);
+typedef void (ZIMM_CALLBACK *FPOnLobbyDataUpdated)(LobbyDataUpdate_t*);
+typedef void (ZIMM_CALLBACK *FPOnLobbyChatUpdated)(LobbyChatUpdate_t*);
+typedef void (ZIMM_CALLBACK *FPOnLobbyChatMessage)(LobbyChatMsg_t*);
+typedef void (ZIMM_CALLBACK *FPOnLobbyGameCreated)(LobbyGameCreated_t*);
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
@@ -35,6 +40,11 @@ public:
 	SteamCallbacks() : AvatarReceivedCallback(this, &SteamCallbacks::OnAvatarReceived)
 					 , UserStatsReceivedCallback(this, &SteamCallbacks::OnUserStatsReceived)
 					 , TransactionAuthorizationReceivedCallback(this, &SteamCallbacks::OnTransactionAuthorizationReceived)
+					 , GamepadTextInputDismissedCallback(this, &SteamCallbacks::OnGamepadTextInputDismissed)
+					 , LobbyDataUpdatedCallback(this, &SteamCallbacks::OnLobbyDataUpdated)
+					 , LobbyChatUpdatedCallback(this, &SteamCallbacks::OnLobbyChatUpdated)
+					 , LobbyChatMessageCallback(this, &SteamCallbacks::OnLobbyChatMessage)
+					 , LobbyGameCreatedCallback(this, &SteamCallbacks::OnLobbyGameCreated)
 					 , GameServerClientApproveCallback(this, &SteamCallbacks::OnGameServerClientApprove)
 					 , GameServerClientDenyCallback(this, &SteamCallbacks::OnGameServerClientDeny)
 					 , GameServerClientKickCallback(this, &SteamCallbacks::OnGameServerClientKick)
@@ -61,6 +71,11 @@ public:
 	STEAM_CALLBACK(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback);
 	STEAM_CALLBACK(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
 	STEAM_CALLBACK(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, GamepadTextInputDismissedCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback);
 
 	STEAM_GAMESERVER_CALLBACK(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
@@ -86,4 +101,9 @@ public:
 	FPOnServerListComplete delegateOnServerListComplete;
 	FPOnNetworkP2PSessionRequest delegateOnNetworkP2PSessionRequest;
 	FPOnNetworkP2PSessionConnectFailed delegateOnNetworkP2PSessionConnectFailed;
+	FPOnGamepadTextInputDismissed delegateOnGamepadTextInputDismissed;
+	FPOnLobbyDataUpdated delegateOnLobbyDataUpdated;
+	FPOnLobbyChatUpdated delegateOnLobbyChatUpdated;
+	FPOnLobbyChatMessage delegateOnLobbyChatMessage;
+	FPOnLobbyGameCreated delegateOnLobbyGameCreated;
 };

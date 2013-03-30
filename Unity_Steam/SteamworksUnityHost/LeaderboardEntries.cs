@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -93,32 +93,32 @@ namespace CommunityExpressNS
 			return GetEnumerator();
 		}
 
-        public LeaderboardEntry this[int index] 
-        {
-            get
-            {
-                return _leaderboardEntryList[index];
-            }
+		public LeaderboardEntry this[int index] 
+		{
+			get
+			{
+				return _leaderboardEntryList[index];
+			}
 
-            set
-            {
-                throw new NotSupportedException();
-            }
-        }
+			set
+			{
+				throw new NotSupportedException();
+			}
+		}
 
-        public int IndexOf(LeaderboardEntry item)
-        {
-            return _leaderboardEntryList.IndexOf(item);
-        }
+		public int IndexOf(LeaderboardEntry item)
+		{
+			return _leaderboardEntryList.IndexOf(item);
+		}
 
-        public void Insert(int index, LeaderboardEntry item)
-        {
-            throw new NotSupportedException();
-        }
+		public void Insert(int index, LeaderboardEntry item)
+		{
+			throw new NotSupportedException();
+		}
 
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
+		public void RemoveAt(int index)
+		{
+			throw new NotSupportedException();
+		}
 	}
 }

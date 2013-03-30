@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -70,7 +70,7 @@ namespace CommunityExpressNS
 		private static extern UInt32 SteamUnityAPI_SteamGameServer_GetPublicIP(IntPtr gameserver);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_SetBasicServerData(IntPtr gameserver, Boolean isDedicated,
-            [MarshalAs(UnmanagedType.LPStr)] String gameName, [MarshalAs(UnmanagedType.LPStr)] String gameDescription, [MarshalAs(UnmanagedType.LPStr)] String modDir);
+			[MarshalAs(UnmanagedType.LPStr)] String gameName, [MarshalAs(UnmanagedType.LPStr)] String gameDescription, [MarshalAs(UnmanagedType.LPStr)] String modDir);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_LogOnAnonymous(IntPtr gameserver);
 		[DllImport("CommunityExpressSW")]
@@ -115,7 +115,7 @@ namespace CommunityExpressNS
 		private Dictionary<String, String> _keyValues;
 		private String _gameTags;
 		private String _gameData;
-        private String _modDir;
+		private String _modDir;
 		private List<SteamID> _playersPendingAuth = new List<SteamID>();
 		private List<SteamID> _playersConnected = new List<SteamID>();
 		private List<SteamID> _botsConnected = new List<SteamID>();
@@ -141,16 +141,16 @@ namespace CommunityExpressNS
 			Shutdown();
 		}
 
-        public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
-            EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
-            String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved,
-            OnGameServerClientDenied onGameServerClientDenied, OnGameServerClientKick onGameServerClientKick)
-        {
-            return Init(isDedicated, ip, port, queryPort, masterServerPort, spectatorPort,
-            serverMode, serverName, spectatorServerName, regionName, gameName, gameDescription,
-            gameVersion, mapName, maxClients, isPassworded, string.Empty, onGameServerClientApproved,
-            onGameServerClientDenied, onGameServerClientKick);
-        }
+		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
+			EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
+			String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved,
+			OnGameServerClientDenied onGameServerClientDenied, OnGameServerClientKick onGameServerClientKick)
+		{
+			return Init(isDedicated, ip, port, queryPort, masterServerPort, spectatorPort,
+			serverMode, serverName, spectatorServerName, regionName, gameName, gameDescription,
+			gameVersion, mapName, maxClients, isPassworded, string.Empty, onGameServerClientApproved,
+			onGameServerClientDenied, onGameServerClientKick);
+		}
 
 		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
 			EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
@@ -195,7 +195,7 @@ namespace CommunityExpressNS
 				_gameDescription = gameDescription;
 				_maxClients = maxClients;
 				_isPassworded = isPassworded;
-                _modDir = modDir;
+				_modDir = modDir;
 
 				SendBasicServerStatus();
 				SteamUnityAPI_SteamGameServer_LogOnAnonymous(_gameServer);
@@ -345,18 +345,18 @@ namespace CommunityExpressNS
 			}
 		}
 
-        public ICollection<Friend> GetPlayersConnected()
-        {
-            List<Friend> friends = new List<Friend>();
+		public ICollection<Friend> GetPlayersConnected()
+		{
+			List<Friend> friends = new List<Friend>();
 
-            foreach (SteamID id in _playersConnected)
-            {
-                friends.Add(new Friend(CommunityExpress.Instance.Friends, 
-                    id));
-            }
+			foreach (SteamID id in _playersConnected)
+			{
+				friends.Add(new Friend(CommunityExpress.Instance.Friends, 
+					id));
+			}
 
-            return friends;
-        }
+			return friends;
+		}
 
 		private void OnGameServerPolicyResponseCallback(ref GSPolicyResponse_t callbackData)
 		{

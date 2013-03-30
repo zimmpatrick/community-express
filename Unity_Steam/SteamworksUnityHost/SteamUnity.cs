@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
+	using AppId_t = UInt32;
 	using System.Reflection;
 	using System.IO;
 	using System.Security.Cryptography;
@@ -26,7 +27,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_RunCallbacks();
 		[DllImport("CommunityExpressSW")]
-		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
+		private static extern AppId_t SteamUnityAPI_SteamUtils_GetAppID();
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
 		[DllImport("CommunityExpressSW")]
@@ -41,23 +42,24 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_Shutdown();
 		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SetWarningMessageHook(IntPtr OnSteamAPIDebugTextHook);
-        [DllImport("CommunityExpressSW")]
-        private static extern void SteamUnityAPI_WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID);
-        [DllImport("CommunityExpressSW")]
-        private static extern void SteamUnityAPI_SetMiniDumpComment([MarshalAs(UnmanagedType.LPStr)] String comment);
+		[DllImport("CommunityExpressSW")]
+		private static extern void SteamUnityAPI_WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID);
+		[DllImport("CommunityExpressSW")]
+		private static extern void SteamUnityAPI_SetMiniDumpComment([MarshalAs(UnmanagedType.LPStr)] String comment);
 
 		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
 		private OnChallengeResponseFromSteam _challengeResponse;
 
 		delegate void OnSteamAPIDebugTextHook(Int32 nSeverity, IntPtr pchDebugText);
 		private OnSteamAPIDebugTextHook _steamAPIDebugTextHook;
-        
+		
 		public delegate void OnLog(string msg);
 		private OnLog _logger = null;
 
 		private static readonly CommunityExpress _instance = new CommunityExpress();
 		private bool _shutdown = false;
 
+		private App _app = null;
 		private User _user = null;
 		private GameServer _gameserver = null;
 		private Friends _friends = null;
@@ -71,6 +73,7 @@ namespace CommunityExpressNS
 		private Networking _networking = null;
 		private InGamePurchasing _inGamePurchasing = null;
 		private SteamWebAPI _steamWebAPI = null;
+		private BigPicture _bigPicture = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -79,17 +82,17 @@ namespace CommunityExpressNS
 		private OnUserGetEncryptedAppTicketFromSteam _userGetEncryptedAppTicketCallback;
 
 		private SteamAPICall_t _lobbyCreatedCallHandle = 0;
-		private OnMatchmakingLobbyCreatedBySteam _lobbyCreatedCallback;
+		private OnLobbyCreatedBySteam _lobbyCreatedCallback;
 
 		private SteamAPICall_t _lobbyListReceivedCallHandle = 0;
-		private OnMatchmakingLobbyListReceivedFromSteam _lobbyListReceivedCallback;
+		private OnLobbyListReceivedFromSteam _lobbyListReceivedCallback;
 
 		private SteamAPICall_t _lobbyJoinedCallHandle = 0;
-		private OnMatchmakingLobbyJoinedFromSteam _lobbyJoinedCallback;
+		private OnLobbyJoinedFromSteam _lobbyJoinedCallback;
 
-        public const uint k_uAppIdInvalid = 0x0;
+		public const uint k_uAppIdInvalid = 0x0;
 
-        private CommunityExpress() { }
+		private CommunityExpress() { }
 		~CommunityExpress() { Shutdown(); }
 
 		public static CommunityExpress Instance
@@ -105,17 +108,17 @@ namespace CommunityExpressNS
 			return SteamUnityAPI_RestartAppIfNecessary(unOwnAppID);
 		}
 
-        public void WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID)
-        {
-            SteamUnityAPI_WriteMiniDump(exceptionCode, exceptionInfo, buildID);
-        }
+		public void WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID)
+		{
+			SteamUnityAPI_WriteMiniDump(exceptionCode, exceptionInfo, buildID);
+		}
 
-        public void SetMiniDumpComment(String comment)
-        {
-            SteamUnityAPI_SetMiniDumpComment(comment);
-        }
+		public void SetMiniDumpComment(String comment)
+		{
+			SteamUnityAPI_SetMiniDumpComment(comment);
+		}
 
-        public bool Initialize()
+		public bool Initialize()
 		{
 			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
 
@@ -239,14 +242,22 @@ namespace CommunityExpressNS
 			}
 		}
 
-		public bool InitalizeGameServer()
-		{
-			return true;
-		}
-
-		public UInt32 AppID
+		public AppId_t AppID
 		{
 			get { return SteamUnityAPI_SteamUtils_GetAppID(); }
+		}
+
+		public App App
+		{
+			get
+			{
+				if (_app == null)
+				{
+					_app = new App();
+				}
+
+				return _app;
+			}
 		}
 
 		public User User
@@ -294,7 +305,7 @@ namespace CommunityExpressNS
 			{
 				if (_groups == null)
 				{
-                    _groups = new Groups(Friends);
+					_groups = new Groups(Friends);
 				}
 
 				return _groups;
@@ -407,6 +418,19 @@ namespace CommunityExpressNS
 			}
 		}
 
+		public BigPicture BigPicture
+		{
+			get
+			{
+				if (_bigPicture == null)
+				{
+					_bigPicture = new BigPicture();
+				}
+
+				return _bigPicture;
+			}
+		}
+
 		public OnLog Logger
 		{
 			set { _logger = value; }
@@ -429,24 +453,24 @@ namespace CommunityExpressNS
 			_userGetEncryptedAppTicketCallback = callback;
 		}
 
-		internal void AddCreateLobbyCallback(SteamAPICall_t handle, OnMatchmakingLobbyCreatedBySteam callback)
+		internal void AddCreateLobbyCallback(SteamAPICall_t handle, OnLobbyCreatedBySteam callback)
 		{
 			_lobbyCreatedCallHandle = handle;
 			_lobbyCreatedCallback = callback;
 		}
 
-		internal void AddLobbyListRequestCallback(SteamAPICall_t handle, OnMatchmakingLobbyListReceivedFromSteam callback)
+		internal void AddLobbyListRequestCallback(SteamAPICall_t handle, OnLobbyListReceivedFromSteam callback)
 		{
 			_lobbyListReceivedCallHandle = handle;
 			_lobbyListReceivedCallback = callback;
 		}
 
-		internal void RemoveLobbyListRequestCallback(SteamAPICall_t handle, OnMatchmakingLobbyListReceivedFromSteam callback)
+		internal void RemoveLobbyListRequestCallback(SteamAPICall_t handle, OnLobbyListReceivedFromSteam callback)
 		{
 			_lobbyListReceivedCallHandle = 0;
 		}
 
-		internal void AddLobbyJoinedCallback(SteamAPICall_t handle, OnMatchmakingLobbyJoinedFromSteam callback)
+		internal void AddLobbyJoinedCallback(SteamAPICall_t handle, OnLobbyJoinedFromSteam callback)
 		{
 			_lobbyJoinedCallHandle = handle;
 			_lobbyJoinedCallback = callback;

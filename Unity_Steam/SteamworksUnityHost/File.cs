@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -15,7 +15,7 @@ namespace CommunityExpressNS
 		   [Out, MarshalAs(UnmanagedType.LPStr)] StringBuilder sb, int nSize);
 		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamRemoteStorage_FileRead(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string fileName,
-		    [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] data, int nSize);
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] data, int nSize);
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_ForgetFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 		[DllImport("CommunityExpressSW")]
@@ -61,12 +61,12 @@ namespace CommunityExpressNS
 			return sb.ToString();
 		}
 
-        public Byte[] ReadBytes()
-        {
-            Byte[] ret = new Byte[_fileSize];
-            SteamUnityAPI_SteamRemoteStorage_FileRead(CommunityExpress.Instance.RemoteStorage.SteamPointer, _fileName, ret, _fileSize);
-            return ret;
-        }
+		public Byte[] ReadBytes()
+		{
+			Byte[] ret = new Byte[_fileSize];
+			SteamUnityAPI_SteamRemoteStorage_FileRead(CommunityExpress.Instance.RemoteStorage.SteamPointer, _fileName, ret, _fileSize);
+			return ret;
+		}
 
 		public Boolean Forget()
 		{

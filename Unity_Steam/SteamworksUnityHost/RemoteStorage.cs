@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -105,15 +105,15 @@ namespace CommunityExpressNS
 			Marshal.FreeHGlobal(fileContentsPtr);
 		}
 
-        public File GetFile(String fileName)
-        {
-            return new File(fileName, GetFileSize(fileName));
-        }
+		public File GetFile(String fileName)
+		{
+			return new File(fileName, GetFileSize(fileName));
+		}
 
-        public Int32 GetFileSize(String fileName)
-        {
-            return SteamUnityAPI_SteamRemoteStorage_GetFileSize(_remoteStorage, fileName);
-        }
+		public Int32 GetFileSize(String fileName)
+		{
+			return SteamUnityAPI_SteamRemoteStorage_GetFileSize(_remoteStorage, fileName);
+		}
 
 		public void ForgetFile(String fileName)
 		{

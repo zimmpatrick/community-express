@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -62,6 +62,39 @@ namespace CommunityExpressNS
 		k_EChatRoomEnterResponseYouBlockedMember = 11, // Join failed - you have blocked some member already in the chat
 	}
 
+	//-----------------------------------------------------------------------------
+	// Purpose: Used in ChatInfo messages - fields specific to a chat member - must fit in a uint32
+	//-----------------------------------------------------------------------------
+	public enum EChatMemberStateChange
+	{
+		// Specific to joining / leaving the chatroom
+		k_EChatMemberStateChangeEntered = 0x0001,		// This user has joined or is joining the chat room
+		k_EChatMemberStateChangeLeft = 0x0002,			// This user has left or is leaving the chat room
+		k_EChatMemberStateChangeDisconnected = 0x0004,	// User disconnected without leaving the chat first
+		k_EChatMemberStateChangeKicked = 0x0008,		// User kicked
+		k_EChatMemberStateChangeBanned = 0x0010,		// User kicked and banned
+	};
+
+	//-----------------------------------------------------------------------------
+	// Purpose: Chat Entry Types (previously was only friend-to-friend message types)
+	//-----------------------------------------------------------------------------
+	public enum EChatEntryType
+	{
+		k_EChatEntryTypeInvalid = 0,
+		k_EChatEntryTypeChatMsg = 1,			// Normal text message from another user
+		k_EChatEntryTypeTyping = 2,				// Another user is typing (not used in multi-user chat)
+		k_EChatEntryTypeInviteGame = 3,			// Invite from other user into that users current game
+		k_EChatEntryTypeEmote = 4,				// text emote message (deprecated, should be treated as ChatMsg)
+		//k_EChatEntryTypeLobbyGameStart = 5,	// lobby game is starting (dead - listen for LobbyGameCreated_t callback instead)
+		k_EChatEntryTypeLeftConversation = 6,	// user has left the conversation ( closed chat window )
+		// Above are previous FriendMsgType entries, now merged into more generic chat entry types
+		k_EChatEntryTypeEntered = 7,			// user has entered the conversation (used in multi-user chat and group chat)
+		k_EChatEntryTypeWasKicked = 8,			// user was kicked (data: 64-bit steamid of actor performing the kick)
+		k_EChatEntryTypeWasBanned = 9,			// user was banned (data: 64-bit steamid of actor performing the ban)
+		k_EChatEntryTypeDisconnected = 10,		// user disconnected
+		k_EChatEntryTypeHistoricalChat = 11,	// a chat message from user's chat history or offilne message
+	};
+
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyCreated_t
 	{
@@ -85,6 +118,43 @@ namespace CommunityExpressNS
 	}
 	
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	struct LobbyDataUpdate_t
+	{
+		public UInt64 m_ulSteamIDLobby;		// steamID of the Lobby
+		public UInt64 m_ulSteamIDMember;	// steamID of the member whose data changed, or the room itself
+		public Byte m_bSuccess;				// true if we lobby data was successfully changed; 
+											// will only be false if RequestLobbyData() was called on a lobby that no longer exists
+	};
+
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	struct LobbyChatUpdate_t
+	{
+		public UInt64 m_ulSteamIDLobby;				// Lobby ID
+		public UInt64 m_ulSteamIDUserChanged;		// user who's status in the lobby just changed - can be recipient
+		public UInt64 m_ulSteamIDMakingChange;		// Chat member who made the change (different from SteamIDUserChange if kicking, muting, etc.)
+													// for example, if one user kicks another from the lobby, this will be set to the id of the user who initiated the kick
+		public UInt32 m_rgfChatMemberStateChange;	// bitfield of EChatMemberStateChange values
+	};
+
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	struct LobbyChatMsg_t
+	{
+		public UInt64 m_ulSteamIDLobby;	// the lobby id this is in
+		public UInt64 m_ulSteamIDUser;	// steamID of the user who has sent this message
+		public Byte m_eChatEntryType;	// type of message
+		public UInt32 m_iChatID;		// index of the chat entry to lookup
+	};
+
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	struct LobbyGameCreated_t
+	{
+		public UInt64 m_ulSteamIDLobby;			// the lobby we were in
+		public UInt64 m_ulSteamIDGameServer;	// the new game server that has been created or found for the lobby members
+		public UInt32 m_unIP;					// IP & Port of the game server (if any)
+		public UInt16 m_usPort;
+	};
+
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct servernetadr_t
 	{
 		public UInt16 m_usConnectionPort;	// (in HOST byte order)
@@ -97,19 +167,19 @@ namespace CommunityExpressNS
 	{
 		public servernetadr_t m_NetAdr;				// IP/Query Port/Connection Port for this server
 		public Int32 m_nPing;						// current ping time in milliseconds
-        public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
-        public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
+		public Byte m_bHadSuccessfulResponse;	// server has responded successfully in the past
+		public Byte m_bDoNotRefresh;				// server is marked as not responding and should no longer be refreshed
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szGameDir;					// current game directory
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
 		public char[] m_szMap;						// current map
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public char[] m_szGameDescription;			// game description
-        public UInt32 m_nAppID;						// Steam App ID of this server
+		public UInt32 m_nAppID;						// Steam App ID of this server
 		public Int32 m_nPlayers;					// current number of players on the server
 		public Int32 m_nMaxPlayers;					// Maximum players that can join this server
 		public Int32 m_nBotPlayers;					// Number of bots (i.e simulated players) on this server
-        public Byte m_bPassword;					// true if this server needs a password to join
+		public Byte m_bPassword;					// true if this server needs a password to join
 		public Byte m_bSecure;					// Is this server protected by VAC
 		public UInt32 m_ulTimeLastPlayed;			// time (in unix time) when this server was last played on (for favorite/history servers)
 		public Int32 m_nServerVersion;				// server version as reported to Steam
@@ -134,12 +204,20 @@ namespace CommunityExpressNS
 		public ELobbyComparison comparison;
 	}
 
-	delegate void OnMatchmakingLobbyCreatedBySteam(ref LobbyCreated_t callbackData);
+	delegate void OnLobbyCreatedBySteam(ref LobbyCreated_t callbackData);
 	public delegate void OnLobbyCreated(Lobby lobby);
-	delegate void OnMatchmakingLobbyListReceivedFromSteam(ref LobbyMatchList_t callbackData);
+	delegate void OnLobbyListReceivedFromSteam(ref LobbyMatchList_t callbackData);
 	public delegate void OnLobbyListReceived(Lobbies lobbies);
-	delegate void OnMatchmakingLobbyJoinedFromSteam(ref LobbyEnter_t callbackData);
+	delegate void OnLobbyJoinedFromSteam(ref LobbyEnter_t callbackData);
 	public delegate void OnLobbyJoined(Lobby lobby, EChatRoomEnterResponse chatRoomEnterResponse);
+	delegate void OnLobbyDataUpdatedFromSteam(ref LobbyDataUpdate_t callbackData);
+	public delegate void OnLobbyDataUpdated(Lobby lobby, SteamID user, Boolean success);
+	delegate void OnLobbyChatUpdatedFromSteam(ref LobbyChatUpdate_t callbackData);
+	public delegate void OnLobbyChatUpdated(Lobby lobby, SteamID user, SteamID changer, EChatMemberStateChange memberStateChange);
+	delegate void OnLobbyChatMessageFromSteam(ref LobbyChatMsg_t callbackData);
+	public delegate void OnLobbyChatMessage(Lobby lobby, SteamID user, EChatEntryType type, Byte[] data);
+	delegate void OnLobbyGameCreatedFromSteam(ref LobbyGameCreated_t callbackData);
+	public delegate void OnLobbyGameCreated(Lobby lobby, SteamID server, IPAddress ip, UInt16 port);
 
 	delegate void OnMatchmakingServerReceivededFromSteam(HServerListRequest request, ref gameserveritem_t callbackData);
 	delegate void OnMatchmakingServerListReceivededFromSteam(HServerListRequest request);
@@ -157,11 +235,14 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(IntPtr matchmaking, ELobbyType lobbyType, Int32 maxMembers);
 		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, [MarshalAs(UnmanagedType.LPStr)] String value, ELobbyComparison comparisonType);
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListStringFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key,
+			[MarshalAs(UnmanagedType.LPStr)] String value, ELobbyComparison comparisonType);
 		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value, ELobbyComparison comparisonType);
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNumericalFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key,
+			int value, ELobbyComparison comparisonType);
 		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key, int value);
+		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListNearValueFilter(IntPtr matchmaking, [MarshalAs(UnmanagedType.LPStr)] String key,
+			int value);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListFilterSlotsAvailable(IntPtr matchmaking, int slotsAvailable);
 		[DllImport("CommunityExpressSW")]
@@ -173,11 +254,17 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(IntPtr matchmaking);
 		[DllImport("CommunityExpressSW")]
+		private static extern void SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(IntPtr onLobbyDataUpdated, IntPtr onLobbyChatUpdated, IntPtr onLobbyChatMessage,
+			IntPtr onLobbyGameCreated);
+		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_LeaveLobby(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(IntPtr matchmaking, Int32 lobbyIndex);
+		[DllImport("CommunityExpressSW")]
+		private static extern Int32 SteamUnityAPI_SteamMatchmaking_GetLobbyChatEntry(IntPtr matchmaking, UInt64 steamIDLobby, Int32 chatID, out UInt64 steamID,
+			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] data, Int32 dataLength, out EChatEntryType chatEntryType);
 		[DllImport("CommunityExpressSW")]
 		private static extern HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(IntPtr matchmakingServers, AppId_t appId,
 			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] String[] keys,
@@ -218,6 +305,14 @@ namespace CommunityExpressNS
 		private OnLobbyListReceived _onLobbyListReceived;
 		private Lobby _lobbyJoined = null;
 		private OnLobbyJoined _onLobbyJoined;
+		private OnLobbyDataUpdated _onLobbyDataUpdated;
+		private OnLobbyChatUpdated _onLobbyChatUpdated;
+		private OnLobbyChatMessage _onLobbyChatMessage;
+		private OnLobbyGameCreated _onLobbyGameCreated;
+		private OnLobbyDataUpdatedFromSteam _internalOnLobbyDataUpdated = null;
+		private OnLobbyChatUpdatedFromSteam _internalOnLobbyChatUpdated = null;
+		private OnLobbyChatMessageFromSteam _internalOnLobbyChatMessage = null;
+		private OnLobbyGameCreatedFromSteam _internalOnLobbyGameCreated = null;
 
 		private IntPtr _matchmakingServers;
 		private HServerListRequest _serverListRequest = HServerListRequest_Invalid;
@@ -342,37 +437,57 @@ namespace CommunityExpressNS
 			_lobbyListRequest = 0;
 		}
 
-		public void JoinLobby(SteamID steamIDLobby, OnLobbyJoined onLobbyJoined)
+		public Lobby JoinLobby(SteamID steamIDLobby, OnLobbyJoined onLobbyJoined, OnLobbyDataUpdated onLobbyDataUpdated, OnLobbyChatUpdated onLobbyChatUpdated,
+			OnLobbyChatMessage onLobbyChatMessage, OnLobbyGameCreated onLobbyGameCreated)
 		{
-			if (_lobbyJoined != null)
-			{
-				LeaveLobby();
-			}
+			Lobby lobby = null;
 
 			foreach (Lobby l in _lobbyList)
 			{
 				if (l.SteamID == steamIDLobby)
 				{
-					_lobbyJoined = l;
+					lobby = l;
 					break;
 				}
 			}
 
-			_onLobbyJoined = onLobbyJoined;
+			if (lobby == null)
+			{
+				lobby = new Lobby(_lobbyList, steamIDLobby);
+				_lobbyList.Add(lobby);
+			}
 
-			CommunityExpress.Instance.AddLobbyJoinedCallback(SteamUnityAPI_SteamMatchmaking_JoinLobby(_matchmaking, steamIDLobby.ToUInt64()), OnLobbyJoinedCallback);
+			JoinLobby(lobby, onLobbyJoined, onLobbyDataUpdated, onLobbyChatUpdated, onLobbyChatMessage, onLobbyGameCreated);
+
+			return lobby;
 		}
 
-		public void JoinLobby(Lobby lobby, OnLobbyJoined onLobbyJoined)
+		public void JoinLobby(Lobby lobby, OnLobbyJoined onLobbyJoined, OnLobbyDataUpdated onLobbyDataUpdated, OnLobbyChatUpdated onLobbyChatUpdated,
+			OnLobbyChatMessage onLobbyChatMessage, OnLobbyGameCreated onLobbyGameCreated)
 		{
 			if (_lobbyJoined != null)
 			{
 				LeaveLobby();
 			}
 
+			if (_internalOnLobbyDataUpdated == null)
+			{
+				_internalOnLobbyDataUpdated = new OnLobbyDataUpdatedFromSteam(OnLobbyDataUpdatedCallback);
+				_internalOnLobbyChatUpdated = new OnLobbyChatUpdatedFromSteam(OnLobbyChatUpdatedCallback);
+				_internalOnLobbyChatMessage = new OnLobbyChatMessageFromSteam(OnLobbyChatMessageCallback);
+				_internalOnLobbyGameCreated = new OnLobbyGameCreatedFromSteam(OnLobbyGameCreatedCallback);
+			}
+
 			_lobbyJoined = lobby;
 			_onLobbyJoined = onLobbyJoined;
+			_onLobbyDataUpdated = onLobbyDataUpdated;
+			_onLobbyChatUpdated = onLobbyChatUpdated;
+			_onLobbyChatMessage = onLobbyChatMessage;
+			_onLobbyGameCreated = onLobbyGameCreated;
 
+			SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnLobbyDataUpdated),
+				Marshal.GetFunctionPointerForDelegate(_internalOnLobbyChatUpdated), Marshal.GetFunctionPointerForDelegate(_internalOnLobbyChatMessage),
+				Marshal.GetFunctionPointerForDelegate(_internalOnLobbyGameCreated));
 			CommunityExpress.Instance.AddLobbyJoinedCallback(SteamUnityAPI_SteamMatchmaking_JoinLobby(_matchmaking, lobby.SteamID.ToUInt64()), OnLobbyJoinedCallback);
 		}
 
@@ -380,7 +495,7 @@ namespace CommunityExpressNS
 		{
 			if (_lobbyJoined == null)
 			{
-				_lobbyJoined = new Lobby(null, new SteamID(callbackData.m_ulSteamIDLobby));
+				_lobbyJoined = new Lobby(_lobbyList, new SteamID(callbackData.m_ulSteamIDLobby));
 				_lobbyList.Add(_lobbyJoined);
 			}
 
@@ -390,13 +505,44 @@ namespace CommunityExpressNS
 			_onLobbyJoined(_lobbyJoined, (EChatRoomEnterResponse)callbackData.m_EChatRoomEnterResponse);
 		}
 
-		public void LeaveLobby()
+		public Boolean LeaveLobby()
 		{
 			if (_lobbyJoined != null)
 			{
 				SteamUnityAPI_SteamMatchmaking_LeaveLobby(_matchmaking, _lobbyJoined.SteamID.ToUInt64());
 				_lobbyJoined = null;
+				return true;
 			}
+
+			return false;
+		}
+
+		void OnLobbyDataUpdatedCallback(ref LobbyDataUpdate_t callbackData)
+		{
+			_onLobbyDataUpdated(_lobbyJoined, new SteamID(callbackData.m_ulSteamIDMember), callbackData.m_bSuccess != 0);
+		}
+
+		void OnLobbyChatUpdatedCallback(ref LobbyChatUpdate_t callbackData)
+		{
+			_onLobbyChatUpdated(_lobbyJoined, new SteamID(callbackData.m_ulSteamIDUserChanged), new SteamID(callbackData.m_ulSteamIDMakingChange),
+				(EChatMemberStateChange)callbackData.m_rgfChatMemberStateChange);
+		}
+
+		void OnLobbyChatMessageCallback(ref LobbyChatMsg_t callbackData)
+		{
+			UInt64 steamID;
+			Byte[] data = new Byte[4096];
+			EChatEntryType chatEntryType;
+
+			Array.Resize(ref data, SteamUnityAPI_SteamMatchmaking_GetLobbyChatEntry(_matchmaking, callbackData.m_ulSteamIDLobby, (Int32)callbackData.m_iChatID,
+				out steamID, data, 4096, out chatEntryType));
+			_onLobbyChatMessage(_lobbyJoined, new SteamID(steamID), chatEntryType, data);
+		}
+
+		void OnLobbyGameCreatedCallback(ref LobbyGameCreated_t callbackData)
+		{
+			IPAddress ip = new IPAddress(new byte[] {(byte)(callbackData.m_unIP >> 24), (byte)(callbackData.m_unIP >> 16), (byte)(callbackData.m_unIP >> 8), (byte)callbackData.m_unIP});
+			_onLobbyGameCreated(_lobbyJoined, new SteamID(callbackData.m_ulSteamIDGameServer), ip, callbackData.m_usPort);
 		}
 
 		private void PrepServerListRequest(Dictionary<String, String> filters, OnServerReceived onServerReceived, OnServerListReceived onServerListReceived,
@@ -549,24 +695,24 @@ namespace CommunityExpressNS
 			return _serverList;
 		}
 
-        private int StrLen(char[] buffer)
-        {
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                if (buffer[i] == '\0') return i;
-            }
+		private int StrLen(char[] buffer)
+		{
+			for (int i = 0; i < buffer.Length; i++)
+			{
+				if (buffer[i] == '\0') return i;
+			}
 
-            return buffer.Length;
-        }
+			return buffer.Length;
+		}
 
-        private String CharArrayToString(char[] buffer)
-        {
-            if (buffer == null) return string.Empty;
+		private String CharArrayToString(char[] buffer)
+		{
+			if (buffer == null) return string.Empty;
 
-            return new String(buffer, 0, StrLen(buffer));
-        }
+			return new String(buffer, 0, StrLen(buffer));
+		}
 
-        private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
+		private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
 		{
 			if (request != _serverListRequest)
 				return;
@@ -575,9 +721,9 @@ namespace CommunityExpressNS
 			IPAddress ipAddress = new IPAddress(new byte[] { (byte)(ip >> 24), (byte)(ip >> 16), (byte)(ip >> 8), (byte)ip });
 
 			Server server = new Server(callbackData.m_nServerVersion, ipAddress, callbackData.m_NetAdr.m_usConnectionPort, callbackData.m_NetAdr.m_usQueryPort, callbackData.m_nPing,
-                CharArrayToString(callbackData.m_szServerName), CharArrayToString(callbackData.m_szMap), CharArrayToString(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
-                callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, CharArrayToString(callbackData.m_szGameTags),
-                CharArrayToString(callbackData.m_szGameDir), callbackData.m_nAppID);
+				CharArrayToString(callbackData.m_szServerName), CharArrayToString(callbackData.m_szMap), CharArrayToString(callbackData.m_szGameDescription), callbackData.m_bSecure != 0,
+				callbackData.m_bPassword != 0, callbackData.m_nPlayers, callbackData.m_nMaxPlayers, callbackData.m_nBotPlayers, CharArrayToString(callbackData.m_szGameTags),
+				CharArrayToString(callbackData.m_szGameDir), callbackData.m_nAppID);
 
 			_serverList.Add(server);
 

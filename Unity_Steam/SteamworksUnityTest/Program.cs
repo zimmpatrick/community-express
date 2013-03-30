@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -58,7 +58,7 @@ namespace SteamworksUnityTest
 			}
 
 			Console.WriteLine("Signed in as: {0}", cesdk.User.PersonaName);
-           
+		   
 			Image image = cesdk.User.SmallAvatar;
 			if (image != null)
 			{
@@ -135,7 +135,7 @@ namespace SteamworksUnityTest
 				cesdk.RunCallbacks();
 			}
 
-			matchmaking.JoinLobby(_lobby, MyOnLobbyJoined);
+			matchmaking.JoinLobby(_lobby, MyOnLobbyJoined, MyOnLobbyDataUpdated, MyOnLobbyChatUpdated, MyOnLobbyChatMessage, MyOnLobbyGameCreated);
 			while (!_lobbyJoined)
 			{
 				cesdk.RunCallbacks();
@@ -182,7 +182,7 @@ namespace SteamworksUnityTest
 				cesdk.RunCallbacks();
 			}
 
-            /*
+			/*
 			Networking networking = cesdk.Networking;
 			networking.Init(true, null, null, MyOnP2PPacketReceived);
 
@@ -194,12 +194,12 @@ namespace SteamworksUnityTest
 				cesdk.RunCallbacks();
 			}
 
-            */
+			*/
 
-            /*
+			/*
 
 			// NOTE: It is suggested that games call NewPurchase when the user enters the store rather than waiting until they are
-			//       ready to check out, as info about the user must be fetched from Steam's server before a purchase can be completed
+			//	   ready to check out, as info about the user must be fetched from Steam's server before a purchase can be completed
 			Console.WriteLine("Creating fake in game purchase");
 			InGamePurchase purchase = cesdk.InGamePurchasing.NewPurchase(true, _webAPIKey, (UInt64)new Random().Next());
 			Console.WriteLine("Sleeping to mimic user perusing our store(OrderID: " + purchase.OrderID.ToString() + ")");
@@ -214,10 +214,10 @@ namespace SteamworksUnityTest
 					cesdk.RunCallbacks();
 				}
 			}
-            
-            */
-            
-            GameServer gameserver = cesdk.GameServer;
+			
+			*/
+			
+			GameServer gameserver = cesdk.GameServer;
 			const UInt16 gsPort = 8793;
 			if (gameserver.Init(false, new IPAddress(0), gsPort, gsPort + 1, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
 				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true, 
@@ -230,7 +230,7 @@ namespace SteamworksUnityTest
 				Console.WriteLine("GameServer Failed to Initialize");
 			}
 
-            /*
+			/*
 
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
@@ -247,9 +247,9 @@ namespace SteamworksUnityTest
 					}
 				}
 			}
-            */
+			*/
 
-            /*
+			/*
 			Console.WriteLine("Requesting Stats through Game Server");
 			gameserver.RequestUserStats(user.SteamID, MyOnUserStatsReceivedCallback,
 				new string[] { "Kills", "DamageHealed", "Testing1" });
@@ -283,13 +283,13 @@ namespace SteamworksUnityTest
 			cesdk.RunCallbacks();
 			Thread.Sleep(1000);
 			cesdk.RunCallbacks();
-            */
+			*/
 
 			Console.WriteLine("Requesting Server List(Only our server will show details):");
 			Dictionary<string, string> filters = new Dictionary<string, string>();
-            // filters.Add("gamedir", "EON");
-            //filters.Add("secure", "1");
-            filters.Add("secure", "1");
+			// filters.Add("gamedir", "EON");
+			//filters.Add("secure", "1");
+			filters.Add("secure", "1");
 			matchmaking.RequestInternetServerList(filters, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
 			while (!_serversReceived)
 			{
@@ -380,7 +380,7 @@ namespace SteamworksUnityTest
 		{
 			if (leaderboard != null)
 			{
-                Console.WriteLine("Leaderboard Retrieved: {0} - {1} - {2} - {3}", leaderboard.LeaderboardName, leaderboard.EntryCount, leaderboard.SortMethod, leaderboard.DisplayType);
+				Console.WriteLine("Leaderboard Retrieved: {0} - {1} - {2} - {3}", leaderboard.LeaderboardName, leaderboard.EntryCount, leaderboard.SortMethod, leaderboard.DisplayType);
 
 				leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 913, new List<Int32> { 123, 456, 789 });
 
@@ -448,6 +448,22 @@ namespace SteamworksUnityTest
 		{
 			Console.WriteLine("Lobby Joined {0}", lobby.SteamID);
 			_lobbyJoined = true;
+		}
+
+		public static void MyOnLobbyDataUpdated(Lobby lobby, SteamID user, Boolean success)
+		{
+		}
+
+		public static void MyOnLobbyChatUpdated(Lobby lobby, SteamID user, SteamID changer, EChatMemberStateChange memberStateChange)
+		{
+		}
+
+		public static void MyOnLobbyChatMessage(Lobby lobby, SteamID user, EChatEntryType type, Byte[] data)
+		{
+		}
+
+		public static void MyOnLobbyGameCreated(Lobby lobby, SteamID server, IPAddress ip, UInt16 port)
+		{
 		}
 
 		public static void MyOnServerReceivedCallback(Servers serverList, Server server)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -68,7 +68,7 @@ namespace CommunityExpressNS
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
-        private static extern Int32 SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(IntPtr stats, SteamLeaderboard_t leaderboard);
+		private static extern Int32 SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
 		private static extern ELeaderboardSortMethod SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
@@ -158,10 +158,10 @@ namespace CommunityExpressNS
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{
 				leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard,
-                                              SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard),
-                                              SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(_stats, findLearderboardResult.m_hSteamLeaderboard),
-                                              SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard),
-                                              SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard));
+											  SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard),
+											  SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(_stats, findLearderboardResult.m_hSteamLeaderboard),
+											  SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard),
+											  SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard));
 				Add(leaderboard);
 			}
 

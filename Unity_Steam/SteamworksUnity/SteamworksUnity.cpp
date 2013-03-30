@@ -1,5 +1,5 @@
 // SteamworksUnity.cpp : Defines the exported functions for the DLL application.
-// Copyright (c) 2011-2012, Zimmdot, LLC
+// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 #ifdef _WIN32
@@ -188,6 +188,118 @@ STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamApps_GetCurrentGameLanguage(v
 	return pISteamApps->GetCurrentGameLanguage();
 }
 
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamApps_GetAvailableGameLanguages(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->GetAvailableGameLanguages();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsSubscribedApp(void* pSteamApps, AppId_t iApp)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsSubscribedApp(iApp);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsDlcInstalled(void* pSteamApps, AppId_t iApp)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsDlcInstalled(iApp);
+}
+
+STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamApps_GetEarliestPurchaseUnixTime(void* pSteamApps, AppId_t iApp)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->GetEarliestPurchaseUnixTime(iApp);
+}
+
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamApps_GetDLCCount(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->GetDLCCount();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BGetDLCDataByIndex(void* pSteamApps, int32 iIndex, AppId_t* pAppID, bool* pbAvailable, char* pchName, int32 cchNameBufferSize)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BGetDLCDataByIndex(iIndex, pAppID, pbAvailable, pchName, cchNameBufferSize);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamApps_InstallDLC(void* pSteamApps, AppId_t iApp)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	pISteamApps->InstallDLC(iApp);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamApps_UninstallDLC(void* pSteamApps, AppId_t iApp)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	pISteamApps->UninstallDLC(iApp);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_GetCurrentBetaName(void* pSteamApps, char* pchName, int32 cchNameBufferSize)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->GetCurrentBetaName(pchName, cchNameBufferSize);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_MarkContentCorrupt(void* pSteamApps, bool bMissingFilesOnly)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->MarkContentCorrupt(bMissingFilesOnly);
+}
+
+STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamApps_GetAppInstallDir(void* pSteamApps, AppId_t iApp, char* pchDirectory, int32 cchDirectoryBufferSize)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->GetAppInstallDir(iApp, pchDirectory, cchDirectoryBufferSize);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsSubscribed(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsSubscribed();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsSubscribedFromFreeWeekend(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsSubscribedFromFreeWeekend();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsLowViolence(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsLowViolence();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsCybercafe(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsCybercafe();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamApps_BIsVACBanned(void* pSteamApps)
+{
+	ISteamApps * pISteamApps = static_cast<ISteamApps*>( pSteamApps );
+
+	return pISteamApps->BIsVACBanned();
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t hSteamAPICall, unsigned char &bFailed)
 {
 	bool result, failed;
@@ -278,7 +390,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPI
 	return result;
 }
 
-STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetAppID()
+STEAMWORKSUNITY_API AppId_t SteamUnityAPI_SteamUtils_GetAppID()
 {
 	if (SteamGameServer())
 	{
@@ -298,6 +410,22 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageSize(int32 iIconIndex,
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageRGBA(int32 iIconIndex, uint8 *pData, int32 nDataSize)
 {
 	SteamUtils()->GetImageRGBA(iIconIndex, pData, nDataSize);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, FPOnGamepadTextInputDismissed fpOnGamepadTextInputDismissed)
+{
+	SteamCallbacks::getInstance().delegateOnGamepadTextInputDismissed = fpOnGamepadTextInputDismissed;
+	return SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax);
+}
+
+STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength()
+{
+	return SteamUtils()->GetEnteredGamepadTextLength();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(char* pchText, int32 cchText)
+{
+	return SteamUtils()->GetEnteredGamepadTextInput(pchText, cchText);
 }
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamRemoteStorage()
@@ -737,11 +865,11 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_TerminateGameConnection(void* p
 	return pISteamUser->TerminateGameConnection(unIPServer, usPortServer);
 }
 
-STEAMWORKSUNITY_API EUserHasLicenseForAppResult SteamUnityAPI_SteamUser_UserHasLicenseForApp(void* pSteamUser, uint64 steamID, AppId_t appID)
+STEAMWORKSUNITY_API EUserHasLicenseForAppResult SteamUnityAPI_SteamUser_UserHasLicenseForApp(void* pSteamUser, uint64 steamID, AppId_t iApp)
 {
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 
-	return pISteamUser->UserHasLicenseForApp(steamID, appID);
+	return pISteamUser->UserHasLicenseForApp(steamID, iApp);
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUser_BIsBehindNAT(void* pSteamUser)
@@ -1102,11 +1230,12 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyLi
 	return pISteamMatchmaking->RequestLobbyList();
 }
 
-STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(void* pSteamMatchmaking, int iLobby)
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(FPOnLobbyDataUpdated fpOnLobbyDataUpdated, FPOnLobbyChatUpdated fpOnLobbyChatUpdated, FPOnLobbyChatMessage fpOnLobbyChatMessage, FPOnLobbyGameCreated fpOnLobbyGameCreated)
 {
-	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
-
-	return pISteamMatchmaking->GetLobbyByIndex(iLobby).ConvertToUint64();
+	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
+	SteamCallbacks::getInstance().delegateOnLobbyChatUpdated = fpOnLobbyChatUpdated;
+	SteamCallbacks::getInstance().delegateOnLobbyChatMessage = fpOnLobbyChatMessage;
+	SteamCallbacks::getInstance().delegateOnLobbyGameCreated = fpOnLobbyGameCreated;
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
@@ -1123,6 +1252,13 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_LeaveLobby(void* pSteamM
 	return pISteamMatchmaking->LeaveLobby(steamIDLobby);
 }
 
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(void* pSteamMatchmaking, int iLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyByIndex(iLobby).ConvertToUint64();
+}
+
 STEAMWORKSUNITY_API int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(void* pSteamMatchmaking, uint64 steamIDLobby)
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
@@ -1135,6 +1271,149 @@ STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
 
 	return pISteamMatchmaking->GetLobbyMemberByIndex(steamIDLobby, iMember).ConvertToUint64();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_RequestLobbyData(void* pSteamMatchmaking, uint64 steamIDLobby, FPOnLobbyDataUpdated fpOnLobbyDataUpdated)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
+
+	return pISteamMatchmaking->RequestLobbyData(steamIDLobby);
+}
+
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamMatchmaking_GetLobbyData(void* pSteamMatchmaking, uint64 steamIDLobby, const char* pchKey)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyData(steamIDLobby, pchKey);
+}
+
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamMatchmaking_GetLobbyDataCount(void* pSteamMatchmaking, uint64 steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyDataCount(steamIDLobby);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_GetLobbyDataByIndex(void* pSteamMatchmaking, uint64 steamIDLobby, int32 iDataIndex, char* pchKey, int32 cchKeyBufferSize, char* pchValue, int32 cchValueBufferSize)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyDataByIndex(steamIDLobby, iDataIndex, pchKey, cchKeyBufferSize, pchValue, cchValueBufferSize);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SetLobbyData(void* pSteamMatchmaking, uint64 steamIDLobby, const char* pchKey, const char* pchValue)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SetLobbyData(steamIDLobby, pchKey, pchValue);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(void* pSteamMatchmaking, uint64 steamIDLobby, const char* pchKey)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->DeleteLobbyData(steamIDLobby, pchKey);
+}
+
+STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamMatchmaking_GetLobbyMemberData(void* pSteamMatchmaking, uint64 steamIDLobby, uint64 steamIDUser, const char *pchKey)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyMemberData(steamIDLobby, steamIDUser, pchKey);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_SetLobbyMemberData(void* pSteamMatchmaking, uint64 steamIDLobby, const char *pchKey, const char *pchValue)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	pISteamMatchmaking->SetLobbyMemberData(steamIDLobby, pchKey, pchValue);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SendLobbyChatMsg(void* pSteamMatchmaking, uint64 steamIDLobby, void* pData, int32 iDataLength)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SendLobbyChatMsg(steamIDLobby, pData, iDataLength);
+}
+
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamMatchmaking_GetLobbyChatEntry(void* pSteamMatchmaking, uint64 steamIDLobby, int32 iChatID, uint64* steamID, uint8* pData, int32 iDataLength, EChatEntryType* chatEntryType)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	CSteamID csteamID;
+	int32 ret = pISteamMatchmaking->GetLobbyChatEntry(steamIDLobby, iChatID, &csteamID, pData, iDataLength, chatEntryType);
+	*steamID = csteamID.ConvertToUint64();
+
+	return ret;
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_SetLobbyGameServer(void* pSteamMatchmaking, CSteamID steamIDLobby, uint32 unGameServerIP, uint16 unGameServerPort, uint64 steamIDGameServer)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	pISteamMatchmaking->SetLobbyGameServer(steamIDLobby, unGameServerIP, unGameServerPort, steamIDGameServer);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_GetLobbyGameServer(void* pSteamMatchmaking, uint64 steamIDLobby, uint32 *punGameServerIP, uint16 *punGameServerPort, uint64 *psteamIDGameServer)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	CSteamID csteamID;
+	bool ret = pISteamMatchmaking->GetLobbyGameServer(steamIDLobby, punGameServerIP, punGameServerPort, &csteamID);
+	*psteamIDGameServer = csteamID.ConvertToUint64();
+
+	return ret;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SetLobbyMemberLimit(void* pSteamMatchmaking, uint64 steamIDLobby, int32 iMaxMembers)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SetLobbyMemberLimit(steamIDLobby, iMaxMembers);
+}
+
+STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberLimit(void* pSteamMatchmaking, uint64 steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyMemberLimit(steamIDLobby);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SetLobbyType(void* pSteamMatchmaking, uint64 steamIDLobby, ELobbyType eLobbyType)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SetLobbyType(steamIDLobby, eLobbyType);
+}
+		
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SetLobbyJoinable(void* pSteamMatchmaking, uint64 steamIDLobby, bool bLobbyJoinable)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SetLobbyJoinable(steamIDLobby, bLobbyJoinable);
+}
+
+STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyOwner(void* pSteamMatchmaking, uint64 steamIDLobby)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->GetLobbyOwner(steamIDLobby).ConvertToUint64();
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SetLobbyOwner(void* pSteamMatchmaking, uint64 steamIDLobby, uint64 steamIDNewOwner)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SetLobbyOwner(steamIDLobby, steamIDNewOwner);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_SetLinkedLobby(void* pSteamMatchmaking, uint64 steamIDLobby, uint64 steamIDLobbyDependent)
+{
+	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+	return pISteamMatchmaking->SetLinkedLobby(steamIDLobby, steamIDLobbyDependent);
 }
 
 
@@ -1362,6 +1641,31 @@ void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallbackData)
 void SteamCallbacks::OnTransactionAuthorizationReceived(MicroTxnAuthorizationResponse_t *pCallbackData)
 {
 	delegateOnTransactionAuthorizationReceived(pCallbackData);
+}
+
+void SteamCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallbackData)
+{
+	delegateOnGamepadTextInputDismissed(pCallbackData);
+}
+
+void SteamCallbacks::OnLobbyDataUpdated(LobbyDataUpdate_t *pCallbackData)
+{
+	delegateOnLobbyDataUpdated(pCallbackData);
+}
+
+void SteamCallbacks::OnLobbyChatUpdated(LobbyChatUpdate_t *pCallbackData)
+{
+	delegateOnLobbyChatUpdated(pCallbackData);
+}
+
+void SteamCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pCallbackData)
+{
+	delegateOnLobbyChatMessage(pCallbackData);
+}
+
+void SteamCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pCallbackData)
+{
+	delegateOnLobbyGameCreated(pCallbackData);
 }
 
 void SteamCallbacks::OnGameServerClientApprove(GSClientApprove_t *pCallbackData)

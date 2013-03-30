@@ -44,6 +44,8 @@
   <ItemGroup>
     <Compile Include="Achievement.cs" />
     <Compile Include="Achievements.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="BigPicture.cs" />
     <Compile Include="File.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="InGamePurchase.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="Leaderboards.cs" />
     <Compile Include="Lobbies.cs" />
     <Compile Include="Lobby.cs" />
+    <Compile Include="LobbyData.cs" />
     <Compile Include="Matchmaking.cs" />
     <Compile Include="Networking.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -84,6 +87,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

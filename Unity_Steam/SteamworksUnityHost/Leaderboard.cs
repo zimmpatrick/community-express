@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2011-2012, Zimmdot, LLC
+﻿// Copyright (c) 2011-2013, Zimmdot, LLC
 // All rights reserved.
 
 using System;
@@ -61,7 +61,7 @@ namespace CommunityExpressNS
 
 		private SteamLeaderboard_t _leaderboard;
 		private String _leaderboardName;
-        private Int32 _entryCount;
+		private Int32 _entryCount;
 		private ELeaderboardSortMethod _sortMethod;
 		private ELeaderboardDisplayType _displayType;
 
@@ -79,7 +79,7 @@ namespace CommunityExpressNS
 			_leaderboards = leaderboards;
 			_leaderboard = leaderboard;
 			_leaderboardName = leaderboardName;
-            _entryCount = entryCount;
+			_entryCount = entryCount;
 			_sortMethod = sortMethod;
 			_displayType = displayType;
 		}
@@ -146,7 +146,7 @@ namespace CommunityExpressNS
 
 		private void OnLeaderboardEntriesRetrievedCallback(ref LeaderboardScoresDownloaded_t callbackData)
 		{
-            if (callbackData.m_cEntryCount > 0)
+			if (callbackData.m_cEntryCount > 0)
 			{
 				int entryCount = callbackData.m_cEntryCount;
 				LeaderboardEntry_t leaderboardEntry = new LeaderboardEntry_t();
@@ -156,7 +156,7 @@ namespace CommunityExpressNS
 
 				for (int index = 0; index < entryCount; index++)
 				{
-                    if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, callbackData.m_hSteamLeaderboardEntries, index, ref leaderboardEntry, details, _maxDetails))
+					if (SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(_leaderboards.Stats, callbackData.m_hSteamLeaderboardEntries, index, ref leaderboardEntry, details, _maxDetails))
 					{
 						List<Int32> scoreDetails = null;
 
@@ -172,9 +172,9 @@ namespace CommunityExpressNS
 				_onLeaderboardEntriesRetrieved(leaderboardEntries);
 			}
 			else
-            {
+			{
 				_onLeaderboardEntriesRetrieved(null);
-            }
+			}
 		}
 
 		public void Refresh(OnLeaderboardRetrieved onLeaderboardRefreshComplete)
@@ -210,10 +210,10 @@ namespace CommunityExpressNS
 			get { return _leaderboardName; }
 		}
 
-        public Int32 EntryCount
-        {
-            get { return _entryCount; }
-        }
+		public Int32 EntryCount
+		{
+			get { return _entryCount; }
+		}
 
 		public ELeaderboardSortMethod SortMethod
 		{
