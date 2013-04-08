@@ -40,6 +40,7 @@ public class PaddleControl : MonoBehaviour {
 	public float randY = 0;
 	public GameObject gText;
 	private GameObject tempObj;
+	private bool authSent = false;
 	
 	void Start(){
 		communityExpress = UnityCommunityExpress.Instance;
@@ -49,9 +50,44 @@ public class PaddleControl : MonoBehaviour {
 		
 		myName=communityExpress.User.PersonaName;
 		//tempObj.guiText.text = communityExpress.User.PersonaName;
+		if (Network.isServer)
+		{
+			Debug.Log("PlayerMoveController - Start - isServer");
+			networkView.RPC("RPCInitClientAuth", RPCMode.Others, communityExpress.GameServer.SteamID.ToString());
+		}
 	}
 	
-
+	[RPC]void RPCInitClientAuth(string serverID)
+	{
+		Debug.Log("PlayerMoveController - RPCInitClientAuth");
+		if (!authSent)
+		{
+			Debug.Log("PlayerMoveController - RPCInitClientAuth - isMine" + serverID);
+				
+			byte[] authTicket = null;
+			ushort exIP = (ushort)Network.player.externalPort;
+			CommunityExpressNS.SteamID stID = new CommunityExpressNS.SteamID(ulong.Parse(serverID));
+			Debug.Log(Network.player.externalIP);
+			
+			System.Net.IPAddress netIP = System.Net.IPAddress.Parse(Network.player.externalIP);
+			
+			Debug.Log("InitiateClientAuth " + communityExpress.User.InitiateClientAuthentication(out authTicket, stID, netIP, exIP, true));
+			authSent = true;
+			
+			networkView.RPC("RPCClientConnected", RPCMode.Server, authTicket);
+		}
+	}
+	
+	[RPC]void RPCClientConnected(byte[] authTicket)
+	{
+		Debug.Log("PlayerMoveController - RPCClientConnected");
+		
+		CommunityExpressNS.SteamID steamID = null;
+		System.Net.IPAddress ipAdd = System.Net.IPAddress.Parse(networkView.owner.externalIP);
+		communityExpress.GameServer.ClientConnected(ipAdd, authTicket, out steamID);
+		
+		//communityExpress.GameServer.RequestUserStats(steamID, OnUserStatsReceived, ["Kills"]);
+	}
 	
 	
 	void FixedUpdate () {

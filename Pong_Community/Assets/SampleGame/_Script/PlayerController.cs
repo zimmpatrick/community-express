@@ -38,26 +38,20 @@ public class PlayerController : MonoBehaviour {
 	    }
 	}
 // Update is called once per frame 
-	void Update () { 
-		if(networkView.isMine) { 
-			Vector3 moveDir = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"),0 ); 
-			transform.Translate(speed * moveDir * Time.deltaTime);
-		} 
+	void FixedUpdate () { 
+		
+		Vector3 moveDir = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"),0 ); 
+		Vector3 newVal = speed * moveDir * Time.deltaTime;
+		
+		//if(Network.isServer){
+			networkView.RPC("moveBall", RPCMode.All, newVal);
+		//}
+		
+		
+		//transform.Translate(speed * moveDir * Time.deltaTime);
 	}
-
-	void OnSerializeNetworkView(BitStream stream, NetworkMessageInfo info)
-	{
-	    if (stream.isWriting)
-	    {
-	        Vector3 pos = transform.position;
-	        stream.Serialize(ref pos);
-	    }
-	    else
-	    {
-	        Vector3 posRec = Vector3.zero;
-	        stream.Serialize(ref posRec);
-	        transform.position = posRec;
-	    }
+	[RPC]void moveBall(Vector3 ballX){
+		transform.Translate(ballX);
 	}
 
 }

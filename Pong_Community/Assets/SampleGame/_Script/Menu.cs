@@ -34,6 +34,8 @@ public class Menu : MonoBehaviour {
 	public static Menu Instance;
 	
 	public List<string> PlayerNames;
+	public List<Texture2D> FriendImages;
+	public int friendCount = 0;
 	public bool isStart = false;
 	public GameObject ball;
 	public GameObject ball2;
@@ -42,6 +44,11 @@ public class Menu : MonoBehaviour {
 	private UnityCommunityExpress communityExpress = null;
 	public CommunityExpressNS.User myPersona;
 	public CommunityExpressNS.User otherPersona;
+	public Texture2D myAvatar;
+	public string myPersonaName = "NAME HERE";
+	public Texture2D opponentAvatar;
+	public string opponentPersonaName = "Opponent Name Here";
+	public int opponentHitDisp = 0;
 	private bool ShowFriends = false;
 	private bool ShowColor = false;
 	public GUIStyle userOfflineTextStyle;
@@ -61,13 +68,16 @@ public class Menu : MonoBehaviour {
 	string[] achievement = {"ACH_WIN_ONE_GAME"};
 	private CommunityExpressNS.Servers serverList = null;
 	public GameObject textObj;
-	
+	private bool authSent = false;
+
 	// Use this for initialization
 	void Start () {
 		Instance = this;
 		GameObject go = GameObject.Find("CommunityExpress");
 		communityExpress = go.GetComponentInChildren(typeof(UnityCommunityExpress)) as UnityCommunityExpress;
 		myPersona = UnityCommunityExpress.Instance.User;
+		myAvatar = UnityCommunityExpress.Instance.ConvertImageToTexture2D(myPersona.MediumAvatar);
+		myPersonaName = myPersona.PersonaName;
 		string[] stats = { "NumWins" };
 		communityExpress.UserStats.RequestCurrentStats(OnUserStatsRecieved, stats);
 		if(!communityExpress.RemoteStorage.FileExists("UserColor")){
@@ -82,15 +92,21 @@ public class Menu : MonoBehaviour {
 			
 			Debug.Log(userColor);
 		}
+		
 	}
 	
 	public void OnUserStatsRecieved(CommunityExpressNS.Stats stats, CommunityExpressNS.Achievements achievements)
 	{
-		if(HighestHitCount==null){
+		if(HighestHitCount==null && communityExpress.UserStats.StatsList.Count > 0){
 			HighestHitCount = communityExpress.UserStats.StatsList[0];
 		}
-		Debug.Log(HighestHitCount.StatValue + "  " + HighestHitCount.StatName);
-		hitDisp = (int)HighestHitCount.StatValue;
+		
+		if (HighestHitCount!=null)
+		{
+			Debug.Log(HighestHitCount.StatValue + "  " + HighestHitCount.StatName);
+			hitDisp = (int)HighestHitCount.StatValue;
+		}
+		
 		communityExpress.UserAchievements.InitializeAchievementList(achievement);
 	}
 
@@ -108,8 +124,31 @@ public class Menu : MonoBehaviour {
 			}
 			networkView.RPC("SetPlayerStartBool", RPCMode.All, PlayerOneReady, PlayerTwoReady, isStart);
 		}
-		
+		if(friendCount!=UnityCommunityExpress.Instance.Friends.Count){
+			foreach (CommunityExpressNS.Friend f in UnityCommunityExpress.Instance.Friends)
+			{
+				FriendImages.Add(UnityCommunityExpress.Instance.ConvertImageToTexture2D(f.MediumAvatar));
+			}
+			friendCount = UnityCommunityExpress.Instance.Friends.Count;
+		}
+		if(Network.isServer){
+			networkView.RPC("SetClientOpponent", RPCMode.Others, UnityCommunityExpress.Instance.User.SteamID.ToUInt64().ToString(), hitDisp);
+		}
 	}
+	
+	[RPC]void SetClientOpponent(string steamID, int clientNumWins){
+		ulong idLong = ulong.Parse(steamID);
+		
+		CommunityExpressNS.SteamID sID = new CommunityExpressNS.SteamID(idLong);
+		
+		CommunityExpressNS.Friend f = UnityCommunityExpress.Instance.Friends.GetFriendBySteamID( sID);
+		
+		opponentAvatar = UnityCommunityExpress.Instance.ConvertImageToTexture2D(f.MediumAvatar);
+		opponentPersonaName = f.PersonaName;
+		
+		opponentHitDisp = clientNumWins;
+	}
+	
 	[RPC]void SetPlayerStartBool(bool p1, bool p2, bool ist){
 		PlayerOneReady = p1;
 		PlayerTwoReady = p2;
@@ -162,7 +201,21 @@ public class Menu : MonoBehaviour {
 		Debug.Log("OnGameServerClientKick "+playerToKick+" "+denyReason);
 		
 	}
-
+	
+	void CreateNewGame(){
+		Object tempObj;
+		ushort listenPort = 8793;
+		ushort masterPort = 27015;
+		IPAddress ipAd = IPAddress.Any;
+		Network.InitializeServer(32, masterPort, true);
+		PlayerNames.Add(UnityCommunityExpress.Instance.User.PersonaName);
+		Debug.Log(communityExpress.GameServer.Init(false, ipAd, listenPort, (ushort)(listenPort+1), masterPort, listenPort, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure,"Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress","1.0.0.0", "CE-Fake", 8, false, "pong", OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
+		tempObj = Network.Instantiate(paddleOne, new Vector3(-130, 0, -20), Quaternion.identity, 0);
+		Network.Instantiate(ball2, new Vector3(30, 0, -20), Quaternion.identity, 0);
+		tempObj.name = "PlayerOne";
+		isPTP=false;		
+	}
+	
 	void OnGUI(){
 		Object tempObj;
 		string myText="";
@@ -173,13 +226,7 @@ public class Menu : MonoBehaviour {
 			ushort masterPort = 27015;
 			IPAddress ipAd = IPAddress.Any; // IPAddress.Parse(Network.player.ipAddress);
 			if(GUI.Button(new Rect(Screen.width/2-75, Screen.height/2, 150, 30), "Create Game")){
-				Network.InitializeServer(32, masterPort, true);
-				PlayerNames.Add(UnityCommunityExpress.Instance.User.PersonaName);
-				Debug.Log(communityExpress.GameServer.Init(false, ipAd, listenPort, listenPort, masterPort, masterPort, CommunityExpressNS.EServerMode.eServerModeAuthenticationAndSecure,"Unity Community Express Server", "Spectators", "US", "CommunityExpress", "CommunityExpress","1.0.0.0", "CE-Fake", 8, false, "pong", OnGameServerClientApproved, OnGameServerClientDenied, OnGameServerClientKick));
-				tempObj = Network.Instantiate(paddleOne, new Vector3(-130, 0, -20), Quaternion.identity, 0);
-				Network.Instantiate(ball2, new Vector3(30, 0, -20), Quaternion.identity, 0);
-				tempObj.name = "PlayerOne";
-				isPTP=false;
+				CreateNewGame();
 			}
 		
 			if (GUI.Button(new Rect(Screen.width/2-75, Screen.height/2 + 50, 150, 30),"Server List"))
@@ -201,6 +248,7 @@ public class Menu : MonoBehaviour {
 						Network.Connect(server.IP.ToString(), 27015);
 						isPlayerTwo=true;
 						isPTP=false;
+						
 					}
 					
 					servY+=50;
@@ -214,10 +262,28 @@ public class Menu : MonoBehaviour {
 			GUI.Box(new Rect(Screen.width/2-75, Screen.height/2, 150, 100), "Player One = " + PlayerOneReady.ToString() + "\n" + "Player Two = " + PlayerTwoReady.ToString());
 		}
 		
-			
+		//Get Other Player Connected to Server
+		foreach(CommunityExpressNS.Friend f in UnityCommunityExpress.Instance.GameServer.GetPlayersConnected()){
+			//Compares the friend SteadID to local players SteamID
+			if(f.SteamID!= myPersona.SteamID){
+				//Since this is only a two player game we set the opponents data to a single value instead of a List<> of values
+				opponentAvatar = UnityCommunityExpress.Instance.ConvertImageToTexture2D(f.MediumAvatar);
+				opponentPersonaName = f.PersonaName;
+			}
+		}
+		
+		//Show Opponent Details
+		if(opponentAvatar != null){
+			GUI.Box(new Rect(15, 15, 200, 64), "");
+			GUI.DrawTexture(new Rect(Screen.width - 200, 15, 64, 64), opponentAvatar);
+			GUI.Label(new Rect(Screen.width - 135, 20, 200, 20), opponentPersonaName, userOnlineTextStyle);
+			GUI.Label(new Rect(Screen.width - 135, 15+45, 200, 20), "Highest Score " + opponentHitDisp.ToString(), userOnlineTextStyle);
+		}
+		
+		//Show local player details
 		GUI.Box(new Rect(15, 15, 200, 64), "");
-		GUI.DrawTexture(new Rect(15, 15, 64, 64), UnityCommunityExpress.Instance.ConvertImageToTexture2D(myPersona.MediumAvatar));
-		GUI.Label(new Rect(80, 20, 200, 20), myPersona.PersonaName.ToString(), userOnlineTextStyle);
+		GUI.DrawTexture(new Rect(15, 15, 64, 64), myAvatar);
+		GUI.Label(new Rect(80, 20, 200, 20), myPersonaName, userOnlineTextStyle);
 		GUI.Label(new Rect(80, 15+25, 200, 20), "Current Score " + numHits.ToString(), userOnlineTextStyle);
 		GUI.Label(new Rect(80, 15+45, 200, 20), "Highest Score " + hitDisp.ToString(), userOnlineTextStyle);
 		int y = 15;
@@ -226,7 +292,8 @@ public class Menu : MonoBehaviour {
 		if(GUI.Button(new Rect(250, 15, 100, 30), "Friends")){
 			ShowFriends = !ShowFriends;
 		}
-		if(ShowFriends){	
+		if(ShowFriends){
+			int i = 0;
 			foreach (CommunityExpressNS.Friend f in UnityCommunityExpress.Instance.Friends)
 			{
 				GUI.Box(new Rect(250, y*3.5f, 200, 64), "");
@@ -254,15 +321,16 @@ public class Menu : MonoBehaviour {
 				}
 				
 				
-				GUI.DrawTexture(new Rect(250, y*3.5f, 64, 64), UnityCommunityExpress.Instance.ConvertImageToTexture2D(f.MediumAvatar));
+				GUI.DrawTexture(new Rect(250, y*3.5f, 64, 64), FriendImages[i]);
 				//GUI.Label(new Rect(220, y*4, 200, 20), f.PersonaName.ToString());
+				i++;
 				y += 20;
 			}
 			
 			
 		}
 		
-		if(GUI.Button(new Rect(850, 15, 100, 30), "Paddle Color")){
+		if(GUI.Button(new Rect(250, 50, 100, 30), "Paddle Color")){
 			ShowColor = !ShowColor;
 			
 		}

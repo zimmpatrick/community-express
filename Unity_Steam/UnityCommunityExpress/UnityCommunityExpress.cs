@@ -12,124 +12,243 @@ public sealed class UnityCommunityExpress : MonoBehaviour
 {
 	private static UnityCommunityExpress _instance;
 	private static CommunityExpress _ceInstance;
+    private Exception _exception = null;
+
+    private void ValidateSDK()
+    {
+        if (_exception != null)
+        {
+            throw _exception;
+        }
+    }
 
 	public static UnityCommunityExpress Instance
 	{
 		get { return _instance; }
 	}
 
-	public void Awake()
-	{
-		_instance = this;
-		_ceInstance = CommunityExpress.Instance;
-		_ceInstance.Logger = new CommunityExpress.OnLog(onLog);
+    public void Awake()
+    {
+        _instance = this;
+        _ceInstance = CommunityExpress.Instance;
+        _ceInstance.Logger = new CommunityExpress.OnLog(onLog);
 
-		print("SteamAPI_Init {1}" + _ceInstance.Initialize());
-	}
+        bool result = false;
+        try
+        {
+            result = _ceInstance.Initialize();
+            if (!result)
+            {
+                if (!IsCommunityRunning)
+                {
+                    _exception = new Exception("Steam must be running to play this game.");
+                }
+            }
+        }
+        catch (LicenseException e)
+        {
+            _exception = e;
+            _ceInstance = null;
+        }
+        finally
+        {
+            print("SteamAPI_Init: " + result);
+        }
+    }
 
 	public void OnDestroy()
 	{
+        ValidateSDK();
+
 		_ceInstance.Shutdown();
 		_instance = null;
 	}
 
 	public bool RestartAppIfNecessary(uint unOwnAppID)
-	{
+    {
+        ValidateSDK();
+
 		return _ceInstance.RestartAppIfNecessary(unOwnAppID);
 	}
 
 	public void Update()
-	{
+    {
+        ValidateSDK();
+
 		_ceInstance.RunCallbacks();
 	}
 
 	public void Shutdown()
-	{
-		_ceInstance.Shutdown();
+    {
+        if (_ceInstance != null)
+        {
+            _ceInstance.Shutdown();
+        }
 	}
 
+    public bool IsCommunityRunning
+    {
+        get
+        {
+            ValidateSDK();
+
+            if (_ceInstance != null)
+            {
+                return _ceInstance.IsCommunityRunning;
+            }
+
+            return false;
+        }
+    }
+        
 	public UInt32 AppID
 	{
-		get { return _ceInstance.AppID; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.AppID;
+        }
 	}
 
 	public App App
 	{
-		get { return _ceInstance.App; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.App;
+        }
 	}
 
 	public User User
 	{
-		get { return _ceInstance.User; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.User;
+        }
 	}
 
 	public GameServer GameServer
 	{
-		get { return _ceInstance.GameServer; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.GameServer;
+        }
 	}
 
 	public Friends Friends
 	{
-		get { return _ceInstance.Friends; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.Friends;
+        }
 	}
 
 	public Groups Groups
 	{
-		get { return _ceInstance.Groups; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.Groups;
+        }
 	}
 
 	public Stats UserStats
 	{
-		get { return _ceInstance.UserStats; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.UserStats;
+        }
 	}
 
 	public Achievements UserAchievements
 	{
-		get { return _ceInstance.UserAchievements; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.UserAchievements;
+        }
 	}
 
 	public Leaderboards Leaderboards
 	{
-		get { return _ceInstance.Leaderboards; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.Leaderboards;
+        }
 	}
 
 	public Matchmaking Matchmaking
 	{
-		get { return _ceInstance.Matchmaking; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.Matchmaking;
+        }
 	}
 
 	public RemoteStorage RemoteStorage
 	{
-		get { return _ceInstance.RemoteStorage; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.RemoteStorage;
+        }
 	}
 
 	public Networking Networking
 	{
-		get { return _ceInstance.Networking; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.Networking;
+        }
 	}
 
 	public InGamePurchasing InGamePurchasing
 	{
-		get { return _ceInstance.InGamePurchasing; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.InGamePurchasing;
+        }
 	}
 
 	public SteamWebAPI SteamWebAPI
 	{
-		get { return _ceInstance.SteamWebAPI; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.SteamWebAPI;
+        }
 	}
 
 	public BigPicture BigPicture
 	{
-		get { return _ceInstance.BigPicture; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.BigPicture;
+        }
 	}
 
 	public Boolean IsGameServerInitialized
 	{
-		get { return _ceInstance.IsGameServerInitialized; }
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.IsGameServerInitialized;
+        }
 	}
 
 	public Texture2D ConvertImageToTexture2D(Image i)
-	{
+    {
+        ValidateSDK();
+
 		Texture2D texture = new Texture2D((int)i.Width, (int)i.Height, TextureFormat.RGBA32, false);
 		Color32[] colorArray = new Color32[i.Width * i.Height];
 		Color32[] colorRow = new Color32[i.Width];

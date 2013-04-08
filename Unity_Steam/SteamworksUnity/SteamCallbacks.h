@@ -50,6 +50,24 @@ public:
 					 , GameServerClientKickCallback(this, &SteamCallbacks::OnGameServerClientKick)
 					 , GameServerPolicyResponseCallback(this, &SteamCallbacks::OnGameServerPolicyResponse)
 	{
+		delegateOnAvatarReceived = 0;
+		delegateOnUserStatsReceived = 0;
+		delegateOnTransactionAuthorizationReceived = 0;
+		delegateOnGameServerClientApprove = 0;
+		delegateOnGameServerClientDeny = 0;
+		delegateOnGameServerClientKick = 0;
+		delegateOnGameServerPolicyResponse = 0;
+		delegateOnLeaderboardRetrieved = 0;
+		delegateOnLeaderboardEntriesRetrieved = 0;
+		delegateOnServerResponded = 0;
+		delegateOnServerListComplete = 0;
+		delegateOnNetworkP2PSessionRequest = 0;
+		delegateOnNetworkP2PSessionConnectFailed = 0;
+		delegateOnGamepadTextInputDismissed = 0;
+		delegateOnLobbyDataUpdated = 0;
+		delegateOnLobbyChatUpdated = 0;
+		delegateOnLobbyChatMessage = 0;
+		delegateOnLobbyGameCreated = 0;
 	}
 
 	static SteamCallbacks& getInstance()

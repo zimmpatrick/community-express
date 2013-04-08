@@ -44,22 +44,22 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\SampleGame\_Script\AppInfo.cs" />
      <Compile Include="Assets\SampleGame\_Script\BallController.cs" />
      <Compile Include="Assets\SampleGame\_Script\CreateLobby.cs" />
      <Compile Include="Assets\SampleGame\_Script\LeaderBoard.cs" />
      <Compile Include="Assets\SampleGame\_Script\Menu.cs" />
-     <Compile Include="Assets\SampleGame\_Script\NetworkPlayerInfo.cs" />
      <Compile Include="Assets\SampleGame\_Script\PaddleControl.cs" />
      <Compile Include="Assets\SampleGame\_Script\PlayerController.cs" />
      <None Include="Assets\steam_appid.txt" />
  <Reference Include="CommunityExpress">
- <HintPath>Assets\Plugins\CommunityExpress.dll</HintPath>
+ <HintPath>Assets\CommunityExpress.dll</HintPath>
  </Reference>
  <Reference Include="Newtonsoft.Json">
- <HintPath>Assets\Plugins\Newtonsoft.Json.dll</HintPath>
+ <HintPath>Assets\Newtonsoft.Json.dll</HintPath>
  </Reference>
  <Reference Include="UnityCommunityExpress">
- <HintPath>Assets\Plugins\UnityCommunityExpress.dll</HintPath>
+ <HintPath>Assets\UnityCommunityExpress.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

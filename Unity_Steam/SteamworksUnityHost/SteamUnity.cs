@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace CommunityExpressNS
 {
@@ -46,6 +47,8 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SetMiniDumpComment([MarshalAs(UnmanagedType.LPStr)] String comment);
+		[DllImport("CommunityExpressSW")]
+		private static extern bool SteamUnityAPI_IsSteamRunning();
 
 		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
 		private OnChallengeResponseFromSteam _challengeResponse;
@@ -127,7 +130,7 @@ namespace CommunityExpressNS
 				_steamAPIDebugTextHook = new OnSteamAPIDebugTextHook(OnSteamAPIDebugTextHookCallback);
 				SteamUnityAPI_SetWarningMessageHook(Marshal.GetFunctionPointerForDelegate(_steamAPIDebugTextHook));
 
-				//ValidateLicense();
+				ValidateLicense();
 				return true;
 			}
 
@@ -441,6 +444,11 @@ namespace CommunityExpressNS
 			get { return _gameserver != null && _gameserver.IsInitialized; }
 		}
 
+        public Boolean IsCommunityRunning
+        {
+            get { return SteamUnityAPI_IsSteamRunning(); }
+        }
+
 		internal void AddGameServerUserStatsReceivedCallback(SteamAPICall_t handle, OnUserStatsReceivedFromSteam callback)
 		{
 			_gameserverUserStatsReceivedCallHandles.Add(handle);
@@ -489,11 +497,19 @@ namespace CommunityExpressNS
 			return (UInt64)Math.Sqrt((double)challenge);
 		}
 
+        [Conditional("LICENSED")]
 		private void ValidateLicense()
 		{
 			string dllPath = Assembly.GetExecutingAssembly().Location;
 			string dllDirectory = Path.GetDirectoryName(dllPath);
 			string licensePath = Path.Combine(dllDirectory, "CESDKLicense.xml");
+
+            if (!System.IO.File.Exists(licensePath))
+            {
+                throw new LicenseException(
+                        string.Format("Error: License '{0}' not found.", licensePath));
+            }
+
 
 			UInt32 appId = SteamUnityAPI_SteamUtils_GetAppID();
 
@@ -521,13 +537,13 @@ namespace CommunityExpressNS
 				}
 				catch (Exception e)
 				{
-					throw new Exception("Error: no signature found.", e);
+                    throw new LicenseException("Error: no signature found.", e);
 				}
 
 				// Verify the signature.
 				if (!sxml.CheckSignature(csp))
 				{
-					throw new Exception(
+                    throw new LicenseException(
 						string.Format("Error: License '{0}' invalid.", licensePath));
 				}
 
@@ -537,19 +553,19 @@ namespace CommunityExpressNS
 					if (appIdNode == null || appIdNode.Count == 0 ||
 						string.IsNullOrEmpty(appIdNode[0].InnerText))
 					{
-						throw new Exception("AppId missing from license");
+                        throw new LicenseException("AppId missing from license");
 					}
 
 					if (appIdNode[0].InnerText != appId.ToString())
 					{
-						throw new Exception(
+                        throw new LicenseException(
 							string.Format("AppId mismatch: {0} vs {1}",
 							appIdNode[0].InnerText, appId));
 					}
 				}
 				catch (Exception e)
 				{
-					throw new Exception(
+                    throw new LicenseException(
 						string.Format("Error: License '{0}' invalid.", licensePath), e);
 				}
 			}

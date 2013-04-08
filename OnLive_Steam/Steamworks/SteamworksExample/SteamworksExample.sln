@@ -2,9 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SteamworksExample", "SteamworksExample.vcxproj", "{F9B80FD0-A31F-443F-9FFF-85813D209141}"
-	ProjectSection(ProjectDependencies) = postProject
-		{222418C3-FDB2-4D99-BC5B-E2B4D0838072} = {222418C3-FDB2-4D99-BC5B-E2B4D0838072}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "steam_api", "..\..\steam_api\steam_api.vcxproj", "{222418C3-FDB2-4D99-BC5B-E2B4D0838072}"
 EndProject

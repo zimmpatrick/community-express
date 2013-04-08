@@ -58,7 +58,11 @@ namespace SteamworksUnityTest
 			}
 
 			Console.WriteLine("Signed in as: {0}", cesdk.User.PersonaName);
-		   
+
+            cesdk.BigPicture.ShowGamepadTextInput(EGamepadTextInputMode.k_EGamepadTextInputModeNormal, EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, "Tell Me!", 255,
+                MyOnGamepadTextInputDismissed);
+
+
 			Image image = cesdk.User.SmallAvatar;
 			if (image != null)
 			{
@@ -86,6 +90,12 @@ namespace SteamworksUnityTest
 			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("tits.asd"), remoteStorage.GetFileSize("titty"));
 			remoteStorage.WriteFile("CloudTest.txt", "I has file!");
 			cesdk.RunCallbacks();
+
+            uint appID;
+            bool isAvailable;
+            string DLCName;
+
+            cesdk.App.GetDLCDataByIndex(0, out appID, out isAvailable, out DLCName, 255);
 
 			if (remoteStorage.Count > 0)
 			{
@@ -230,24 +240,27 @@ namespace SteamworksUnityTest
 				Console.WriteLine("GameServer Failed to Initialize");
 			}
 
-			/*
 
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
-			if (user.InitiateClientAuthentication(out authTicket, gameserver.SteamID, IPAddress.Loopback, gsPort, true))
-			{
-				// The client would have had to send up the authTicket and then the server would learn the client's Steam ID here
-				SteamID steamIDClient;
+            if (user.InitiateClientAuthentication(out authTicket, gameserver.SteamID, IPAddress.Loopback, gsPort, true))
+            {
+                // The client would have had to send up the authTicket and then the server would learn the client's Steam ID here
+                SteamID steamIDClient;
 
-				if (gameserver.ClientConnected(IPAddress.Loopback, authTicket, out steamIDClient))
-				{
-					while (!_userAuthenticationCompleted)
-					{
-						cesdk.RunCallbacks();
-					}
-				}
-			}
-			*/
+                if (gameserver.ClientConnected(IPAddress.Loopback, authTicket, out steamIDClient))
+                {
+                    while (!_userAuthenticationCompleted)
+                    {
+                        cesdk.RunCallbacks();
+                    }
+
+                    foreach (Friend friend in gameserver.GetPlayersConnected())
+                    {
+                        Console.WriteLine(friend.PersonaName);
+                    }
+                }
+            }
 
 			/*
 			Console.WriteLine("Requesting Stats through Game Server");
@@ -311,6 +324,10 @@ namespace SteamworksUnityTest
 
 			return 0;
 		}
+
+        public static void MyOnGamepadTextInputDismissed(Boolean submitted, String text)
+        {
+        }
 
 		public static void MyOnUserLargeAvatarReceived(SteamID steamID, Image avatar)
 		{

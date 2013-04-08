@@ -155,7 +155,7 @@ namespace CommunityExpressNS
 			}
 		}
 
-		private SteamID GetLobbyMemberByIndex(int iLobbyMember)
+		public SteamID GetLobbyMemberByIndex(int iLobbyMember)
 		{
 			return new SteamID(SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(_matchmaking, _id.ToUInt64(), iLobbyMember));
 		}

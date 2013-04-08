@@ -82,6 +82,7 @@ public class LeaderBoard : MonoBehaviour {
 																				"Pong Lead", 
 																				CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending,
 																				CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
+			Debug.Log("Leaderboard Requested");
 		}
 		
 		if(ShowLeaderboard){

@@ -93,6 +93,9 @@ DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam )
 }
 #endif
 
+CSteamAPIContext context;
+CSteamGameServerAPIContext serverContext;
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse)
 {
 #ifdef _WIN32
@@ -106,7 +109,12 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallenge
 		*/
 #endif
 	
-	return SteamAPI_Init();
+	if (SteamAPI_InitSafe())
+	{
+		return context.Init();
+	}
+
+	return false;
 }
 
 // STEAMWORKSUNITY_API void SteamUnityAPI_Init(); (see below)
@@ -121,6 +129,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_Shutdown()
 	}
 #endif
 
+	context.Clear();
 	return SteamAPI_Shutdown();
 }
 
@@ -168,7 +177,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_RunCallbacks()
 
 STEAMWORKSUNITY_API const char * SteamUnityAPI_GetPersonaNameByID(uint64 steamIDFriend)
 {
-	return SteamFriends()->GetFriendPersonaName( CSteamID(steamIDFriend) );
+	return context.SteamFriends()->GetFriendPersonaName( CSteamID(steamIDFriend) );
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SetTransactionAuthorizationCallback(FPOnTransactionAuthorizationReceived fpOnTransactionAuthorizationReceived)
@@ -178,7 +187,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SetTransactionAuthorizationCallback(FPOnT
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamApps()
 {
-	return SteamApps();
+	return context.SteamApps();
 }
 
 STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamApps_GetCurrentGameLanguage(void* pSteamApps)
@@ -304,13 +313,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICal
 {
 	bool result, failed;
 
-	if (SteamGameServer())
+	if (serverContext.SteamGameServer())
 	{
-		result = SteamGameServerUtils()->IsAPICallCompleted(hSteamAPICall, &failed);
+		result = serverContext.SteamGameServerUtils()->IsAPICallCompleted(hSteamAPICall, &failed);
 	}
 	else
 	{
-		result = SteamUtils()->IsAPICallCompleted(hSteamAPICall, &failed);
+		result = context.SteamUtils()->IsAPICallCompleted(hSteamAPICall, &failed);
 	}
 
 	bFailed = failed ? 1 : 0;
@@ -322,13 +331,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceived
 {
 	bool result, failed;
 
-	if (SteamGameServer())
+	if (serverContext.SteamGameServer())
 	{
-		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = serverContext.SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 	else
 	{
-		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = context.SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 
 	bFailed = failed ? 1 : 0;
@@ -340,13 +349,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPI
 {
 	bool result, failed;
 
-	if (SteamGameServer())
+	if (serverContext.SteamGameServer())
 	{
-		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = serverContext.SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 	else
 	{
-		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = context.SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 
 	bFailed = failed ? 1 : 0;
@@ -358,13 +367,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(Ste
 {
 	bool result, failed;
 
-	if (SteamGameServer())
+	if (serverContext.SteamGameServer())
 	{
-		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = serverContext.SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 	else
 	{
-		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = context.SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 
 	bFailed = failed ? 1 : 0;
@@ -376,13 +385,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPI
 {
 	bool result, failed;
 
-	if (SteamGameServer())
+	if (serverContext.SteamGameServer())
 	{
-		result = SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = serverContext.SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 	else
 	{
-		result = SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
+		result = context.SteamUtils()->GetAPICallResult(hSteamAPICall, &CallbackData, sizeof(CallbackData), CallbackData.k_iCallback, &failed);
 	}
 
 	bFailed = failed ? 1 : 0;
@@ -392,45 +401,45 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPI
 
 STEAMWORKSUNITY_API AppId_t SteamUnityAPI_SteamUtils_GetAppID()
 {
-	if (SteamGameServer())
+	if (serverContext.SteamGameServer())
 	{
-		return SteamGameServerUtils()->GetAppID();
+		return serverContext.SteamGameServerUtils()->GetAppID();
 	}
 	else
 	{
-		return SteamUtils()->GetAppID();
+		return context.SteamUtils()->GetAppID();
 	}
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageSize(int32 iIconIndex, uint32 *pnWidth, uint32 *pnHeight)
 {
-	SteamUtils()->GetImageSize(iIconIndex, pnWidth, pnHeight);
+	context.SteamUtils()->GetImageSize(iIconIndex, pnWidth, pnHeight);
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageRGBA(int32 iIconIndex, uint8 *pData, int32 nDataSize)
 {
-	SteamUtils()->GetImageRGBA(iIconIndex, pData, nDataSize);
+	context.SteamUtils()->GetImageRGBA(iIconIndex, pData, nDataSize);
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, FPOnGamepadTextInputDismissed fpOnGamepadTextInputDismissed)
 {
 	SteamCallbacks::getInstance().delegateOnGamepadTextInputDismissed = fpOnGamepadTextInputDismissed;
-	return SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax);
+	return context.SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax);
 }
 
 STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength()
 {
-	return SteamUtils()->GetEnteredGamepadTextLength();
+	return context.SteamUtils()->GetEnteredGamepadTextLength();
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(char* pchText, int32 cchText)
 {
-	return SteamUtils()->GetEnteredGamepadTextInput(pchText, cchText);
+	return context.SteamUtils()->GetEnteredGamepadTextInput(pchText, cchText);
 }
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamRemoteStorage()
 {
-	return SteamRemoteStorage();
+	return context.SteamRemoteStorage();
 }
 
 STEAMWORKSUNITY_API int32 SteamUnityAPI_SteamRemoteStorage_GetFileCount(void* pSteamRemoteStorage)
@@ -539,11 +548,9 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void* pSteamR
 // How fast does the server internally run at?
 #define MAX_CLIENT_AND_SERVER_FPS 86
 
-
-
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameServer()
 {
-	return SteamGameServer();
+	return serverContext.SteamGameServer();
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_Init(uint32 unIP, uint16 usMasterServerPort, uint16 usPort, uint16 usQueryPort, EServerMode eServerMode, const char *pchGameVersion)
@@ -551,13 +558,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_Init(uint32 unIP, uint16 
 	// Initialize the SteamGameServer interface, we tell it some info about us, and we request support
 	// for both Authentication (making sure users own games) and secure mode, VAC running in our game
 	// and kicking users who are VAC banned
-	if ( !SteamGameServer_Init( unIP, usMasterServerPort, usPort, usQueryPort, eServerMode, pchGameVersion ) )
+	if ( !SteamGameServer_InitSafe( unIP, usMasterServerPort, usPort, usQueryPort, eServerMode, pchGameVersion ) )
 	{
 		OutputDebugString(TEXT("SteamGameServer_Init call failed\n") );
 		return false;
 	}
 
-	return true;
+	return serverContext.Init();
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_RunCallbacks()
@@ -640,11 +647,12 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_UpdateUserData(void* pSte
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_Shutdown()
 {
 	// Notify Steam master server we are going offline
-	SteamGameServer()->EnableHeartbeats( false );
+	serverContext.SteamGameServer()->EnableHeartbeats( false );
 
 	// Disconnect from the steam servers
-	SteamGameServer()->LogOff();
-
+	serverContext.SteamGameServer()->LogOff();
+	
+	serverContext.Clear();
 	return SteamGameServer_Shutdown();
 }
 
@@ -694,7 +702,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetGameData(void* pSteamG
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamFriends()
 {
-	return SteamFriends();
+	return context.SteamFriends();
 }
 
 STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetFriendCount(void* pSteamFriends, int iFriendFlags)
@@ -820,7 +828,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(v
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUser()
 {
-	return SteamUser();
+	return context.SteamUser();
 }
 
 // returns the HSteamUser this interface represents
@@ -903,7 +911,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUser_GetEncryptedAppTicket(void* pSt
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserStats()
 {
-	return SteamUserStats();
+	return context.SteamUserStats();
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(void* pSteamUserStats, FPOnUserStatsReceived fpOnUserStatsReceived)
@@ -1094,7 +1102,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEn
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameServerStats()
 {
-	return SteamGameServerStats();
+	return serverContext.SteamGameServerStats();
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(void* pSteamGameServerStats, uint64 steamIDUser)
@@ -1164,7 +1172,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServerStats_StoreStats(void* pSt
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamMatchmaking()
 {
-	return SteamMatchmaking();
+	return context.SteamMatchmaking();
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(void* pSteamMatchmaking, ELobbyType eLobbyType, int32 cMaxMembers)
@@ -1421,7 +1429,7 @@ MatchMakingKeyValuePair_t* g_pKeyValuePairs = NULL;
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamMatchmakingServers()
 {
-	return SteamMatchmakingServers();
+	return context.SteamMatchmakingServers();
 }
 
 STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_RequestInternetServerList(void* pSteamMatchmakingServers, AppId_t iApp, char** pKeys, char** pValues, uint32 uiKeyValueCount, FPOnServerResponded fpOnServerResponded, FPOnServerListComplete fpOnServerListComplete)
@@ -1560,7 +1568,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(vo
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamNetworking()
 {
-	return SteamNetworking();
+	return context.SteamNetworking();
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamNetworking_SetCallbacks(FPOnNetworkP2PSessionRequest fpOnP2PSessionRequest, FPOnNetworkP2PSessionConnectFailed fpOnP2PSessionConnectFailed)
@@ -1650,7 +1658,10 @@ void SteamCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pC
 
 void SteamCallbacks::OnLobbyDataUpdated(LobbyDataUpdate_t *pCallbackData)
 {
-	delegateOnLobbyDataUpdated(pCallbackData);
+	if (delegateOnLobbyDataUpdated)
+	{
+		delegateOnLobbyDataUpdated(pCallbackData);
+	}
 }
 
 void SteamCallbacks::OnLobbyChatUpdated(LobbyChatUpdate_t *pCallbackData)
@@ -1700,14 +1711,14 @@ void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t
 
 void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 {
-	gameserveritem_t* callbackData = SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+	gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
 
 	delegateOnServerResponded(hRequest, callbackData);
 }
 
 void SteamCallbacks::ServerFailedToRespond(HServerListRequest hRequest, int iServer)
 {
-	gameserveritem_t* callbackData = SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+	gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
 
 	printf("");
 }

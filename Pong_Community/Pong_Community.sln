@@ -1,14 +1,23 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 2008
+
+Project("{DD521968-6AD9-5B8F-4CAA-A61AD5D5800D}") = "Pong_Community", "Assembly-CSharp.csproj", "{E3003236-C385-DC22-D183-65F3D92C9485}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3003236-C385-DC22-D183-65F3D92C9485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3003236-C385-DC22-D183-65F3D92C9485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3003236-C385-DC22-D183-65F3D92C9485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3003236-C385-DC22-D183-65F3D92C9485}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+																																																																																																																																																																																																																										GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.inheritsSet = null
@@ -26,7 +35,5 @@ Global
 		$3.scope = text/plain
 		GlobalSection(MonoDevelopProperties) = preSolution
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
+
 EndGlobal

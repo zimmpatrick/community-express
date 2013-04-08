@@ -231,6 +231,12 @@ namespace CommunityExpressNS
 			return null;
 		}
 
+        public Friend GetFriendBySteamID(SteamID steamIDFriend)
+        {
+            Friend newFriend = new Friend(CommunityExpress.Instance.Friends, steamIDFriend);
+            return newFriend;
+        }
+
 		private void InternalOnLargeAvatarReceived(ref AvatarImageLoaded_t CallbackData)
 		{
 			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));

@@ -11,7 +11,7 @@ namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
 
-	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	[StructLayout(LayoutKind.Sequential, Pack = 4)]
 	struct UserStatsReceived_t
 	{
 		public UInt64 m_nGameID;		// Game these stats are for
