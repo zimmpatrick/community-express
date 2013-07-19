@@ -187,7 +187,7 @@ namespace CommunityExpressNS
 		internal Image GetSmallFriendAvatar(SteamID steamIDFriend)
 		{
 			int id = SteamUnityAPI_SteamFriends_GetSmallFriendAvatar(_friends, steamIDFriend.ToUInt64());
-			if (id != -1)
+			if (id > 0)
 			{
 				return new Image(id);
 			}
@@ -198,7 +198,7 @@ namespace CommunityExpressNS
 		internal Image GetMediumFriendAvatar(SteamID steamIDFriend)
 		{
 			int id = SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(_friends, steamIDFriend.ToUInt64());
-			if (id != -1)
+            if (id > 0)
 			{
 				return new Image(id);
 			}
@@ -216,17 +216,24 @@ namespace CommunityExpressNS
 			}
 
 			int id = SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(_friends, steamIDFriend.ToUInt64(), Marshal.GetFunctionPointerForDelegate(_internalOnLargeAvatarReceived));
-			if (id != -1)
-			{
-				Image img = new Image(id);
+            if (id > 0)
+            {
+                Image img = new Image(id);
 
-				if (_largeAvatarReceivedCallback != null)
-				{
-					_largeAvatarReceivedCallback(steamIDFriend, img);
-				}
+                if (_largeAvatarReceivedCallback != null)
+                {
+                    _largeAvatarReceivedCallback(steamIDFriend, img);
+                }
 
-				return img;
-			}
+                return img;
+            }
+            else
+            {
+                if (_largeAvatarReceivedCallback != null)
+                {
+                    _largeAvatarReceivedCallback(steamIDFriend, null);
+                }
+            }
 
 			return null;
 		}

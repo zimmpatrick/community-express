@@ -1099,6 +1099,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEn
 	return pISteamUserStats->GetDownloadedLeaderboardEntry(hSteamLeaderboardEntries, index, outLeaderboardEntry, pDetails, cDetailsMax);
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_ResetAllStats(void* pSteamUserStats, bool bAchievementsToo)
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->ResetAllStats(bAchievementsToo);
+}
+
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamGameServerStats()
 {

@@ -28,6 +28,11 @@ namespace SteamworksUnityTest
 
 		private const String _webAPIKey = "6477773857A981BC6F4F50D7CAFD59E4";
 
+        static private void onLog(string msg)
+        {
+            Console.WriteLine(msg);
+        }
+
 		static int Main(string[] args)
 		{
 			CommunityExpress cesdk = CommunityExpress.Instance;
@@ -43,6 +48,7 @@ namespace SteamworksUnityTest
 				return 1;
 			}
 #endif
+            cesdk.Logger = new CommunityExpress.OnLog(onLog);
 
 			// Initialize SteamAPI, if this fails we bail out since we depend on Steam for lots of stuff.
 			// You don't necessarily have to though if you write your code to check whether all the Steam

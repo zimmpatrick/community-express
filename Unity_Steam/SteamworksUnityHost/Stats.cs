@@ -65,6 +65,8 @@ namespace CommunityExpressNS
 			[MarshalAs(UnmanagedType.LPStr)] string statName, float value);
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamUserStats_ResetAllStats(IntPtr stats, Boolean achievementsToo);
 
 		private IntPtr _stats = IntPtr.Zero;
 		private IntPtr _gameserverStats = IntPtr.Zero;
@@ -201,6 +203,11 @@ namespace CommunityExpressNS
 				SteamUnityAPI_SteamUserStats_StoreStats(_stats);
 			}
 		}
+
+        public bool ResetAllStats(bool achievementsToo)
+        { 
+            return SteamUnityAPI_SteamUserStats_ResetAllStats(_stats, achievementsToo);
+        }
 
 		public SteamID SteamID
 		{
