@@ -169,26 +169,28 @@ namespace SteamworksUnityTest
 
 			Stats stats = cesdk.UserStats;
 			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback, 
-				new string[] { "Kills", "DamageHealed" } );
+				new string[] { "Kills", "DamageHealed", "TotalZedTime" },
+                new Type[] { typeof(int), typeof(int), typeof(float) } );
 
 			while (!_statsReceived)
 			{
 				cesdk.RunCallbacks();
 			}
 
-			/*/ Testing of the Stats Write functionality
-			stats.StatsList[0].StatValue = (Int32)stats.StatsList[0].StatValue + 1;
+			// Testing of the Stats Write functionality
+			stats.StatsList[2].StatValue = 2.3f;
 			stats.WriteStats();
 
 			_statsReceived = false;
 			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback,
-				new string[] { "Kills", "DamageHealed" });
+                new string[] { "Kills", "DamageHealed", "TotalZedTime" },
+                new Type[] { typeof(int), typeof(int), typeof(float) } );
 
 			while (!_statsReceived)
 			{
 				cesdk.RunCallbacks();
 			}
-			//*/
+			
 
 			Achievements achievements = cesdk.UserAchievements;
 			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam",

@@ -72,7 +72,8 @@ namespace CommunityExpressNS
 		private IntPtr _gameserverStats = IntPtr.Zero;
 		private SteamID _id;
 		private List<Stat> _statList = new List<Stat>();
-		private IEnumerable<string> _requestedStats;
+        private List<string> _requestedStats;
+        private List<Type> _requestedStatTypes;
 
 		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived = null;
 		private OnUserStatsReceived _onUserStatsReceived;
@@ -95,10 +96,28 @@ namespace CommunityExpressNS
 			}
 		}
 
-		public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
+        public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
+        {
+            List<Type> requestedTypes = new List<Type>();
+            foreach(string s in requestedStats)
+            {
+                requestedTypes.Add(typeof(int));
+            }
+
+            RequestCurrentStats(onUserStatsReceived, requestedStats, requestedTypes);
+        }
+
+        public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats,
+             IEnumerable<Type> requestedTypes)
 		{
-			_requestedStats = requestedStats;
+			_requestedStats = new List<string>(requestedStats);
+            _requestedStatTypes = new List<Type>(requestedTypes);
 			_onUserStatsReceived = onUserStatsReceived;
+
+            if (_requestedStats.Count != _requestedStatTypes.Count)
+            {
+                throw new ArgumentException("requestedTypes Length doesn't match requestedStats Length", "requestedTypes");
+            }
 
 			if (_internalOnUserStatsReceived == null)
 			{
@@ -128,13 +147,16 @@ namespace CommunityExpressNS
 
 			if (_gameserverStats != IntPtr.Zero)
 			{
-				foreach (string s in _requestedStats)
-				{
-					if (SteamUnityAPI_SteamGameServerStats_GetUserStatInt(_gameserverStats, _id.ToUInt64(), s, out intValue))
+				for(int i=0;i<_requestedStats.Count; i++)
+                {
+                    string s = _requestedStats[i];
+                    Type t = _requestedStatTypes[i];
+				
+					if (t == typeof(int) && SteamUnityAPI_SteamGameServerStats_GetUserStatInt(_gameserverStats, _id.ToUInt64(), s, out intValue))
 					{
 						Add(new Stat(this, s, intValue));
 					}
-					else if (SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(_gameserverStats, _id.ToUInt64(), s, out floatValue))
+                    else if (t == typeof(float) && SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(_gameserverStats, _id.ToUInt64(), s, out floatValue))
 					{
 						Add(new Stat(this, s, floatValue));
 					}
@@ -142,13 +164,16 @@ namespace CommunityExpressNS
 			}
 			else
 			{
-				foreach (string s in _requestedStats)
-				{
-					if (SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
+                for (int i = 0; i < _requestedStats.Count; i++)
+                {
+                    string s = _requestedStats[i];
+                    Type t = _requestedStatTypes[i];
+
+                    if (t == typeof(int) && SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
 					{
 						Add(new Stat(this, s, intValue));
 					}
-					else if (SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
+                    else if (t == typeof(float) && SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
 					{
 						Add(new Stat(this, s, floatValue));
 					}
