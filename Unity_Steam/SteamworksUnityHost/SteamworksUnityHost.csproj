@@ -95,6 +95,7 @@
     <Compile Include="SteamWebAPI.cs" />
     <Compile Include="SteamWebAPIRequest.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="UserAuthentication.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

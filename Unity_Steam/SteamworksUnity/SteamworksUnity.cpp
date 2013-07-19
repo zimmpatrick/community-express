@@ -908,6 +908,21 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUser_GetEncryptedAppTicket(void* pSt
 	return pISteamUser->GetEncryptedAppTicket(pTicket, iMaxTicket, pTicketSize);
 }
 
+STEAMWORKSUNITY_API HAuthTicket SteamUnityAPI_SteamUser_GetAuthSessionTicket(void* pSteamUser, void* pTicket, int iMaxTicket, uint32 *pTicketSize, FPOnGetAuthSessionTicketResponse fpOnGetAuthSessionTicketResponse)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+	
+	SteamCallbacks::getInstance().delegateOnGetAuthSessionTicketResponse= fpOnGetAuthSessionTicketResponse;
+
+	return pISteamUser->GetAuthSessionTicket(pTicket, iMaxTicket, pTicketSize);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_CancelAuthTicket(void* pSteamUser, HAuthTicket hAuthTicket)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+	
+	return pISteamUser->CancelAuthTicket(hAuthTicket);
+}
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserStats()
 {
@@ -1716,6 +1731,11 @@ void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t
 	delegateOnLeaderboardEntriesRetrieved(pCallbackData);
 }
 
+void SteamCallbacks::OnGetAuthSessionTicketResponse(GetAuthSessionTicketResponse_t *pCallbackData)
+{
+	delegateOnGetAuthSessionTicketResponse(pCallbackData);
+}
+
 void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 {
 	gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
@@ -1726,8 +1746,6 @@ void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 void SteamCallbacks::ServerFailedToRespond(HServerListRequest hRequest, int iServer)
 {
 	gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
-
-	printf("");
 }
 
 void SteamCallbacks::RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response)

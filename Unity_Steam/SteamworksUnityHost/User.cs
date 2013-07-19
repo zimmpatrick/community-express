@@ -20,9 +20,6 @@ namespace CommunityExpressNS
 		k_EUserHasLicenseResultNoAuth = 2,						// User has not been authenticated
 	}
 
-	delegate void OnUserGetEncryptedAppTicketFromSteam();
-	public delegate void OnUserEncryptedAppTicketCreated(Byte[] ticket);
-
 	public class User
 	{
 		[DllImport("CommunityExpressSW")]
@@ -46,28 +43,20 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUser_AdvertiseGame(IntPtr user, UInt64 gameServerSteamID, UInt32 serverIP, UInt16 port);
 		[DllImport("CommunityExpressSW")]
-		private static extern SteamAPICall_t SteamUnityAPI_SteamUser_RequestEncryptedAppTicket(IntPtr user, IntPtr dataToInclude, Int32 dataLength);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUser_GetEncryptedAppTicket(IntPtr user,
-			[MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] ticket, int maxTicket, out UInt32 ticketSize);
-		[DllImport("CommunityExpressSW")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_GetPersonaNameByID(UInt64 steamID);
 
-		private const Int32 AuthTicketSizeMax = 2048;
-
 		private IntPtr _user;
 		private Friends _friends; // for user avatar
-
+        private UserAuthentication _auth;
 		private UInt32 _serverIP = 0;
 		private UInt16 _serverPort;
-
-		private OnUserEncryptedAppTicketCreated _onUserEncryptedAppTicketCreated;
 
 		internal User()
 		{
 			_user = SteamUnityAPI_SteamUser();
 			_friends = new Friends();
+            _auth = new UserAuthentication(this);
 		}
 
 		~User()
@@ -75,16 +64,21 @@ namespace CommunityExpressNS
 			OnDisconnect();
 		}
 
+        internal IntPtr UserPointer
+        {
+            get { return _user; }
+        }
+
 		public Boolean InitiateClientAuthentication(out Byte[] authTicket, SteamID steamIDServer, IPAddress ipServer, UInt16 serverPort, Boolean isSecure)
 		{
 			Byte[] serverIPBytes = ipServer.GetAddressBytes();
 			_serverIP = (UInt32)serverIPBytes[0] << 24 | (UInt32)serverIPBytes[1] << 16 | (UInt32)serverIPBytes[2] << 8 | (UInt32)serverIPBytes[3];
 			_serverPort = serverPort;
 
-			Byte[] internalAuthTicket = new Byte[AuthTicketSizeMax];
+            Byte[] internalAuthTicket = new Byte[UserAuthentication.AuthTicketSizeMax];
 			Int32 authTicketSize;
 
-			authTicketSize = SteamUnityAPI_SteamUser_InitiateGameConnection(_user, internalAuthTicket, AuthTicketSizeMax, steamIDServer.ToUInt64(), _serverIP, _serverPort, isSecure);
+            authTicketSize = SteamUnityAPI_SteamUser_InitiateGameConnection(_user, internalAuthTicket, UserAuthentication.AuthTicketSizeMax, steamIDServer.ToUInt64(), _serverIP, _serverPort, isSecure);
 
 			if (authTicketSize > 0)
 			{
@@ -129,37 +123,6 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamUser_AdvertiseGame(_user, gameServerSteamID.ToUInt64(), serverIP, port);
 		}
 
-		public void RequestEncryptedAppTicket(Byte[] dataToInclude, OnUserEncryptedAppTicketCreated onUserEncryptedAppTicketCreated)
-		{
-			_onUserEncryptedAppTicketCreated = onUserEncryptedAppTicketCreated;
-
-			IntPtr dataPtr = Marshal.AllocHGlobal(dataToInclude.Length);
-			Marshal.Copy(dataToInclude, 0, dataPtr, dataToInclude.Length);
-
-			SteamAPICall_t callbackId = SteamUnityAPI_SteamUser_RequestEncryptedAppTicket(_user, dataPtr, dataToInclude.Length);
-
-			CommunityExpress.Instance.AddUserGetEncryptedAppTicketCallback(callbackId, OnGetEncryptedAppTicketFromSteam);
-
-			Marshal.FreeHGlobal(dataPtr);
-		}
-
-		private void OnGetEncryptedAppTicketFromSteam()
-		{
-			Byte[] ticket = null, internalTicket = new Byte[AuthTicketSizeMax];
-			UInt32 ticketSize;
-
-			if (SteamUnityAPI_SteamUser_GetEncryptedAppTicket(_user, internalTicket, AuthTicketSizeMax, out ticketSize))
-			{
-				ticket = new Byte[ticketSize];
-
-				for (Int32 i = 0; i < ticketSize; i++)
-				{
-					ticket[i] = internalTicket[i];
-				}
-			}
-
-			_onUserEncryptedAppTicketCreated(ticket);
-		}
 
 		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
 		{
@@ -205,5 +168,10 @@ namespace CommunityExpressNS
 		{
 			get { return _friends.GetLargeFriendAvatar(SteamID, null); }
 		}
+
+        public UserAuthentication Authentication
+        {
+            get { return _auth; }
+        }
 	}
 }

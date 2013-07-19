@@ -33,6 +33,7 @@ typedef void (ZIMM_CALLBACK *FPOnLobbyDataUpdated)(LobbyDataUpdate_t*);
 typedef void (ZIMM_CALLBACK *FPOnLobbyChatUpdated)(LobbyChatUpdate_t*);
 typedef void (ZIMM_CALLBACK *FPOnLobbyChatMessage)(LobbyChatMsg_t*);
 typedef void (ZIMM_CALLBACK *FPOnLobbyGameCreated)(LobbyGameCreated_t*);
+typedef void (ZIMM_CALLBACK *FPOnGetAuthSessionTicketResponse)(GetAuthSessionTicketResponse_t*);
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
@@ -49,6 +50,7 @@ public:
 					 , GameServerClientDenyCallback(this, &SteamCallbacks::OnGameServerClientDeny)
 					 , GameServerClientKickCallback(this, &SteamCallbacks::OnGameServerClientKick)
 					 , GameServerPolicyResponseCallback(this, &SteamCallbacks::OnGameServerPolicyResponse)
+					 , GetAuthSessionTicketCallback(this, &SteamCallbacks::OnGetAuthSessionTicketResponse)
 	{
 		delegateOnAvatarReceived = 0;
 		delegateOnUserStatsReceived = 0;
@@ -68,6 +70,7 @@ public:
 		delegateOnLobbyChatUpdated = 0;
 		delegateOnLobbyChatMessage = 0;
 		delegateOnLobbyGameCreated = 0;
+		delegateOnGetAuthSessionTicketResponse = 0;
 	}
 
 	static SteamCallbacks& getInstance()
@@ -94,6 +97,7 @@ public:
 	STEAM_CALLBACK(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
 	STEAM_CALLBACK(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
 	STEAM_CALLBACK(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback);
+	STEAM_CALLBACK(SteamCallbacks, OnGetAuthSessionTicketResponse, GetAuthSessionTicketResponse_t, GetAuthSessionTicketCallback);
 
 	STEAM_GAMESERVER_CALLBACK(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
@@ -124,4 +128,5 @@ public:
 	FPOnLobbyChatUpdated delegateOnLobbyChatUpdated;
 	FPOnLobbyChatMessage delegateOnLobbyChatMessage;
 	FPOnLobbyGameCreated delegateOnLobbyGameCreated;
+	FPOnGetAuthSessionTicketResponse delegateOnGetAuthSessionTicketResponse;
 };

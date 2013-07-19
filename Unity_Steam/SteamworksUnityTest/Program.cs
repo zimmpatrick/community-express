@@ -92,6 +92,13 @@ namespace SteamworksUnityTest
 				Console.WriteLine("Large: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
 			}
 
+
+            SessionTicket st = cesdk.User.Authentication.GetAuthSessionTicket(null);
+            st.Cancel();
+
+            st = cesdk.User.Authentication.GetAuthSessionTicket(null);
+            
+
 			RemoteStorage remoteStorage = cesdk.RemoteStorage;
 			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("tits.asd"), remoteStorage.GetFileSize("titty"));
 			remoteStorage.WriteFile("CloudTest.txt", "I has file!");
