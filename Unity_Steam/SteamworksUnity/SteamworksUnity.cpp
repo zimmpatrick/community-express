@@ -1024,6 +1024,13 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_StoreStats(void* pSteamUse
 	return pISteamUserStats->StoreStats();
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_IndicateAchievementProgress(void* pSteamUserStats, const char *pchName, uint32 nCurProgress, uint32 nMaxProgress )
+{
+	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
+
+	return pISteamUserStats->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, FPOnLeaderboardRetrieved fpOnLeaderboardRetrieved)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );

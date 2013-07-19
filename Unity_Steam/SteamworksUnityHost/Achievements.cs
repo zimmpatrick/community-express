@@ -26,6 +26,8 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_SetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName);
 		[DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_SteamUserStats_IndicateAchievementProgress(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName, UInt32 nCurProgress, UInt32 nMaxProgress);
+		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
@@ -67,7 +69,7 @@ namespace CommunityExpressNS
 			}
 		}
 
-		public void RequestCurrentAchievements(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedAchievements)
+		internal void RequestCurrentAchievements(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedAchievements)
 		{
 			_requestedAchievements = requestedAchievements;
 			_onUserStatsReceived = onUserStatsReceived;
@@ -192,6 +194,24 @@ namespace CommunityExpressNS
 				}
 			}
 		}
+
+        public void IndicateAchievementProgress(Achievement achievement, UInt32 nCurProgress, UInt32 nMaxProgress, bool storeStats)
+        {
+            if (_gameserverStats != IntPtr.Zero)
+            {
+                // not yet supported
+                return;
+            }
+            else
+            {
+                SteamUnityAPI_SteamUserStats_IndicateAchievementProgress(_stats, achievement.AchievementName, nCurProgress, nMaxProgress);
+            }
+
+            if (storeStats)
+            {
+                WriteStats();
+            }
+        }
 
 		public void WriteStats()
 		{
