@@ -4,28 +4,82 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace CommunityExpressNS
 {
 	public class Stat
 	{
-		private Stats _stats;
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
+            out Int32 value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
+            out float value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
+            [MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
+            [MarshalAs(UnmanagedType.LPStr)] string statName, out float value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
+            [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
+            [MarshalAs(UnmanagedType.LPStr)] string statName, float value);
+
+		private IntPtr _stats;
 		private String _statName;
 		private object _statValue;
-		private bool _hasChanged;
+        private SteamID _id;
+		private bool _isServer;
 
-		public Stat(Stats stats)
-		{
+
+        internal Stat(IntPtr stats, SteamID steamID, String statName, Type t, bool isServer)
+        {
 			_stats = stats;
-		}
-
-		public Stat(Stats stats, String statName, object statValue)
-		{
-			_stats = stats;
-
+            _id = steamID;
+            _isServer = isServer;
 			_statName = statName;
-			_statValue = statValue;
-			_hasChanged = false;
+
+            Int32 intValue;
+            float floatValue;
+            if (isServer)
+            {
+                if (t == typeof(int) && SteamUnityAPI_SteamGameServerStats_GetUserStatInt(_stats, _id.ToUInt64(), _statName, out intValue))
+                {
+                    _statValue = intValue;
+                }
+                else if (t == typeof(float) && SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(_stats, _id.ToUInt64(), _statName, out floatValue))
+                {
+                    _statValue = floatValue;
+                }
+                else
+                {
+                    _statValue = null;
+                }
+            }
+            else
+            {
+
+                if (t == typeof(int) && SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), _statName, out intValue))
+                {
+                    _statValue = intValue;
+                }
+                else if (t == typeof(float) && SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), _statName, out floatValue))
+                {
+                    _statValue = floatValue;
+                }
+                else
+                {
+                    _statValue = null;
+                }
+            }
 		}
 
 		public String StatName
@@ -37,13 +91,39 @@ namespace CommunityExpressNS
 		public object StatValue
 		{
 			get { return _statValue; }
-			set { _statValue = value; _hasChanged = true; }
+			set 
+            {     
+                _statValue = value;
+                SaveChanges();
+            }
 		}
 
-		public bool HasChanged
-		{
-			get { return _hasChanged; }
-			internal set { _hasChanged = value; }
-		}
+        private void SaveChanges()
+        {
+            if (_isServer)
+            {
+                if (StatValue is int)
+                {
+                    SteamUnityAPI_SteamGameServerStats_SetUserStatInt(_stats, _id.ToUInt64(), StatName, (int)StatValue);
+                }
+                else
+                {
+                    SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(_stats, _id.ToUInt64(), StatName, (float)StatValue);
+                }
+            }
+            else
+            {
+
+                if (StatValue is int)
+                {
+                    SteamUnityAPI_SteamUserStats_SetStatInt(_stats, StatName, (int)StatValue);
+                }
+                else
+                {
+                    SteamUnityAPI_SteamUserStats_SetStatFloat(_stats, StatName, (float)StatValue);
+                }
+            }
+        }
+
 	}
 }

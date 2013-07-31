@@ -35,35 +35,13 @@ namespace CommunityExpressNS
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
-			out Int32 value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
-			out float value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        private static extern Boolean SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
+        [DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
 		[DllImport("CommunityExpressSW")]
-		private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
-			[MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
-			[MarshalAs(UnmanagedType.LPStr)] string statName, out float value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
-			[MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
-		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(IntPtr gameserverStats, UInt64 steamID,
-			[MarshalAs(UnmanagedType.LPStr)] string statName, float value);
-		[DllImport("CommunityExpressSW")]
+        private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
+        [DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
         [DllImport("CommunityExpressSW")]
         private static extern Boolean SteamUnityAPI_SteamUserStats_ResetAllStats(IntPtr stats, Boolean achievementsToo);
@@ -137,9 +115,6 @@ namespace CommunityExpressNS
 
 		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
 		{
-			Int32 intValue;
-			float floatValue;
-
 			// Make sure we don't double up the list of Stats
 			Clear();
 
@@ -151,15 +126,8 @@ namespace CommunityExpressNS
                 {
                     string s = _requestedStats[i];
                     Type t = _requestedStatTypes[i];
-				
-					if (t == typeof(int) && SteamUnityAPI_SteamGameServerStats_GetUserStatInt(_gameserverStats, _id.ToUInt64(), s, out intValue))
-					{
-						Add(new Stat(this, s, intValue));
-					}
-                    else if (t == typeof(float) && SteamUnityAPI_SteamGameServerStats_GetUserStatFloat(_gameserverStats, _id.ToUInt64(), s, out floatValue))
-					{
-						Add(new Stat(this, s, floatValue));
-					}
+
+                    Add(new Stat(_gameserverStats, _id, s, t, true));
 				}
 			}
 			else
@@ -169,14 +137,7 @@ namespace CommunityExpressNS
                     string s = _requestedStats[i];
                     Type t = _requestedStatTypes[i];
 
-                    if (t == typeof(int) && SteamUnityAPI_SteamUserStats_GetUserStatInt(_stats, _id.ToUInt64(), s, out intValue))
-					{
-						Add(new Stat(this, s, intValue));
-					}
-                    else if (t == typeof(float) && SteamUnityAPI_SteamUserStats_GetUserStatFloat(_stats, _id.ToUInt64(), s, out floatValue))
-					{
-						Add(new Stat(this, s, floatValue));
-					}
+                    Add(new Stat(_stats, _id, s, t, false));
 				}
 			}
 
@@ -187,44 +148,10 @@ namespace CommunityExpressNS
 		{
 			if (_gameserverStats != IntPtr.Zero)
 			{
-				foreach (Stat s in _statList)
-				{
-					if (s.HasChanged)
-					{
-						if (s.StatValue is int)
-						{
-							SteamUnityAPI_SteamGameServerStats_SetUserStatInt(_gameserverStats, _id.ToUInt64(), s.StatName, (int)s.StatValue);
-						}
-						else
-						{
-							SteamUnityAPI_SteamGameServerStats_SetUserStatFloat(_gameserverStats, _id.ToUInt64(), s.StatName, (float)s.StatValue);
-						}
-
-						s.HasChanged = false;
-					}
-				}
-
 				SteamUnityAPI_SteamGameServerStats_StoreUserStats(_gameserverStats, _id.ToUInt64());
 			}
 			else
-			{
-				foreach (Stat s in _statList)
-				{
-					if (s.HasChanged)
-					{
-						if (s.StatValue is int)
-						{
-							SteamUnityAPI_SteamUserStats_SetStatInt(_stats, s.StatName, (int)s.StatValue);
-						}
-						else
-						{
-							SteamUnityAPI_SteamUserStats_SetStatFloat(_stats, s.StatName, (float)s.StatValue);
-						}
-
-						s.HasChanged = false;
-					}
-				}
-
+            {
 				SteamUnityAPI_SteamUserStats_StoreStats(_stats);
 			}
 		}
