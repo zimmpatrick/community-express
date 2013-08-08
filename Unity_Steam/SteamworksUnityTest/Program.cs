@@ -63,7 +63,7 @@ namespace SteamworksUnityTest
 				throw new Exception("Steam must be running to play this game (SteamAPI_Init() failed).");
 			}
 
-			Console.WriteLine("Signed in as: {0}", cesdk.User.PersonaName);
+			Console.WriteLine("Signed in as: {0} {1}", cesdk.User.SteamLevel, cesdk.User.GetGameBadgeLevel(1, false));
 
             cesdk.BigPicture.ShowGamepadTextInput(EGamepadTextInputMode.k_EGamepadTextInputModeNormal, EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, "Tell Me!", 255,
                 MyOnGamepadTextInputDismissed);

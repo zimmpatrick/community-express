@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// Class for accessing stats, achievements, and leaderboard information
+    /// </summary>
 	public class Stat
 	{
         [DllImport("CommunityExpressSW")]

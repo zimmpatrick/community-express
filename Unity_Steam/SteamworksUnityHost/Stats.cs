@@ -144,6 +144,15 @@ namespace CommunityExpressNS
 			_onUserStatsReceived(this, null);
 		}
 
+        /// <summary>
+        /// Store the current data on the server, will get a callback when set
+        /// And one callback for every new achievement
+        ///
+        /// If the callback has a result of k_EResultInvalidParam, one or more stats 
+        /// uploaded has been rejected, either because they broke constraints
+        /// or were out of date. In this case the server sends back updated values.
+        /// The stats should be re-iterated to keep in sync.
+        /// </summary>
 		public void WriteStats()
 		{
 			if (_gameserverStats != IntPtr.Zero)
@@ -156,6 +165,11 @@ namespace CommunityExpressNS
 			}
 		}
 
+        /// <summary>
+        /// Reset stats 
+        /// </summary>
+        /// <param name="achievementsToo"></param>
+        /// <returns></returns>
         public bool ResetAllStats(bool achievementsToo)
         { 
             return SteamUnityAPI_SteamUserStats_ResetAllStats(_stats, achievementsToo);

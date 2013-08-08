@@ -924,6 +924,20 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_CancelAuthTicket(void* pSteamUs
 	return pISteamUser->CancelAuthTicket(hAuthTicket);
 }
 
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamUser_GetPlayerSteamLevel(void* pSteamUser)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->GetPlayerSteamLevel();
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamUser_GetGameBadgeLevel(void* pSteamUser, int nSeries, bool bFoil)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->GetGameBadgeLevel(nSeries, bFoil);
+}
+
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserStats()
 {
 	return context.SteamUserStats();

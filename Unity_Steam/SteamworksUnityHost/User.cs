@@ -45,6 +45,11 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
 		private static extern String SteamUnityAPI_GetPersonaNameByID(UInt64 steamID);
+        [DllImport("CommunityExpressSW")]
+		private static extern Int32 SteamUnityAPI_SteamUser_GetPlayerSteamLevel(IntPtr user);
+        [DllImport("CommunityExpressSW")]
+		private static extern Int32 SteamUnityAPI_SteamUser_GetGameBadgeLevel(IntPtr user, Int32 nSeries, Boolean bFoil);
+        
 
 		private IntPtr _user;
 		private Friends _friends; // for user avatar
@@ -105,6 +110,12 @@ namespace CommunityExpressNS
 			}
 		}
 
+        /// <summary>
+        /// After receiving a user's authentication data, and passing it to BeginAuthSession, use this function
+        /// to determine if the user owns downloadable content specified by the provided AppID.
+        /// </summary>
+        /// <param name="appID"></param>
+        /// <returns></returns>
 		public EUserHasLicenseForAppResult UserHasLicenseForApp(AppId_t appID)
 		{
 			return SteamUnityAPI_SteamUser_UserHasLicenseForApp(_user, SteamID.ToUInt64(), appID);
@@ -115,6 +126,12 @@ namespace CommunityExpressNS
 			return SteamUnityAPI_SteamUser_UserHasLicenseForApp(_user, steamID.ToUInt64(), appID);
 		}
 
+        /// <summary>
+        /// Set data to be replicated to friends so that they can join your game
+        /// </summary>
+        /// <param name="gameServerSteamID">the steamID of the game server, received from the game server by the client</param>
+        /// <param name="ip">the IP address of the game server</param>
+        /// <param name="port">the port of the game server</param>
 		public void AdvertiseGame(SteamID gameServerSteamID, IPAddress ip, UInt16 port)
 		{
 			Byte[] serverIPBytes = ip.GetAddressBytes();
@@ -123,27 +140,60 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamUser_AdvertiseGame(_user, gameServerSteamID.ToUInt64(), serverIP, port);
 		}
 
+        /// <summary>
+        /// Trading Card badges data access
+        /// if you only have one set of cards, the series will be 1
+        /// the user has can have two different badges for a series; the regular (max level 5) and the foil (max level 1)
+        /// </summary>
+        /// <param name="nSeries"></param>
+        /// <param name="bFoil"></param>
+        /// <returns></returns>
+        public int GetGameBadgeLevel(int nSeries, bool bFoil)
+        {
+            return SteamUnityAPI_SteamUser_GetGameBadgeLevel(_user, nSeries, bFoil);
+        }
 
+        /// <summary>
+        /// Gets the large (184x184) avatar of the user
+        /// </summary>
+        /// <param name="largeAvatarReceivedCallback"></param>
 		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
 		{
 			_friends.GetLargeFriendAvatar(SteamID, largeAvatarReceivedCallback);
 		}
 
+        /// <summary>
+        /// Returns true if this users looks like they are behind a NAT device. Only valid once the user has connected to steam 
+        /// (i.e a SteamServersConnected_t has been issued) and may not catch all forms of NAT.
+        /// </summary>
 		public Boolean IsBehindNAT
 		{
 			get { return SteamUnityAPI_SteamUser_BIsBehindNAT(_user); }
 		}
 
+        /// <summary>
+        /// Returns true if the Steam client current has a live connection to the Steam servers. 
+        /// If false, it means there is no active connection due to either a networking issue on the local machine, or the Steam server is down/busy.
+        /// The Steam client will automatically be trying to recreate the connection as often as possible.
+        /// </summary>
 		public Boolean LoggedOn
 		{
 			get { return SteamUnityAPI_SteamUser_BLoggedOn(_user); }
 		}
 
+        /// <summary>
+        /// Returns the HSteamUser this interface represents
+        /// this is only used internally by the API, and by a few select interfaces that support multi-user
+        /// </summary>
 		public HSteamUser HSteamUser
 		{
 			get { return SteamUnityAPI_SteamUser_GetHSteamUser(_user); }
 		}
 
+        /// <summary>
+        /// Returns the SteamID of the user
+        /// A SteamID is a unique identifier for an account, and used to differentiate users in all parts of the Steamworks API
+        /// </summary>
 		public SteamID SteamID
 		{
 			get { return new SteamID(SteamUnityAPI_SteamUser_GetSteamID(_user)); }
@@ -154,16 +204,33 @@ namespace CommunityExpressNS
 			get { return SteamUnityAPI_GetPersonaNameByID(SteamID.ToUInt64()); }
 		}
 
+        /// <summary>
+	    /// The Steam Level of the user, as shown on their profile
+        /// </summary>
+		public int SteamLevel
+		{
+			get { return SteamUnityAPI_SteamUser_GetPlayerSteamLevel(_user); }
+		}
+
+        /// <summary>
+        /// Gets the small (32x32) avatar of the current user
+        /// </summary>
 		public Image SmallAvatar
 		{
 			get { return _friends.GetSmallFriendAvatar(SteamID); }
 		}
 
+        /// <summary>
+        /// Gets the medium (64x64) avatar of the user
+        /// </summary>
 		public Image MediumAvatar
 		{
 			get { return _friends.GetMediumFriendAvatar(SteamID); }
 		}
 
+        /// <summary>
+        /// Gets the large (184x184) avatar of the user
+        /// </summary>
 		public Image LargeAvatar
 		{
 			get { return _friends.GetLargeFriendAvatar(SteamID, null); }

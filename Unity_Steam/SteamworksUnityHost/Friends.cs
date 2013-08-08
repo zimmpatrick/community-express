@@ -67,6 +67,31 @@ namespace CommunityExpressNS
 		k_EOverlayToStoreFlag_AddToCartAndShow = 2,
 	};
 
+
+    public enum EGameOverlay
+    {
+        EGameOverlayFriends = 0,
+        EGameOverlayCommunity = 1,
+        EGameOverlayPlayers = 2,
+        EGameOverlaySettings = 3,
+        EGameOverlayOfficialGameGroup = 4,
+        EGameOverlayStats = 5,
+        EGameOverlayAchievements = 6,
+    };
+
+    public enum EGameOverlayToUser
+    {
+        EGameOverlayToUserSteamId = 0,
+        EGameOverlayToUserChat = 1,
+        EGameOverlayToUserJoinTrade = 2,
+        EGameOverlayToUserStats = 3,
+        EGameOverlayToUserAchievements = 4,
+        EGameOverlayToUserFriendAdd = 5,
+        EGameOverlayToUserFriendRemove = 6,
+        EGameOverlayToUserFriendRequestAccept = 7,
+        EGameOverlayToUserFriendRequestIgnore = 8,
+    };
+
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct AvatarImageLoaded_t
 	{
@@ -249,14 +274,19 @@ namespace CommunityExpressNS
 			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));
 		}
 
-		public void ActivateGameOverlay(String dialog)
+        public void ActivateGameOverlay(EGameOverlay dialog)
 		{
-			SteamUnityAPI_SteamFriends_ActivateGameOverlay(dialog);
+            string[] strdialogs = { "Friends", "Community", "Players", "Settings", "OfficialGameGroup", "Stats", "Achievements" };
+
+            SteamUnityAPI_SteamFriends_ActivateGameOverlay(strdialogs[(int)dialog]);
 		}
 
-		public void ActivateGameOverlayToUser(String dialog, SteamID user)
-		{
-			SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(dialog, user.ToUInt64());
+        public void ActivateGameOverlayToUser(EGameOverlayToUser dialog, SteamID user)
+        {
+            string[] strdialogs = { "steamid" , "chat", "jointrade", "stats", "achievements", "friendadd", "friendremove",
+                "friendrequestaccept", "friendrequestignore" };
+
+            SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(strdialogs[(int)dialog], user.ToUInt64());
 		}
 
 		public void ActivateGameOverlayToWebPage(String url)

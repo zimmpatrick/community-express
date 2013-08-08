@@ -162,6 +162,7 @@ namespace CommunityExpressNS
 		EAccountTypeContentServer = 6,	// content server
 		EAccountTypeClan = 7,
 		EAccountTypeChat = 8,
+        EAccountTypeConsoleUser = 9,	// Fake SteamID for local PSN account on PS3 or Live account on 360, etc.
 		EAccountTypeAnonUser = 10
 	};
 }
