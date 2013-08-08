@@ -128,6 +128,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SteamCallbacks.h" />
     <ClInclude Include="targetver.h" />
@@ -145,6 +146,9 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SteamworksUnity.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="fileinfo.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
