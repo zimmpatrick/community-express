@@ -1,6 +1,6 @@
-# Community Express SDK - A managed SDK for the Steamworks SDK
+# Community Express - A managed SDK for the Steamworks SDK
 
-Community Express SDK is a high-level managed SDK to integrate with Steam.
+Community Express is a high-level managed SDK to integrate with Steam.
 
 ## Getting started
 
