@@ -1,3 +1,4 @@
+.DS_Store
 Debug
 Release
 Release_Unlicensed
@@ -7,3 +8,5 @@ ipch
 *.suo
 *.user
 *.filters
+xcuserdata
+xcshareddata

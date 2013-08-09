@@ -1766,7 +1766,7 @@ void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 
 void SteamCallbacks::ServerFailedToRespond(HServerListRequest hRequest, int iServer)
 {
-	gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+	// gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
 }
 
 void SteamCallbacks::RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response)

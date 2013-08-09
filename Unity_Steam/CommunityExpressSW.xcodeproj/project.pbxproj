@@ -204,7 +204,8 @@
 				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.6;
+				OTHER_CFLAGS = "-DVERSION_SAFE_STEAM_API_INTERFACES";
+				SDKROOT = macosx10.7;
 			};
 			name = Debug;
 		};
@@ -227,7 +228,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = macosx10.6;
+				OTHER_CFLAGS = "-DVERSION_SAFE_STEAM_API_INTERFACES";
+				SDKROOT = macosx10.7;
 			};
 			name = Release;
 		};
@@ -257,9 +259,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "CommunityExpressSW/CommunityExpressSW-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					STEAMWORKSUNITY_EXPORTS,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = STEAMWORKSUNITY_EXPORTS;
 				HEADER_SEARCH_PATHS = ./Steamworks/public/;
 				INFOPLIST_FILE = "CommunityExpressSW/CommunityExpressSW-Info.plist";
 				INSTALL_PATH = "@loader_path";
@@ -288,6 +288,7 @@
 				DA90B15316592FAB00E5E1C6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
