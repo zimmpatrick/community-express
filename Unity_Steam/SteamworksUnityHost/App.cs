@@ -15,11 +15,9 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamApps();
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamApps_GetCurrentGameLanguage(IntPtr apps);
+		private static extern IntPtr SteamUnityAPI_SteamApps_GetCurrentGameLanguage(IntPtr apps);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamApps_GetAvailableGameLanguages(IntPtr apps);
+		private static extern IntPtr SteamUnityAPI_SteamApps_GetAvailableGameLanguages(IntPtr apps);
         [DllImport("CommunityExpressSW")]
         [return: MarshalAs(UnmanagedType.Bool)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsSubscribedApp(IntPtr apps, AppId_t appID);
@@ -76,12 +74,12 @@ namespace CommunityExpressNS
 		// romanian, turkish, brazilian, Bulgarian
 		public String GetCurrentGameLanguage()
 		{
-			return SteamUnityAPI_SteamApps_GetCurrentGameLanguage(_apps);
+			return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamApps_GetCurrentGameLanguage(_apps));
 		}
 
 		public String GetAvailableGameLanguages()
 		{
-			return SteamUnityAPI_SteamApps_GetAvailableGameLanguages(_apps);
+			return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamApps_GetAvailableGameLanguages(_apps));
 		}
 
 		// Only use this with AppIDs related with your game, such as a demo

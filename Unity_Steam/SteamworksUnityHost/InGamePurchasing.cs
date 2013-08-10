@@ -31,8 +31,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamApps();
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamApps_GetCurrentGameLanguage(IntPtr apps);
+		private static extern IntPtr SteamUnityAPI_SteamApps_GetCurrentGameLanguage(IntPtr apps);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetAppID();
 
@@ -64,7 +63,7 @@ namespace CommunityExpressNS
 				_steamID = new SteamID(SteamUnityAPI_SteamUser_GetSteamID(_user));
 				
 				// Find the ISO 2-Letter language id for this use's Steam Language setting
-				String steamLanguage = SteamUnityAPI_SteamApps_GetCurrentGameLanguage(_apps);
+				String steamLanguage = Marshal.PtrToStringAnsi(SteamUnityAPI_SteamApps_GetCurrentGameLanguage(_apps));
 				foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
 				{
 					if (culture.DisplayName.Equals(steamLanguage, StringComparison.OrdinalIgnoreCase) ||

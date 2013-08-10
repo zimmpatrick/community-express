@@ -12,8 +12,7 @@ namespace CommunityExpressNS
 	public class LobbyData : ICollection<KeyValuePair<String, String>>
 	{
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamMatchmaking_GetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, [MarshalAs(UnmanagedType.LPStr)] String key);
+		private static extern IntPtr SteamUnityAPI_SteamMatchmaking_GetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, [MarshalAs(UnmanagedType.LPStr)] String key);
 		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamMatchmaking_GetLobbyDataCount(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
@@ -81,7 +80,7 @@ namespace CommunityExpressNS
 
 		public String GetValue(String key)
 		{
-			return SteamUnityAPI_SteamMatchmaking_GetLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), key);
+            return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamMatchmaking_GetLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), key));
 		}
 
 		public void GetDataByIndex(Int32 index, out String key, Int32 maxKeyLength, out String value, Int32 maxValueLength)

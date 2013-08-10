@@ -113,8 +113,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamFriends_GetFriendByIndex(IntPtr friends, int iFriend, int friendFlags);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friends, UInt64 steamIDFriend);
+		private static extern IntPtr SteamUnityAPI_SteamFriends_GetFriendPersonaName(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamFriends_GetFriendPersonaState(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW")]
@@ -200,7 +199,7 @@ namespace CommunityExpressNS
 
 		internal String GetFriendPersonaName(SteamID steamIDFriend)
 		{
-			return SteamUnityAPI_SteamFriends_GetFriendPersonaName(_friends, steamIDFriend.ToUInt64());
+            return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamFriends_GetFriendPersonaName(_friends, steamIDFriend.ToUInt64()));
 		}
 
 		internal EPersonaState GetFriendPersonaState(SteamID steamIDFriend)

@@ -43,8 +43,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUser_AdvertiseGame(IntPtr user, UInt64 gameServerSteamID, UInt32 serverIP, UInt16 port);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_GetPersonaNameByID(UInt64 steamID);
+		private static extern IntPtr SteamUnityAPI_GetPersonaNameByID(UInt64 steamID);
         [DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamUser_GetPlayerSteamLevel(IntPtr user);
         [DllImport("CommunityExpressSW")]
@@ -201,7 +200,7 @@ namespace CommunityExpressNS
 
 		public String PersonaName
 		{
-			get { return SteamUnityAPI_GetPersonaNameByID(SteamID.ToUInt64()); }
+            get { return Marshal.PtrToStringAnsi(SteamUnityAPI_GetPersonaNameByID(SteamID.ToUInt64())); }
 		}
 
         /// <summary>

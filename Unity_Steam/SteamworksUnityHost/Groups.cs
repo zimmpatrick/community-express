@@ -18,11 +18,9 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamFriends_GetClanByIndex(IntPtr friends, int iClan);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamFriends_GetClanName(IntPtr friends, UInt64 steamIDClan);
+		private static extern IntPtr SteamUnityAPI_SteamFriends_GetClanName(IntPtr friends, UInt64 steamIDClan);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamFriends_GetClanTag(IntPtr friends, UInt64 steamIDClan);
+		private static extern IntPtr SteamUnityAPI_SteamFriends_GetClanTag(IntPtr friends, UInt64 steamIDClan);
 
 		private IntPtr _friends;
 		private Friends _friendsRef;
@@ -86,12 +84,12 @@ namespace CommunityExpressNS
 
 		internal String GetGroupName(SteamID steamIDGroup)
 		{
-			return SteamUnityAPI_SteamFriends_GetClanName(_friends, steamIDGroup.ToUInt64());
+			return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamFriends_GetClanName(_friends, steamIDGroup.ToUInt64()));
 		}
 
 		internal String GetClanTag(SteamID steamIDClan)
 		{
-			return SteamUnityAPI_SteamFriends_GetClanTag(_friends, steamIDClan.ToUInt64());
+			return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamFriends_GetClanTag(_friends, steamIDClan.ToUInt64()));
 		}
 
 		public int Count

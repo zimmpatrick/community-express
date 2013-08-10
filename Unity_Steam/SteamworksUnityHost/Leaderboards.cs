@@ -65,8 +65,7 @@ namespace CommunityExpressNS
 		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] String leaderboardName,
 			ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
+		private static extern IntPtr SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
@@ -157,11 +156,16 @@ namespace CommunityExpressNS
 
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{
-				leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard,
-											  SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard),
-											  SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(_stats, findLearderboardResult.m_hSteamLeaderboard),
-											  SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard),
-											  SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard));
+                String name = Marshal.PtrToStringAnsi(SteamUnityAPI_SteamUserStats_GetLeaderboardName(_stats, findLearderboardResult.m_hSteamLeaderboard));
+                int count = SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(_stats, findLearderboardResult.m_hSteamLeaderboard);
+				ELeaderboardSortMethod sort = SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard);
+                ELeaderboardDisplayType dtype = SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard);
+
+                leaderboard = new Leaderboard(this, findLearderboardResult.m_hSteamLeaderboard,
+											  name,
+											  count,
+											  sort,
+											  dtype);
 				Add(leaderboard);
 			}
 

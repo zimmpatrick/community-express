@@ -36,8 +36,7 @@ namespace CommunityExpressNS
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(IntPtr matchmaking, UInt64 steamIDLobby,
 			[MarshalAs(UnmanagedType.LPStr)] String key);
 		[DllImport("CommunityExpressSW")]
-		[return: MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-		private static extern String SteamUnityAPI_SteamMatchmaking_GetLobbyMemberData(IntPtr matchmaking, UInt64 steamIDLobby, UInt64 steamIDUser,
+		private static extern IntPtr SteamUnityAPI_SteamMatchmaking_GetLobbyMemberData(IntPtr matchmaking, UInt64 steamIDLobby, UInt64 steamIDUser,
 			[MarshalAs(UnmanagedType.LPStr)] String pchKey);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_SetLobbyMemberData(IntPtr matchmaking, UInt64 steamIDLobby,
@@ -193,7 +192,7 @@ namespace CommunityExpressNS
 
 		public String GetMemberData(SteamID user, String key)
 		{
-			return SteamUnityAPI_SteamMatchmaking_GetLobbyMemberData(_matchmaking, _id.ToUInt64(), user.ToUInt64(), key);
+            return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamMatchmaking_GetLobbyMemberData(_matchmaking, _id.ToUInt64(), user.ToUInt64(), key));
 		}
 
 		public void SetMemberData(String key, String value)
