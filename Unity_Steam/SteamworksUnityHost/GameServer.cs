@@ -373,18 +373,17 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameServer, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _spectatorPort, _regionName, _mapName, _isPassworded);
 		}
 
-		public void RequestUserStats(SteamID steamID, OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
+		public void RequestUserStats(SteamID steamID, IEnumerable<String> requestedStats)
 		{
-			Stats stats = new Stats();
-			stats.Init(steamID, true);
-			stats.RequestCurrentStats(onUserStatsReceived, requestedStats);
+			Stats stats = new Stats(steamID, true);
+			stats.RequestCurrentStats(requestedStats);
 		}
 
-		public void RequestUserAchievements(SteamID steamID, OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedAchievements)
+		public void RequestUserAchievements(SteamID steamID, IEnumerable<String> requestedAchievements)
 		{
 			Achievements achievements = new Achievements();
 			achievements.Init(steamID, true);
-			achievements.RequestCurrentAchievements(onUserStatsReceived, requestedAchievements);
+			achievements.RequestCurrentAchievements(requestedAchievements);
 		}
 
 		public void Shutdown()

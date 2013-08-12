@@ -16,7 +16,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("CommunityExpressSW")]
-		private static extern bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
+		private static extern bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats);
 		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetAchievement(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string achievementName,
 			out Byte isAchieved);
@@ -69,24 +69,18 @@ namespace CommunityExpressNS
 			}
 		}
 
-		internal void RequestCurrentAchievements(OnUserStatsReceived onUserStatsReceived, IEnumerable<string> requestedAchievements)
+		internal void RequestCurrentAchievements(IEnumerable<string> requestedAchievements)
 		{
 			_requestedAchievements = requestedAchievements;
-			_onUserStatsReceived = onUserStatsReceived;
-
-			if (_internalOnUserStatsReceived == null)
-			{
-				_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
-			}
 
 			if (_gameserverStats != IntPtr.Zero)
 			{
 				SteamAPICall_t result = SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
-				CommunityExpress.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
+				// CommunityExpress.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
 			}
 			else
 			{
-				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats);
 			}
 		}
 

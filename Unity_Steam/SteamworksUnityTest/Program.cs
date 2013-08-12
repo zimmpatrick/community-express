@@ -63,7 +63,45 @@ namespace SteamworksUnityTest
 				throw new Exception("Steam must be running to play this game (SteamAPI_Init() failed).");
 			}
 
-			Console.WriteLine("Signed in as: {0} {1}", cesdk.User.SteamLevel, cesdk.User.GetGameBadgeLevel(1, false));
+            Console.WriteLine("Signed in as: {0} {1} {2}", cesdk.User.PersonaName, cesdk.User.SteamLevel, cesdk.User.GetGameBadgeLevel(1, false));
+
+            Stats stats = cesdk.UserStats;
+            
+            
+            
+            
+            
+            cesdk.Events.UserStatsReceived += (Stats sender, CommunityExpressNS.EventsNS.UserStatsReceivedArgs e) =>
+            {
+                Console.WriteLine("woot!");
+                _statsReceived = true;
+
+
+            };
+
+            cesdk.Events.UserStatsStored += (Stats sender, CommunityExpressNS.EventsNS.UserStatsStoredArgs e) =>
+            {
+                Console.WriteLine("woot!");
+                _statsReceived = true;
+            };
+
+            stats.RequestCurrentStats(
+                new string[] { "Kills", "DamageHealed", "TotalZedTime" },
+                new Type[] { typeof(int), typeof(int), typeof(float) });
+
+            while (!_statsReceived)
+            {
+                cesdk.RunCallbacks();
+            }
+
+            _statsReceived = false;
+            stats.StatsList[2].StatValue = 3.1f;
+            stats.WriteStats();
+
+            while (!_statsReceived)
+            {
+                cesdk.RunCallbacks();
+            }
 
             cesdk.BigPicture.ShowGamepadTextInput(EGamepadTextInputMode.k_EGamepadTextInputModeNormal, EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, "Tell Me!", 255,
                 MyOnGamepadTextInputDismissed);
@@ -81,7 +119,12 @@ namespace SteamworksUnityTest
 				Console.WriteLine("Medium: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
 			}
 
-			cesdk.User.GetLargeAvatar(MyOnUserLargeAvatarReceived);
+            cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles (UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending,
+                                                                        0, 50, 30,
+                                                                        null,
+                                                                        null);
+
+           cesdk.User.GetLargeAvatar(MyOnUserLargeAvatarReceived);
 			while (!_largeAvatarReceived)
 			{
 				cesdk.RunCallbacks();
@@ -94,7 +137,7 @@ namespace SteamworksUnityTest
 
 
             SessionTicket st = cesdk.User.Authentication.GetAuthSessionTicket(null);
-            st.Cancel();
+            if (st != null) st.Cancel();
 
             st = cesdk.User.Authentication.GetAuthSessionTicket(null);
             
@@ -167,8 +210,8 @@ namespace SteamworksUnityTest
 			matchmaking.LeaveLobby();
 			Console.WriteLine("Exited from Lobby");
 
-			Stats stats = cesdk.UserStats;
-			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback, 
+			stats = cesdk.UserStats;
+			stats.RequestCurrentStats(
 				new string[] { "Kills", "DamageHealed", "TotalZedTime" },
                 new Type[] { typeof(int), typeof(int), typeof(float) } );
 
@@ -182,7 +225,7 @@ namespace SteamworksUnityTest
 			stats.WriteStats();
 
 			_statsReceived = false;
-			stats.RequestCurrentStats(MyOnUserStatsReceivedCallback,
+			stats.RequestCurrentStats(
                 new string[] { "Kills", "DamageHealed", "TotalZedTime" },
                 new Type[] { typeof(int), typeof(int), typeof(float) } );
 
@@ -199,8 +242,19 @@ namespace SteamworksUnityTest
 			MyOnUserStatsReceivedCallback(null, achievements);
 
 			Leaderboards leaderboards = cesdk.Leaderboards;
-			leaderboards.FindOrCreateLeaderboard(MyOnLeaderboardRetrievedCallback, "TestLeaderboard",
-				ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
+
+
+            AsynchronousCall<Leaderboards, Leaderboard> result = leaderboards.FindLeaderboard("TestLeaderboard");
+            result.Completed += (Leaderboards sender, Leaderboard e) =>
+                {
+                    Console.WriteLine(e.LeaderboardName);
+                };
+
+            result = leaderboards.FindLeaderboard("TestLeaderboard");
+            result.Completed += (Leaderboards sender, Leaderboard e) =>
+            {
+                Console.WriteLine(e.LeaderboardName);
+            };
 
 			while (!_leaderboardEntriesReceived)
 			{
@@ -339,6 +393,12 @@ namespace SteamworksUnityTest
 
 			return 0;
 		}
+
+        static void Events_UserStatsStored(Stats sender, CommunityExpressNS.EventsNS.UserStatsStoredArgs e)
+        {
+            
+
+        }
 
         public static void MyOnGamepadTextInputDismissed(Boolean submitted, String text)
         {

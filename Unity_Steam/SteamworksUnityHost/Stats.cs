@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
+using CommunityExpressNS.EventsNS;
 
 namespace CommunityExpressNS
 {
@@ -14,10 +15,24 @@ namespace CommunityExpressNS
 	[StructLayout(LayoutKind.Sequential, Pack = 4)]
 	struct UserStatsReceived_t
 	{
+        internal const int k_iCallback = Events.k_iSteamUserStatsCallbacks + 1;
+
 		public UInt64 m_nGameID;		// Game these stats are for
 		public EResult m_eResult;		// Success / error fetching the stats
 		public UInt64 m_steamIDUser;	// The user for whom the stats are retrieved for
 	}
+
+    /// <summary>
+    /// Result of a request to store the user stats for a game
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    struct UserStatsStored_t
+    {
+        internal const int k_iCallback = Events.k_iSteamUserStatsCallbacks + 2;
+
+        public UInt64 m_nGameID;		// Game these stats are for
+        public EResult m_eResult;		// Success / error fetching the stats
+    }
 
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct GSStatsReceived_t
@@ -53,14 +68,7 @@ namespace CommunityExpressNS
         private List<string> _requestedStats;
         private List<Type> _requestedStatTypes;
 
-		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived = null;
-		private OnUserStatsReceived _onUserStatsReceived;
-		
-		internal Stats()
-		{
-		}
-
-		internal void Init(SteamID steamID = null, Boolean isGameServer = false)
+		internal Stats(SteamID steamID = null, Boolean isGameServer = false)
 		{
 			_id = steamID;
 
@@ -70,11 +78,45 @@ namespace CommunityExpressNS
 			}
 			else
 			{
-				_stats = SteamUnityAPI_SteamUserStats();
+                _stats = SteamUnityAPI_SteamUserStats();
+
+                CommunityExpress.Instance.Events.UserStatsReceived += new EventsNS.UserStatsReceivedHandler(Events_UserStatsReceived);
 			}
+
 		}
 
-        public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats)
+        void Events_UserStatsReceived(Stats sender, EventsNS.UserStatsReceivedArgs e)
+        {
+            if (sender != this) return;
+
+            // Make sure we don't double up the list of Stats
+            Clear();
+
+            _id = e.SteamID;
+
+            if (_gameserverStats != IntPtr.Zero)
+            {
+                for (int i = 0; i < _requestedStats.Count; i++)
+                {
+                    string s = _requestedStats[i];
+                    Type t = _requestedStatTypes[i];
+
+                    Add(new Stat(_gameserverStats, _id, s, t, true));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _requestedStats.Count; i++)
+                {
+                    string s = _requestedStats[i];
+                    Type t = _requestedStatTypes[i];
+
+                    Add(new Stat(_stats, _id, s, t, false));
+                }
+            }
+        }
+
+        public void RequestCurrentStats(IEnumerable<String> requestedStats)
         {
             List<Type> requestedTypes = new List<Type>();
             foreach(string s in requestedStats)
@@ -82,25 +124,19 @@ namespace CommunityExpressNS
                 requestedTypes.Add(typeof(int));
             }
 
-            RequestCurrentStats(onUserStatsReceived, requestedStats, requestedTypes);
+            RequestCurrentStats(requestedStats, requestedTypes);
         }
 
-        public void RequestCurrentStats(OnUserStatsReceived onUserStatsReceived, IEnumerable<String> requestedStats,
+        public void RequestCurrentStats(IEnumerable<String> requestedStats,
              IEnumerable<Type> requestedTypes)
 		{
 			_requestedStats = new List<string>(requestedStats);
             _requestedStatTypes = new List<Type>(requestedTypes);
-			_onUserStatsReceived = onUserStatsReceived;
 
             if (_requestedStats.Count != _requestedStatTypes.Count)
             {
                 throw new ArgumentException("requestedTypes Length doesn't match requestedStats Length", "requestedTypes");
             }
-
-			if (_internalOnUserStatsReceived == null)
-			{
-				_internalOnUserStatsReceived = new OnUserStatsReceivedFromSteam(OnUserStatsReceivedCallback);
-			}
 
 			if (_gameserverStats != IntPtr.Zero)
 			{
@@ -109,39 +145,13 @@ namespace CommunityExpressNS
 			}
 			else
 			{
-				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, Marshal.GetFunctionPointerForDelegate(_internalOnUserStatsReceived));
+				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, IntPtr.Zero);
 			}
 		}
 
 		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
 		{
-			// Make sure we don't double up the list of Stats
-			Clear();
-
-			_id = new SteamID(CallbackData.m_steamIDUser);
-
-			if (_gameserverStats != IntPtr.Zero)
-			{
-				for(int i=0;i<_requestedStats.Count; i++)
-                {
-                    string s = _requestedStats[i];
-                    Type t = _requestedStatTypes[i];
-
-                    Add(new Stat(_gameserverStats, _id, s, t, true));
-				}
-			}
-			else
-			{
-                for (int i = 0; i < _requestedStats.Count; i++)
-                {
-                    string s = _requestedStats[i];
-                    Type t = _requestedStatTypes[i];
-
-                    Add(new Stat(_stats, _id, s, t, false));
-				}
-			}
-
-			_onUserStatsReceived(this, null);
+			// _onUserStatsReceived(this, null);
 		}
 
         /// <summary>

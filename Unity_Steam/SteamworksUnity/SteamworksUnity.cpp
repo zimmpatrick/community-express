@@ -43,6 +43,7 @@
 #endif
 
 typedef uint64 (ZIMM_STDCALL *FPOnChallengeResponse)(uint64 challenge);
+
 typedef void (ZIMM_STDCALL *FSteamAPIDebugTextHook)(int nSeverity, const char *pchDebugText);
 typedef void (ZIMM_CDECL *FSteamAPIDebugTextHookCD)(int nSeverity, const char *pchDebugText);
 
@@ -96,7 +97,8 @@ DWORD WINAPI MyLicenseThreadFunction( LPVOID lpParam )
 CSteamAPIContext context;
 CSteamGameServerAPIContext serverContext;
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse)
+STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallengeResponse,
+                                            FPOnCallback pFPOnCallback)
 {
 #ifdef _WIN32
 	/* hLicenseThread = CreateThread(
@@ -109,9 +111,11 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_Init(FPOnChallengeResponse pFPOnChallenge
 		*/
 #endif
 	
+	SteamCallbacks::getInstance().delegateOnCallback = pFPOnCallback;
+    
 	if (SteamAPI_InitSafe())
 	{
-		return context.Init();
+    	return context.Init();
 	}
 
 	return false;
@@ -130,7 +134,9 @@ STEAMWORKSUNITY_API void SteamUnityAPI_Shutdown()
 #endif
 
 	context.Clear();
-	return SteamAPI_Shutdown();
+    SteamAPI_Shutdown();
+    
+    SteamCallbacks::getInstance().delegateOnCallback = NULL;
 }
 
 FSteamAPIDebugTextHook hook = NULL;
@@ -182,7 +188,7 @@ STEAMWORKSUNITY_API const char * SteamUnityAPI_GetPersonaNameByID(uint64 steamID
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SetTransactionAuthorizationCallback(FPOnTransactionAuthorizationReceived fpOnTransactionAuthorizationReceived)
 {
-	SteamCallbacks::getInstance().delegateOnTransactionAuthorizationReceived = fpOnTransactionAuthorizationReceived;
+//	SteamCallbacks::getInstance().delegateOnTransactionAuthorizationReceived = fpOnTransactionAuthorizationReceived;
 }
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamApps()
@@ -327,6 +333,24 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICal
 	return result;
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetAPICallResult(SteamAPICall_t hSteamAPICall, void *pCallback, int cubCallback, int iCallbackExpected, unsigned char &bFailed)
+{
+	bool result, failed;
+
+	if (serverContext.SteamGameServer())
+	{
+		result = serverContext.SteamGameServerUtils()->GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, &failed);
+	}
+	else
+	{
+		result = context.SteamUtils()->GetAPICallResult(hSteamAPICall, pCallback, cubCallback, iCallbackExpected, &failed);
+	}
+
+	bFailed = failed ? 1 : 0;
+
+	return result;
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t hSteamAPICall, GSStatsReceived_t &CallbackData, unsigned char &bFailed)
 {
 	bool result, failed;
@@ -423,7 +447,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageRGBA(int32 iIconIndex,
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, FPOnGamepadTextInputDismissed fpOnGamepadTextInputDismissed)
 {
-	SteamCallbacks::getInstance().delegateOnGamepadTextInputDismissed = fpOnGamepadTextInputDismissed;
+//	SteamCallbacks::getInstance().delegateOnGamepadTextInputDismissed = fpOnGamepadTextInputDismissed;
 	return context.SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax);
 }
 
@@ -574,10 +598,10 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_RunCallbacks()
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetCallbacks(FPOnGameServerClientApprove fpOnGameServerClientApprove, FPOnGameServerClientDeny fpOnGameServerClientDeny, FPOnGameServerClientKick fpOnGameServerClientKick, FPOnGameServerPolicyResponse fpOnGameServerPolicyResponse)
 {
-	SteamCallbacks::getInstance().delegateOnGameServerClientApprove = fpOnGameServerClientApprove;
-	SteamCallbacks::getInstance().delegateOnGameServerClientDeny = fpOnGameServerClientDeny;
-	SteamCallbacks::getInstance().delegateOnGameServerClientKick = fpOnGameServerClientKick;
-	SteamCallbacks::getInstance().delegateOnGameServerPolicyResponse = fpOnGameServerPolicyResponse;
+//	SteamCallbacks::getInstance().delegateOnGameServerClientApprove = fpOnGameServerClientApprove;
+//	SteamCallbacks::getInstance().delegateOnGameServerClientDeny = fpOnGameServerClientDeny;
+//	SteamCallbacks::getInstance().delegateOnGameServerClientKick = fpOnGameServerClientKick;
+//	SteamCallbacks::getInstance().delegateOnGameServerPolicyResponse = fpOnGameServerPolicyResponse;
 }
 
 STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamGameServer_GetSteamID(void* pSteamGameServer)
@@ -793,7 +817,7 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(void* pS
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 	
-	SteamCallbacks::getInstance().delegateOnAvatarReceived = fpOnAvatarReceived;
+//	SteamCallbacks::getInstance().delegateOnAvatarReceived = fpOnAvatarReceived;
 
 	return pISteamFriends->GetLargeFriendAvatar( CSteamID(steamIDFriend) );
 }
@@ -912,7 +936,7 @@ STEAMWORKSUNITY_API HAuthTicket SteamUnityAPI_SteamUser_GetAuthSessionTicket(voi
 {
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 	
-	SteamCallbacks::getInstance().delegateOnGetAuthSessionTicketResponse= fpOnGetAuthSessionTicketResponse;
+//	SteamCallbacks::getInstance().delegateOnGetAuthSessionTicketResponse= fpOnGetAuthSessionTicketResponse;
 
 	return pISteamUser->GetAuthSessionTicket(pTicket, iMaxTicket, pTicketSize);
 }
@@ -947,7 +971,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(void* 
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
-	SteamCallbacks::getInstance().delegateOnUserStatsReceived = fpOnUserStatsReceived;
+//	SteamCallbacks::getInstance().delegateOnUserStatsReceived = fpOnUserStatsReceived;
 
 	return pISteamUserStats->RequestCurrentStats();
 }
@@ -1045,7 +1069,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_IndicateAchievementProgres
 	return pISteamUserStats->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, FPOnLeaderboardRetrieved fpOnLeaderboardRetrieved)
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, FPOnLeaderboardRetrieved fpOnLeaderboardRetrieved)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
@@ -1055,10 +1079,10 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSte
 	{
 		SteamCallbacks::getInstance().delegateOnLeaderboardRetrieved = fpOnLeaderboardRetrieved;
 		SteamCallbacks::getInstance().SteamCallResultFindLeaderboard.Set(result, &SteamCallbacks::getInstance(), &SteamCallbacks::OnLeaderboardRetrieved);
-		return true;
+		return result;
 	}
 
-	return false;
+	return result;
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod, ELeaderboardDisplayType eLeaderboardDisplayType, FPOnLeaderboardRetrieved fpOnLeaderboardRetrieved)
@@ -1283,10 +1307,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyLi
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(FPOnLobbyDataUpdated fpOnLobbyDataUpdated, FPOnLobbyChatUpdated fpOnLobbyChatUpdated, FPOnLobbyChatMessage fpOnLobbyChatMessage, FPOnLobbyGameCreated fpOnLobbyGameCreated)
 {
-	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
-	SteamCallbacks::getInstance().delegateOnLobbyChatUpdated = fpOnLobbyChatUpdated;
-	SteamCallbacks::getInstance().delegateOnLobbyChatMessage = fpOnLobbyChatMessage;
-	SteamCallbacks::getInstance().delegateOnLobbyGameCreated = fpOnLobbyGameCreated;
+//	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
+//	SteamCallbacks::getInstance().delegateOnLobbyChatUpdated = fpOnLobbyChatUpdated;
+//	SteamCallbacks::getInstance().delegateOnLobbyChatMessage = fpOnLobbyChatMessage;
+//	SteamCallbacks::getInstance().delegateOnLobbyGameCreated = fpOnLobbyGameCreated;
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
@@ -1328,7 +1352,7 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_RequestLobbyData(void* p
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
 
-	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
+//	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
 
 	return pISteamMatchmaking->RequestLobbyData(steamIDLobby);
 }
@@ -1616,8 +1640,8 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamNetworking()
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamNetworking_SetCallbacks(FPOnNetworkP2PSessionRequest fpOnP2PSessionRequest, FPOnNetworkP2PSessionConnectFailed fpOnP2PSessionConnectFailed)
 {
-	SteamCallbacks::getInstance().delegateOnNetworkP2PSessionRequest = fpOnP2PSessionRequest;
-	SteamCallbacks::getInstance().delegateOnNetworkP2PSessionConnectFailed = fpOnP2PSessionConnectFailed;
+//	SteamCallbacks::getInstance().delegateOnNetworkP2PSessionRequest = fpOnP2PSessionRequest;
+//	SteamCallbacks::getInstance().delegateOnNetworkP2PSessionConnectFailed = fpOnP2PSessionConnectFailed;
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamNetworking_AllowP2PPacketRelay(void* pSteamNetworking, bool bAllow)
@@ -1677,84 +1701,18 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamNetworking_CloseP2PChannel(void* pSt
 	return pISteamNetworking->CloseP2PChannelWithUser(steamID, nChannel);
 }
 
-		
-// Steam Callbacks are used to bridge Steam's responses back to our app
-void SteamCallbacks::OnAvatarReceived(AvatarImageLoaded_t *pCallbackData)
-{
-	delegateOnAvatarReceived(pCallbackData);
-}
-
-void SteamCallbacks::OnUserStatsReceived(UserStatsReceived_t *pCallbackData)
-{
-	delegateOnUserStatsReceived(pCallbackData);
-}
-
-void SteamCallbacks::OnTransactionAuthorizationReceived(MicroTxnAuthorizationResponse_t *pCallbackData)
-{
-	delegateOnTransactionAuthorizationReceived(pCallbackData);
-}
-
-void SteamCallbacks::OnGamepadTextInputDismissed(GamepadTextInputDismissed_t *pCallbackData)
-{
-	delegateOnGamepadTextInputDismissed(pCallbackData);
-}
-
-void SteamCallbacks::OnLobbyDataUpdated(LobbyDataUpdate_t *pCallbackData)
-{
-	if (delegateOnLobbyDataUpdated)
-	{
-		delegateOnLobbyDataUpdated(pCallbackData);
-	}
-}
-
-void SteamCallbacks::OnLobbyChatUpdated(LobbyChatUpdate_t *pCallbackData)
-{
-	delegateOnLobbyChatUpdated(pCallbackData);
-}
-
-void SteamCallbacks::OnLobbyChatMessage(LobbyChatMsg_t *pCallbackData)
-{
-	delegateOnLobbyChatMessage(pCallbackData);
-}
-
-void SteamCallbacks::OnLobbyGameCreated(LobbyGameCreated_t *pCallbackData)
-{
-	delegateOnLobbyGameCreated(pCallbackData);
-}
-
-void SteamCallbacks::OnGameServerClientApprove(GSClientApprove_t *pCallbackData)
-{
-	delegateOnGameServerClientApprove(pCallbackData);
-}
-
-void SteamCallbacks::OnGameServerClientDeny(GSClientDeny_t *pCallbackData)
-{
-	delegateOnGameServerClientDeny(pCallbackData);
-}
-
-void SteamCallbacks::OnGameServerClientKick(GSClientKick_t *pCallbackData)
-{
-	delegateOnGameServerClientKick(pCallbackData);
-}
-
-void SteamCallbacks::OnGameServerPolicyResponse(GSPolicyResponse_t *pCallbackData)
-{
-	delegateOnGameServerPolicyResponse(pCallbackData);
-}
-
 void SteamCallbacks::OnLeaderboardRetrieved(LeaderboardFindResult_t *pCallbackData, bool bIOFailure)
 {
+	delegateOnCallback(LeaderboardFindResult_t::k_iCallback, pCallbackData, bIOFailure, k_uAPICallInvalid);
+
 	delegateOnLeaderboardRetrieved(pCallbackData);
 }
 
 void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *pCallbackData, bool bIOFailure)
 {
-	delegateOnLeaderboardEntriesRetrieved(pCallbackData);
-}
+	delegateOnCallback(LeaderboardScoresDownloaded_t::k_iCallback, pCallbackData, bIOFailure, k_uAPICallInvalid);
 
-void SteamCallbacks::OnGetAuthSessionTicketResponse(GetAuthSessionTicketResponse_t *pCallbackData)
-{
-	delegateOnGetAuthSessionTicketResponse(pCallbackData);
+	delegateOnLeaderboardEntriesRetrieved(pCallbackData);
 }
 
 void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)

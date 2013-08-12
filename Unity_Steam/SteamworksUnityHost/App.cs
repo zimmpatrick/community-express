@@ -94,7 +94,7 @@ namespace CommunityExpressNS
 			return SteamUnityAPI_SteamApps_BIsDlcInstalled(_apps, appID);
 		}
 
-		public DateTime GetEarliestPurchaseUnixTime(AppId_t appID)
+		public DateTime GetEarliestPurchaseDateTime(AppId_t appID)
 		{
 			DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 			return epoch.AddSeconds(SteamUnityAPI_SteamApps_GetEarliestPurchaseUnixTime(_apps, appID));

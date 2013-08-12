@@ -10,6 +10,7 @@ namespace CommunityExpressNS
 {
 	using SteamLeaderboard_t = UInt64;
 	using SteamLeaderboardEntries_t = UInt64;
+    using SteamAPICall_t = UInt64;
 
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LeaderboardEntry_t
@@ -37,7 +38,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("CommunityExpressSW")]
-		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName,
+        private static extern SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName,
 			IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
@@ -185,7 +186,7 @@ namespace CommunityExpressNS
 				_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
 			}
 
-			if (!SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, _leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved)))
+			if (SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, _leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved)) == 0)
 			{
 				_onLeaderboardRetrieved(this);
 			}

@@ -12,7 +12,6 @@
     <AssemblyName>CommunityExpress</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,6 +43,7 @@
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -51,13 +51,15 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Security" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Achievement.cs" />
     <Compile Include="Achievements.cs" />
     <Compile Include="App.cs" />
+    <Compile Include="AsynchronousCall.cs" />
     <Compile Include="BigPicture.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="File.cs" />
     <Compile Include="Image.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="SteamWebAPIRequest.cs" />
     <Compile Include="User.cs" />
     <Compile Include="UserAuthentication.cs" />
+    <Compile Include="UserGeneratedContent.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -115,4 +118,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup />
 </Project>

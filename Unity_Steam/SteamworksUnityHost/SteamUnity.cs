@@ -22,7 +22,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_RestartAppIfNecessary(uint unOwnAppID);
 		[DllImport("CommunityExpressSW")]
-		private static extern bool SteamUnityAPI_Init(IntPtr OnChallengeResponse);
+        private static extern bool SteamUnityAPI_Init(IntPtr OnChallengeResponse, IntPtr OnCallback);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_RunCallbacks();
 		[DllImport("CommunityExpressSW")]
@@ -31,6 +31,8 @@ namespace CommunityExpressNS
 		private static extern AppId_t SteamUnityAPI_SteamUtils_GetAppID();
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
+		[DllImport("CommunityExpressSW")]
+		private static extern Boolean SteamUnityAPI_SteamUtils_GetAPICallResult(SteamAPICall_t callHandle, IntPtr pCallback, int cubCallback, int iCallbackExpected, out Byte failed);
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t callHandle, out GSStatsReceived_t result, out Byte failed);
 		[DllImport("CommunityExpressSW")]
@@ -52,6 +54,8 @@ namespace CommunityExpressNS
 
 		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);
 		private OnChallengeResponseFromSteam _challengeResponse;
+        delegate void OnCallbackFromSteam(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall);
+        private OnCallbackFromSteam _callback;
 
 		delegate void OnSteamAPIDebugTextHook(Int32 nSeverity, IntPtr pchDebugText);
 		private OnSteamAPIDebugTextHook _steamAPIDebugTextHook;
@@ -77,6 +81,8 @@ namespace CommunityExpressNS
 		private InGamePurchasing _inGamePurchasing = null;
 		private SteamWebAPI _steamWebAPI = null;
 		private BigPicture _bigPicture = null;
+        private UserGeneratedContent _ugc = null;
+        private Events _events = null;
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -124,13 +130,15 @@ namespace CommunityExpressNS
 		public bool Initialize()
 		{
 			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
+            _callback = new OnCallbackFromSteam(OnCallback);
 
-			if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse)))
+			if (SteamUnityAPI_Init(Marshal.GetFunctionPointerForDelegate(_challengeResponse),
+                                   Marshal.GetFunctionPointerForDelegate(_callback)))
 			{
 				_steamAPIDebugTextHook = new OnSteamAPIDebugTextHook(OnSteamAPIDebugTextHookCallback);
 				SteamUnityAPI_SetWarningMessageHook(Marshal.GetFunctionPointerForDelegate(_steamAPIDebugTextHook));
 
-				ValidateLicense();
+				// ValidateLicense();
 				return true;
 			}
 
@@ -322,7 +330,6 @@ namespace CommunityExpressNS
 				if (_userStats == null)
 				{
 					_userStats = new Stats();
-					_userStats.Init();
 				}
 
 				return _userStats;
@@ -434,6 +441,31 @@ namespace CommunityExpressNS
 			}
 		}
 
+        public UserGeneratedContent UserGeneratedContent
+        {
+            get 
+            {
+                if (_ugc == null) {
+                    _ugc = new UserGeneratedContent();
+                }
+
+                return _ugc;
+            }
+        }
+
+        public Events Events
+        {
+            get
+            {
+                if (_events == null)
+                {
+                    _events = new Events();
+                }
+
+                return _events;
+            }
+        }
+
 		public OnLog Logger
 		{
 			set { _logger = value; }
@@ -496,6 +528,11 @@ namespace CommunityExpressNS
 			// Put a real functional test in here
 			return (UInt64)Math.Sqrt((double)challenge);
 		}
+
+        private void OnCallback(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            Events.OnEvent(k_iCallback, pvParam, bIOFailure, hSteamAPICall);
+        }
 
         [Conditional("LICENSED")]
 		private void ValidateLicense()

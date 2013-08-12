@@ -11,7 +11,6 @@ namespace CommunityExpressNS
 {
 	using HSteamUser = Int32;
 	using AppId_t = UInt32;
-	using SteamAPICall_t = UInt64;
 
 	public enum EUserHasLicenseForAppResult
 	{

@@ -10,6 +10,7 @@ using System.Collections;
 namespace CommunityExpressNS
 {
 	using SteamLeaderboard_t = UInt64;
+    using SteamAPICall_t = UInt64;
 
 	// type of data request, when downloading leaderboard entries
 	public enum ELeaderboardDataRequest
@@ -47,6 +48,8 @@ namespace CommunityExpressNS
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LeaderboardFindResult_t
 	{
+	    internal const int k_iCallback = Events.k_iSteamUserStatsCallbacks + 4;
+
 		public SteamLeaderboard_t m_hSteamLeaderboard;	// handle to the leaderboard serarched for, 0 if no leaderboard found
 		public Byte m_bLeaderboardFound;				// 0 if no leaderboard found
 	};
@@ -56,10 +59,42 @@ namespace CommunityExpressNS
 
 	public class Leaderboards : ICollection<Leaderboard>
 	{
+        public class LeaderboardRecievedArgs : System.EventArgs
+        {
+            internal LeaderboardRecievedArgs(Leaderboards sender, Leaderboard leaderboard)
+            {
+                Leaderboard = leaderboard;
+            }
+
+            internal LeaderboardRecievedArgs(Leaderboards sender, LeaderboardFindResult_t findLearderboardResult)
+            {
+                Leaderboard = null;
+                if (findLearderboardResult.m_bLeaderboardFound != 0)
+                {
+                    String name = Marshal.PtrToStringAnsi(SteamUnityAPI_SteamUserStats_GetLeaderboardName(sender._stats, findLearderboardResult.m_hSteamLeaderboard));
+                    int count = SteamUnityAPI_SteamUserStats_GetLeaderboardEntryCount(sender._stats, findLearderboardResult.m_hSteamLeaderboard);
+                    ELeaderboardSortMethod sort = SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(sender._stats, findLearderboardResult.m_hSteamLeaderboard);
+                    ELeaderboardDisplayType dtype = SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(sender._stats, findLearderboardResult.m_hSteamLeaderboard);
+
+                    Leaderboard = new Leaderboard(sender, findLearderboardResult.m_hSteamLeaderboard,
+                                                  name,
+                                                  count,
+                                                  sort,
+                                                  dtype);
+                }
+            }
+
+            public Leaderboard Leaderboard
+            {
+                get;
+                private set;
+            }
+        }
+
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("CommunityExpressSW")]
-		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] String leaderboardName,
+        private static extern SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] String leaderboardName,
 			IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("CommunityExpressSW")]
 		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] String leaderboardName,
@@ -84,7 +119,7 @@ namespace CommunityExpressNS
 			_stats = SteamUnityAPI_SteamUserStats();
 		}
 
-		public void FindLeaderboard(OnLeaderboardRetrieved onLeaderboardRetrieved, String leaderboardName)
+        public AsynchronousCall<Leaderboards, Leaderboard> FindLeaderboard(String leaderboardName)
 		{
 			Leaderboard leaderboard = null;
 
@@ -99,21 +134,24 @@ namespace CommunityExpressNS
 
 			if (leaderboard != null)
 			{
-				onLeaderboardRetrieved(leaderboard);
+				// onLeaderboardRetrieved(leaderboard);
+
+                // TODO
+                return null;
 			}
 			else
 			{
-				_onLeaderboardRetrieved = onLeaderboardRetrieved;
+				// _onLeaderboardRetrieved = onLeaderboardRetrieved;
 
 				if (_internalOnLeaderboardRetrieved == null)
 				{
 					_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
 				}
 
-				if (!SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved)))
-				{
-					_onLeaderboardRetrieved(null);
-				}
+                SteamAPICall_t result = SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved));
+                if (result == 0) return null;
+
+                return CommunityExpress.Instance.Events.AddAsynchronousCall<Leaderboards, Leaderboard>(this, result);
 			}
 		}
 
