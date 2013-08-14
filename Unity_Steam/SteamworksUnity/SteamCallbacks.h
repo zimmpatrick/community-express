@@ -18,25 +18,9 @@
 
 
 typedef void (ZIMM_CALLBACK *FPOnCallback)(int k_iCallback, void *pvParam, bool bIOFailure, SteamAPICall_t hSteamAPICall);
-typedef void (ZIMM_CALLBACK *FPOnAvatarReceived)(AvatarImageLoaded_t*);
-typedef void (ZIMM_CALLBACK *FPOnUserStatsReceived)(UserStatsReceived_t*);
-typedef void (ZIMM_CALLBACK *FPOnTransactionAuthorizationReceived)(MicroTxnAuthorizationResponse_t*);
-typedef void (ZIMM_CALLBACK *FPOnGameServerClientApprove)(GSClientApprove_t*);
-typedef void (ZIMM_CALLBACK *FPOnGameServerClientDeny)(GSClientDeny_t*);
-typedef void (ZIMM_CALLBACK *FPOnGameServerClientKick)(GSClientKick_t*);
-typedef void (ZIMM_CALLBACK *FPOnGameServerPolicyResponse)(GSPolicyResponse_t*);
-typedef void (ZIMM_CALLBACK *FPOnLeaderboardRetrieved)(LeaderboardFindResult_t*);
-typedef void (ZIMM_CALLBACK *FPOnLeaderboardEntriesRetrieved)(LeaderboardScoresDownloaded_t*);
+
 typedef void (ZIMM_CALLBACK *FPOnServerResponded)(HServerListRequest,gameserveritem_t*);
 typedef void (ZIMM_CALLBACK *FPOnServerListComplete)(HServerListRequest);
-typedef void (ZIMM_CALLBACK *FPOnNetworkP2PSessionRequest)(P2PSessionRequest_t*);
-typedef void (ZIMM_CALLBACK *FPOnNetworkP2PSessionConnectFailed)(P2PSessionConnectFail_t*);
-typedef void (ZIMM_CALLBACK *FPOnGamepadTextInputDismissed)(GamepadTextInputDismissed_t*);
-typedef void (ZIMM_CALLBACK *FPOnLobbyDataUpdated)(LobbyDataUpdate_t*);
-typedef void (ZIMM_CALLBACK *FPOnLobbyChatUpdated)(LobbyChatUpdate_t*);
-typedef void (ZIMM_CALLBACK *FPOnLobbyChatMessage)(LobbyChatMsg_t*);
-typedef void (ZIMM_CALLBACK *FPOnLobbyGameCreated)(LobbyGameCreated_t*);
-typedef void (ZIMM_CALLBACK *FPOnGetAuthSessionTicketResponse)(GetAuthSessionTicketResponse_t*);
 
 
 #define STEAM_CALLBACK_CESDK1( thisclass, func, param, var ) var(this, &thisclass::func)
@@ -45,8 +29,9 @@ typedef void (ZIMM_CALLBACK *FPOnGetAuthSessionTicketResponse)(GetAuthSessionTic
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
-public:
-	SteamCallbacks() : STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersConnected, SteamServersConnected_t, SteamServersConnected)
+public:					
+						// k_iSteamUserCallbacks
+	SteamCallbacks() :	STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersConnected, SteamServersConnected_t, SteamServersConnected)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServerConnectFailure, SteamServerConnectFailure_t, SteamServerConnectFailure)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersDisconnected, SteamServersDisconnected_t, SteamServersDisconnected)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnClientGameServerDeny, ClientGameServerDeny_t, ClientGameServerDeny)
@@ -57,16 +42,29 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGetAuthSessionTicketResponse, GetAuthSessionTicketResponse_t, GetAuthSessionTicketResponse)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameWebCallback, GameWebCallback_t, GameWebCallback)
 		
+		// k_iSteamUtilsCallbacks
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLowBatteryPower, LowBatteryPower_t, LowBatteryPower)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamAPICallCompleted, SteamAPICallCompleted_t, SteamAPICallCompleted)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamShutdown, SteamShutdown_t, SteamShutdown)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnCheckFileSignature, CheckFileSignature_t, CheckFileSignature)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, GamepadTextInputDismissed)
+		
+		// k_iSteamUserStatsCallbacks
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStored)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserAchievementStored, UserAchievementStored_t, UserAchievementStored)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardFindResult, LeaderboardFindResult_t, LeaderboardFindResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardScoresDownloaded, LeaderboardScoresDownloaded_t, LeaderboardScoresDownloaded)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardScoreUploaded, LeaderboardScoreUploaded_t, LeaderboardScoreUploaded)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnNumberOfCurrentPlayers, NumberOfCurrentPlayers_t, NumberOfCurrentPlayers)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsUnloaded, UserStatsUnloaded_t, UserStatsUnloaded)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t, UserAchievementIconFetched)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGlobalAchievementPercentagesReady, GlobalAchievementPercentagesReady_t, GlobalAchievementPercentagesReady)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardUGCSet, LeaderboardUGCSet_t, LeaderboardUGCSet)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGlobalStatsReceived, GlobalStatsReceived_t, GlobalStatsReceived)
 
-		,  STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback)
-		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback)
-		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStoredCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback)
@@ -77,8 +75,6 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerPolicyResponse, GSPolicyResponse_t, GameServerPolicyResponseCallback)
 	{
-		delegateOnLeaderboardRetrieved = 0;
-		delegateOnLeaderboardEntriesRetrieved = 0;
 		delegateOnServerResponded = 0;
 		delegateOnServerListComplete = 0;
 		delegateOnCallback = 0;
@@ -121,9 +117,23 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, GamepadTextInputDismissed);
 
 
+	// k_iSteamUserStatsCallbacks
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStored);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserAchievementStored, UserAchievementStored_t, UserAchievementStored);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardFindResult, LeaderboardFindResult_t, LeaderboardFindResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardScoresDownloaded, LeaderboardScoresDownloaded_t, LeaderboardScoresDownloaded);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardScoreUploaded, LeaderboardScoreUploaded_t, LeaderboardScoreUploaded);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnNumberOfCurrentPlayers, NumberOfCurrentPlayers_t, NumberOfCurrentPlayers);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsUnloaded, UserStatsUnloaded_t, UserStatsUnloaded);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserAchievementIconFetched, UserAchievementIconFetched_t, UserAchievementIconFetched);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGlobalAchievementPercentagesReady, GlobalAchievementPercentagesReady_t, GlobalAchievementPercentagesReady);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardUGCSet, LeaderboardUGCSet_t, LeaderboardUGCSet);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGlobalStatsReceived, GlobalStatsReceived_t, GlobalStatsReceived);
+
+
+
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback);
-	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceivedCallback);
-	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStoredCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
@@ -135,14 +145,6 @@ public:
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerPolicyResponse, GSPolicyResponse_t, GameServerPolicyResponseCallback);
 
-	void OnLeaderboardRetrieved(LeaderboardFindResult_t *pCallbackData, bool bIOFailure);
-	CCallResult<SteamCallbacks, LeaderboardFindResult_t> SteamCallResultFindLeaderboard;
-
-	void OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *pCallbackData, bool bIOFailure);
-	CCallResult<SteamCallbacks, LeaderboardScoresDownloaded_t> SteamCallResultLeaderboardScoresDownloaded;
-
-	FPOnLeaderboardRetrieved delegateOnLeaderboardRetrieved;
-	FPOnLeaderboardEntriesRetrieved delegateOnLeaderboardEntriesRetrieved;
 	FPOnServerResponded delegateOnServerResponded;
 	FPOnServerListComplete delegateOnServerListComplete;
 

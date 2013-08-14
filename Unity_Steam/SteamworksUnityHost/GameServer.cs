@@ -62,9 +62,6 @@ namespace CommunityExpressNS
 		private static extern Boolean SteamUnityAPI_SteamGameServer_Init(UInt32 ip, UInt16 masterServerPort, UInt16 port, UInt16 queryPort,
 			EServerMode serverMode, [MarshalAs(UnmanagedType.LPStr)] String gameVersion);
 		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamGameServer_SetCallbacks(IntPtr OnGameServerClientApproved, IntPtr OnGameServerClientDeny,
-			IntPtr OnGameServerClientKick, IntPtr OnGameServerPolicyResponse);
-		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamGameServer_GetSteamID(IntPtr gameserver);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamGameServer_GetPublicIP(IntPtr gameserver);
@@ -176,10 +173,10 @@ namespace CommunityExpressNS
 				_internalOnGameServerPolicyResponse = new OnGameServerPolicyResponseFromSteam(OnGameServerPolicyResponseCallback);
 			}
 
-			SteamUnityAPI_SteamGameServer_SetCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientApproved),
+			/*SteamUnityAPI_SteamGameServer_SetCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientApproved),
 				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientDenied),
 				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientKick),
-				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerPolicyResponse));
+				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerPolicyResponse));*/
 
 			if (SteamUnityAPI_SteamGameServer_Init(serverIP, masterServerPort, port, queryPort, serverMode, gameVersion))
 			{

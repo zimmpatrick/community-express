@@ -186,11 +186,6 @@ STEAMWORKSUNITY_API const char * SteamUnityAPI_GetPersonaNameByID(uint64 steamID
 	return context.SteamFriends()->GetFriendPersonaName( CSteamID(steamIDFriend) );
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SetTransactionAuthorizationCallback(FPOnTransactionAuthorizationReceived fpOnTransactionAuthorizationReceived)
-{
-//	SteamCallbacks::getInstance().delegateOnTransactionAuthorizationReceived = fpOnTransactionAuthorizationReceived;
-}
-
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamApps()
 {
 	return context.SteamApps();
@@ -445,9 +440,8 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageRGBA(int32 iIconIndex,
 	context.SteamUtils()->GetImageRGBA(iIconIndex, pData, nDataSize);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, FPOnGamepadTextInputDismissed fpOnGamepadTextInputDismissed)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax)
 {
-//	SteamCallbacks::getInstance().delegateOnGamepadTextInputDismissed = fpOnGamepadTextInputDismissed;
 	return context.SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax);
 }
 
@@ -594,14 +588,6 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamGameServer_Init(uint32 unIP, uint16 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_RunCallbacks()
 {
 	SteamGameServer_RunCallbacks();
-}
-
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetCallbacks(FPOnGameServerClientApprove fpOnGameServerClientApprove, FPOnGameServerClientDeny fpOnGameServerClientDeny, FPOnGameServerClientKick fpOnGameServerClientKick, FPOnGameServerPolicyResponse fpOnGameServerPolicyResponse)
-{
-//	SteamCallbacks::getInstance().delegateOnGameServerClientApprove = fpOnGameServerClientApprove;
-//	SteamCallbacks::getInstance().delegateOnGameServerClientDeny = fpOnGameServerClientDeny;
-//	SteamCallbacks::getInstance().delegateOnGameServerClientKick = fpOnGameServerClientKick;
-//	SteamCallbacks::getInstance().delegateOnGameServerPolicyResponse = fpOnGameServerPolicyResponse;
 }
 
 STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamGameServer_GetSteamID(void* pSteamGameServer)
@@ -813,12 +799,10 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(void* p
 	return pISteamFriends->GetMediumFriendAvatar( CSteamID(steamIDFriend) );
 }
 
-STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(void* pSteamFriends, uint64 steamIDFriend, FPOnAvatarReceived fpOnAvatarReceived)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(void* pSteamFriends, uint64 steamIDFriend)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 	
-//	SteamCallbacks::getInstance().delegateOnAvatarReceived = fpOnAvatarReceived;
-
 	return pISteamFriends->GetLargeFriendAvatar( CSteamID(steamIDFriend) );
 }
 
@@ -932,12 +916,10 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUser_GetEncryptedAppTicket(void* pSt
 	return pISteamUser->GetEncryptedAppTicket(pTicket, iMaxTicket, pTicketSize);
 }
 
-STEAMWORKSUNITY_API HAuthTicket SteamUnityAPI_SteamUser_GetAuthSessionTicket(void* pSteamUser, void* pTicket, int iMaxTicket, uint32 *pTicketSize, FPOnGetAuthSessionTicketResponse fpOnGetAuthSessionTicketResponse)
+STEAMWORKSUNITY_API HAuthTicket SteamUnityAPI_SteamUser_GetAuthSessionTicket(void* pSteamUser, void* pTicket, int iMaxTicket, uint32 *pTicketSize)
 {
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 	
-//	SteamCallbacks::getInstance().delegateOnGetAuthSessionTicketResponse= fpOnGetAuthSessionTicketResponse;
-
 	return pISteamUser->GetAuthSessionTicket(pTicket, iMaxTicket, pTicketSize);
 }
 
@@ -967,11 +949,9 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserStats()
 	return context.SteamUserStats();
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(void* pSteamUserStats, FPOnUserStatsReceived fpOnUserStatsReceived)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestCurrentStats(void* pSteamUserStats)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
-
-//	SteamCallbacks::getInstance().delegateOnUserStatsReceived = fpOnUserStatsReceived;
 
 	return pISteamUserStats->RequestCurrentStats();
 }
@@ -1069,36 +1049,18 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_IndicateAchievementProgres
 	return pISteamUserStats->IndicateAchievementProgress(pchName, nCurProgress, nMaxProgress);
 }
 
-STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, FPOnLeaderboardRetrieved fpOnLeaderboardRetrieved)
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
-	SteamAPICall_t result = pISteamUserStats->FindLeaderboard(pchLeaderboardName);
-
-	if (result != 0)
-	{
-		SteamCallbacks::getInstance().delegateOnLeaderboardRetrieved = fpOnLeaderboardRetrieved;
-		SteamCallbacks::getInstance().SteamCallResultFindLeaderboard.Set(result, &SteamCallbacks::getInstance(), &SteamCallbacks::OnLeaderboardRetrieved);
-		return result;
-	}
-
-	return result;
+	return pISteamUserStats->FindLeaderboard(pchLeaderboardName);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod, ELeaderboardDisplayType eLeaderboardDisplayType, FPOnLeaderboardRetrieved fpOnLeaderboardRetrieved)
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(void* pSteamUserStats, const char *pchLeaderboardName, ELeaderboardSortMethod eLeaderboardSortMethod, ELeaderboardDisplayType eLeaderboardDisplayType)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
-	SteamAPICall_t result = pISteamUserStats->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
-
-	if (result != 0)
-	{
-		SteamCallbacks::getInstance().delegateOnLeaderboardRetrieved = fpOnLeaderboardRetrieved;
-		SteamCallbacks::getInstance().SteamCallResultFindLeaderboard.Set(result, &SteamCallbacks::getInstance(), &SteamCallbacks::OnLeaderboardRetrieved);
-		return true;
-	}
-
-	return false;
+	return pISteamUserStats->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
 }
 
 STEAMWORKSUNITY_API const char* SteamUnityAPI_SteamUserStats_GetLeaderboardName(void* pSteamUserStats, SteamLeaderboard_t hSteamLeaderboard)
@@ -1136,20 +1098,11 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(voi
 	return pISteamUserStats->UploadLeaderboardScore(hSteamLeaderboard, eLeaderboardUploadScoreMethod, nScore, pScoreDetails, cScoreDetailCount) != 0;
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(void* pSteamUserStats, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd, FPOnLeaderboardEntriesRetrieved fpOnLeaderboardEntriesRetrieved)
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(void* pSteamUserStats, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
-	SteamAPICall_t result = pISteamUserStats->DownloadLeaderboardEntries(hSteamLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-
-	if (result != 0)
-	{
-		SteamCallbacks::getInstance().delegateOnLeaderboardEntriesRetrieved = fpOnLeaderboardEntriesRetrieved;
-		SteamCallbacks::getInstance().SteamCallResultLeaderboardScoresDownloaded.Set(result, &SteamCallbacks::getInstance(), &SteamCallbacks::OnLeaderboardEntriesRetrieved);
-		return true;
-	}
-
-	return false;
+	return pISteamUserStats->DownloadLeaderboardEntries(hSteamLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
 }
 
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(void* pSteamUserStats, SteamLeaderboardEntries_t hSteamLeaderboardEntries, int32 index, LeaderboardEntry_t* outLeaderboardEntry, int32* pDetails, int cDetailsMax)
@@ -1305,14 +1258,6 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyLi
 	return pISteamMatchmaking->RequestLobbyList();
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(FPOnLobbyDataUpdated fpOnLobbyDataUpdated, FPOnLobbyChatUpdated fpOnLobbyChatUpdated, FPOnLobbyChatMessage fpOnLobbyChatMessage, FPOnLobbyGameCreated fpOnLobbyGameCreated)
-{
-//	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
-//	SteamCallbacks::getInstance().delegateOnLobbyChatUpdated = fpOnLobbyChatUpdated;
-//	SteamCallbacks::getInstance().delegateOnLobbyChatMessage = fpOnLobbyChatMessage;
-//	SteamCallbacks::getInstance().delegateOnLobbyGameCreated = fpOnLobbyGameCreated;
-}
-
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
@@ -1348,11 +1293,9 @@ STEAMWORKSUNITY_API uint64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(
 	return pISteamMatchmaking->GetLobbyMemberByIndex(steamIDLobby, iMember).ConvertToUint64();
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_RequestLobbyData(void* pSteamMatchmaking, uint64 steamIDLobby, FPOnLobbyDataUpdated fpOnLobbyDataUpdated)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_RequestLobbyData(void* pSteamMatchmaking, uint64 steamIDLobby)
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
-
-//	SteamCallbacks::getInstance().delegateOnLobbyDataUpdated = fpOnLobbyDataUpdated;
 
 	return pISteamMatchmaking->RequestLobbyData(steamIDLobby);
 }
@@ -1638,12 +1581,6 @@ STEAMWORKSUNITY_API void* SteamUnityAPI_SteamNetworking()
 	return context.SteamNetworking();
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamNetworking_SetCallbacks(FPOnNetworkP2PSessionRequest fpOnP2PSessionRequest, FPOnNetworkP2PSessionConnectFailed fpOnP2PSessionConnectFailed)
-{
-//	SteamCallbacks::getInstance().delegateOnNetworkP2PSessionRequest = fpOnP2PSessionRequest;
-//	SteamCallbacks::getInstance().delegateOnNetworkP2PSessionConnectFailed = fpOnP2PSessionConnectFailed;
-}
-
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamNetworking_AllowP2PPacketRelay(void* pSteamNetworking, bool bAllow)
 {
 	ISteamNetworking * pISteamNetworking = static_cast<ISteamNetworking*>( pSteamNetworking );
@@ -1699,20 +1636,6 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamNetworking_CloseP2PChannel(void* pSt
 	ISteamNetworking * pISteamNetworking = static_cast<ISteamNetworking*>( pSteamNetworking );
 
 	return pISteamNetworking->CloseP2PChannelWithUser(steamID, nChannel);
-}
-
-void SteamCallbacks::OnLeaderboardRetrieved(LeaderboardFindResult_t *pCallbackData, bool bIOFailure)
-{
-	delegateOnCallback(LeaderboardFindResult_t::k_iCallback, pCallbackData, bIOFailure, k_uAPICallInvalid);
-
-	delegateOnLeaderboardRetrieved(pCallbackData);
-}
-
-void SteamCallbacks::OnLeaderboardEntriesRetrieved(LeaderboardScoresDownloaded_t *pCallbackData, bool bIOFailure)
-{
-	delegateOnCallback(LeaderboardScoresDownloaded_t::k_iCallback, pCallbackData, bIOFailure, k_uAPICallInvalid);
-
-	delegateOnLeaderboardEntriesRetrieved(pCallbackData);
 }
 
 void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)

@@ -254,9 +254,6 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyList(IntPtr matchmaking);
 		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(IntPtr onLobbyDataUpdated, IntPtr onLobbyChatUpdated, IntPtr onLobbyChatMessage,
-			IntPtr onLobbyGameCreated);
-		[DllImport("CommunityExpressSW")]
 		private static extern SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_LeaveLobby(IntPtr matchmaking, UInt64 steamIDLobby);
@@ -485,9 +482,6 @@ namespace CommunityExpressNS
 			_onLobbyChatMessage = onLobbyChatMessage;
 			_onLobbyGameCreated = onLobbyGameCreated;
 
-			SteamUnityAPI_SteamMatchmaking_SetLobbyCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnLobbyDataUpdated),
-				Marshal.GetFunctionPointerForDelegate(_internalOnLobbyChatUpdated), Marshal.GetFunctionPointerForDelegate(_internalOnLobbyChatMessage),
-				Marshal.GetFunctionPointerForDelegate(_internalOnLobbyGameCreated));
 			CommunityExpress.Instance.AddLobbyJoinedCallback(SteamUnityAPI_SteamMatchmaking_JoinLobby(_matchmaking, lobby.SteamID.ToUInt64()), OnLobbyJoinedCallback);
 		}
 

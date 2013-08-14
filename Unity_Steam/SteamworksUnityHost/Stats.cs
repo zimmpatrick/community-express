@@ -49,7 +49,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
+		private static extern Boolean SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats);
         [DllImport("CommunityExpressSW")]
         private static extern Boolean SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
         [DllImport("CommunityExpressSW")]
@@ -145,7 +145,7 @@ namespace CommunityExpressNS
 			}
 			else
 			{
-				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats, IntPtr.Zero);
+				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats);
 			}
 		}
 

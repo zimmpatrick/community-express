@@ -62,7 +62,7 @@ namespace CommunityExpressNS
         [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] ticket, int maxTicket, out UInt32 ticketSize);
         [DllImport("CommunityExpressSW")]
         private static extern HAuthTicket SteamUnityAPI_SteamUser_GetAuthSessionTicket(IntPtr user,
-        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] ticket, int maxTicket, out UInt32 ticketSize, IntPtr OnUserStatsReceivedCallback);
+        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] ticket, int maxTicket, out UInt32 ticketSize);
         [DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamUser_CancelAuthTicket(IntPtr user, HAuthTicket hAuthTicket);
 
@@ -151,8 +151,7 @@ namespace CommunityExpressNS
             }
 
             _sts.Add(st);
-            st.handleAuthTicket = SteamUnityAPI_SteamUser_GetAuthSessionTicket(_user.UserPointer, st.authTicket, AuthTicketSizeMax, out st.authTicketSize, 
-                Marshal.GetFunctionPointerForDelegate(_internalOnAuthSessionTicketResponseReceived));
+            st.handleAuthTicket = SteamUnityAPI_SteamUser_GetAuthSessionTicket(_user.UserPointer, st.authTicket, AuthTicketSizeMax, out st.authTicketSize);
 
             if (st.handleAuthTicket == 0)
             {

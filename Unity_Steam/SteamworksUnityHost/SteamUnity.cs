@@ -434,7 +434,7 @@ namespace CommunityExpressNS
 			{
 				if (_bigPicture == null)
 				{
-					_bigPicture = new BigPicture();
+					_bigPicture = new BigPicture(this);
 				}
 
 				return _bigPicture;

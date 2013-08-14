@@ -8,6 +8,7 @@ namespace CommunityExpressNS
 {
     using SteamAPICall_t = UInt64;
     using System.Diagnostics;
+    using System.Reflection;
 
     
     /// <summary>
@@ -138,6 +139,8 @@ namespace CommunityExpressNS
         private static extern Boolean SteamUnityAPI_SteamUtils_GetAPICallResult(SteamAPICall_t callHandle, IntPtr pCallback, int cubCallback, int iCallbackExpected, out Byte failed);
 
 
+        internal delegate void OnEventHandler<T>(T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall);
+
         //-----------------------------------------------------------------------------
         // Purpose: Base values for callback identifiers, each callback must
         //			have a unique ID.
@@ -178,14 +181,32 @@ namespace CommunityExpressNS
         public event UserStatsReceivedHandler UserStatsReceived;
         public event UserStatsStoredHandler UserStatsStored;
 
+        private MethodInfo _internalOnEvent = null;
         private Dictionary<int, Type> _internalEventFactory = new Dictionary<int, Type>();
         private Dictionary<SteamAPICall_t, IAsynchronousCall> _apiCalls = new Dictionary<SteamAPICall_t, IAsynchronousCall>();
+        private Dictionary<Int32, object> _internalHandlers = new Dictionary<Int32, object>();
 
         internal Events()
         {
-            _internalEventFactory.Add(UserStatsReceived_t.k_iCallback, typeof(UserStatsReceived_t));
-            _internalEventFactory.Add(UserStatsStored_t.k_iCallback, typeof(UserStatsStored_t));
-            _internalEventFactory.Add(SteamAPICallCompleted_t.k_iCallback, typeof(SteamAPICallCompleted_t));
+            foreach (MethodInfo mi in typeof(Events).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (mi.Name == "InternalOnEvent" && 
+                    mi.IsGenericMethod)
+                {
+                    _internalOnEvent = mi;
+                    break;
+                }
+            }
+
+            AddEventFactory(UserStatsReceived_t.k_iCallback, typeof(UserStatsReceived_t));
+            AddEventFactory(UserStatsStored_t.k_iCallback, typeof(UserStatsStored_t));
+            AddEventFactory(SteamAPICallCompleted_t.k_iCallback, typeof(SteamAPICallCompleted_t));
+            AddEventFactory(GamepadTextInputDismissed_t.k_iCallback, typeof(GamepadTextInputDismissed_t));
+        }
+
+        private void AddEventFactory(int k_iCallback, Type type)
+        {
+            _internalEventFactory.Add(k_iCallback, type);
         }
 
         internal AsynchronousCall<T, E> AddAsynchronousCall<T, E>(T sender, SteamAPICall_t asyncCall) where E : class
@@ -196,12 +217,43 @@ namespace CommunityExpressNS
             return call;
         }
 
+        internal void AddEventHandler<T>(Int32 k_iCallback, OnEventHandler<T> handler)
+        {
+            if (_internalHandlers.ContainsKey(k_iCallback))
+            {
+                _internalHandlers[k_iCallback] = (OnEventHandler<T>)_internalHandlers[k_iCallback] + handler;
+            }
+            else
+            {
+                _internalHandlers[k_iCallback] = handler;
+            }
+        }
+
+        internal void RemoveEventHandler<T>(Int32 k_iCallback, OnEventHandler<T> handler)
+        {
+            if (_internalHandlers.ContainsKey(k_iCallback))
+            {
+                _internalHandlers[k_iCallback] = (OnEventHandler<T>)_internalHandlers[k_iCallback] - handler;
+            }
+        }
+
+        private void InternalOnEvent<T>(Int32 k_iCallback, T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            // internal callbacks
+            ((OnEventHandler<T>)_internalHandlers[k_iCallback])(pvParam, bIOFailure, hSteamAPICall);
+        }
 
         internal void OnEvent(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
-            // internal callbacks
+            if (_internalHandlers.ContainsKey(k_iCallback) &&
+                _internalEventFactory.ContainsKey(k_iCallback))
+            {
+                MethodInfo test = _internalOnEvent.MakeGenericMethod(_internalEventFactory[k_iCallback]);
 
-
+                object v = Marshal.PtrToStructure(pvParam, _internalEventFactory[k_iCallback]);
+                test.Invoke(this, new object[] { k_iCallback, v, bIOFailure, hSteamAPICall });
+            }
+            
             // user callbacks
             if (k_iCallback == UserStatsReceived_t.k_iCallback)
             {

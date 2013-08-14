@@ -121,7 +121,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern int SteamUnityAPI_SteamFriends_GetMediumFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW")]
-		private static extern int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(IntPtr friends, UInt64 steamIDFriend, IntPtr OnAvatarReceivedCallback);
+		private static extern int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlay([MarshalAs(UnmanagedType.LPStr)] String dialog);
 		[DllImport("CommunityExpressSW")]
@@ -239,7 +239,7 @@ namespace CommunityExpressNS
 				_internalOnLargeAvatarReceived = new OnLargeAvatarReceivedFromSteam(InternalOnLargeAvatarReceived);
 			}
 
-			int id = SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(_friends, steamIDFriend.ToUInt64(), Marshal.GetFunctionPointerForDelegate(_internalOnLargeAvatarReceived));
+			int id = SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(_friends, steamIDFriend.ToUInt64());
             if (id > 0)
             {
                 Image img = new Image(id);
