@@ -57,7 +57,6 @@
     <Compile Include="Achievement.cs" />
     <Compile Include="Achievements.cs" />
     <Compile Include="App.cs" />
-    <Compile Include="AsynchronousCall.cs" />
     <Compile Include="BigPicture.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Exceptions.cs" />

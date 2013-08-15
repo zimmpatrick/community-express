@@ -42,21 +42,17 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
 
+        private CommunityExpress _ce;
 		private IntPtr _stats = IntPtr.Zero;
 		private IntPtr _gameserverStats = IntPtr.Zero;
 		private SteamID _id;
 		private List<Achievement> _achievementList = new List<Achievement>();
 		private IEnumerable<string> _requestedAchievements;
-
-		private OnUserStatsReceivedFromSteam _internalOnUserStatsReceived = null;
-		private OnUserStatsReceived _onUserStatsReceived;
-
-		public Achievements()
+        private CommunityExpress.OnEventHandler<UserStatsReceived_t> _statsRecievedEventHandler = null;
+        
+        internal Achievements(CommunityExpress ce, SteamID steamID, Boolean isGameServer = false)
 		{
-		}
-
-		internal void Init(SteamID steamID = null, Boolean isGameServer = false)
-		{
+            _ce = ce;
 			_id = steamID;
 
 			if (isGameServer)
@@ -67,16 +63,18 @@ namespace CommunityExpressNS
 			{
 				_stats = SteamUnityAPI_SteamUserStats();
 			}
-		}
+        }
 
 		internal void RequestCurrentAchievements(IEnumerable<string> requestedAchievements)
-		{
+        {
+            _statsRecievedEventHandler = new CommunityExpress.OnEventHandler<UserStatsReceived_t>(OnUserStatsReceivedCallback);
+            _ce.AddEventHandler(UserStatsReceived_t.k_iCallback, _statsRecievedEventHandler);
+
 			_requestedAchievements = requestedAchievements;
 
 			if (_gameserverStats != IntPtr.Zero)
 			{
-				SteamAPICall_t result = SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
-				// CommunityExpress.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
+				SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
 			}
 			else
 			{
@@ -84,16 +82,14 @@ namespace CommunityExpressNS
 			}
 		}
 
-		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
-		{
-			_id = new SteamID(CallbackData.m_steamIDUser);
+		private void OnUserStatsReceivedCallback(UserStatsReceived_t CallbackData, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (_id.ToUInt64() != CallbackData.m_steamIDUser) return;
 
 			InitializeAchievementList(_requestedAchievements);
 
-			if (_onUserStatsReceived != null)
-			{
-				_onUserStatsReceived(null, this);
-			}
+            _ce.RemoveEventHandler(UserStatsReceived_t.k_iCallback, _statsRecievedEventHandler);
+            _statsRecievedEventHandler = null;
 		}
 
 		public void InitializeAchievementList(IEnumerable<string> requestedAchievements)

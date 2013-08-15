@@ -48,7 +48,7 @@ namespace SteamworksUnityTest
 				return 1;
 			}
 #endif
-            cesdk.Logger = new CommunityExpress.OnLog(onLog);
+            cesdk.Logger += new CommunityExpress.LogMessage(onLog);
 
 			// Initialize SteamAPI, if this fails we bail out since we depend on Steam for lots of stuff.
 			// You don't necessarily have to though if you write your code to check whether all the Steam
@@ -66,20 +66,15 @@ namespace SteamworksUnityTest
             Console.WriteLine("Signed in as: {0} {1} {2}", cesdk.User.PersonaName, cesdk.User.SteamLevel, cesdk.User.GetGameBadgeLevel(1, false));
 
             Stats stats = cesdk.UserStats;
-            
-            
-            
-            
-            
-            cesdk.Events.UserStatsReceived += (Stats sender, CommunityExpressNS.EventsNS.UserStatsReceivedArgs e) =>
+
+
+            cesdk.UserStats.UserStatsReceived += (Stats sender, Stats.UserStatsReceivedArgs e) =>
             {
                 Console.WriteLine("woot!");
                 _statsReceived = true;
-
-
             };
 
-            cesdk.Events.UserStatsStored += (Stats sender, CommunityExpressNS.EventsNS.UserStatsStoredArgs e) =>
+            cesdk.UserStats.UserStatsStored += (Stats sender, Stats.UserStatsStoredArgs e) =>
             {
                 Console.WriteLine("woot!");
                 _statsReceived = true;
@@ -103,8 +98,9 @@ namespace SteamworksUnityTest
                 cesdk.RunCallbacks();
             }
 
-            cesdk.BigPicture.ShowGamepadTextInput(EGamepadTextInputMode.k_EGamepadTextInputModeNormal, EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, "Tell Me!", 255,
-                MyOnGamepadTextInputDismissed);
+
+            cesdk.BigPicture.GamepadTextInputDismissed += new BigPicture.OnGamepadTextInputDismissed(MyOnGamepadTextInputDismissed);
+            cesdk.BigPicture.ShowGamepadTextInput(EGamepadTextInputMode.k_EGamepadTextInputModeNormal, EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, "Tell Me!", 255);
 
 
 			Image image = cesdk.User.SmallAvatar;
@@ -243,19 +239,9 @@ namespace SteamworksUnityTest
 
 			Leaderboards leaderboards = cesdk.Leaderboards;
 
-
-            AsynchronousCall<Leaderboards, Leaderboard> result = leaderboards.FindLeaderboard("TestLeaderboard");
-            result.Completed += (Leaderboards sender, Leaderboard e) =>
-                {
-                    Console.WriteLine(e.LeaderboardName);
-                };
-
-            result = leaderboards.FindLeaderboard("TestLeaderboard");
-            result.Completed += (Leaderboards sender, Leaderboard e) =>
-            {
-                Console.WriteLine(e.LeaderboardName);
-            };
-
+            leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(MyOnLeaderboardRetrievedCallback);
+            leaderboards.FindLeaderboard("TestLeaderboard");
+            
 			while (!_leaderboardEntriesReceived)
 			{
 				cesdk.RunCallbacks();
@@ -394,12 +380,6 @@ namespace SteamworksUnityTest
 			return 0;
 		}
 
-        static void Events_UserStatsStored(Stats sender, CommunityExpressNS.EventsNS.UserStatsStoredArgs e)
-        {
-            
-
-        }
-
         public static void MyOnGamepadTextInputDismissed(Boolean submitted, String text)
         {
         }
@@ -468,7 +448,7 @@ namespace SteamworksUnityTest
 			_statsReceived = true;
 		}
 
-		public static void MyOnLeaderboardRetrievedCallback(Leaderboard leaderboard)
+		public static void MyOnLeaderboardRetrievedCallback(Leaderboards leaderboards, Leaderboard leaderboard)
 		{
 			if (leaderboard != null)
 			{
@@ -479,7 +459,8 @@ namespace SteamworksUnityTest
 				leaderboard.RequestLeaderboardEntries(0, 2, 3, MyOnLeaderboardEntriesRetrievedCallback);
 			}
 			else
-			{
+            {
+                _leaderboardEntriesReceived = true;
 				Console.WriteLine("Failed to Retreive Leaderboard");
 			}
 		}

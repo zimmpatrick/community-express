@@ -96,6 +96,7 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_SteamGameServer_Shutdown();
 		
 		private IntPtr _gameServer;
+        private CommunityExpress _ce;
 
 		private Boolean _isInitialized = false;
 		private Boolean _vacSecured = false;
@@ -128,8 +129,9 @@ namespace CommunityExpressNS
 
 		private OnGameServerPolicyResponseFromSteam _internalOnGameServerPolicyResponse = null;
 
-		internal GameServer()
+		internal GameServer(CommunityExpress ce)
 		{
+            _ce = ce;
 			_gameServer = SteamUnityAPI_SteamGameServer();
 		}
 
@@ -372,14 +374,13 @@ namespace CommunityExpressNS
 
 		public void RequestUserStats(SteamID steamID, IEnumerable<String> requestedStats)
 		{
-			Stats stats = new Stats(steamID, true);
+            Stats stats = new Stats(_ce, steamID, true);
 			stats.RequestCurrentStats(requestedStats);
 		}
 
 		public void RequestUserAchievements(SteamID steamID, IEnumerable<String> requestedAchievements)
 		{
-			Achievements achievements = new Achievements();
-			achievements.Init(steamID, true);
+			Achievements achievements = new Achievements(_ce, steamID, true);
 			achievements.RequestCurrentAchievements(requestedAchievements);
 		}
 

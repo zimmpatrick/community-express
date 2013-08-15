@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections;
-using CommunityExpressNS.EventsNS;
 
 namespace CommunityExpressNS
 {
@@ -61,6 +60,7 @@ namespace CommunityExpressNS
         [DllImport("CommunityExpressSW")]
         private static extern Boolean SteamUnityAPI_SteamUserStats_ResetAllStats(IntPtr stats, Boolean achievementsToo);
 
+        private CommunityExpress _ce;
 		private IntPtr _stats = IntPtr.Zero;
 		private IntPtr _gameserverStats = IntPtr.Zero;
 		private SteamID _id;
@@ -68,8 +68,67 @@ namespace CommunityExpressNS
         private List<string> _requestedStats;
         private List<Type> _requestedStatTypes;
 
-		internal Stats(SteamID steamID = null, Boolean isGameServer = false)
+        private CommunityExpress.OnEventHandler<UserStatsReceived_t> _statsRecievedEventHandler = null;
+        private CommunityExpress.OnEventHandler<UserStatsStored_t> _statsStoredEventHandler = null;
+
+        public delegate void UserStatsReceivedHandler(Stats sender, UserStatsReceivedArgs e);
+        public delegate void UserStatsStoredHandler(Stats sender, UserStatsStoredArgs e);
+
+        public class UserStatsReceivedArgs : System.EventArgs
+        {
+            internal UserStatsReceivedArgs(UserStatsReceived_t args)
+            {
+                GameID = args.m_nGameID;
+                Result = args.m_eResult;
+                SteamID = new SteamID(args.m_steamIDUser);
+            }
+
+            public UInt64 GameID
+            {
+                get;
+                private set;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+
+            public SteamID SteamID
+            {
+                get;
+                private set;
+            }
+        }
+
+        public class UserStatsStoredArgs : System.EventArgs
+        {
+            internal UserStatsStoredArgs(UserStatsStored_t args)
+            {
+                GameID = args.m_nGameID;
+                Result = args.m_eResult;
+            }
+
+            public UInt64 GameID
+            {
+                get;
+                private set;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+        }
+
+        public event UserStatsReceivedHandler UserStatsReceived;
+        public event UserStatsStoredHandler UserStatsStored;
+
+		internal Stats(CommunityExpress ce, SteamID steamID, Boolean isGameServer = false)
 		{
+            _ce = ce;
 			_id = steamID;
 
 			if (isGameServer)
@@ -79,20 +138,20 @@ namespace CommunityExpressNS
 			else
 			{
                 _stats = SteamUnityAPI_SteamUserStats();
-
-                CommunityExpress.Instance.Events.UserStatsReceived += new EventsNS.UserStatsReceivedHandler(Events_UserStatsReceived);
 			}
 
+            _statsRecievedEventHandler = new CommunityExpress.OnEventHandler<UserStatsReceived_t>(Events_UserStatsReceived);
+            _statsStoredEventHandler = new CommunityExpress.OnEventHandler<UserStatsStored_t>(Events_UserStatsStored);
 		}
 
-        void Events_UserStatsReceived(Stats sender, EventsNS.UserStatsReceivedArgs e)
+        private void Events_UserStatsReceived(UserStatsReceived_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
-            if (sender != this) return;
+            if (_id.ToUInt64() != recv.m_steamIDUser) return;
+
+            _ce.RemoveEventHandler(UserStatsReceived_t.k_iCallback, _statsRecievedEventHandler);
 
             // Make sure we don't double up the list of Stats
             Clear();
-
-            _id = e.SteamID;
 
             if (_gameserverStats != IntPtr.Zero)
             {
@@ -114,7 +173,17 @@ namespace CommunityExpressNS
                     Add(new Stat(_stats, _id, s, t, false));
                 }
             }
+
+            if (UserStatsReceived != null) UserStatsReceived(this, new UserStatsReceivedArgs(recv));
         }
+
+        private void Events_UserStatsStored(UserStatsStored_t stored, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            _ce.RemoveEventHandler(UserStatsStored_t.k_iCallback, _statsStoredEventHandler);
+
+            if (UserStatsStored != null) UserStatsStored(this, new UserStatsStoredArgs(stored));
+        }
+
 
         public void RequestCurrentStats(IEnumerable<String> requestedStats)
         {
@@ -130,6 +199,8 @@ namespace CommunityExpressNS
         public void RequestCurrentStats(IEnumerable<String> requestedStats,
              IEnumerable<Type> requestedTypes)
 		{
+            _ce.AddEventHandler(UserStatsReceived_t.k_iCallback, _statsRecievedEventHandler);
+
 			_requestedStats = new List<string>(requestedStats);
             _requestedStatTypes = new List<Type>(requestedTypes);
 
@@ -140,18 +211,12 @@ namespace CommunityExpressNS
 
 			if (_gameserverStats != IntPtr.Zero)
 			{
-				SteamAPICall_t result = SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
-				CommunityExpress.Instance.AddGameServerUserStatsReceivedCallback(result, OnUserStatsReceivedCallback);
+				SteamUnityAPI_SteamGameServerStats_RequestUserStats(_gameserverStats, _id.ToUInt64());
 			}
 			else
 			{
 				SteamUnityAPI_SteamUserStats_RequestCurrentStats(_stats);
 			}
-		}
-
-		private void OnUserStatsReceivedCallback(ref UserStatsReceived_t CallbackData)
-		{
-			// _onUserStatsReceived(this, null);
 		}
 
         /// <summary>
@@ -164,7 +229,9 @@ namespace CommunityExpressNS
         /// The stats should be re-iterated to keep in sync.
         /// </summary>
 		public void WriteStats()
-		{
+        {
+            _ce.AddEventHandler(UserStatsStored_t.k_iCallback, _statsStoredEventHandler);
+
 			if (_gameserverStats != IntPtr.Zero)
 			{
 				SteamUnityAPI_SteamGameServerStats_StoreUserStats(_gameserverStats, _id.ToUInt64());

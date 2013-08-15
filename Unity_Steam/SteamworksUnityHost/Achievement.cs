@@ -25,13 +25,13 @@ namespace CommunityExpressNS
 		private String _displayDescription = null;
 		private Image _image = null;
 
-		public Achievement(Achievements achievements, IntPtr stats)
+		internal Achievement(Achievements achievements, IntPtr stats)
 		{
 			_stats = stats;
 			_achievements = achievements;
 		}
 
-		public Achievement(Achievements achievements, IntPtr stats, String achievementName, bool isAchieved)
+        internal Achievement(Achievements achievements, IntPtr stats, String achievementName, bool isAchieved)
 		{
 			_stats = stats;
 			_achievements = achievements;

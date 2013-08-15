@@ -24,19 +24,17 @@ namespace CommunityExpressNS
 		k_EGamepadTextInputLineModeMultipleLines = 1
 	};
 
-	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct GamepadTextInputDismissed_t
-	{
-        internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 14;
-
-		public Byte m_bSubmitted;			// true if user entered & accepted text (Call ISteamUtils::GetEnteredGamepadTextInput() for text), false if canceled input
-		public UInt32 m_unSubmittedText;
-	};
-
-	public delegate void OnGamepadTextInputDismissed(Boolean submitted, String text);
-
 	public class BigPicture
-	{
+    {
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct GamepadTextInputDismissed_t
+        {
+            internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 14;
+
+            public Byte m_bSubmitted;			// true if user entered & accepted text (Call ISteamUtils::GetEnteredGamepadTextInput() for text), false if canceled input
+            public UInt32 m_unSubmittedText;
+        };
+
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode inputMode, EGamepadTextInputLineMode lineInputMode,
 			[MarshalAs(UnmanagedType.LPStr)] String description, UInt32 maxCharacters);
@@ -45,26 +43,23 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(IntPtr text, Int32 maxTextLength);
 
-        private Events.OnEventHandler<GamepadTextInputDismissed_t> _onGamepadTextInputDismissedCallback;
-        private CommunityExpress _cesdk;
+        private CommunityExpress.OnEventHandler<GamepadTextInputDismissed_t> _onGamepadTextInputDismissedCallback;
+        private CommunityExpress _ce;
 
-        internal BigPicture(CommunityExpress cesdk)
-        {
-            _cesdk = cesdk;
-
-            _onGamepadTextInputDismissedCallback = new Events.OnEventHandler<GamepadTextInputDismissed_t>(OnGamepadTextInputDismissedCallback);
-            _cesdk.Events.AddEventHandler(GamepadTextInputDismissed_t.k_iCallback, _onGamepadTextInputDismissedCallback);
-        }
-
-        ~BigPicture()
-        {
-            _cesdk.Events.RemoveEventHandler(GamepadTextInputDismissed_t.k_iCallback, _onGamepadTextInputDismissedCallback);
-        }
-
+        public delegate void OnGamepadTextInputDismissed(Boolean submitted, String text);
         public event OnGamepadTextInputDismissed GamepadTextInputDismissed;
 
+        internal BigPicture(CommunityExpress ce)
+        {
+            _ce = ce;
+
+            _onGamepadTextInputDismissedCallback = new CommunityExpress.OnEventHandler<GamepadTextInputDismissed_t>(OnGamepadTextInputDismissedCallback);
+        }
+
 		public Boolean ShowGamepadTextInput(EGamepadTextInputMode inputMode, EGamepadTextInputLineMode lineInputMode, String description, UInt32 maxCharacters)
-		{
+        {
+            _ce.AddEventHandler(GamepadTextInputDismissed_t.k_iCallback, _onGamepadTextInputDismissedCallback);
+
 			bool ret = SteamUnityAPI_SteamUtils_ShowGamepadTextInput(inputMode, lineInputMode, description, maxCharacters);
 
             Console.WriteLine(ret);
@@ -90,6 +85,8 @@ namespace CommunityExpressNS
 
 		private void OnGamepadTextInputDismissedCallback(GamepadTextInputDismissed_t callbackData, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
+            _ce.RemoveEventHandler(GamepadTextInputDismissed_t.k_iCallback, _onGamepadTextInputDismissedCallback);
+
             if (GamepadTextInputDismissed != null)
             {
                 Boolean submitted = callbackData.m_bSubmitted != 0;

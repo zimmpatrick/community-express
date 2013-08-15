@@ -12,13 +12,6 @@ namespace CommunityExpressNS
 	using HSteamUser = Int32;
 	using AppId_t = UInt32;
 
-	public enum EUserHasLicenseForAppResult
-	{
-		k_EUserHasLicenseResultHasLicense = 0,					// User has a license for specified app
-		k_EUserHasLicenseResultDoesNotHaveLicense = 1,			// User does not have a license for the specified app
-		k_EUserHasLicenseResultNoAuth = 2,						// User has not been authenticated
-	}
-
 	public class User
 	{
 		[DllImport("CommunityExpressSW")]
@@ -36,7 +29,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUser_TerminateGameConnection(IntPtr user, UInt32 serverIP, UInt16 serverPort);
 		[DllImport("CommunityExpressSW")]
-		private static extern EUserHasLicenseForAppResult SteamUnityAPI_SteamUser_UserHasLicenseForApp(IntPtr user, UInt64 steamID, AppId_t appID);
+        private static extern EUserHasLicenseResult SteamUnityAPI_SteamUser_UserHasLicenseForApp(IntPtr user, UInt64 steamID, AppId_t appID);
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamUser_BIsBehindNAT(IntPtr user);
 		[DllImport("CommunityExpressSW")]
@@ -114,12 +107,12 @@ namespace CommunityExpressNS
         /// </summary>
         /// <param name="appID"></param>
         /// <returns></returns>
-		public EUserHasLicenseForAppResult UserHasLicenseForApp(AppId_t appID)
+        public EUserHasLicenseResult UserHasLicenseForApp(AppId_t appID)
 		{
 			return SteamUnityAPI_SteamUser_UserHasLicenseForApp(_user, SteamID.ToUInt64(), appID);
 		}
 
-		public EUserHasLicenseForAppResult UserHasLicenseForApp(SteamID steamID, AppId_t appID)
+        public EUserHasLicenseResult UserHasLicenseForApp(SteamID steamID, AppId_t appID)
 		{
 			return SteamUnityAPI_SteamUser_UserHasLicenseForApp(_user, steamID.ToUInt64(), appID);
 		}

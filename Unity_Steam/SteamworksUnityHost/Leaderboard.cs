@@ -67,9 +67,6 @@ namespace CommunityExpressNS
 
 		private Int32 _maxDetails;
 
-		private OnLeaderboardRetrievedFromSteam _internalOnLeaderboardRetrieved = null;
-		private OnLeaderboardRetrieved _onLeaderboardRetrieved;
-
 		private OnLeaderboardEntriesRetrievedFromSteam _internalOnLeaderboardEntriesRetrieved = null;
 		private OnLeaderboardEntriesRetrieved _onLeaderboardEntriesRetrieved;
 
@@ -177,22 +174,12 @@ namespace CommunityExpressNS
 			}
 		}
 
-		public void Refresh(OnLeaderboardRetrieved onLeaderboardRefreshComplete)
+		public void Refresh()
 		{
-			_onLeaderboardRetrieved = onLeaderboardRefreshComplete;
-
-			if (_internalOnLeaderboardRetrieved == null)
-			{
-				_internalOnLeaderboardRetrieved = new OnLeaderboardRetrievedFromSteam(OnLeaderboardRetrievedCallback);
-			}
-
-			if (SteamUnityAPI_SteamUserStats_FindLeaderboard(_stats, _leaderboardName, Marshal.GetFunctionPointerForDelegate(_internalOnLeaderboardRetrieved)) == 0)
-			{
-				_onLeaderboardRetrieved(this);
-			}
+            _leaderboards.FindLeaderboard(_leaderboardName, false);
 		}
 
-		private void OnLeaderboardRetrievedCallback(ref LeaderboardFindResult_t findLearderboardResult)
+		internal void LeaderboardRefreshed(Leaderboards.LeaderboardFindResult_t findLearderboardResult)
 		{
 			if (findLearderboardResult.m_bLeaderboardFound != 0)
 			{
@@ -201,8 +188,6 @@ namespace CommunityExpressNS
 				_sortMethod = SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(_stats, findLearderboardResult.m_hSteamLeaderboard);
 				_displayType = SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard);
 			}
-
-			_onLeaderboardRetrieved(this);
 		}
 
 		public String LeaderboardName

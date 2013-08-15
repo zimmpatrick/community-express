@@ -60,8 +60,29 @@ namespace CommunityExpressNS
 		delegate void OnSteamAPIDebugTextHook(Int32 nSeverity, IntPtr pchDebugText);
 		private OnSteamAPIDebugTextHook _steamAPIDebugTextHook;
 		
-		public delegate void OnLog(string msg);
-		private OnLog _logger = null;
+		public delegate void LogMessage(string msg);
+        public event LogMessage Logger;
+
+        public delegate void ShutdownRequestHandler(CommunityExpress sender);
+        public event ShutdownRequestHandler ShutdownRequested;
+
+        public delegate void LowBatteryHandler(CommunityExpress sender, LowBatteryArgs e);
+        public event LowBatteryHandler LowBattery;
+
+        public class LowBatteryArgs : System.EventArgs
+        {
+            internal LowBatteryArgs(LowBatteryPower_t args)
+            {
+                MinutesBatteryLeft = args.m_nMinutesBatteryLeft;
+            }
+
+            public int MinutesBatteryLeft
+            {
+                get;
+                private set;
+            }
+        }
+
 
 		private static readonly CommunityExpress _instance = new CommunityExpress();
 		private bool _shutdown = false;
@@ -82,7 +103,13 @@ namespace CommunityExpressNS
 		private SteamWebAPI _steamWebAPI = null;
 		private BigPicture _bigPicture = null;
         private UserGeneratedContent _ugc = null;
-        private Events _events = null;
+        
+        internal delegate void OnEventHandler<T>(T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall);
+
+        private MethodInfo _internalOnEvent = null;
+        private Dictionary<int, Type> _internalEventFactory = new Dictionary<int, Type>();
+        private Dictionary<int, MethodInfo> _internalOnEventFactory = new Dictionary<int, MethodInfo>();
+        private Dictionary<Int32, object> _internalHandlers = new Dictionary<Int32, object>();
 
 		private List<SteamAPICall_t> _gameserverUserStatsReceivedCallHandles = new List<SteamAPICall_t>();
 		private List<OnUserStatsReceivedFromSteam> _gameserverUserStatsReceivedCallbacks = new List<OnUserStatsReceivedFromSteam>();
@@ -129,6 +156,16 @@ namespace CommunityExpressNS
 
 		public bool Initialize()
 		{
+            foreach (MethodInfo mi in typeof(CommunityExpress).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (mi.Name == "InternalOnEvent" && 
+                    mi.IsGenericMethod)
+                {
+                    _internalOnEvent = mi;
+                    break;
+                }
+            }
+            
 			_challengeResponse = new OnChallengeResponseFromSteam(OnChallengeResponseCallback);
             _callback = new OnCallbackFromSteam(OnCallback);
 
@@ -147,9 +184,9 @@ namespace CommunityExpressNS
 
 		public void Log(string msg)
 		{
-			if (_logger != null)
+            if (Logger != null)
 			{
-				_logger(msg);
+                Logger(msg);
 			}
 
 			System.Diagnostics.Debug.WriteLine(msg);
@@ -290,7 +327,7 @@ namespace CommunityExpressNS
 			{
 				if (_gameserver == null)
 				{
-					_gameserver = new GameServer();
+					_gameserver = new GameServer(this);
 				}
 
 				return _gameserver;
@@ -329,7 +366,7 @@ namespace CommunityExpressNS
 			{
 				if (_userStats == null)
 				{
-					_userStats = new Stats();
+					_userStats = new Stats(this, User.SteamID);
 				}
 
 				return _userStats;
@@ -342,8 +379,7 @@ namespace CommunityExpressNS
 			{
 				if (_achievements == null)
 				{
-					_achievements = new Achievements();
-					_achievements.Init();
+					_achievements = new Achievements(this, User.SteamID);
 				}
 
 				return _achievements;
@@ -356,7 +392,7 @@ namespace CommunityExpressNS
 			{
 				if (_leaderboards == null)
 				{
-					_leaderboards = new Leaderboards();
+					_leaderboards = new Leaderboards(this);
 				}
 
 				return _leaderboards; 
@@ -453,24 +489,6 @@ namespace CommunityExpressNS
             }
         }
 
-        public Events Events
-        {
-            get
-            {
-                if (_events == null)
-                {
-                    _events = new Events();
-                }
-
-                return _events;
-            }
-        }
-
-		public OnLog Logger
-		{
-			set { _logger = value; }
-		}
-
 		public Boolean IsGameServerInitialized
 		{
 			get { return _gameserver != null && _gameserver.IsInitialized; }
@@ -479,6 +497,88 @@ namespace CommunityExpressNS
         public Boolean IsCommunityRunning
         {
             get { return SteamUnityAPI_IsSteamRunning(); }
+        }
+        
+        private void RegisterEventFactory(int k_iCallback, Type type)
+        {
+            if (!_internalEventFactory.ContainsKey(k_iCallback)) 
+            {
+                _internalEventFactory.Add(k_iCallback, type);
+            }
+
+            if (!_internalOnEventFactory.ContainsKey(k_iCallback)) 
+            {
+                _internalOnEventFactory.Add(k_iCallback, _internalOnEvent.MakeGenericMethod(type));
+            }
+        }
+
+        internal void AddEventHandler<T>(Int32 k_iCallback, OnEventHandler<T> handler)
+        {
+            RegisterEventFactory(k_iCallback, typeof(T));
+
+            if (_internalHandlers.ContainsKey(k_iCallback))
+            {
+                _internalHandlers[k_iCallback] = (OnEventHandler<T>)_internalHandlers[k_iCallback] + handler;
+            }
+            else
+            {
+                _internalHandlers[k_iCallback] = handler;
+            }
+        }
+
+        internal void RemoveEventHandler<T>(Int32 k_iCallback, OnEventHandler<T> handler)
+        {
+            if (_internalHandlers.ContainsKey(k_iCallback))
+            {
+                _internalHandlers[k_iCallback] = (OnEventHandler<T>)_internalHandlers[k_iCallback] - handler;
+            }
+        }
+
+        private void InternalOnEvent<T>(Int32 k_iCallback, T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            // internal callbacks
+            ((OnEventHandler<T>)_internalHandlers[k_iCallback])(pvParam, bIOFailure, hSteamAPICall);
+        }
+
+        internal void OnEvent(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+           
+            
+                /*
+            else if (k_iCallback == SteamShutdown_t.k_iCallback)
+            {
+                Console.WriteLine("shutdown");
+
+                Process.GetCurrentProcess().Kill();
+            }
+            else if (k_iCallback == SteamAPICallCompleted_t.k_iCallback)
+            {
+                SteamAPICallCompleted_t p = (SteamAPICallCompleted_t)Marshal.PtrToStructure(pvParam, typeof(SteamAPICallCompleted_t));
+
+                if (_apiCalls.ContainsKey(p.m_hAsyncCall))
+                {
+                    IAsynchronousCall call = _apiCalls[p.m_hAsyncCall];
+
+                    int sizeOf = Marshal.SizeOf(typeof(LeaderboardFindResult_t));
+                    IntPtr unmanagedAddr = Marshal.AllocHGlobal(sizeOf);
+
+                    byte failed;
+                    SteamUnityAPI_SteamUtils_GetAPICallResult(p.m_hAsyncCall, unmanagedAddr, sizeOf, LeaderboardFindResult_t.k_iCallback, out failed);
+                    LeaderboardFindResult_t findLearderboardResult = (LeaderboardFindResult_t)Marshal.PtrToStructure(unmanagedAddr, typeof(LeaderboardFindResult_t));
+
+                    Marshal.FreeHGlobal(unmanagedAddr);
+                    unmanagedAddr = IntPtr.Zero;
+
+                    Leaderboards.LeaderboardRecievedArgs hack = new Leaderboards.LeaderboardRecievedArgs(call.Sender as Leaderboards, findLearderboardResult);
+
+                    call.Complete(hack.Leaderboard);
+                }
+            }
+            else
+            {
+
+                Console.WriteLine(k_iCallback);
+            }*/
         }
 
 		internal void AddGameServerUserStatsReceivedCallback(SteamAPICall_t handle, OnUserStatsReceivedFromSteam callback)
@@ -531,7 +631,29 @@ namespace CommunityExpressNS
 
         private void OnCallback(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
-            Events.OnEvent(k_iCallback, pvParam, bIOFailure, hSteamAPICall);
+            if (_internalHandlers.ContainsKey(k_iCallback) &&
+               _internalEventFactory.ContainsKey(k_iCallback) &&
+               _internalOnEventFactory.ContainsKey(k_iCallback) &&
+                _internalHandlers[k_iCallback] != null)
+            {
+                object obj = Marshal.PtrToStructure(pvParam, _internalEventFactory[k_iCallback]);
+
+                _internalOnEventFactory[k_iCallback].Invoke(this, new object[] { k_iCallback, obj, bIOFailure, hSteamAPICall });
+            }
+
+            if (k_iCallback == SteamShutdown_t.k_iCallback)
+            {
+                if (ShutdownRequested != null) ShutdownRequested(this);
+            }
+            else if (k_iCallback == LowBatteryPower_t.k_iCallback)
+            {
+                if (LowBattery != null)
+                {
+                    LowBatteryPower_t lbp = (LowBatteryPower_t)Marshal.PtrToStructure(pvParam, typeof(LowBatteryPower_t));
+
+                    LowBattery(this, new LowBatteryArgs(lbp));
+                }
+            }
         }
 
         [Conditional("LICENSED")]

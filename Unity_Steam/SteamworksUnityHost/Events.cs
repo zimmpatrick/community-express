@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
-using CommunityExpressNS.EventsNS;
 
 namespace CommunityExpressNS
 {
@@ -14,7 +13,7 @@ namespace CommunityExpressNS
     /// <summary>
     /// The country of the user changed
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     struct IPCountry_t
     {
 	    internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 1;
@@ -23,7 +22,7 @@ namespace CommunityExpressNS
     /// <summary>
     /// Fired when running on a laptop and less than 10 minutes of battery is left, fires then every minute
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     struct LowBatteryPower_t
     {
 	    internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 2;
@@ -35,7 +34,7 @@ namespace CommunityExpressNS
     /// <summary>
     /// Called when a SteamAsyncCall_t has completed (or failed)
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     struct SteamAPICallCompleted_t
     {
 	    internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 3;
@@ -46,7 +45,7 @@ namespace CommunityExpressNS
     /// <summary>
     /// Called when Steam wants to shutdown
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     struct SteamShutdown_t
     {
 	    internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 4;
@@ -75,72 +74,8 @@ namespace CommunityExpressNS
     };
 
 
-    namespace EventsNS
+    internal class Events
     {
-        public delegate void UserStatsReceivedHandler(Stats sender, UserStatsReceivedArgs e);
-        public delegate void UserStatsStoredHandler(Stats sender, UserStatsStoredArgs e);
-
-        public class UserStatsReceivedArgs : System.EventArgs
-        {
-            internal UserStatsReceivedArgs(UserStatsReceived_t args)
-            {
-                GameID = args.m_nGameID;
-                Result = args.m_eResult;
-                SteamID = new SteamID(args.m_steamIDUser);
-            }
-
-            public UInt64 GameID
-            {
-                get;
-                private set;
-            }
-
-            public EResult Result
-            {
-                get;
-                private set;
-            }
-
-            public SteamID SteamID
-            {
-                get;
-                private set;
-            }
-        }
-
-        public class UserStatsStoredArgs : System.EventArgs
-        {
-            internal UserStatsStoredArgs(UserStatsStored_t args)
-            {
-                GameID = args.m_nGameID;
-                Result = args.m_eResult;
-            }
-
-            public UInt64 GameID
-            {
-                get;
-                private set;
-            }
-
-            public EResult Result
-            {
-                get;
-                private set;
-            }
-        }
-    }
-            
-
-    public class Events
-    {
-        [DllImport("CommunityExpressSW")]
-        private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
-        [DllImport("CommunityExpressSW")]
-        private static extern Boolean SteamUnityAPI_SteamUtils_GetAPICallResult(SteamAPICall_t callHandle, IntPtr pCallback, int cubCallback, int iCallbackExpected, out Byte failed);
-
-
-        internal delegate void OnEventHandler<T>(T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall);
-
         //-----------------------------------------------------------------------------
         // Purpose: Base values for callback identifiers, each callback must
         //			have a unique ID.
@@ -178,137 +113,6 @@ namespace CommunityExpressNS
         internal const int k_iClientNetworkDeviceManagerCallbacks = 3100;
         internal const int k_iClientMusicCallbacks = 3200;
 
-        public event UserStatsReceivedHandler UserStatsReceived;
-        public event UserStatsStoredHandler UserStatsStored;
-
-        private MethodInfo _internalOnEvent = null;
-        private Dictionary<int, Type> _internalEventFactory = new Dictionary<int, Type>();
-        private Dictionary<SteamAPICall_t, IAsynchronousCall> _apiCalls = new Dictionary<SteamAPICall_t, IAsynchronousCall>();
-        private Dictionary<Int32, object> _internalHandlers = new Dictionary<Int32, object>();
-
-        internal Events()
-        {
-            foreach (MethodInfo mi in typeof(Events).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
-            {
-                if (mi.Name == "InternalOnEvent" && 
-                    mi.IsGenericMethod)
-                {
-                    _internalOnEvent = mi;
-                    break;
-                }
-            }
-
-            AddEventFactory(UserStatsReceived_t.k_iCallback, typeof(UserStatsReceived_t));
-            AddEventFactory(UserStatsStored_t.k_iCallback, typeof(UserStatsStored_t));
-            AddEventFactory(SteamAPICallCompleted_t.k_iCallback, typeof(SteamAPICallCompleted_t));
-            AddEventFactory(GamepadTextInputDismissed_t.k_iCallback, typeof(GamepadTextInputDismissed_t));
-        }
-
-        private void AddEventFactory(int k_iCallback, Type type)
-        {
-            _internalEventFactory.Add(k_iCallback, type);
-        }
-
-        internal AsynchronousCall<T, E> AddAsynchronousCall<T, E>(T sender, SteamAPICall_t asyncCall) where E : class
-        {
-            AsynchronousCall<T, E> call = new AsynchronousCall<T, E>(sender, asyncCall);
-
-            _apiCalls.Add(asyncCall, call.IAsynchronousCall);
-            return call;
-        }
-
-        internal void AddEventHandler<T>(Int32 k_iCallback, OnEventHandler<T> handler)
-        {
-            if (_internalHandlers.ContainsKey(k_iCallback))
-            {
-                _internalHandlers[k_iCallback] = (OnEventHandler<T>)_internalHandlers[k_iCallback] + handler;
-            }
-            else
-            {
-                _internalHandlers[k_iCallback] = handler;
-            }
-        }
-
-        internal void RemoveEventHandler<T>(Int32 k_iCallback, OnEventHandler<T> handler)
-        {
-            if (_internalHandlers.ContainsKey(k_iCallback))
-            {
-                _internalHandlers[k_iCallback] = (OnEventHandler<T>)_internalHandlers[k_iCallback] - handler;
-            }
-        }
-
-        private void InternalOnEvent<T>(Int32 k_iCallback, T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
-        {
-            // internal callbacks
-            ((OnEventHandler<T>)_internalHandlers[k_iCallback])(pvParam, bIOFailure, hSteamAPICall);
-        }
-
-        internal void OnEvent(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
-        {
-            if (_internalHandlers.ContainsKey(k_iCallback) &&
-                _internalEventFactory.ContainsKey(k_iCallback))
-            {
-                MethodInfo test = _internalOnEvent.MakeGenericMethod(_internalEventFactory[k_iCallback]);
-
-                object v = Marshal.PtrToStructure(pvParam, _internalEventFactory[k_iCallback]);
-                test.Invoke(this, new object[] { k_iCallback, v, bIOFailure, hSteamAPICall });
-            }
-            
-            // user callbacks
-            if (k_iCallback == UserStatsReceived_t.k_iCallback)
-            {
-                UserStatsReceived_t p = (UserStatsReceived_t)Marshal.PtrToStructure(pvParam, typeof(UserStatsReceived_t));
-                UserStatsReceivedArgs a = new UserStatsReceivedArgs(p);
-                UserStatsReceived(CommunityExpress.Instance.UserStats, a);
-
-                Console.WriteLine(p);
-            }
-            else if (k_iCallback == UserStatsStored_t.k_iCallback)
-            {
-                if (UserStatsStored != null)
-                {
-                    UserStatsStored_t p = (UserStatsStored_t)Marshal.PtrToStructure(pvParam, typeof(UserStatsStored_t));
-                    UserStatsStoredArgs a = new UserStatsStoredArgs(p);
-                    UserStatsStored(CommunityExpress.Instance.UserStats, a);
-                }
-            }
-            else if (k_iCallback == SteamShutdown_t.k_iCallback)
-            {
-                Console.WriteLine("shutdown");
-
-                Process.GetCurrentProcess().Kill();
-            }
-            else if (k_iCallback == SteamAPICallCompleted_t.k_iCallback)
-            {
-                SteamAPICallCompleted_t p = (SteamAPICallCompleted_t)Marshal.PtrToStructure(pvParam, typeof(SteamAPICallCompleted_t));
-
-                if (_apiCalls.ContainsKey(p.m_hAsyncCall))
-                {
-                    IAsynchronousCall call = _apiCalls[p.m_hAsyncCall];
-
-                    int sizeOf = Marshal.SizeOf(typeof(LeaderboardFindResult_t));
-                    IntPtr unmanagedAddr = Marshal.AllocHGlobal(sizeOf);
-
-                    byte failed;
-                    SteamUnityAPI_SteamUtils_GetAPICallResult(p.m_hAsyncCall, unmanagedAddr, sizeOf, LeaderboardFindResult_t.k_iCallback, out failed);
-                    LeaderboardFindResult_t findLearderboardResult = (LeaderboardFindResult_t)Marshal.PtrToStructure(unmanagedAddr, typeof(LeaderboardFindResult_t));
-
-                    Marshal.FreeHGlobal(unmanagedAddr);
-                    unmanagedAddr = IntPtr.Zero;
-
-                    Leaderboards.LeaderboardRecievedArgs hack = new Leaderboards.LeaderboardRecievedArgs(call.Sender as Leaderboards, findLearderboardResult);
-
-                    call.Complete(hack.Leaderboard);
-                }
-            }
-            else
-            {
-
-                Console.WriteLine(k_iCallback);
-            }
-
-
-        }
 
     }
 }

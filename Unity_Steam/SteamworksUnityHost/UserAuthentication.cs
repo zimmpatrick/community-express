@@ -43,7 +43,7 @@ namespace CommunityExpressNS
     delegate void OnUserGetEncryptedAppTicketFromSteam();
     public delegate void OnUserEncryptedAppTicketCreated(Byte[] ticket);
 
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     struct GetAuthSessionTicketResponse_t
     {
         public HAuthTicket m_hAuthTicket;
