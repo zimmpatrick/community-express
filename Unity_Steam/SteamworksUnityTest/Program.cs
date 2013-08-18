@@ -228,7 +228,16 @@ namespace SteamworksUnityTest
 			while (!_statsReceived)
 			{
 				cesdk.RunCallbacks();
-			}
+            }
+
+            _statsReceived = false;
+            cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles( UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 
+                0, 50, 10, null, null);
+
+            while (!_statsReceived)
+            {
+                cesdk.RunCallbacks();
+            }
 			
 
 			Achievements achievements = cesdk.UserAchievements;

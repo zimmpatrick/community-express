@@ -530,6 +530,19 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void* pSteamR
 	return pISteamRemoteStorage->GetQuota(pTotalSpace, pAvailableSpace);
 }
 
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(void* pSteamRemoteStorage, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	// SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSubscribedFiles(0);
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSubscribedFilesResult, hAPICall );
+	
+	return hAPICall;
+
+	// return pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
+}
+
 // How long to wait for a response from the server before resending our connection attempt
 #define SERVER_CONNECTION_RETRY_MILLISECONDS 350
 

@@ -31,7 +31,7 @@ public sealed class UnityCommunityExpress : MonoBehaviour
     {
         _instance = this;
         _ceInstance = CommunityExpress.Instance;
-        _ceInstance.Logger = new CommunityExpress.OnLog(onLog);
+        _ceInstance.Logger += new CommunityExpress.LogMessage(onLog);
 
         bool result = false;
         try

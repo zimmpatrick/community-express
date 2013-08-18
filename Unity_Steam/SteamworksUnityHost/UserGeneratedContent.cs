@@ -42,6 +42,8 @@ namespace CommunityExpressNS
         [DllImport("CommunityExpressSW")]
         private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
 
+        [DllImport("CommunityExpressSW")]
+		private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(IntPtr remoteStorage, EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays);
 
         private IntPtr _remoteStorage;
 
@@ -53,7 +55,9 @@ namespace CommunityExpressNS
 
         public void EnumeratePublishedWorkshopFiles( EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays, ICollection<string> tags, ICollection<string> userTags )
         {
-            Console.WriteLine ("here");
+            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(_remoteStorage, eEnumerationType, unStartIndex, unCount, unDays);
+
+            Console.WriteLine(ret);
 
         }
     }

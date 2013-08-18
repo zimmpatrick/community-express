@@ -249,7 +249,7 @@ private:
 //			template params: T = local class, P = parameter struct
 //-----------------------------------------------------------------------------
 template< class T, class P, bool bGameServer >
-class CCallback : protected CCallbackBase
+class CCallback : public CCallbackBase
 {
 public:
 	typedef void (T::*func_t)( P* );
