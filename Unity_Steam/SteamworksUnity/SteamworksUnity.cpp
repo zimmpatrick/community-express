@@ -530,6 +530,16 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void* pSteamR
 	return pISteamRemoteStorage->GetQuota(pTotalSpace, pAvailableSpace);
 }
 
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUserSubscribedFiles(void* pSteamRemoteStorage, uint32 unStartIndex)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSubscribedFiles( unStartIndex );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSubscribedFilesResult, hAPICall );
+	
+	return hAPICall;
+}
+
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(void* pSteamRemoteStorage, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );

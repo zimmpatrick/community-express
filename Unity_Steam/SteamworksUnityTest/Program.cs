@@ -231,6 +231,13 @@ namespace SteamworksUnityTest
             }
 
             _statsReceived = false;
+            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(50);
+            while (!_statsReceived)
+            {
+                cesdk.RunCallbacks();
+            }
+			
             cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles( UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 
                 0, 50, 10, null, null);
 

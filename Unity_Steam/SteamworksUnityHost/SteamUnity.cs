@@ -633,7 +633,7 @@ namespace CommunityExpressNS
 	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
         struct RemoteStorageEnumerateUserSubscribedFilesResult_t
         {
-	        const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 14;
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 14;
 	        
             EResult m_eResult;				// The result of the operation.
 	        Int32 m_nResultsReturned;
@@ -670,7 +670,7 @@ namespace CommunityExpressNS
                     LowBattery(this, new LowBatteryArgs(lbp));
                 }
             }
-            else if (k_iCallback == 1314)
+            else if (k_iCallback == RemoteStorageEnumerateUserSubscribedFilesResult_t.k_iCallback)
             {
                 RemoteStorageEnumerateUserSubscribedFilesResult_t r = (RemoteStorageEnumerateUserSubscribedFilesResult_t)Marshal.PtrToStructure(pvParam, typeof(RemoteStorageEnumerateUserSubscribedFilesResult_t));
 
