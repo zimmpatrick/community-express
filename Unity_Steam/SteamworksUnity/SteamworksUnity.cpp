@@ -523,6 +523,16 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FilePersisted(void* pS
 	return pISteamRemoteStorage->FilePersisted(pchFile);
 }
 
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_FileShare(void* pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+	
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->FileShare(pchFile);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageFileShareResult, hAPICall );
+
+	return hAPICall;
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_GetQuota(void* pSteamRemoteStorage, int32 *pTotalSpace, int32 *pAvailableSpace)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
@@ -538,6 +548,207 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUse
 	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSubscribedFilesResult, hAPICall );
 	
 	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUserPublishedFiles(void* pSteamRemoteStorage, uint32 unStartIndex)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserPublishedFiles( unStartIndex );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserPublishedFilesResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_SubscribePublishedFile(void* pSteamRemoteStorage, uint64 unPublishedFileId)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->SubscribePublishedFile( unPublishedFileId );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UnsubscribePublishedFile(void* pSteamRemoteStorage, uint64 unPublishedFileId)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->UnsubscribePublishedFile( unPublishedFileId );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublishedItemVoteDetails(void* pSteamRemoteStorage, uint64 unPublishedFileId)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedItemVoteDetails( unPublishedFileId );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UpdateUserPublishedItemVote(void* pSteamRemoteStorage, uint64 unPublishedFileId, bool bVoteUp)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->UpdateUserPublishedItemVote( unPublishedFileId, bVoteUp );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetUserPublishedItemVoteDetails(void* pSteamRemoteStorage, uint64 unPublishedFileId)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetUserPublishedItemVoteDetails( unPublishedFileId);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUserSharedWorkshopFiles(void* pSteamRemoteStorage, uint64 steamId, uint32 unStartIndex, SteamParamStringArray_t requiredTags, SteamParamStringArray_t excludedTags )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSharedWorkshopFiles( CSteamID( steamId ), unStartIndex, &requiredTags, &excludedTags);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSharedWorkshopFilesResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_PublishVideo(void* pSteamRemoteStorage,  EWorkshopVideoProvider eVideoProvider, const char *pchVideoAccount, const char *pchVideoIdentifier, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->PublishVideo( eVideoProvider, pchVideoAccount, pchVideoIdentifier, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, pTags);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_SetUserPublishedFileAction(void* pSteamRemoteStorage, PublishedFileId_t unPublishedFileId, EWorkshopFileAction eAction )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->SetUserPublishedFileAction( unPublishedFileId, eAction);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedFilesByUserAction(void* pSteamRemoteStorage, EWorkshopFileAction eAction, uint32 unStartIndex )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedFilesByUserAction( eAction, unStartIndex);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownloadToLocation(void* pSteamRemoteStorage, UGCHandle_t hContent, const char *pchLocation, uint32 unPriority )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->UGCDownloadToLocation( hContent, pchLocation, unPriority);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->CommitPublishedFileUpdate(updateHandle);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedFileDetails(updateHandle);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->DeletePublishedFile(updateHandle);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_PublishWorkshopFile(void* pSteamRemoteStorage, const char *pchFile, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t pTags, EWorkshopFileType eWorkshopFileType )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->PublishWorkshopFile(pchFile, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, &pTags, eWorkshopFileType);
+	// SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileProgress, hAPICall );
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API PublishedFileUpdateHandle_t SteamUnityAPI_SteamRemoteStorage_CreatePublishedFileUpdateRequest(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	PublishedFileUpdateHandle_t hAPICall = pISteamRemoteStorage->CreatePublishedFileUpdateRequest(updateHandle);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileFile(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle, const char *pchFile )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->UpdatePublishedFileFile(updateHandle, pchFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFilePreviewFile(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle, const char *pchPreviewFile )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->UpdatePublishedFilePreviewFile(updateHandle, pchPreviewFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTitle(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle, const char *pchTitle )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->UpdatePublishedFileTitle(updateHandle, pchTitle);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileDescription(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle, const char *pchDescription )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->UpdatePublishedFileDescription(updateHandle, pchDescription);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileVisibility(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle, ERemoteStoragePublishedFileVisibility eVisibility )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->UpdatePublishedFileVisibility(updateHandle, eVisibility);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTags(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle, SteamParamStringArray_t pTags )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->UpdatePublishedFileTags(updateHandle, &pTags);
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(void* pSteamRemoteStorage, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays)

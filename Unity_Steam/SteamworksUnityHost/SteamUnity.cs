@@ -9,7 +9,6 @@ using System.Diagnostics;
 
 namespace CommunityExpressNS
 {
-    using PublishedFileId_t = UInt64;
 	using SteamAPICall_t = UInt64;
 	using AppId_t = UInt32;
 	using System.Reflection;
@@ -193,9 +192,42 @@ namespace CommunityExpressNS
 			System.Diagnostics.Debug.WriteLine(msg);
 		}
 
+        private void RunUploads()
+        {
+
+            byte[] data = new byte[1024];
+            List<FileStream> toRemove = new List<FileStream>();
+
+            foreach (FileStream fs in _uploadStreams.Keys)
+            {
+                FileWriteStream stream = _uploadStreams[fs];
+
+                int read = fs.Read(data, 0, 1024);
+                if (read != 0)
+                {
+                    stream.WriteChunk(data, read);
+                }
+                else
+                {
+                    stream.Close();
+                    fs.Close();
+
+                    toRemove.Add(fs);
+                }
+
+            }
+
+            foreach (FileStream fs in toRemove)
+            {
+                _uploadStreams.Remove(fs);
+            }
+        }
+
 		public void RunCallbacks()
 		{
 			SteamUnityAPI_RunCallbacks();
+
+            RunUploads();
 
 			if (_gameserver != null && _gameserver.IsInitialized)
 			{
@@ -483,7 +515,7 @@ namespace CommunityExpressNS
             get 
             {
                 if (_ugc == null) {
-                    _ugc = new UserGeneratedContent();
+                    _ugc = new UserGeneratedContent(this);
                 }
 
                 return _ugc;
@@ -535,51 +567,19 @@ namespace CommunityExpressNS
             }
         }
 
+        private Dictionary<FileStream, FileWriteStream> _uploadStreams = new Dictionary<FileStream, FileWriteStream>();
+
+        internal void AddFileWriterUpload(string fileName, FileWriteStream stream)
+        {
+            FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            _uploadStreams.Add(fs, stream);
+        }
+
         private void InternalOnEvent<T>(Int32 k_iCallback, T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             // internal callbacks
             ((OnEventHandler<T>)_internalHandlers[k_iCallback])(pvParam, bIOFailure, hSteamAPICall);
-        }
-
-        internal void OnEvent(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
-        {
-           
-            
-                /*
-            else if (k_iCallback == SteamShutdown_t.k_iCallback)
-            {
-                Console.WriteLine("shutdown");
-
-                Process.GetCurrentProcess().Kill();
-            }
-            else if (k_iCallback == SteamAPICallCompleted_t.k_iCallback)
-            {
-                SteamAPICallCompleted_t p = (SteamAPICallCompleted_t)Marshal.PtrToStructure(pvParam, typeof(SteamAPICallCompleted_t));
-
-                if (_apiCalls.ContainsKey(p.m_hAsyncCall))
-                {
-                    IAsynchronousCall call = _apiCalls[p.m_hAsyncCall];
-
-                    int sizeOf = Marshal.SizeOf(typeof(LeaderboardFindResult_t));
-                    IntPtr unmanagedAddr = Marshal.AllocHGlobal(sizeOf);
-
-                    byte failed;
-                    SteamUnityAPI_SteamUtils_GetAPICallResult(p.m_hAsyncCall, unmanagedAddr, sizeOf, LeaderboardFindResult_t.k_iCallback, out failed);
-                    LeaderboardFindResult_t findLearderboardResult = (LeaderboardFindResult_t)Marshal.PtrToStructure(unmanagedAddr, typeof(LeaderboardFindResult_t));
-
-                    Marshal.FreeHGlobal(unmanagedAddr);
-                    unmanagedAddr = IntPtr.Zero;
-
-                    Leaderboards.LeaderboardRecievedArgs hack = new Leaderboards.LeaderboardRecievedArgs(call.Sender as Leaderboards, findLearderboardResult);
-
-                    call.Complete(hack.Leaderboard);
-                }
-            }
-            else
-            {
-
-                Console.WriteLine(k_iCallback);
-            }*/
         }
 
 		internal void AddGameServerUserStatsReceivedCallback(SteamAPICall_t handle, OnUserStatsReceivedFromSteam callback)
@@ -630,21 +630,6 @@ namespace CommunityExpressNS
 			return (UInt64)Math.Sqrt((double)challenge);
 		}
         
-	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        struct RemoteStorageEnumerateUserSubscribedFilesResult_t
-        {
-	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 14;
-	        
-            EResult m_eResult;				// The result of the operation.
-	        Int32 m_nResultsReturned;
-	        Int32 m_nTotalResultCount;
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst=50)]
-	        PublishedFileId_t[] m_rgPublishedFileId;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst=50)]
-	        UInt32[] m_rgRTimeSubscribed;
-        };
-
         private void OnCallback(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             if (_internalHandlers.ContainsKey(k_iCallback) &&
@@ -670,53 +655,7 @@ namespace CommunityExpressNS
                     LowBattery(this, new LowBatteryArgs(lbp));
                 }
             }
-            else if (k_iCallback == RemoteStorageEnumerateUserSubscribedFilesResult_t.k_iCallback)
-            {
-                RemoteStorageEnumerateUserSubscribedFilesResult_t r = (RemoteStorageEnumerateUserSubscribedFilesResult_t)Marshal.PtrToStructure(pvParam, typeof(RemoteStorageEnumerateUserSubscribedFilesResult_t));
-
-                Console.WriteLine(r);
-            }
-            else if (1==2 && k_iCallback == SteamAPICallCompleted_t.k_iCallback)
-            {
-                SteamAPICallCompleted_t p = (SteamAPICallCompleted_t)Marshal.PtrToStructure(pvParam, typeof(SteamAPICallCompleted_t));
-                Console.WriteLine(p);
-                IntPtr unmanagedAddr = Marshal.AllocHGlobal(400);
-                for (int sizeOf = 400; sizeOf <= 400; sizeOf++)
-                {
-                    for (int i = 1314; i <= 1314; i++)
-                    {
-                        byte failed;
-                        SteamUnityAPI_SteamUtils_GetAPICallResult(p.m_hAsyncCall, unmanagedAddr, sizeOf, 1314, out failed);
-
-                        if (failed == 0)
-                        {
-                            Console.WriteLine(i);
-                        }
-                        // LeaderboardFindResult_t findLearderboardResult = (LeaderboardFindResult_t)Marshal.PtrToStructure(unmanagedAddr, typeof(LeaderboardFindResult_t));
-                    }
-                }
-                Marshal.FreeHGlobal(unmanagedAddr);
-                unmanagedAddr = IntPtr.Zero;
-
-                /*if (_apiCalls.ContainsKey(p.m_hAsyncCall))
-                {
-                    IAsynchronousCall call = _apiCalls[p.m_hAsyncCall];
-
-                    int sizeOf = Marshal.SizeOf(typeof(LeaderboardFindResult_t));
-                    IntPtr unmanagedAddr = Marshal.AllocHGlobal(sizeOf);
-
-                    byte failed;
-                    SteamUnityAPI_SteamUtils_GetAPICallResult(p.m_hAsyncCall, unmanagedAddr, sizeOf, LeaderboardFindResult_t.k_iCallback, out failed);
-                    LeaderboardFindResult_t findLearderboardResult = (LeaderboardFindResult_t)Marshal.PtrToStructure(unmanagedAddr, typeof(LeaderboardFindResult_t));
-
-                    Marshal.FreeHGlobal(unmanagedAddr);
-                    unmanagedAddr = IntPtr.Zero;
-
-                    Leaderboards.LeaderboardRecievedArgs hack = new Leaderboards.LeaderboardRecievedArgs(call.Sender as Leaderboards, findLearderboardResult);
-
-                    call.Complete(hack.Leaderboard);
-                }*/
-            }
+          
             else
             {
                 Console.WriteLine(k_iCallback);

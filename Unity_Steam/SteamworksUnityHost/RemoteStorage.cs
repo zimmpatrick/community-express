@@ -32,6 +32,8 @@ namespace CommunityExpressNS
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FilePersisted(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_GetQuota(IntPtr remoteStorage, out Int32 totalSpace, out Int32 availableSpace);
+        [DllImport("CommunityExpressSW")]
+        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_FileShare(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 
 		private IntPtr _remoteStorage;
 
@@ -105,6 +107,24 @@ namespace CommunityExpressNS
 			Marshal.FreeHGlobal(fileContentsPtr);
 		}
 
+        public FileWriteStream BeginWriteFile(String fileName)
+        {
+            return new FileWriteStream(fileName);
+        }
+
+
+        // deleate OnAsyncWriteWritten
+           // remoteFileName
+
+        public void AsyncWriteUpload(String localFileName, String remoteFileName)
+        {
+            FileWriteStream stream = BeginWriteFile(remoteFileName);
+
+            // stream.OnClose += 
+
+            CommunityExpress.Instance.AddFileWriterUpload(localFileName, stream);
+        }
+
 		public File GetFile(String fileName)
 		{
 			return new File(fileName, GetFileSize(fileName));
@@ -134,6 +154,11 @@ namespace CommunityExpressNS
 		{
 			return SteamUnityAPI_SteamRemoteStorage_FilePersisted(_remoteStorage, fileName);
 		}
+
+        public void FileShare(String fileName)
+        {
+            SteamUnityAPI_SteamRemoteStorage_FileShare(_remoteStorage, fileName);
+        }
 
 		public Int32 AvailableSpace
 		{

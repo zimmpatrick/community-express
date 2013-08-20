@@ -67,6 +67,11 @@ namespace SteamworksUnityTest
 
             Stats stats = cesdk.UserStats;
 
+            User user = cesdk.User;
+
+            Matchmaking matchmaking = cesdk.Matchmaking;
+
+            /*
 
             cesdk.UserStats.UserStatsReceived += (Stats sender, Stats.UserStatsReceivedArgs e) =>
             {
@@ -161,7 +166,6 @@ namespace SteamworksUnityTest
 			cesdk.RunCallbacks();
 			Console.WriteLine("  Remote Storage: Files={0} AvailableSpace={1}", remoteStorage.Count, remoteStorage.AvailableSpace);
 
-			User user = cesdk.User;
 			Console.WriteLine(user.LoggedOn);
 			Console.WriteLine(user.SteamID);
 
@@ -183,8 +187,6 @@ namespace SteamworksUnityTest
 			}
 
 			// Request a "list" of servers(should only be 1)
-			Matchmaking matchmaking = cesdk.Matchmaking;
-
 			matchmaking.CreateLobby(ELobbyType.k_ELobbyTypeInvisible, 2, MyOnLobbyCreated);
 			while (!_lobbyCreated)
 			{
@@ -224,15 +226,69 @@ namespace SteamworksUnityTest
 			stats.RequestCurrentStats(
                 new string[] { "Kills", "DamageHealed", "TotalZedTime" },
                 new Type[] { typeof(int), typeof(int), typeof(float) } );
-
+            
 			while (!_statsReceived)
 			{
 				cesdk.RunCallbacks();
             }
-
+            */
             _statsReceived = false;
-            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
-            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(50);
+            cesdk.UserGeneratedContent.EnumerateUserPublishedFiles(0);
+            //cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(50);
+
+
+            // cesdk.RemoteStorage.AsyncWriteUpload(
+
+            /*
+            foreach (File f in cesdk.RemoteStorage)
+            {
+                f.Delete();
+            }
+
+            byte[] level = System.IO.File.ReadAllBytes(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Abduction.level");
+            byte[] preview = System.IO.File.ReadAllBytes(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Abduction.png");
+
+            //cesdk.RemoteStorage.WriteFile(@"Content\Maps\Abduction.level", level);
+            cesdk.RemoteStorage.WriteFile(@"Content\Maps\Abduction.png", preview);
+
+            //cesdk.RemoteStorage.FileShare(@"Content\Maps\Abduction.level");
+            cesdk.RemoteStorage.FileShare(@"Content\Maps\Abduction.png");
+
+            int i = 0;
+            while (i++ < 10)
+            {
+                cesdk.RunCallbacks();
+
+                System.Threading.Thread.Sleep(1000);
+            }
+
+
+
+            cesdk.UserGeneratedContent.PublishWorkshopFile(@"Content\Maps\Abduction.png",
+                @"Content\Maps\Abduction.png",
+                1250,
+                "Test: Publish 1",
+                "This is a niiice description",
+                UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
+                new string[] { "Mutator" },
+                UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
+            */
+
+            while (!_statsReceived)
+            {
+                cesdk.RunCallbacks();
+            }
+
+         //   cesdk.UserGeneratedContent.UserFiles += { PublishedFile p)
+         //   {
+         //       p.Download("Maps/wrgfre.map");
+          //  }
+
+          //  cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070),
+          //      0, new string[] { "Mutator" }, null);
+          //  cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070),
+          //      0, null, null);
+
             while (!_statsReceived)
             {
                 cesdk.RunCallbacks();
