@@ -16,14 +16,14 @@ namespace CommunityExpressNS
     {
         internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 14;
 
-        EResult m_eResult;				// The result of the operation.
-        Int32 m_nResultsReturned;
-        Int32 m_nTotalResultCount;
+        internal EResult m_eResult;				// The result of the operation.
+        internal Int32 m_nResultsReturned;
+        internal Int32 m_nTotalResultCount;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
-        PublishedFileId_t[] m_rgPublishedFileId;
+        internal PublishedFileId_t[] m_rgPublishedFileId;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
-        UInt32[] m_rgRTimeSubscribed;
+        internal UInt32[] m_rgRTimeSubscribed;
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -47,7 +47,7 @@ namespace CommunityExpressNS
             internal EResult m_eResult;				// The result of the operation.
             internal Int32 m_nResultsReturned;
             internal Int32 m_nTotalResultCount;
-
+            
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
             internal PublishedFileId_t[] m_rgPublishedFileId;
     };
@@ -61,6 +61,60 @@ namespace CommunityExpressNS
 	    internal double m_dPercentFile;
         internal bool m_bPreview;
     };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
+    internal struct RemoteStorageGetPublishedFileDetailsResult_t
+    {
+        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 18;
+        internal EResult m_eResult;				// The result of the operation.
+        internal PublishedFileId_t m_nPublishedFileId;
+        internal AppId_t m_nCreatorAppID;		// ID of the app that created this file.
+        internal AppId_t m_nConsumerAppID;		// ID of the app that will consume this file.
+        
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 129)]
+        internal string m_rgchTitle;		// title of document
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8000)]
+        internal string m_rgchDescription;	// description of document
+
+        internal UGCHandle_t m_hFile;			// The handle of the primary file
+        internal UGCHandle_t m_hPreviewFile;		// The handle of the preview file
+        internal UInt64 m_ulSteamIDOwner;		// Steam ID of the user who created this content.
+        internal UInt32 m_rtimeCreated;			// time when the published file was created
+        internal UInt32 m_rtimeUpdated;			// time when the published file was last updated
+        internal UserGeneratedContent.ERemoteStoragePublishedFileVisibility m_eVisibility;
+        [MarshalAs(UnmanagedType.I1)]
+        internal bool m_bBanned;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1025)]
+        internal string m_rgchTags;	// comma separated list of all tags associated with this file
+        [MarshalAs(UnmanagedType.I1)]
+        internal bool m_bTagsTruncated;			// whether the list of tags was too long to be returned in the provided buffer
+        
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        internal string m_pchFileName;		// The name of the primary file
+        internal Int32 m_nFileSize;				// Size of the primary file
+        internal Int32 m_nPreviewFileSize;		// Size of the preview file
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        internal string m_rgchURL;	// URL (for a video or a website)
+        internal UserGeneratedContent.EWorkshopFileType m_eFileType;	// Type of the file
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
+    internal struct RemoteStorageDownloadUGCResult_t
+    {
+        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 17;
+
+        internal EResult m_eResult;				// The result of the operation.
+        internal UGCHandle_t m_hFile;			// The handle to the file that was attempted to be downloaded.
+        internal AppId_t m_nAppID;				// ID of the app that created this file.
+        internal Int32 m_nSizeInBytes;			// The size of the file that was downloaded, in bytes.
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        internal string m_pchFileName;		// The name of the file that was downloaded. 
+        internal UInt64 m_ulSteamIDOwner;		// Steam ID of the user who created this content.
+    };
+
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct SteamParamStringArray_t
@@ -121,9 +175,9 @@ namespace CommunityExpressNS
     
     public class UserGeneratedContent
     {
-        public enum EWorkshopFileType
+        public enum EWorkshopFileType 
         {
-            k_EWorkshopFileTypeFirst = 0,
+            // k_EWorkshopFileTypeFirst = 0,
 
             k_EWorkshopFileTypeCommunity = 0,
             k_EWorkshopFileTypeMicrotransaction = 1,
@@ -138,7 +192,7 @@ namespace CommunityExpressNS
             k_EWorkshopFileTypeIntegratedGuide = 10,
 
             // Update k_EWorkshopFileTypeMax if you add values
-            k_EWorkshopFileTypeMax = 11
+            // k_EWorkshopFileTypeMax = 11
 
         };
         
@@ -159,7 +213,7 @@ namespace CommunityExpressNS
             k_EWorkshopFileActionCompleted = 1,
         };
 
-        public enum ERemoteStoragePublishedFileVisibility
+        public enum ERemoteStoragePublishedFileVisibility 
         {
             k_ERemoteStoragePublishedFileVisibilityPublic = 0,
             k_ERemoteStoragePublishedFileVisibilityFriendsOnly = 1,
@@ -171,6 +225,228 @@ namespace CommunityExpressNS
             k_EWorkshopVideoProviderNone = 0,
             k_EWorkshopVideoProviderYoutube = 1
         };
+
+        public class PublishedFileDownloadResultArgs : System.EventArgs
+        {
+            internal PublishedFileDownloadResultArgs(PublishedFile publishedFile, bool primaryFile, string fileName)
+            {
+                PublishedFile = publishedFile;
+                PrimaryFile = primaryFile;
+                FileName = fileName;
+            }
+
+            public bool Success
+            {
+                get;
+                internal set;
+            }
+
+            internal bool PrimaryFile
+            {
+                get;
+                private set;
+            }
+
+            public PublishedFile PublishedFile
+            {
+                get;
+                private set;
+            }
+
+            public string FileName
+            {
+                get;
+                private set;
+            }
+        }
+
+        public class PublishedFile
+        {
+            [DllImport("CommunityExpressSW")]
+            private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_UGCDownload(IntPtr remoteStorage, UGCHandle_t hFile, UInt32 unPriority);
+        
+            internal PublishedFile(RemoteStorageGetPublishedFileDetailsResult_t args, UInt32 subscribe, IntPtr remoteStorage)
+            {
+                RemoteStorage = remoteStorage;
+
+                // Result = args.m_eResult;
+                Title = args.m_rgchTitle;
+                Description = args.m_rgchDescription;
+                OwnerSteamID = new SteamID(args.m_ulSteamIDOwner);
+                Tags = args.m_rgchTags.Split(',');
+                TagsTruncated = args.m_bTagsTruncated;
+                FileSize = args.m_nFileSize;
+                URL = args.m_rgchURL;
+                FileType = args.m_eFileType;
+                FileName = args.m_pchFileName;
+                hFile = args.m_hFile;
+                hPreviewFile = args.m_hPreviewFile;
+                ID = args.m_nPublishedFileId;
+
+                DateTime epoc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                CreatedDate = epoc.AddSeconds(args.m_rtimeCreated);
+                SubscribeDate = epoc.AddSeconds(subscribe);
+            }
+
+            public string Title
+            {
+                get;
+                private set;
+            }
+
+            public string Description
+            {
+                get;
+                private set;
+            }
+
+            public string FileName
+            {
+                get;
+                private set;
+            }
+
+            public string PreviewFileName
+            {
+                get;
+                internal set;
+            }
+
+            public SteamID OwnerSteamID
+            {
+                get;
+                private set;
+            }
+
+            public string[] Tags
+            {
+                get;
+                private set;
+            }
+
+            public bool TagsTruncated
+            {
+                get;
+                private set;
+            }
+
+            public Int32 FileSize
+            {
+                get;
+                private set;
+            }
+
+            public string URL
+            {
+                get;
+                private set;
+            }
+
+            public EWorkshopFileType FileType
+            {
+                get;
+                private set;
+            }
+
+            public DateTime CreatedDate
+            {
+                get;
+                private set;
+            }
+
+            public DateTime SubscribeDate
+            {
+                get;
+                private set;
+            }
+
+            internal UGCHandle_t hFile
+            {
+                get;
+                set;
+            }
+
+            internal UGCHandle_t hPreviewFile
+            {
+                get;
+                set;
+            }
+
+            public string FileDirectory
+            {
+                get
+                {
+                    int dir = FileName.LastIndexOf('/');
+                    if (dir <= 0) return string.Empty;
+
+                    return FileName.Substring(0, dir - 1);
+                }
+            }
+
+            public string PreviewFileDirectory
+            {
+                get
+                {
+                    if (PreviewFileName == null) return null;
+
+                    int dir = PreviewFileName.LastIndexOf('/');
+                    if (dir <= 0) return string.Empty;
+
+                    return PreviewFileName.Substring(0, dir - 1);
+                }
+            }
+
+            public UInt64 ID
+            {
+                get;
+                private set;
+            }
+
+            private IntPtr RemoteStorage
+            {
+                get;
+                set;
+            }
+            
+            /// <summary>
+            /// Downloads a UGC file.  A priority value of 0 will download the file immediately,
+            /// otherwise it will wait to download the file until all downloads with a lower priority
+            /// value are completed.  Downloads with equal priority will occur simultaneously.
+            /// </summary>
+            public void Download(string fileName, UInt32 priority)
+            {
+                // SteamUnityAPI_SteamRemoteStorage_UGCDownload(RemoteStorage, hFile, priority);
+                string fullFileName = System.IO.Path.GetFullPath(fileName);
+
+                System.IO.Directory.CreateDirectory(
+                    System.IO.Path.GetDirectoryName(fullFileName));
+
+                UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UGCDownloadToLocation(RemoteStorage, hFile, fullFileName, 0);
+                CommunityExpress.Instance.UserGeneratedContent.AddUGCDownload(ret, new PublishedFileDownloadResultArgs(this, true, fileName));
+            }
+
+            public void WritePreviewFile(string fileName)
+            {
+                string fullFileName = System.IO.Path.GetFullPath(fileName);
+
+                System.IO.Directory.CreateDirectory(
+                    System.IO.Path.GetDirectoryName(fullFileName));
+
+                // copy off preview file
+                UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UGCDownloadToLocation(RemoteStorage, hPreviewFile, fullFileName, 0);
+                CommunityExpress.Instance.UserGeneratedContent.AddUGCDownload(ret, new PublishedFileDownloadResultArgs(this, false, fileName));
+            }
+
+            /// <summary>
+            /// Downloads a UGC file.  A priority value of 0 will download the file immediately,
+            /// otherwise it will wait to download the file until all downloads with a lower priority
+            /// value are completed.  Downloads with equal priority will occur simultaneously.
+            /// </summary>
+            internal void InernalDownloadPreview(UInt32 priority)
+            {
+                SteamUnityAPI_SteamRemoteStorage_UGCDownload(RemoteStorage, hPreviewFile, priority);
+            }
+        }
 
         [DllImport("CommunityExpressSW")]
         private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
@@ -251,6 +527,7 @@ namespace CommunityExpressNS
         private IntPtr _remoteStorage;
         private CommunityExpress _ce;
         private CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserSharedWorkshopFilesResult_t> _userSharedFilesHandler;
+        private Dictionary<UInt64, PublishedFileDownloadResultArgs> _ugcDownloads = new Dictionary<PublishedFileUpdateHandle_t, PublishedFileDownloadResultArgs>();
 
         internal UserGeneratedContent(CommunityExpress ce)
         {
@@ -266,6 +543,107 @@ namespace CommunityExpressNS
 
             CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserPublishedFilesResult_t> h2 = new CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserPublishedFilesResult_t>(Events_UserPublishedFilesResultReceived);
             _ce.AddEventHandler(RemoteStorageEnumerateUserPublishedFilesResult_t.k_iCallback, h2);
+
+            CommunityExpress.OnEventHandler<RemoteStorageGetPublishedFileDetailsResult_t> h3 = new CommunityExpress.OnEventHandler<RemoteStorageGetPublishedFileDetailsResult_t>(Events_GetPublishedFileDetailsReceived);
+            _ce.AddEventHandler(RemoteStorageGetPublishedFileDetailsResult_t.k_iCallback, h3);
+
+            _ce.AddEventHandler(RemoteStorageEnumerateUserSubscribedFilesResult_t.k_iCallback,
+                new CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserSubscribedFilesResult_t>(Events_GetUserSubscribedFilesReceived));
+
+            _ce.AddEventHandler(RemoteStorageDownloadUGCResult_t.k_iCallback,
+                new CommunityExpress.OnEventHandler<RemoteStorageDownloadUGCResult_t>(Events_DownloadUGCReceived));
+
+            _ce.AddEventHandler(SteamAPICallCompleted_t.k_iCallback,
+                new CommunityExpress.OnEventHandler<SteamAPICallCompleted_t>(Events_SteamAPICallCompleted));
+        }
+
+
+
+        public class PublishedFileDetailsResultArgs : System.EventArgs
+        {
+            internal PublishedFileDetailsResultArgs(ICollection<PublishedFile> publishedFiles, EResult result,
+                UInt32 offset, Int32 totalCount)
+            {
+                StartIndex = offset;
+                TotalCount = totalCount;
+                Result = result;
+                PublishedFiles = publishedFiles;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+
+            public UInt32 StartIndex
+            {
+                get;
+                private set;
+            }
+
+            public Int32 TotalCount
+            {
+                get;
+                private set;
+            }
+
+            public ICollection<PublishedFile> PublishedFiles
+            {
+                get;
+                private set;
+            }
+        }
+
+        private UInt32 _offset = 0;
+        private Int32 _totalCount = 0;
+        private List<PublishedFile> _publishedFiles = null;
+        private Dictionary<PublishedFileId_t, UInt32> _subscribeTimes = new Dictionary<PublishedFileId_t, UInt32>();
+
+        private void Events_GetUserSubscribedFilesReceived(RemoteStorageEnumerateUserSubscribedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            _totalCount = recv.m_nTotalResultCount;
+
+            for (int i = 0; i < recv.m_nResultsReturned; i++)
+            {
+                GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+                _subscribeTimes.Add(recv.m_rgPublishedFileId[i], recv.m_rgRTimeSubscribed[i]);
+            }
+        }
+
+        public delegate void PublishedFileDownloadedHandler(UserGeneratedContent sender, PublishedFileDownloadResultArgs file);
+        public event PublishedFileDownloadedHandler PublishedFileDownloaded;
+        public event PublishedFileDownloadedHandler PublishedPreviewFileDownloaded;
+
+        private void Events_SteamAPICallCompleted(SteamAPICallCompleted_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (_ugcDownloads.ContainsKey(recv.m_hAsyncCall))
+            {
+                PublishedFileDownloadResultArgs args = _ugcDownloads[recv.m_hAsyncCall];
+                args.Success = !bIOFailure;
+
+                if (args.PrimaryFile)
+                {
+                    if (PublishedFileDownloaded != null)
+                    {
+                        PublishedFileDownloaded(this, args);
+                    }
+                }
+                else
+                {
+                    if (PublishedPreviewFileDownloaded != null)
+                    {
+                        PublishedPreviewFileDownloaded(this, args);
+                    }
+                }
+
+                _ugcDownloads.Remove(recv.m_hAsyncCall);
+            }
+        }
+
+        internal void AddUGCDownload(UInt64 hSteamAPICall, PublishedFileDownloadResultArgs file)
+        {
+            _ugcDownloads.Add(hSteamAPICall, file);
         }
 
         private void Events_PublishFileProgressReceived(RemoteStoragePublishFileProgress_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -273,11 +651,63 @@ namespace CommunityExpressNS
             Console.WriteLine(recv.m_dPercentFile);
         }
 
-        private void Events_UserPublishedFilesResultReceived(RemoteStorageEnumerateUserPublishedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        private void Events_DownloadUGCReceived(RemoteStorageDownloadUGCResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
-            Console.WriteLine(recv.m_eResult);
+            if (_publishedFiles == null) return;
+
+            int goodFiles = 0;
+            foreach (PublishedFile pf in _publishedFiles)
+            {
+                if (pf.hPreviewFile == recv.m_hFile)
+                {
+                    pf.PreviewFileName = recv.m_pchFileName;
+                }
+
+                if (pf.PreviewFileName != null) goodFiles++;
+            }
+
+            if (goodFiles == _subscribeTimes.Count)
+            {
+                FileDetails(this, new PublishedFileDetailsResultArgs(_publishedFiles, EResult.EResultOK, _offset, _totalCount));
+            }
+
+            Console.WriteLine(recv.m_pchFileName);
         }
 
+        private void Events_UserPublishedFilesResultReceived(RemoteStorageEnumerateUserPublishedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            for (int i = 0; i < recv.m_nResultsReturned; i++)
+            {
+                GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+            }
+        }
+
+        public delegate void PublishedFileDetailsResultHandler(UserGeneratedContent sender, PublishedFileDetailsResultArgs args);
+        public event PublishedFileDetailsResultHandler FileDetails;
+
+        private void Events_GetPublishedFileDetailsReceived(RemoteStorageGetPublishedFileDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            Console.WriteLine(recv.m_pchFileName);
+            Console.WriteLine(recv.m_rgchDescription);
+
+            if (FileDetails != null && _publishedFiles != null)
+            {
+                if (recv.m_eResult == EResult.EResultOK)
+                {
+                    PublishedFile pf = new PublishedFile(recv, _subscribeTimes[recv.m_nPublishedFileId], _remoteStorage);
+                    pf.InernalDownloadPreview(0);
+
+                    _publishedFiles.Add(pf);
+                }
+                else
+                {
+                    _publishedFiles = null; // signal done
+                    FileDetails(this, new PublishedFileDetailsResultArgs(null, recv.m_eResult, _offset, _totalCount));
+                }
+            }
+        }
+
+        
         private void Events_UserSharedWorkshopFilesReceived(RemoteStorageEnumerateUserSharedWorkshopFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             _ce.RemoveEventHandler(RemoteStorageEnumerateUserSharedWorkshopFilesResult_t.k_iCallback, _userSharedFilesHandler);
@@ -296,6 +726,10 @@ namespace CommunityExpressNS
 
         public void EnumerateUserPublishedFiles(UInt32 unStartIndex)
         {
+            _offset = unStartIndex;
+            _totalCount = 0;
+            _publishedFiles = new List<PublishedFile>();
+
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumerateUserPublishedFiles(_remoteStorage, unStartIndex);
 
             Console.WriteLine(ret);
@@ -303,6 +737,10 @@ namespace CommunityExpressNS
 
         public void EnumerateUserSubscribedFiles( UInt32 unStartIndex )
         {
+            _offset = unStartIndex;
+            _totalCount = 0;
+            _publishedFiles = new List<PublishedFile>();
+
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumerateUserSubscribedFiles(_remoteStorage, unStartIndex);
 
             Console.WriteLine(ret);
@@ -381,13 +819,6 @@ namespace CommunityExpressNS
             Console.WriteLine(ret);
         }
 
-        public void UGCDownloadToLocation(UGCHandle_t hContent, string pchLocation, UInt32 unPriority)
-        {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UGCDownloadToLocation(_remoteStorage, hContent, pchLocation, unPriority);
-
-            Console.WriteLine(ret);
-        }
-
         public void CommitPublishedFileUpdate(PublishedFileUpdateHandle_t updateHandle)
         {
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(_remoteStorage, updateHandle);
@@ -397,6 +828,10 @@ namespace CommunityExpressNS
 
         public void GetPublishedFileDetails(PublishedFileUpdateHandle_t updateHandle)
         {
+            int theSize = Marshal.SizeOf(typeof(RemoteStorageGetPublishedFileDetailsResult_t));
+            Console.WriteLine("size: {0}", theSize);
+
+
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(_remoteStorage, updateHandle);
 
             Console.WriteLine(ret);

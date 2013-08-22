@@ -451,7 +451,7 @@ namespace CommunityExpressNS
 			{
 				if (_remoteStorage == null)
 				{
-					_remoteStorage = new RemoteStorage();
+					_remoteStorage = new RemoteStorage(this);
 				}
 
 				return _remoteStorage;

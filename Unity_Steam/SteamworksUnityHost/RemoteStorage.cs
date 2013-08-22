@@ -9,8 +9,13 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
+    using UGCHandle_t = UInt64;
+    using SteamAPICall_t = UInt64;
+
 	public class RemoteStorage : ICollection<File>
 	{
+        int _fsCount = 0;
+
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
 		[DllImport("CommunityExpressSW")]
@@ -20,8 +25,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(IntPtr remoteStorage, int iFile, out int nFileSizeInBytes);
 		[DllImport("CommunityExpressSW")]
-		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_WriteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName,
-			IntPtr fileContents, int fileContentsLength);
+		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_WriteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName, IntPtr fileContents, int fileContentsLength);
 		[DllImport("CommunityExpressSW")]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_ForgetFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 		[DllImport("CommunityExpressSW")]
@@ -34,7 +38,64 @@ namespace CommunityExpressNS
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_GetQuota(IntPtr remoteStorage, out Int32 totalSpace, out Int32 availableSpace);
         [DllImport("CommunityExpressSW")]
         private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_FileShare(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
+        
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageFileShareResult_t
+        {
+            internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 7;
 
+            internal EResult m_eResult;			// The result of the operation
+            internal UGCHandle_t m_hFile;		// The handle that can be shared with users and features
+        };
+
+        public class RemoteStorageFileShareResultArgs : System.EventArgs
+        {
+            internal RemoteStorageFileShareResultArgs(RemoteStorageFileShareResult_t args, int remainingfiles)
+            {
+                Result = args.m_eResult;
+                RemainingFiles = remainingfiles;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+
+            public int RemainingFiles
+            {
+                get;
+                private set;
+            }
+        }
+
+        public delegate void RemoteStorageFileShareResultHandler(RemoteStorage sender, RemoteStorageFileShareResultArgs args);
+        public event RemoteStorageFileShareResultHandler FileShared;
+
+        public class FileWriteStreamCloseArgs : System.EventArgs
+        {
+            internal FileWriteStreamCloseArgs(FileWriteStream stream, bool success)
+            {
+                FileWriteStream = stream;
+                Success = success;
+            }
+
+            public FileWriteStream FileWriteStream
+            {
+                get;
+                private set;
+            }
+
+            public bool Success
+            {
+                get;
+                private set;
+            }
+        }
+
+        public delegate void FileWriteStreamCloseHandler(RemoteStorage sender, FileWriteStreamCloseArgs args);
+        public event FileWriteStreamCloseHandler FileWriteStreamClosed;
+        
 		private IntPtr _remoteStorage;
 
 		private class FileEnumator : IEnumerator<File>
@@ -82,10 +143,26 @@ namespace CommunityExpressNS
 			}
 		}
 
-		internal RemoteStorage()
+        private CommunityExpress _ce;
+
+		internal RemoteStorage(CommunityExpress ce)
 		{
+            _ce = ce;
 			_remoteStorage = SteamUnityAPI_SteamRemoteStorage();
+
+
+            CommunityExpress.OnEventHandler<RemoteStorageFileShareResult_t> h = new CommunityExpress.OnEventHandler<RemoteStorageFileShareResult_t>(Events_FileShareResultReceived);
+            _ce.AddEventHandler(RemoteStorageFileShareResult_t.k_iCallback, h);
 		}
+
+        private void Events_FileShareResultReceived(RemoteStorageFileShareResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (FileShared != null)
+            {
+                _fsCount--;
+                FileShared(this, new RemoteStorageFileShareResultArgs(recv, _fsCount));
+            }
+        }
 
 		internal IntPtr SteamPointer
 		{
@@ -96,7 +173,7 @@ namespace CommunityExpressNS
 		{
 			SteamUnityAPI_SteamRemoteStorage_WriteFile(_remoteStorage, fileName, Marshal.StringToHGlobalAnsi(fileContents), fileContents.Length);
 		}
-
+      
 		public void WriteFile(String fileName, Byte[] fileContents)
 		{
 			IntPtr fileContentsPtr = Marshal.AllocHGlobal(fileContents.Length);
@@ -107,22 +184,32 @@ namespace CommunityExpressNS
 			Marshal.FreeHGlobal(fileContentsPtr);
 		}
 
+
         public FileWriteStream BeginWriteFile(String fileName)
         {
             return new FileWriteStream(fileName);
         }
 
 
-        // deleate OnAsyncWriteWritten
-           // remoteFileName
-
         public void AsyncWriteUpload(String localFileName, String remoteFileName)
         {
             FileWriteStream stream = BeginWriteFile(remoteFileName);
 
-            // stream.OnClose += 
+            stream.Closed += new FileWriteStream.CloseHandler(Stream_Closed);
 
-            CommunityExpress.Instance.AddFileWriterUpload(localFileName, stream);
+            _ce.AddFileWriterUpload(localFileName, stream);
+
+            _fsCount++;
+        }
+
+        void Stream_Closed(FileWriteStream sender, bool success)
+        {
+            if (FileWriteStreamClosed != null)
+            {
+                FileWriteStreamClosed(this, new FileWriteStreamCloseArgs(sender, success));
+
+                sender.Closed -= new FileWriteStream.CloseHandler(Stream_Closed);
+            }
         }
 
 		public File GetFile(String fileName)
@@ -157,7 +244,7 @@ namespace CommunityExpressNS
 
         public void FileShare(String fileName)
         {
-            SteamUnityAPI_SteamRemoteStorage_FileShare(_remoteStorage, fileName);
+            SteamAPICall_t ret = SteamUnityAPI_SteamRemoteStorage_FileShare(_remoteStorage, fileName);
         }
 
 		public Int32 AvailableSpace

@@ -495,6 +495,34 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_WriteFile(void* pSteam
 	return pISteamRemoteStorage->FileWrite(pchFile, pvData, cubData);
 }
 
+STEAMWORKSUNITY_API UGCFileWriteStreamHandle_t SteamUnityAPI_SteamRemoteStorage_FileWriteStreamOpen(void* pSteamRemoteStorage, const char *pchFile)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileWriteStreamOpen(pchFile);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FileWriteStreamWriteChunk(void* pSteamRemoteStorage, UGCFileWriteStreamHandle_t writeHandle, void *pvData, int32 cubData)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileWriteStreamWriteChunk(writeHandle, pvData, cubData);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FileWriteStreamClose(void* pSteamRemoteStorage, UGCFileWriteStreamHandle_t writeHandle)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileWriteStreamClose(writeHandle);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_FileWriteStreamCancel(void* pSteamRemoteStorage, UGCFileWriteStreamHandle_t writeHandle)
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	return pISteamRemoteStorage->FileWriteStreamCancel(writeHandle);
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_ForgetFile(void* pSteamRemoteStorage, const char *pchFile)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
@@ -585,7 +613,7 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublished
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedItemVoteDetails( unPublishedFileId );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageGetPublishedItemVoteDetailsResult, hAPICall );
 	
 	return hAPICall;
 }
@@ -654,10 +682,7 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownloadT
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
-	SteamAPICall_t hAPICall = pISteamRemoteStorage->UGCDownloadToLocation( hContent, pchLocation, unPriority);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
-	
-	return hAPICall;
+	return pISteamRemoteStorage->UGCDownloadToLocation( hContent, pchLocation, unPriority);
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle )
@@ -672,10 +697,14 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_CommitPublis
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(void* pSteamRemoteStorage, PublishedFileUpdateHandle_t updateHandle )
 {
+	int theSize = sizeof(RemoteStorageGetPublishedFileDetailsResult_t);
+	printf("size: %d", theSize);
+
+
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedFileDetails(updateHandle);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageGetPublishedFileDetailsResult, hAPICall );
 	
 	return hAPICall;
 }
@@ -762,6 +791,16 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePub
 	return hAPICall;
 
 	// return pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownload(void* pSteamRemoteStorage, UGCHandle_t hContent, uint32 unPriority )
+{
+	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
+
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->UGCDownload(hContent, unPriority);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+	
+	return hAPICall;
 }
 
 // How long to wait for a response from the server before resending our connection attempt

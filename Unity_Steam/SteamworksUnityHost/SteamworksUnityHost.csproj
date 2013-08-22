@@ -61,6 +61,7 @@
     <Compile Include="Events.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="File.cs" />
+    <Compile Include="FileWriteStream.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="InGamePurchase.cs" />
     <Compile Include="InGamePurchasing.cs" />

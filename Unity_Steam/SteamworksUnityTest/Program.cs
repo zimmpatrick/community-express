@@ -2,11 +2,13 @@
 // All rights reserved.
 
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Threading;
 using CommunityExpressNS;
+using System.Linq;
 
 namespace SteamworksUnityTest
 {
@@ -233,48 +235,69 @@ namespace SteamworksUnityTest
             }
             */
             _statsReceived = false;
-            cesdk.UserGeneratedContent.EnumerateUserPublishedFiles(0);
-            //cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(50);
+            
+           // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
 
+            /// BEGIN PUBLISH
+            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\CraftTower.level", @"Content\Maps\CraftTower.level");
+            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\CraftTower.png", @"Content\Maps\CraftTower.png");
 
-            // cesdk.RemoteStorage.AsyncWriteUpload(
-
-            /*
-            foreach (File f in cesdk.RemoteStorage)
+            cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
-                f.Delete();
-            }
+                cesdk.RemoteStorage.FileShare(e.FileWriteStream.FileName);
+            };
 
-            byte[] level = System.IO.File.ReadAllBytes(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Abduction.level");
-            byte[] preview = System.IO.File.ReadAllBytes(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Abduction.png");
-
-            //cesdk.RemoteStorage.WriteFile(@"Content\Maps\Abduction.level", level);
-            cesdk.RemoteStorage.WriteFile(@"Content\Maps\Abduction.png", preview);
-
-            //cesdk.RemoteStorage.FileShare(@"Content\Maps\Abduction.level");
-            cesdk.RemoteStorage.FileShare(@"Content\Maps\Abduction.png");
-
-            int i = 0;
-            while (i++ < 10)
+            cesdk.RemoteStorage.FileShared += (RemoteStorage sender, RemoteStorage.RemoteStorageFileShareResultArgs e) =>
             {
-                cesdk.RunCallbacks();
+                if (e.RemainingFiles == 0)
+                {
+                    Console.WriteLine("Publishing File");
+                    cesdk.UserGeneratedContent.PublishWorkshopFile(@"Content\Maps\CraftTower.level",
+                        @"Content\Maps\CraftTower.png",
+                        241720,
+                        "CraftTower - Workshop Level",
+                        "This is CraftTower, we have toast here too",
+                        UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
+                        new string[] { "Map", "Tower" },
+                        UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
+                }
+            };
 
-                System.Threading.Thread.Sleep(1000);
-            }
+            /// END PUBLISH
 
+            /// BEGIN SEARCH
+            cesdk.UserGeneratedContent.FileDetails += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDetailsResultArgs e) =>
+            {
+                foreach (UserGeneratedContent.PublishedFile p in e.PublishedFiles)
+                {
+                    if (p.Tags.Contains("Map"))
+                    {
+                        p.Download(p.FileDirectory + "/" + p.ID + ".level", 0);
+                        p.WritePreviewFile(p.PreviewFileDirectory + "/" + p.ID + 
+                            Path.GetExtension(p.PreviewFileName));
+                    }
 
+                }
+            };
+            /// 
 
-            cesdk.UserGeneratedContent.PublishWorkshopFile(@"Content\Maps\Abduction.png",
-                @"Content\Maps\Abduction.png",
-                1250,
-                "Test: Publish 1",
-                "This is a niiice description",
-                UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
-                new string[] { "Mutator" },
-                UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
-            */
+            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
 
-            while (!_statsReceived)
+            cesdk.UserGeneratedContent.PublishedPreviewFileDownloaded += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDownloadResultArgs pf) =>
+            {
+                // add to UI
+                Console.WriteLine(pf.PublishedFile.Title + ": " + pf.FileName);
+            };
+
+            cesdk.UserGeneratedContent.PublishedFileDownloaded += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDownloadResultArgs pf) =>
+            {
+                // ready to play!
+                Console.WriteLine(pf.FileName);
+            };
+
+            /// END SEARCH
+
+            while (true)
             {
                 cesdk.RunCallbacks();
             }
@@ -284,10 +307,8 @@ namespace SteamworksUnityTest
          //       p.Download("Maps/wrgfre.map");
           //  }
 
-          //  cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070),
-          //      0, new string[] { "Mutator" }, null);
-          //  cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070),
-          //      0, null, null);
+           
+            //cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
 
             while (!_statsReceived)
             {
