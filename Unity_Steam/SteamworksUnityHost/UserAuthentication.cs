@@ -46,6 +46,8 @@ namespace CommunityExpressNS
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     struct GetAuthSessionTicketResponse_t
     {
+	    public const int k_iCallback = Events.k_iSteamUserCallbacks + 63;
+
         public HAuthTicket m_hAuthTicket;
         public EResult m_eResult;
     }
@@ -70,14 +72,18 @@ namespace CommunityExpressNS
         
         private User _user;
         private OnUserEncryptedAppTicketCreated _onUserEncryptedAppTicketCreated;
-        private OnAuthSessionTicketResponseReceivedFromSteam _internalOnAuthSessionTicketResponseReceived = null;
-        private OnAuthSessionTicketResponseReceived _onAuthSessionTicketResponseReceived;
         private List<SessionTicket> _sts;
+
+        public event OnAuthSessionTicketResponseReceived AuthSessionTicketResponseReceived;
 
         internal UserAuthentication(User user)
         {
             _user = user;
             _sts = new List<SessionTicket>();
+
+            CommunityExpress.Instance.AddEventHandler<GetAuthSessionTicketResponse_t>(
+                GetAuthSessionTicketResponse_t.k_iCallback,
+                new CommunityExpress.OnEventHandler<GetAuthSessionTicketResponse_t>(OnAuthSessionTicketResponseReceivedCallback));
         }
 
 
@@ -114,7 +120,7 @@ namespace CommunityExpressNS
         }
 
 
-        private void OnAuthSessionTicketResponseReceivedCallback(ref GetAuthSessionTicketResponse_t CallbackData)
+        private void OnAuthSessionTicketResponseReceivedCallback(GetAuthSessionTicketResponse_t CallbackData, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             HAuthTicket authTicket = CallbackData.m_hAuthTicket;
             SessionTicket st = _sts.Find(sst => sst.handleAuthTicket == authTicket);
@@ -129,26 +135,19 @@ namespace CommunityExpressNS
                 }
                 st.authTicket = newData;
                 st.result = CallbackData.m_eResult;
- 
-                if (_onAuthSessionTicketResponseReceived != null)
+
+                if (AuthSessionTicketResponseReceived != null)
                 {
-                    _onAuthSessionTicketResponseReceived(_user, st);
+                    AuthSessionTicketResponseReceived(_user, st);
                 }
             }
         }
 
         // Retrieve ticket to be sent to the entity who wishes to authenticate you ( using BeginAuthSession API ). 
         // pcbTicket retrieves the length of the actual ticket.
-        public SessionTicket GetAuthSessionTicket(OnAuthSessionTicketResponseReceived onAuthSessionTicketResponseReceived)
+        public SessionTicket GetAuthSessionTicket()
         {
-            _onAuthSessionTicketResponseReceived = onAuthSessionTicketResponseReceived;
-
             SessionTicket st = new SessionTicket(_user);
-
-            if (_internalOnAuthSessionTicketResponseReceived == null)
-            {
-                _internalOnAuthSessionTicketResponseReceived = new OnAuthSessionTicketResponseReceivedFromSteam(OnAuthSessionTicketResponseReceivedCallback);
-            }
 
             _sts.Add(st);
             st.handleAuthTicket = SteamUnityAPI_SteamUser_GetAuthSessionTicket(_user.UserPointer, st.authTicket, AuthTicketSizeMax, out st.authTicketSize);

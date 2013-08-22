@@ -73,6 +73,15 @@ namespace SteamworksUnityTest
 
             Matchmaking matchmaking = cesdk.Matchmaking;
 
+
+            cesdk.User.Authentication.AuthSessionTicketResponseReceived += new OnAuthSessionTicketResponseReceived(Authentication_AuthSessionTicketResponseReceived);
+
+            SessionTicket st = cesdk.User.Authentication.GetAuthSessionTicket();
+            if (st != null) st.Cancel();
+
+            st = cesdk.User.Authentication.GetAuthSessionTicket();
+            
+
             /*
 
             cesdk.UserStats.UserStatsReceived += (Stats sender, Stats.UserStatsReceivedArgs e) =>
@@ -239,8 +248,8 @@ namespace SteamworksUnityTest
            // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
 
             /// BEGIN PUBLISH
-            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\CraftTower.level", @"Content\Maps\CraftTower.level");
-            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\CraftTower.png", @"Content\Maps\CraftTower.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Valley.png", @"Content\Maps\Valley.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\CraftTower.png", @"Content\Maps\CraftTower.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
@@ -252,6 +261,7 @@ namespace SteamworksUnityTest
                 if (e.RemainingFiles == 0)
                 {
                     Console.WriteLine("Publishing File");
+                    /*
                     cesdk.UserGeneratedContent.PublishWorkshopFile(@"Content\Maps\CraftTower.level",
                         @"Content\Maps\CraftTower.png",
                         241720,
@@ -260,9 +270,12 @@ namespace SteamworksUnityTest
                         UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
                         new string[] { "Map", "Tower" },
                         UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
+                     * */
+                    //
+                    cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
                 }
             };
-
+            cesdk.UserGeneratedContent.EnumerateUserPublishedFiles(0);
             /// END PUBLISH
 
             /// BEGIN SEARCH
@@ -272,16 +285,23 @@ namespace SteamworksUnityTest
                 {
                     if (p.Tags.Contains("Map"))
                     {
-                        p.Download(p.FileDirectory + "/" + p.ID + ".level", 0);
-                        p.WritePreviewFile(p.PreviewFileDirectory + "/" + p.ID + 
-                            Path.GetExtension(p.PreviewFileName));
+                        
+                        cesdk.UserGeneratedContent.UpdatePublishedFile(p.ID,
+                            null,
+                            @"Content\Maps\Valley.png",
+                            "New Title",
+                            "New Description",
+                            CommunityExpressNS.UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
+                            null);
+                         
                     }
-
                 }
             };
-            /// 
 
-            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+            cesdk.UserGeneratedContent.FileUpdated += (UserGeneratedContent Sender, CommunityExpressNS.EResult result) =>
+            {
+                Console.WriteLine("File Updated : " + result);
+            };
 
             cesdk.UserGeneratedContent.PublishedPreviewFileDownloaded += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDownloadResultArgs pf) =>
             {
@@ -472,6 +492,11 @@ namespace SteamworksUnityTest
 
 			return 0;
 		}
+
+        static void Authentication_AuthSessionTicketResponseReceived(User user, SessionTicket st)
+        {
+            Console.WriteLine(st.AutheticationTicket);
+        }
 
         public static void MyOnGamepadTextInputDismissed(Boolean submitted, String text)
         {

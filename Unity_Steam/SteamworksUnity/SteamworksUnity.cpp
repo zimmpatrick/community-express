@@ -690,7 +690,7 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_CommitPublis
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->CommitPublishedFileUpdate(updateHandle);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageUpdatePublishedFileResult, hAPICall );
 	
 	return hAPICall;
 }
