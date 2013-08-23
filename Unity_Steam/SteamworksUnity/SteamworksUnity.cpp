@@ -603,7 +603,7 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UnsubscribeP
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->UnsubscribePublishedFile( unPublishedFileId );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageUnsubscribePublishedFileResult, hAPICall );
 	
 	return hAPICall;
 }
@@ -786,7 +786,7 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePub
 
 	// SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSubscribedFiles(0);
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSubscribedFilesResult, hAPICall );
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateWorkshopFilesResult, hAPICall );
 	
 	return hAPICall;
 

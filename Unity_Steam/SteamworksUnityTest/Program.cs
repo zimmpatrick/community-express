@@ -248,8 +248,8 @@ namespace SteamworksUnityTest
            // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
 
             /// BEGIN PUBLISH
-            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Valley.png", @"Content\Maps\Valley.png");
-            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\CraftTower.png", @"Content\Maps\CraftTower.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
@@ -261,21 +261,21 @@ namespace SteamworksUnityTest
                 if (e.RemainingFiles == 0)
                 {
                     Console.WriteLine("Publishing File");
-                    /*
-                    cesdk.UserGeneratedContent.PublishWorkshopFile(@"Content\Maps\CraftTower.level",
-                        @"Content\Maps\CraftTower.png",
+
+                    cesdk.UserGeneratedContent.PublishWorkshopFile(@"bacon.png",
+                        @"bacon.png",
                         241720,
-                        "CraftTower - Workshop Level",
-                        "This is CraftTower, we have toast here too",
+                        "Abduction - Workshop Level",
+                        "This is Abduction, we have toast here too",
                         UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
                         new string[] { "Map", "Tower" },
                         UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
-                     * */
+                     
                     //
-                    cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
                 }
             };
-            cesdk.UserGeneratedContent.EnumerateUserPublishedFiles(0);
+            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+            //cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 0, 50, 10, null, null);
             /// END PUBLISH
 
             /// BEGIN SEARCH
@@ -285,17 +285,27 @@ namespace SteamworksUnityTest
                 {
                     if (p.Tags.Contains("Map"))
                     {
-                        
+                        /*
                         cesdk.UserGeneratedContent.UpdatePublishedFile(p.ID,
                             null,
                             @"Content\Maps\Valley.png",
                             "New Title",
                             "New Description",
-                            CommunityExpressNS.UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
+                            null,
                             null);
-                         
+                        */
                     }
                 }
+            };
+
+            cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, CommunityExpressNS.EResult result) =>
+            {
+                Console.WriteLine("File Subscribed : " + result);
+            };
+
+            cesdk.UserGeneratedContent.FileUnsubscribed += (UserGeneratedContent sender, CommunityExpressNS.EResult result) =>
+            {
+                Console.WriteLine("File Unsubscribed : " + result);
             };
 
             cesdk.UserGeneratedContent.FileUpdated += (UserGeneratedContent Sender, CommunityExpressNS.EResult result) =>

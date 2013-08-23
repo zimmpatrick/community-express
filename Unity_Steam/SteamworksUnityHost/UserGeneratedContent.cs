@@ -51,7 +51,21 @@ namespace CommunityExpressNS
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
         internal PublishedFileId_t[] m_rgPublishedFileId;
     };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStorageEnumerateWorkshopFilesResult_t
+    {
+	    internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 19;
+	    internal EResult m_eResult;
+	    internal Int32 m_nResultsReturned;
+	    internal Int32 m_nTotalResultCount;
 
+	    [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
+        internal PublishedFileId_t[] m_rgPublishedFileId;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
+        internal float[] m_rgScore;
+    };
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct RemoteStoragePublishFileProgress_t
@@ -60,6 +74,22 @@ namespace CommunityExpressNS
 
         internal double m_dPercentFile;
         internal bool m_bPreview;
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStorageSubscribePublishedFileResult_t
+    {
+        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 13;
+        internal EResult m_eResult;				// The result of the operation.
+        internal PublishedFileId_t m_nPublishedFileId;
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStorageUnsubscribePublishedFileResult_t
+    {
+	    internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 15;
+        internal EResult m_eResult;				// The result of the operation.
+        internal PublishedFileId_t m_nPublishedFileId;
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
@@ -374,7 +404,7 @@ namespace CommunityExpressNS
                 get;
                 private set;
             }
-
+            
             internal UGCHandle_t hFile
             {
                 get;
@@ -568,10 +598,18 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(SteamAPICallCompleted_t.k_iCallback,
                 new CommunityExpress.OnEventHandler<SteamAPICallCompleted_t>(Events_SteamAPICallCompleted));
 
-
+            
             _ce.AddEventHandler(RemoteStorageEnumerateUserPublishedFilesResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserPublishedFilesResult_t>(Events_UserPublishedFilesResultReceived));
 
+            _ce.AddEventHandler(RemoteStorageEnumerateWorkshopFilesResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageEnumerateWorkshopFilesResult_t>(Events_EnumerateWorkshopFilesResultReceived));
+
             _ce.AddEventHandler(RemoteStorageUpdatePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageUpdatePublishedFileResult_t>(Events_UpdatePublishedFileFinished));
+
+            _ce.AddEventHandler(RemoteStorageSubscribePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageSubscribePublishedFileResult_t>(Events_SubscribePublishedFileResult));
+
+            _ce.AddEventHandler(RemoteStorageUnsubscribePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageUnsubscribePublishedFileResult_t>(Events_UnsubscribePublishedFileResult));
+        
+            
         }
 
 
@@ -670,6 +708,28 @@ namespace CommunityExpressNS
             }
         }
 
+        public delegate void RemoteStorageSubscribePublishedFileResultHandler(UserGeneratedContent sender, EResult result);
+        public event RemoteStorageSubscribePublishedFileResultHandler FileSubscribed;
+
+        private void Events_SubscribePublishedFileResult(RemoteStorageSubscribePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
+        {
+            if (FileSubscribed != null)
+            {
+                FileSubscribed(this, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStorageUnsubscribePublishedFileResultHandler(UserGeneratedContent sender, EResult result);
+        public event RemoteStorageUnsubscribePublishedFileResultHandler FileUnsubscribed;
+
+        private void Events_UnsubscribePublishedFileResult(RemoteStorageUnsubscribePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
+        {
+            if (FileUnsubscribed != null)
+            {
+                FileUnsubscribed(this, recv.m_eResult);
+            }
+        }
+        
         internal void AddUGCDownload(UInt64 hSteamAPICall, PublishedFileDownloadResultArgs file)
         {
             _ugcDownloads.Add(hSteamAPICall, file);
@@ -700,7 +760,7 @@ namespace CommunityExpressNS
                 FileDetails(this, new PublishedFileDetailsResultArgs(_publishedFiles, EResult.EResultOK, _offset, _totalCount));
             }
         }
-
+        
         private void Events_UserPublishedFilesResultReceived(RemoteStorageEnumerateUserPublishedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             _totalCount = recv.m_nTotalResultCount;
@@ -713,6 +773,17 @@ namespace CommunityExpressNS
             }
         }
 
+        private void Events_EnumerateWorkshopFilesResultReceived(RemoteStorageEnumerateWorkshopFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            _totalCount = recv.m_nTotalResultCount;
+            _subscribeTimes = new Dictionary<PublishedFileUpdateHandle_t, AppId_t>();
+
+            for (int i = 0; i < recv.m_nResultsReturned; i++)
+            {
+                _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
+                GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+            }
+        }
         public delegate void PublishedFileDetailsResultHandler(UserGeneratedContent sender, PublishedFileDetailsResultArgs args);
         public event PublishedFileDetailsResultHandler FileDetails;
 
@@ -745,6 +816,10 @@ namespace CommunityExpressNS
 
         public void EnumeratePublishedWorkshopFiles(EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays, ICollection<string> tags, ICollection<string> userTags)
         {
+            _offset = unStartIndex;
+            _totalCount = 0;
+            _publishedFiles = new List<PublishedFile>();
+
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(_remoteStorage, eEnumerationType, unStartIndex, unCount, unDays);
 
             Console.WriteLine(ret);
