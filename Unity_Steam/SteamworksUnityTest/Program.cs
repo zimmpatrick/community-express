@@ -274,9 +274,15 @@ namespace SteamworksUnityTest
                     //
                 }
             };
-            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+            //cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
             //cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 0, 50, 10, null, null);
             /// END PUBLISH
+            cesdk.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayFriends);
+
+            cesdk.Friends.GameOverlayActivated += (bool isActivated) =>
+            {
+                Console.WriteLine("Callback received:: Activated = " + isActivated);
+            };
 
             /// BEGIN SEARCH
             cesdk.UserGeneratedContent.FileDetails += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDetailsResultArgs e) =>

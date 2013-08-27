@@ -42,6 +42,9 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGetAuthSessionTicketResponse, GetAuthSessionTicketResponse_t, GetAuthSessionTicketResponse)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameWebCallback, GameWebCallback_t, GameWebCallback)
 		
+		// k_iSteamFriendsCallbacks
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, GameOverlayActivated)
+
 		// k_iSteamUtilsCallbacks
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLowBatteryPower, LowBatteryPower_t, LowBatteryPower)
@@ -135,6 +138,9 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnEncryptedAppTicketResponse, EncryptedAppTicketResponse_t, EncryptedAppTicketResponse);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGetAuthSessionTicketResponse, GetAuthSessionTicketResponse_t, GetAuthSessionTicketResponse);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameWebCallback, GameWebCallback_t, GameWebCallback);
+
+	// k_iSteamFriendsCallbacks
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, GameOverlayActivated);
 
 	// k_iSteamUtilsCallbacks
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry);

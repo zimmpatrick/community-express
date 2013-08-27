@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityTest", "Stea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityCommunityExpress", "UnityCommunityExpress\UnityCommunityExpress.csproj", "{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityTestDX", "SteamworksUnityTestDX\SteamworksUnityTestDX.csproj", "{1B152943-11F2-4D16-8672-EFD6888F582E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,24 @@ Global
 		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|Win32.ActiveCfg = Release|Any CPU
 		{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}.Release|x86.ActiveCfg = Release|Any CPU
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Debug|Win32.ActiveCfg = Debug|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Debug|x86.ActiveCfg = Debug|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Debug|x86.Build.0 = Debug|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release_Unlicensed|Any CPU.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release_Unlicensed|Mixed Platforms.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release_Unlicensed|Mixed Platforms.Build.0 = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release_Unlicensed|Win32.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release_Unlicensed|x86.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release_Unlicensed|x86.Build.0 = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|Any CPU.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|Mixed Platforms.Build.0 = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|Win32.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|x86.ActiveCfg = Release|x86
+		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
