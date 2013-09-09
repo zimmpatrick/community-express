@@ -19,18 +19,24 @@ namespace CommunityExpressNS
 		private static extern int SteamUnityAPI_SteamRemoteStorage_GetFileSize(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage_GetFileNameAndSize(IntPtr remoteStorage, int iFile, out int nFileSizeInBytes);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_WriteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName,
 			IntPtr fileContents, int fileContentsLength);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_ForgetFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_DeleteFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FileExists(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_FilePersisted(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamRemoteStorage_GetQuota(IntPtr remoteStorage, out Int32 totalSpace, out Int32 availableSpace);
 
 		private IntPtr _remoteStorage;

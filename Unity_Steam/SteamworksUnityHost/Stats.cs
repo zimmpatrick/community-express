@@ -33,17 +33,21 @@ namespace CommunityExpressNS
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUserStats_RequestCurrentStats(IntPtr stats, IntPtr OnUserStatsReceivedCallback);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUserStats_StoreStats(IntPtr stats);
         [DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamGameServerStats();
 		[DllImport("CommunityExpressSW")]
         private static extern SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUserStats(IntPtr gameserverStats, UInt64 steamID);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamGameServerStats_StoreUserStats(IntPtr gameserverStats, UInt64 steamID);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUserStats_ResetAllStats(IntPtr stats, Boolean achievementsToo);
 
 		private IntPtr _stats = IntPtr.Zero;

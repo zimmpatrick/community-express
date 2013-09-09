@@ -19,9 +19,11 @@ namespace CommunityExpressNS
 
 	public sealed class CommunityExpress
 	{
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_RestartAppIfNecessary(uint unOwnAppID);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_Init(IntPtr OnChallengeResponse);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_RunCallbacks();
@@ -29,25 +31,32 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_SteamGameServer_RunCallbacks();
 		[DllImport("CommunityExpressSW")]
 		private static extern AppId_t SteamUnityAPI_SteamUtils_GetAppID();
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICall_t callHandle, out Byte failed);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetGameServerUserStatsReceivedResult(SteamAPICall_t callHandle, out GSStatsReceived_t result, out Byte failed);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(SteamAPICall_t callHandle, out LobbyCreated_t result, out Byte failed);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(SteamAPICall_t callHandle, out LobbyMatchList_t result, out Byte failed);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(SteamAPICall_t callHandle, out LobbyEnter_t result, out Byte failed);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_Shutdown();
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_SetWarningMessageHook(IntPtr OnSteamAPIDebugTextHook);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SetMiniDumpComment([MarshalAs(UnmanagedType.LPStr)] String comment);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_IsSteamRunning();
 
 		delegate UInt64 OnChallengeResponseFromSteam(UInt64 challenge);

@@ -15,13 +15,16 @@ namespace CommunityExpressNS
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking_GetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, [MarshalAs(UnmanagedType.LPStr)] String key);
 		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamMatchmaking_GetLobbyDataCount(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_GetLobbyDataByIndex(IntPtr matchmaking, UInt64 steamIDLobby, Int32 dataIndex, IntPtr key,
 			Int32 maxKeyLength, IntPtr value, Int32 maxValueLength);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, [MarshalAs(UnmanagedType.LPStr)] String key,
 			[MarshalAs(UnmanagedType.LPStr)] String value);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, [MarshalAs(UnmanagedType.LPStr)] String key);
 
 		private IntPtr _matchmaking;

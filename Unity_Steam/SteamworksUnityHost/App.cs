@@ -19,17 +19,17 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamApps_GetAvailableGameLanguages(IntPtr apps);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsSubscribedApp(IntPtr apps, AppId_t appID);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsDlcInstalled(IntPtr apps, AppId_t appID);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamApps_GetEarliestPurchaseUnixTime(IntPtr apps, AppId_t appID);
 		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamApps_GetDLCCount(IntPtr apps);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BGetDLCDataByIndex(IntPtr apps, Int32 index, out AppId_t appID,
             [MarshalAs(UnmanagedType.Bool)] out Boolean available, IntPtr name, Int32 maxNameLength);
 		[DllImport("CommunityExpressSW")]
@@ -40,26 +40,26 @@ namespace CommunityExpressNS
         [return: MarshalAs(UnmanagedType.Bool)]
 		private static extern Boolean SteamUnityAPI_SteamApps_GetCurrentBetaName(IntPtr apps, IntPtr name, Int32 maxNameLength);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_MarkContentCorrupt(IntPtr apps,
             [MarshalAs(UnmanagedType.Bool)] Boolean missingFilesOnly);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamApps_GetAppInstallDir(IntPtr apps, AppId_t appID, IntPtr directoryDataPtr,
 			Int32 maxDirNameLength);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsSubscribed(IntPtr apps);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsSubscribedFromFreeWeekend(IntPtr apps);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsLowViolence(IntPtr apps);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsCybercafe(IntPtr apps);
         [DllImport("CommunityExpressSW")]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamApps_BIsVACBanned(IntPtr apps);
 
 		private IntPtr _apps;

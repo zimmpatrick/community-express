@@ -58,10 +58,12 @@ namespace CommunityExpressNS
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] String leaderboardName,
 			IntPtr OnLeaderboardRetrievedCallback);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_SteamUserStats_FindOrCreateLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] String leaderboardName,
 			ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType, IntPtr OnLeaderboardRetrievedCallback);
 		[DllImport("CommunityExpressSW")]

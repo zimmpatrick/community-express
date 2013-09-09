@@ -14,16 +14,21 @@ namespace CommunityExpressNS
 	public class Stat
 	{
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatInt(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
             out Int32 value);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUserStats_GetUserStatFloat(IntPtr stats, UInt64 steamID, [MarshalAs(UnmanagedType.LPStr)] string statName,
             out float value);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatInt(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, Int32 value);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUserStats_SetStatFloat(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string statName, float value);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamGameServerStats_GetUserStatInt(IntPtr gameserverStats, UInt64 steamID,
             [MarshalAs(UnmanagedType.LPStr)] string statName, out Int32 value);
         [DllImport("CommunityExpressSW")]

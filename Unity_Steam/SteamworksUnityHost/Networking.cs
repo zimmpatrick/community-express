@@ -78,17 +78,22 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_SteamNetworking_AllowP2PPacketRelay(IntPtr networking, Boolean allow);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamNetworking_AcceptP2PSessionWithUser(IntPtr networking, UInt64 steamID);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamNetworking_SendP2PPacket(IntPtr networking, UInt64 steamID, IntPtr data, UInt32 dataLength,
 			Byte sendType, int channel);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamNetworking_IsP2PPacketAvailable(IntPtr networking, out UInt32 packetSize, Int32 channel);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamNetworking_ReadP2PPacket(IntPtr networking, IntPtr data, UInt32 packetSize,
 			out UInt64 steamID, Int32 channel);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamNetworking_CloseP2PSession(IntPtr networking, UInt64 steamID);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamNetworking_CloseP2PChannel(IntPtr networking, UInt64 steamID, Int32 channel);
 
 		private IntPtr _networking;
