@@ -539,10 +539,10 @@ namespace CommunityExpressNS
         private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(IntPtr remoteStorage, PublishedFileUpdateHandle_t updateHandle);
 
         [DllImport("CommunityExpressSW")]
-        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(IntPtr remoteStorage, PublishedFileUpdateHandle_t updateHandle);
+        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(IntPtr remoteStorage, PublishedFileId_t unPublishedFileId);
 
         [DllImport("CommunityExpressSW")]
-        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(IntPtr remoteStorage, PublishedFileUpdateHandle_t updateHandle);
+        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(IntPtr remoteStorage, PublishedFileId_t unPublishedFileId);
 
         [DllImport("CommunityExpressSW")]
         private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_PublishWorkshopFile(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] string pchFile, [MarshalAs(UnmanagedType.LPStr)] string pchPreviewFile, AppId_t nConsumerAppId, [MarshalAs(UnmanagedType.LPStr)] string pchTitle, [MarshalAs(UnmanagedType.LPStr)] string pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t pTags, EWorkshopFileType eWorkshopFileType);
@@ -735,9 +735,17 @@ namespace CommunityExpressNS
             _ugcDownloads.Add(hSteamAPICall, file);
         }
 
+        public delegate void RemoteStoragePublishFileProgressHandler(UserGeneratedContent sender, float progress);
+        public event RemoteStoragePublishFileProgressHandler FileProgress;
+
         private void Events_PublishFileProgressReceived(RemoteStoragePublishFileProgress_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             Console.WriteLine(recv.m_dPercentFile);
+            float progress = (float)recv.m_dPercentFile;
+            if (FileProgress != null)
+            {
+                FileProgress(this, progress);
+            }
         }
 
         private void Events_DownloadUGCReceived(RemoteStorageDownloadUGCResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -814,76 +822,104 @@ namespace CommunityExpressNS
             // if (UserStatsReceived != null) UserStatsReceived(this, new UserStatsReceivedArgs(recv));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eEnumerationType"></param>
+        /// <param name="unStartIndex"></param>
+        /// <param name="unCount"></param>
+        /// <param name="unDays"></param>
+        /// <param name="tags"></param>
+        /// <param name="userTags"></param>
         public void EnumeratePublishedWorkshopFiles(EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays, ICollection<string> tags, ICollection<string> userTags)
         {
             _offset = unStartIndex;
             _totalCount = 0;
             _publishedFiles = new List<PublishedFile>();
 
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(_remoteStorage, eEnumerationType, unStartIndex, unCount, unDays);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(_remoteStorage, eEnumerationType, unStartIndex, unCount, unDays);
 
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unStartIndex"></param>
         public void EnumerateUserPublishedFiles(UInt32 unStartIndex)
         {
             _offset = unStartIndex;
             _totalCount = 0;
             _publishedFiles = new List<PublishedFile>();
 
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumerateUserPublishedFiles(_remoteStorage, unStartIndex);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_EnumerateUserPublishedFiles(_remoteStorage, unStartIndex);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unStartIndex"></param>
         public void EnumerateUserSubscribedFiles(UInt32 unStartIndex)
         {
             _offset = unStartIndex;
             _totalCount = 0;
             _publishedFiles = new List<PublishedFile>();
 
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumerateUserSubscribedFiles(_remoteStorage, unStartIndex);
-
-            Console.WriteLine(ret);
-
+            SteamUnityAPI_SteamRemoteStorage_EnumerateUserSubscribedFiles(_remoteStorage, unStartIndex);
         }
 
-        public void SubscribePublishedFile(PublishedFileId_t unPublishedFileId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unPublishedFile"></param>
+        public void SubscribePublishedFile(PublishedFile unPublishedFile)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_SubscribePublishedFile(_remoteStorage, unPublishedFileId);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_SubscribePublishedFile(_remoteStorage, unPublishedFile.ID);
         }
 
-        public void UnubscribePublishedFile(PublishedFileId_t unPublishedFileId)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unPublishedFile"></param>
+        public void UnubscribePublishedFile(PublishedFile unPublishedFile)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UnsubscribePublishedFile(_remoteStorage, unPublishedFileId);
+            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UnsubscribePublishedFile(_remoteStorage, unPublishedFile.ID);
 
             Console.WriteLine(ret);
         }
 
-        public void GetPublishedItemVoteDetails(PublishedFileId_t unPublishedFileId)
+        /*
+        public void GetPublishedItemVoteDetails(PublishedFile unPublishedFile)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_GetPublishedItemVoteDetails(_remoteStorage, unPublishedFileId);
+            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_GetPublishedItemVoteDetails(_remoteStorage, unPublishedFile.ID);
 
             Console.WriteLine(ret);
-        }
+        }*/
 
-        public void UpdateUserPublishedItemVote(PublishedFileId_t unPublishedFileId, bool bVoteUp)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unPublishedFile"></param>
+        /// <param name="bVoteUp"></param>
+        public void UpdateUserPublishedItemVote(PublishedFile unPublishedFile, bool bVoteUp)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdateUserPublishedItemVote(_remoteStorage, unPublishedFileId, bVoteUp);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_UpdateUserPublishedItemVote(_remoteStorage, unPublishedFile.ID, bVoteUp);
         }
 
+        /*
         public void GetUserPublishedItemVoteDetails(PublishedFileId_t unPublishedFileId)
         {
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_GetUserPublishedItemVoteDetails(_remoteStorage, unPublishedFileId);
 
             Console.WriteLine(ret);
-        }
+        }*/
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="steamId"></param>
+        /// <param name="unStartIndex"></param>
+        /// <param name="pRequiredTags"></param>
+        /// <param name="pExcludedTags"></param>
         public void EnumerateUserSharedWorkshopFiles(SteamID steamId, UInt32 unStartIndex, ICollection<string> pRequiredTags, ICollection<string> pExcludedTags)
         {
             _ce.AddEventHandler(RemoteStorageEnumerateUserSharedWorkshopFilesResult_t.k_iCallback, _userSharedFilesHandler);
@@ -891,13 +927,12 @@ namespace CommunityExpressNS
             SteamParamStringArray_t pRequiredTagsArray = new CommunityExpressNS.SteamParamStringArray_t(pRequiredTags);
             SteamParamStringArray_t pExcludedTagsArray = new CommunityExpressNS.SteamParamStringArray_t(pExcludedTags);
 
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumerateUserSharedWorkshopFiles(_remoteStorage, steamId.ToUInt64(), unStartIndex, pRequiredTagsArray, pExcludedTagsArray);
+            SteamUnityAPI_SteamRemoteStorage_EnumerateUserSharedWorkshopFiles(_remoteStorage, steamId.ToUInt64(), unStartIndex, pRequiredTagsArray, pExcludedTagsArray);
 
             pRequiredTagsArray.Free();
             pExcludedTagsArray.Free();
-
-            Console.WriteLine(ret);
         }
+
         /*
         public void PublishVideo(EWorkshopVideoProvider eVideoProvider, const char *pchVideoAccount, const char *pchVideoIdentifier, const char *pchPreviewFile, AppId_t nConsumerAppId, const char *pchTitle, const char *pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, SteamParamStringArray_t *pTags)
         {
@@ -906,64 +941,85 @@ namespace CommunityExpressNS
             Console.WriteLine(ret);
         }
          */
-        public void SetUserPublishedFileAction(PublishedFileId_t unPublishedFileId, EWorkshopFileAction eAction)
-        {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_SetUserPublishedFileAction(_remoteStorage, unPublishedFileId, eAction);
 
-            Console.WriteLine(ret);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unPublishedFile"></param>
+        /// <param name="eAction"></param>
+        public void SetUserPublishedFileAction(PublishedFile unPublishedFile, EWorkshopFileAction eAction)
+        {
+            SteamUnityAPI_SteamRemoteStorage_SetUserPublishedFileAction(_remoteStorage, unPublishedFile.ID, eAction);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eAction"></param>
+        /// <param name="unStartIndex"></param>
         public void EnumeratePublishedFilesByUserAction(EWorkshopFileAction eAction, UInt32 unStartIndex)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedFilesByUserAction(_remoteStorage, eAction, unStartIndex);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedFilesByUserAction(_remoteStorage, eAction, unStartIndex);
         }
 
-        public void CommitPublishedFileUpdate(PublishedFileUpdateHandle_t updateHandle)
+        private void CommitPublishedFileUpdate(PublishedFileUpdateHandle_t unPublishedFileId)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(_remoteStorage, updateHandle);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(_remoteStorage, unPublishedFileId);
         }
 
-        public void GetPublishedFileDetails(PublishedFileUpdateHandle_t updateHandle)
+        private void GetPublishedFileDetails(PublishedFileId_t unPublishedFileId)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(_remoteStorage, updateHandle);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(_remoteStorage, unPublishedFileId);
         }
 
-        public void DeletePublishedFile(PublishedFileUpdateHandle_t updateHandle)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="file"></param>
+        public void DeletePublishedFile(PublishedFile file)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(_remoteStorage, updateHandle);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(_remoteStorage, file.ID);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pchFile"></param>
+        /// <param name="pchPreviewFile"></param>
+        /// <param name="nConsumerAppId"></param>
+        /// <param name="pchTitle"></param>
+        /// <param name="pchDescription"></param>
+        /// <param name="eVisibility"></param>
+        /// <param name="pTags"></param>
+        /// <param name="eWorkshopFileType"></param>
         public void PublishWorkshopFile(string pchFile, string pchPreviewFile, AppId_t nConsumerAppId, string pchTitle, string pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, ICollection<string> pTags, EWorkshopFileType eWorkshopFileType)
         {
             SteamParamStringArray_t pTagsArray = new CommunityExpressNS.SteamParamStringArray_t(pTags);
 
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_PublishWorkshopFile(_remoteStorage, pchFile, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, pTagsArray, eWorkshopFileType);
+            SteamUnityAPI_SteamRemoteStorage_PublishWorkshopFile(_remoteStorage, pchFile, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, pTagsArray, eWorkshopFileType);
 
             pTagsArray.Free();
-
-            Console.WriteLine(ret);
         }
 
-        internal PublishedFileUpdateHandle_t CreatePublishedFileUpdateRequest(PublishedFileId_t unPublishedFileId)
+        private PublishedFileUpdateHandle_t CreatePublishedFileUpdateRequest(PublishedFileId_t unPublishedFileId)
         {
             PublishedFileUpdateHandle_t ret = SteamUnityAPI_SteamRemoteStorage_CreatePublishedFileUpdateRequest(_remoteStorage, unPublishedFileId);
-
-            Console.WriteLine(ret);
-
             return ret;
         }
 
-        public void UpdatePublishedFile(PublishedFileId_t unPublishedFileId, string pchFile, string pchPreviewFile, string pchTitle, string pchDescription, ERemoteStoragePublishedFileVisibility? eVisibility, ICollection<string> pTags)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unPublishedFileId"></param>
+        /// <param name="pchFile"></param>
+        /// <param name="pchPreviewFile"></param>
+        /// <param name="pchTitle"></param>
+        /// <param name="pchDescription"></param>
+        /// <param name="eVisibility"></param>
+        /// <param name="pTags"></param>
+        public void UpdatePublishedFile(PublishedFile unPublishedFile, string pchFile, string pchPreviewFile, string pchTitle, string pchDescription, ERemoteStoragePublishedFileVisibility? eVisibility, ICollection<string> pTags)
         {
-            PublishedFileUpdateHandle_t updateHandle = CreatePublishedFileUpdateRequest(unPublishedFileId);
+            PublishedFileUpdateHandle_t updateHandle = CreatePublishedFileUpdateRequest(unPublishedFile.ID);
 
             if (pchFile != null)
             {
@@ -993,50 +1049,38 @@ namespace CommunityExpressNS
             CommitPublishedFileUpdate(updateHandle);
         }
 
-        internal void UpdatePublishedFileFile(PublishedFileUpdateHandle_t updateHandle, string pchFile)
+        private void UpdatePublishedFileFile(PublishedFileUpdateHandle_t updateHandle, string pchFile)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileFile(_remoteStorage, updateHandle, pchFile);
-
-            Console.WriteLine(ret);
+           SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileFile(_remoteStorage, updateHandle, pchFile);
         }
 
-        internal void UpdatePublishedFilePreviewFile(PublishedFileUpdateHandle_t updateHandle, string pchPreviewFile)
+        private void UpdatePublishedFilePreviewFile(PublishedFileUpdateHandle_t updateHandle, string pchPreviewFile)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFilePreviewFile(_remoteStorage, updateHandle, pchPreviewFile);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFilePreviewFile(_remoteStorage, updateHandle, pchPreviewFile);
         }
 
-        internal void UpdatePublishedFileTitle(PublishedFileUpdateHandle_t updateHandle, string pchTitle)
+        private void UpdatePublishedFileTitle(PublishedFileUpdateHandle_t updateHandle, string pchTitle)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTitle(_remoteStorage, updateHandle, pchTitle);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTitle(_remoteStorage, updateHandle, pchTitle);
         }
 
-        internal void UpdatePublishedFileDescription(PublishedFileUpdateHandle_t updateHandle, string pchDescription)
+        private void UpdatePublishedFileDescription(PublishedFileUpdateHandle_t updateHandle, string pchDescription)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileDescription(_remoteStorage, updateHandle, pchDescription);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileDescription(_remoteStorage, updateHandle, pchDescription);
         }
 
-        internal void UpdatePublishedFileVisibility(PublishedFileUpdateHandle_t updateHandle, ERemoteStoragePublishedFileVisibility eVisibility)
+        private void UpdatePublishedFileVisibility(PublishedFileUpdateHandle_t updateHandle, ERemoteStoragePublishedFileVisibility eVisibility)
         {
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileVisibility(_remoteStorage, updateHandle, eVisibility);
-
-            Console.WriteLine(ret);
+            SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileVisibility(_remoteStorage, updateHandle, eVisibility);
         }
 
-        internal void UpdatePublishedFileTags(PublishedFileUpdateHandle_t updateHandle, ICollection<string> pTags)
+        private void UpdatePublishedFileTags(PublishedFileUpdateHandle_t updateHandle, ICollection<string> pTags)
         {
             SteamParamStringArray_t pTagsArray = new CommunityExpressNS.SteamParamStringArray_t(pTags);
 
-            UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTags(_remoteStorage, updateHandle, pTagsArray);
+            SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTags(_remoteStorage, updateHandle, pTagsArray);
 
             pTagsArray.Free();
-
-            Console.WriteLine(ret);
         }
     }
 }

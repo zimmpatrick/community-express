@@ -245,8 +245,11 @@ namespace SteamworksUnityTest
             */
             _statsReceived = false;
             
+            CommunityExpress.Instance.Leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(OnReceiveLeaderboard);
+            CommunityExpress.Instance.Leaderboards.FindLeaderboard("Pong Lead");
+            
            // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
-
+            
             /// BEGIN PUBLISH
             //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
             //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
@@ -254,6 +257,11 @@ namespace SteamworksUnityTest
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
                 cesdk.RemoteStorage.FileShare(e.FileWriteStream.FileName);
+            };
+
+            cesdk.UserGeneratedContent.FileProgress += (UserGeneratedContent sender, float progress) =>
+            {
+                Console.WriteLine("Program Progress " + progress);
             };
 
             cesdk.RemoteStorage.FileShared += (RemoteStorage sender, RemoteStorage.RemoteStorageFileShareResultArgs e) =>
@@ -277,7 +285,7 @@ namespace SteamworksUnityTest
             //cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
             //cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 0, 50, 10, null, null);
             /// END PUBLISH
-            cesdk.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayFriends);
+            //cesdk.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayFriends);
 
             cesdk.Friends.GameOverlayActivated += (bool isActivated) =>
             {
@@ -424,7 +432,6 @@ namespace SteamworksUnityTest
 				Console.WriteLine("GameServer Failed to Initialize");
 			}
 
-
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
             if (user.InitiateClientAuthentication(out authTicket, gameserver.SteamID, IPAddress.Loopback, gsPort, true))
@@ -509,6 +516,30 @@ namespace SteamworksUnityTest
 			return 0;
 		}
 
+
+        public static void OnReceiveLeaderboard(Leaderboards board, Leaderboard l)
+        {
+            CommunityExpress.Instance.Leaderboards.LeaderboardReceived -= OnReceiveLeaderboard;
+            if (l != null)
+            {
+                l.LeaderboardEntriesReceived += OnEntriesReceived;
+                l.RequestFriendLeaderboardEntries(5);
+            }
+            Console.WriteLine("callback retrieved");
+           // l.RequestFriendLeaderboardEntries(5, MyOnLeaderboardEntriesRetrievedCallback);
+        }
+
+        public static void OnEntriesReceived(Leaderboard board, LeaderboardEntries l)
+        {
+            //CommunityExpress.Instance.Leaderboards.LeaderboardReceived -= OnEntriesReceived;
+            if (l != null)
+            {
+                
+            }
+            Console.WriteLine("callback retrieved");
+            // l.RequestFriendLeaderboardEntries(5, MyOnLeaderboardEntriesRetrievedCallback);
+        }
+
         static void Authentication_AuthSessionTicketResponseReceived(User user, SessionTicket st)
         {
             Console.WriteLine(st.AutheticationTicket);
@@ -590,7 +621,7 @@ namespace SteamworksUnityTest
 
 				leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 913, new List<Int32> { 123, 456, 789 });
 
-				leaderboard.RequestLeaderboardEntries(0, 2, 3, MyOnLeaderboardEntriesRetrievedCallback);
+				//leaderboard.RequestLeaderboardEntries(0, 2, 3, MyOnLeaderboardEntriesRetrievedCallback);
 			}
 			else
             {
