@@ -16,7 +16,8 @@ namespace CommunityExpressNS
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUser();
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUser_BLoggedOn(IntPtr user);
 		[DllImport("CommunityExpressSW")]
 		private static extern HSteamUser SteamUnityAPI_SteamUser_GetHSteamUser(IntPtr user);
@@ -31,6 +32,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
         private static extern EUserHasLicenseResult SteamUnityAPI_SteamUser_UserHasLicenseForApp(IntPtr user, UInt64 steamID, AppId_t appID);
 		[DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUser_BIsBehindNAT(IntPtr user);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUser_AdvertiseGame(IntPtr user, UInt64 gameServerSteamID, UInt32 serverIP, UInt16 port);

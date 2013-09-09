@@ -35,12 +35,14 @@ namespace CommunityExpressNS
             public UInt32 m_unSubmittedText;
         };
 
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode inputMode, EGamepadTextInputLineMode lineInputMode,
 			[MarshalAs(UnmanagedType.LPStr)] String description, UInt32 maxCharacters);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt32 SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength();
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(IntPtr text, Int32 maxTextLength);
 
         private CommunityExpress.OnEventHandler<GamepadTextInputDismissed_t> _onGamepadTextInputDismissedCallback;

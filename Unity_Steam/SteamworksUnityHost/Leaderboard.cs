@@ -38,19 +38,22 @@ namespace CommunityExpressNS
 		private static extern IntPtr SteamUnityAPI_SteamUserStats();
 		[DllImport("CommunityExpressSW")]
         private static extern SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(IntPtr stats, [MarshalAs(UnmanagedType.LPStr)] string leaderboardName);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUserStats_GetLeaderboardName(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
 		private static extern ELeaderboardSortMethod SteamUnityAPI_SteamUserStats_GetLeaderboardSortMethod(IntPtr stats, SteamLeaderboard_t leaderboard);
 		[DllImport("CommunityExpressSW")]
 		private static extern ELeaderboardDisplayType SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(IntPtr stats, SteamLeaderboard_t leaderboard);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(IntPtr stats, SteamLeaderboard_t leaderboard, ELeaderboardUploadScoreMethod uploadScoreMethod,
 			Int32 score, [MarshalAs(UnmanagedType.LPArray, ArraySubType=UnmanagedType.I4)] Int32[] scoreDetails, Int32 scoreDetailCount);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(IntPtr stats, SteamLeaderboard_t leaderboard, ELeaderboardDataRequest requestType,
 			Int32 startIndex, Int32 endIndex);
 		[DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_SteamUserStats_GetDownloadedLeaderboardEntry(IntPtr stats, SteamLeaderboardEntries_t leaderboardEntries, Int32 index,
 			ref LeaderboardEntry_t leaderboardEntry, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I4)] Int32[] scoreDetails, Int32 maxScoreDetailCount);
 

@@ -27,12 +27,15 @@ namespace CommunityExpressNS
 		private static extern int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_RequestLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, IntPtr onLobbyDataUpdated);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby,
 			[MarshalAs(UnmanagedType.LPStr)] String key, [MarshalAs(UnmanagedType.LPStr)] String value);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(IntPtr matchmaking, UInt64 steamIDLobby,
 			[MarshalAs(UnmanagedType.LPStr)] String key);
 		[DllImport("CommunityExpressSW")]
@@ -41,7 +44,8 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_SetLobbyMemberData(IntPtr matchmaking, UInt64 steamIDLobby,
 			[MarshalAs(UnmanagedType.LPStr)] String pchKey, [MarshalAs(UnmanagedType.LPStr)] String pchValue);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SendLobbyChatMsg(IntPtr matchmaking, UInt64 steamIDLobby, IntPtr data, Int32 dataLength);
 		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamMatchmaking_GetLobbyChatEntry(IntPtr matchmaking, UInt64 steamIDLobby, Int32 chatID, out UInt64 steamID,
@@ -49,22 +53,28 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_SetLobbyGameServer(IntPtr matchmaking, UInt64 steamIDLobby, UInt32 gameServerIP,
 			UInt16 gameServerPort, UInt64 steamIDGameServer);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_GetLobbyGameServer(IntPtr matchmaking, UInt64 steamIDLobby, out UInt32 gameServerIP,
 			out UInt16 gameServerPort, out UInt64 steamIDGameServer);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyMemberLimit(IntPtr matchmaking, UInt64 steamIDLobby, Int32 maxMembers);
 		[DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberLimit(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyType(IntPtr matchmaking, UInt64 steamIDLobby, ELobbyType lobbyType);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyJoinable(IntPtr matchmaking, UInt64 steamIDLobby, Boolean lobbyJoinable);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyOwner(IntPtr matchmaking, UInt64 steamIDLobby);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyOwner(IntPtr matchmaking, UInt64 steamIDLobby, UInt64 steamIDNewOwner);
-		[DllImport("CommunityExpressSW")]
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLinkedLobby(IntPtr matchmaking, UInt64 steamIDLobby, UInt64 steamIDLobbyDependent);
 
 		private IntPtr _matchmaking;

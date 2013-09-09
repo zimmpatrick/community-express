@@ -60,6 +60,7 @@ namespace CommunityExpressNS
         [DllImport("CommunityExpressSW")]
         private static extern SteamAPICall_t SteamUnityAPI_SteamUser_RequestEncryptedAppTicket(IntPtr user, IntPtr dataToInclude, Int32 dataLength);
         [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
         private static extern Boolean SteamUnityAPI_SteamUser_GetEncryptedAppTicket(IntPtr user,
         [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.U1)] Byte[] ticket, int maxTicket, out UInt32 ticketSize);
         [DllImport("CommunityExpressSW")]

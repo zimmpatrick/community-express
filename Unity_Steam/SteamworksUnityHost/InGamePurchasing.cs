@@ -22,8 +22,8 @@ namespace CommunityExpressNS
 
 	public class InGamePurchasing
 	{
-		[DllImport("CommunityExpressSW")]
-		private static extern bool SteamUnityAPI_SetTransactionAuthorizationCallback(IntPtr OnTransactionAuthorizationReceivedCallback);
+        [DllImport("CommunityExpressSW")]
+		private static extern void SteamUnityAPI_SetTransactionAuthorizationCallback(IntPtr OnTransactionAuthorizationReceivedCallback);
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUser();
 		[DllImport("CommunityExpressSW")]

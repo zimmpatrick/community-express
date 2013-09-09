@@ -65,7 +65,8 @@ namespace SteamworksUnityTest
 				throw new Exception("Steam must be running to play this game (SteamAPI_Init() failed).");
 			}
 
-            Console.WriteLine("Signed in as: {0} {1} {2}", cesdk.User.PersonaName, cesdk.User.SteamLevel, cesdk.User.GetGameBadgeLevel(1, false));
+            Console.WriteLine("Signed in as: {0} {1} {2}", cesdk.User.PersonaName, cesdk.User.LoggedOn,
+                cesdk.User.SteamLevel, cesdk.User.GetGameBadgeLevel(1, false));
 
             Stats stats = cesdk.UserStats;
 
