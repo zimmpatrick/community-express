@@ -92,6 +92,29 @@ namespace CommunityExpressNS
         internal PublishedFileId_t m_nPublishedFileId;
     };
 
+
+    //-----------------------------------------------------------------------------
+    // Purpose: User subscribed to a file for the app (from within the app or on the web)
+    //-----------------------------------------------------------------------------
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStoragePublishedFileSubscribed_t
+    {
+	    internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 21;
+	    internal PublishedFileId_t m_nPublishedFileId;	// The published file id
+	    internal AppId_t m_nAppID;						// ID of the app that will consume this file.
+    };
+
+    //-----------------------------------------------------------------------------
+    // Purpose: User unsubscribed from a file for the app (from within the app or on the web)
+    //-----------------------------------------------------------------------------
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStoragePublishedFileUnsubscribed_t
+    {
+	    internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 22;
+	    internal PublishedFileId_t m_nPublishedFileId;	// The published file id
+	    internal AppId_t m_nAppID;						// ID of the app that will consume this file.
+    };
+
     [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
     internal struct RemoteStorageGetPublishedFileDetailsResult_t
     {
@@ -609,14 +632,16 @@ namespace CommunityExpressNS
 
             _ce.AddEventHandler(RemoteStorageUnsubscribePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageUnsubscribePublishedFileResult_t>(Events_UnsubscribePublishedFileResult));
         
-            
+            _ce.AddEventHandler(RemoteStoragePublishedFileSubscribed_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishedFileSubscribed_t>(Events_SubscribePublishedFileResult2));
+
+            _ce.AddEventHandler(RemoteStoragePublishedFileUnsubscribed_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishedFileUnsubscribed_t>(Events_UnsubscribePublishedFileResult2));
         }
 
 
 
-        public class PublishedFileDetailsResultArgs : System.EventArgs
+        public class EnumeratePublishedFileResultArgs : System.EventArgs
         {
-            internal PublishedFileDetailsResultArgs(ICollection<PublishedFile> publishedFiles, EResult result,
+            internal EnumeratePublishedFileResultArgs(ICollection<PublishedFile> publishedFiles, EResult result,
                 UInt32 offset, Int32 totalCount)
             {
                 StartIndex = offset;
@@ -650,9 +675,53 @@ namespace CommunityExpressNS
             }
         }
 
+        public class PublishedFileDetailsResultArgs : System.EventArgs
+        {
+            internal PublishedFileDetailsResultArgs(PublishedFile publishedFile, EResult result)
+            {
+                Result = result;
+                PublishedFile = publishedFile;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+
+            public PublishedFile PublishedFile
+            {
+                get;
+                private set;
+            }
+        }
+
+        public class PublishedFileResultArgs : System.EventArgs
+        {
+            internal PublishedFileResultArgs(EResult result,
+                PublishedFileId_t nPublishedFileId)
+            {
+                Result = result;
+                PublishedFileId = nPublishedFileId;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+
+            public PublishedFileId_t PublishedFileId
+            {
+                get;
+                private set;
+            }
+        }
+
         private UInt32 _offset = 0;
         private Int32 _totalCount = 0;
         private List<PublishedFile> _publishedFiles = null;
+        private List<PublishedFile> _oneOffpublishedFiles = new List<PublishedFile>();
         private Dictionary<PublishedFileId_t, UInt32> _subscribeTimes = null;
 
         private void Events_GetUserSubscribedFilesReceived(RemoteStorageEnumerateUserSubscribedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -697,39 +766,57 @@ namespace CommunityExpressNS
             }
         }
 
-        public delegate void RemoteStorageUpdatePublishedFileResultHandler(UserGeneratedContent sender, EResult result);
+        public delegate void RemoteStorageUpdatePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
         public event RemoteStorageUpdatePublishedFileResultHandler FileUpdated;
 
         private void Events_UpdatePublishedFileFinished(RemoteStorageUpdatePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
         {
             if (FileUpdated != null)
             {
-                FileUpdated(this, recv.m_eResult);
+                FileUpdated(this, new PublishedFileResultArgs(recv.m_eResult, recv.m_nPublishedFileId));
             }
         }
 
-        public delegate void RemoteStorageSubscribePublishedFileResultHandler(UserGeneratedContent sender, EResult result);
+        public delegate void RemoteStorageSubscribePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
         public event RemoteStorageSubscribePublishedFileResultHandler FileSubscribed;
 
         private void Events_SubscribePublishedFileResult(RemoteStorageSubscribePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
         {
             if (FileSubscribed != null)
             {
-                FileSubscribed(this, recv.m_eResult);
+                FileSubscribed(this, new PublishedFileResultArgs(recv.m_eResult, recv.m_nPublishedFileId));
             }
         }
 
-        public delegate void RemoteStorageUnsubscribePublishedFileResultHandler(UserGeneratedContent sender, EResult result);
+        public delegate void RemoteStorageUnsubscribePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
         public event RemoteStorageUnsubscribePublishedFileResultHandler FileUnsubscribed;
 
         private void Events_UnsubscribePublishedFileResult(RemoteStorageUnsubscribePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
         {
             if (FileUnsubscribed != null)
             {
-                FileUnsubscribed(this, recv.m_eResult);
+                FileUnsubscribed(this, new PublishedFileResultArgs(recv.m_eResult, recv.m_nPublishedFileId));
             }
         }
+
         
+        private void Events_SubscribePublishedFileResult2(RemoteStoragePublishedFileSubscribed_t recv, bool Success, SteamAPICall_t hSteamAPICall)
+        {
+            if (FileSubscribed != null)
+            {
+                FileSubscribed(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
+            }
+        }
+
+        
+        private void Events_UnsubscribePublishedFileResult2(RemoteStoragePublishedFileUnsubscribed_t recv, bool Success, SteamAPICall_t hSteamAPICall)
+        {
+            if (FileUnsubscribed != null)
+            {
+                FileUnsubscribed(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
+            }
+        }
+
         internal void AddUGCDownload(UInt64 hSteamAPICall, PublishedFileDownloadResultArgs file)
         {
             _ugcDownloads.Add(hSteamAPICall, file);
@@ -740,7 +827,6 @@ namespace CommunityExpressNS
 
         private void Events_PublishFileProgressReceived(RemoteStoragePublishFileProgress_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
-            Console.WriteLine(recv.m_dPercentFile);
             float progress = (float)recv.m_dPercentFile;
             if (FileProgress != null)
             {
@@ -750,6 +836,27 @@ namespace CommunityExpressNS
 
         private void Events_DownloadUGCReceived(RemoteStorageDownloadUGCResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
+            List<PublishedFile> deleteList = new List<PublishedFile>();
+            foreach (PublishedFile pf in _oneOffpublishedFiles)
+            {
+                if (pf.hPreviewFile == recv.m_hFile)
+                {
+                    pf.PreviewFileName = recv.m_pchFileName;
+                }
+
+                if (FileDetails != null)
+                {
+                    FileDetails(this, new PublishedFileDetailsResultArgs(pf, EResult.EResultOK));
+                }
+
+                deleteList.Add(pf);
+            }
+
+            foreach (PublishedFile df in deleteList)
+            {
+                _oneOffpublishedFiles.Remove(df);
+            }
+
             if (_publishedFiles == null) return;
 
             int goodFiles = 0;
@@ -765,7 +872,13 @@ namespace CommunityExpressNS
 
             if (goodFiles == _subscribeTimes.Count)
             {
-                FileDetails(this, new PublishedFileDetailsResultArgs(_publishedFiles, EResult.EResultOK, _offset, _totalCount));
+                if (EnumerateFileDetails != null)
+                {
+                    EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, EResult.EResultOK, _offset, _totalCount));
+
+                    _subscribeTimes.Clear();
+                    _publishedFiles = null;
+                }
             }
         }
         
@@ -792,24 +905,55 @@ namespace CommunityExpressNS
                 GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
             }
         }
+
         public delegate void PublishedFileDetailsResultHandler(UserGeneratedContent sender, PublishedFileDetailsResultArgs args);
         public event PublishedFileDetailsResultHandler FileDetails;
 
+        public delegate void EnumeratePublishedFileResultHandler(UserGeneratedContent sender, EnumeratePublishedFileResultArgs args);
+        public event EnumeratePublishedFileResultHandler EnumerateFileDetails;
+
         private void Events_GetPublishedFileDetailsReceived(RemoteStorageGetPublishedFileDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
+            bool found = false;
             if (FileDetails != null && _publishedFiles != null)
+            {
+                if (_subscribeTimes.ContainsKey(recv.m_nPublishedFileId) &&
+                    _publishedFiles.Find(pf => pf.ID == recv.m_nPublishedFileId) == null)
+                {
+                    found = true;
+
+                    // enumerate request
+                    if (recv.m_eResult == EResult.EResultOK)
+                    {
+                        PublishedFile pf = new PublishedFile(recv, _subscribeTimes[recv.m_nPublishedFileId], _remoteStorage);
+                        pf.InernalDownloadPreview(0);
+
+                        _publishedFiles.Add(pf);
+                    }
+                    else
+                    {
+                        _publishedFiles = null; // signal done
+                        EnumerateFileDetails(this,
+                            new EnumeratePublishedFileResultArgs(null, recv.m_eResult, _offset, _totalCount));
+                    }
+                }
+            }
+
+            if (!found)
             {
                 if (recv.m_eResult == EResult.EResultOK)
                 {
-                    PublishedFile pf = new PublishedFile(recv, _subscribeTimes[recv.m_nPublishedFileId], _remoteStorage);
+                    // one off request
+                    PublishedFile pf = new PublishedFile(recv, 0, _remoteStorage);
                     pf.InernalDownloadPreview(0);
 
-                    _publishedFiles.Add(pf);
+                    _oneOffpublishedFiles.Add(pf);
                 }
                 else
                 {
-                    _publishedFiles = null; // signal done
-                    FileDetails(this, new PublishedFileDetailsResultArgs(null, recv.m_eResult, _offset, _totalCount));
+                    // one off request
+                    FileDetails(this,
+                        new PublishedFileDetailsResultArgs(null, recv.m_eResult));
                 }
             }
         }
@@ -967,11 +1111,6 @@ namespace CommunityExpressNS
             SteamUnityAPI_SteamRemoteStorage_CommitPublishedFileUpdate(_remoteStorage, unPublishedFileId);
         }
 
-        private void GetPublishedFileDetails(PublishedFileId_t unPublishedFileId)
-        {
-            SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(_remoteStorage, unPublishedFileId);
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -979,6 +1118,15 @@ namespace CommunityExpressNS
         public void DeletePublishedFile(PublishedFile file)
         {
             SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(_remoteStorage, file.ID);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="unPublishedFileId"></param>
+        public void GetPublishedFileDetails(PublishedFileId_t unPublishedFileId)
+        {
+            SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(_remoteStorage, unPublishedFileId);
         }
 
         /// <summary>

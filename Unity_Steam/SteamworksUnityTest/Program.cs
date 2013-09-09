@@ -251,8 +251,8 @@ namespace SteamworksUnityTest
            // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
             
             /// BEGIN PUBLISH
-            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
-            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
+            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
+            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
@@ -282,7 +282,8 @@ namespace SteamworksUnityTest
                     //
                 }
             };
-            //cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+            
+            cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
             //cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 0, 50, 10, null, null);
             /// END PUBLISH
             //cesdk.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayFriends);
@@ -293,7 +294,7 @@ namespace SteamworksUnityTest
             };
 
             /// BEGIN SEARCH
-            cesdk.UserGeneratedContent.FileDetails += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDetailsResultArgs e) =>
+            cesdk.UserGeneratedContent.EnumerateFileDetails += (UserGeneratedContent sender, UserGeneratedContent.EnumeratePublishedFileResultArgs e) =>
             {
                 foreach (UserGeneratedContent.PublishedFile p in e.PublishedFiles)
                 {
@@ -312,19 +313,27 @@ namespace SteamworksUnityTest
                 }
             };
 
-            cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, CommunityExpressNS.EResult result) =>
+            cesdk.UserGeneratedContent.FileDetails += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDetailsResultArgs result) =>
             {
-                Console.WriteLine("File Subscribed : " + result);
+                Console.WriteLine("Got file details : " + result.PublishedFile.ID);
             };
 
-            cesdk.UserGeneratedContent.FileUnsubscribed += (UserGeneratedContent sender, CommunityExpressNS.EResult result) =>
+            cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileResultArgs result) =>
+            {
+                Console.WriteLine("File Subscribed : " + result);
+                cesdk.UserGeneratedContent.GetPublishedFileDetails(result.PublishedFileId);
+            };
+
+            cesdk.UserGeneratedContent.FileUnsubscribed += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileResultArgs result) =>
             {
                 Console.WriteLine("File Unsubscribed : " + result);
             };
 
-            cesdk.UserGeneratedContent.FileUpdated += (UserGeneratedContent Sender, CommunityExpressNS.EResult result) =>
+            cesdk.UserGeneratedContent.FileUpdated += (UserGeneratedContent Sender, UserGeneratedContent.PublishedFileResultArgs result) =>
             {
                 Console.WriteLine("File Updated : " + result);
+
+                cesdk.UserGeneratedContent.GetPublishedFileDetails(result.PublishedFileId);
             };
 
             cesdk.UserGeneratedContent.PublishedPreviewFileDownloaded += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDownloadResultArgs pf) =>
@@ -515,7 +524,6 @@ namespace SteamworksUnityTest
 
 			return 0;
 		}
-
 
         public static void OnReceiveLeaderboard(Leaderboards board, Leaderboard l)
         {
