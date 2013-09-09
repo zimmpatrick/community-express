@@ -915,7 +915,7 @@ namespace CommunityExpressNS
         private void Events_GetPublishedFileDetailsReceived(RemoteStorageGetPublishedFileDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             bool found = false;
-            if (FileDetails != null && _publishedFiles != null)
+            if (EnumerateFileDetails != null && _publishedFiles != null)
             {
                 if (_subscribeTimes.ContainsKey(recv.m_nPublishedFileId) &&
                     _publishedFiles.Find(pf => pf.ID == recv.m_nPublishedFileId) == null)
