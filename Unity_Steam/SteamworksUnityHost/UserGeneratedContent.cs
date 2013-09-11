@@ -175,7 +175,24 @@ namespace CommunityExpressNS
         internal string m_pchFileName;		// The name of the file that was downloaded. 
         internal UInt64 m_ulSteamIDOwner;		// Steam ID of the user who created this content.
     };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStoragePublishFileResult_t
+    {
+        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 9;
 
+	    internal EResult m_eResult;				// The result of the operation.
+	    internal PublishedFileId_t m_nPublishedFileId;
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct RemoteStorageDeletePublishedFileResult_t
+    {
+            internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 11;
+
+            internal EResult m_eResult;				// The result of the operation.
+            internal PublishedFileId_t m_nPublishedFileId;
+    };
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct SteamParamStringArray_t
@@ -621,7 +638,7 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(SteamAPICallCompleted_t.k_iCallback,
                 new CommunityExpress.OnEventHandler<SteamAPICallCompleted_t>(Events_SteamAPICallCompleted));
 
-            
+
             _ce.AddEventHandler(RemoteStorageEnumerateUserPublishedFilesResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserPublishedFilesResult_t>(Events_UserPublishedFilesResultReceived));
 
             _ce.AddEventHandler(RemoteStorageEnumerateWorkshopFilesResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageEnumerateWorkshopFilesResult_t>(Events_EnumerateWorkshopFilesResultReceived));
@@ -631,13 +648,15 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(RemoteStorageSubscribePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageSubscribePublishedFileResult_t>(Events_SubscribePublishedFileResult));
 
             _ce.AddEventHandler(RemoteStorageUnsubscribePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageUnsubscribePublishedFileResult_t>(Events_UnsubscribePublishedFileResult));
-        
+
             _ce.AddEventHandler(RemoteStoragePublishedFileSubscribed_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishedFileSubscribed_t>(Events_SubscribePublishedFileResult2));
 
             _ce.AddEventHandler(RemoteStoragePublishedFileUnsubscribed_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishedFileUnsubscribed_t>(Events_UnsubscribePublishedFileResult2));
+
+            _ce.AddEventHandler(RemoteStoragePublishFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishFileResult_t>(Events_FilePublished));
+
+            _ce.AddEventHandler(RemoteStorageDeletePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageDeletePublishedFileResult_t>(Events_FileDeleted));
         }
-
-
 
         public class EnumeratePublishedFileResultArgs : System.EventArgs
         {
@@ -799,7 +818,6 @@ namespace CommunityExpressNS
             }
         }
 
-        
         private void Events_SubscribePublishedFileResult2(RemoteStoragePublishedFileSubscribed_t recv, bool Success, SteamAPICall_t hSteamAPICall)
         {
             if (FileSubscribed != null)
@@ -808,12 +826,33 @@ namespace CommunityExpressNS
             }
         }
 
-        
         private void Events_UnsubscribePublishedFileResult2(RemoteStoragePublishedFileUnsubscribed_t recv, bool Success, SteamAPICall_t hSteamAPICall)
         {
             if (FileUnsubscribed != null)
             {
                 FileUnsubscribed(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
+            }
+        }
+
+        public delegate void RemoteStoragePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        public event RemoteStoragePublishedFileResultHandler FilePublished;
+        
+        private void Events_FilePublished(RemoteStoragePublishFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
+        {
+            if (FilePublished != null)
+            {
+                FilePublished(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
+            }
+        }
+        
+        public delegate void RemoteStorageDeletedPublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        public event RemoteStorageDeletedPublishedFileResultHandler FileDeleted;
+        
+        private void Events_FileDeleted(RemoteStorageDeletePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
+        {
+            if (FileDeleted != null)
+            {
+                FileDeleted(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
             }
         }
 
