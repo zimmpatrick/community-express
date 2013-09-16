@@ -247,7 +247,7 @@ namespace SteamworksUnityTest
             _statsReceived = false;
             
             CommunityExpress.Instance.Leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(OnReceiveLeaderboard);
-            CommunityExpress.Instance.Leaderboards.FindLeaderboard("Pong Lead");
+           // CommunityExpress.Instance.Leaderboards.FindLeaderboard("Pong Lead");
             
            // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
             
@@ -283,7 +283,7 @@ namespace SteamworksUnityTest
                     //
                 }
             };
-            
+
             cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
             //cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 0, 50, 10, null, null);
             /// END PUBLISH
@@ -299,6 +299,7 @@ namespace SteamworksUnityTest
             {
                 foreach (UserGeneratedContent.PublishedFile p in e.PublishedFiles)
                 {
+                    Console.WriteLine("  " + p.Description);
                     if (p.Tags.Contains("Map"))
                     {
                         /*
@@ -311,6 +312,10 @@ namespace SteamworksUnityTest
                             null);
                         */
                     }
+                }
+                if (e.PublishedFiles.Count == 0)
+                {
+                    Console.WriteLine("No Subscribed Files");
                 }
             };
 

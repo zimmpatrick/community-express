@@ -743,6 +743,9 @@ namespace CommunityExpressNS
         private List<PublishedFile> _oneOffpublishedFiles = new List<PublishedFile>();
         private Dictionary<PublishedFileId_t, UInt32> _subscribeTimes = null;
 
+        public delegate void PublishedFileDetailsResultHandler(UserGeneratedContent sender, PublishedFileDetailsResultArgs args);
+        public event PublishedFileDetailsResultHandler FileDetails;
+
         private void Events_GetUserSubscribedFilesReceived(RemoteStorageEnumerateUserSubscribedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             _totalCount = recv.m_nTotalResultCount;
@@ -752,6 +755,11 @@ namespace CommunityExpressNS
             {
                 _subscribeTimes.Add(recv.m_rgPublishedFileId[i], recv.m_rgRTimeSubscribed[i]);
                 GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+            }
+
+            if (recv.m_nResultsReturned == 0 && EnumerateFileDetails != null)
+            {
+                EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, recv.m_eResult, _offset, _totalCount));
             }
         }
 
@@ -931,6 +939,11 @@ namespace CommunityExpressNS
                 _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
                 GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
             }
+
+            if (recv.m_nResultsReturned == 0 && EnumerateFileDetails != null)
+            {
+                EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, recv.m_eResult, _offset, _totalCount));
+            }
         }
 
         private void Events_EnumerateWorkshopFilesResultReceived(RemoteStorageEnumerateWorkshopFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -943,10 +956,12 @@ namespace CommunityExpressNS
                 _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
                 GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
             }
-        }
 
-        public delegate void PublishedFileDetailsResultHandler(UserGeneratedContent sender, PublishedFileDetailsResultArgs args);
-        public event PublishedFileDetailsResultHandler FileDetails;
+            if (recv.m_nResultsReturned == 0 && EnumerateFileDetails != null)
+            {
+                EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, recv.m_eResult, _offset, _totalCount));
+            }
+        }
 
         public delegate void EnumeratePublishedFileResultHandler(UserGeneratedContent sender, EnumeratePublishedFileResultArgs args);
         public event EnumeratePublishedFileResultHandler EnumerateFileDetails;
