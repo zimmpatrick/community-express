@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("CESDKLicenseCreator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Zimmdot")]
 [assembly: AssemblyProduct("CESDKLicenseCreator")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2013")]
+[assembly: AssemblyCopyright("Copyright © Zimmdot 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
