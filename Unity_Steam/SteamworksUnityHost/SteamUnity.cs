@@ -127,15 +127,6 @@ namespace CommunityExpressNS
 		private SteamAPICall_t _userGetEncryptedAppTicketCallHandle = 0;
 		private OnUserGetEncryptedAppTicketFromSteam _userGetEncryptedAppTicketCallback;
 
-		private SteamAPICall_t _lobbyCreatedCallHandle = 0;
-		private OnLobbyCreatedBySteam _lobbyCreatedCallback;
-
-		private SteamAPICall_t _lobbyListReceivedCallHandle = 0;
-		private OnLobbyListReceivedFromSteam _lobbyListReceivedCallback;
-
-		private SteamAPICall_t _lobbyJoinedCallHandle = 0;
-		private OnLobbyJoinedFromSteam _lobbyJoinedCallback;
-
 		public const uint k_uAppIdInvalid = 0x0;
 
 		private CommunityExpress() { }
@@ -277,48 +268,6 @@ namespace CommunityExpressNS
 				{
 					_userGetEncryptedAppTicketCallback();
 					_userGetEncryptedAppTicketCallHandle = 0;
-				}
-			}
-
-			if (_lobbyCreatedCallHandle != 0)
-			{
-				Byte failed;
-				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyCreatedCallHandle, out failed))
-				{
-					LobbyCreated_t callbackData = new LobbyCreated_t();
-					SteamUnityAPI_SteamUtils_GetLobbyCreatedResult(_lobbyCreatedCallHandle, out callbackData, out failed);
-
-					_lobbyCreatedCallback(ref callbackData);
-
-					_lobbyCreatedCallHandle = 0;
-				}
-			}
-
-			if (_lobbyListReceivedCallHandle != 0)
-			{
-				Byte failed;
-				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyListReceivedCallHandle, out failed))
-				{
-					LobbyMatchList_t callbackData = new LobbyMatchList_t();
-					SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(_lobbyListReceivedCallHandle, out callbackData, out failed);
-
-					_lobbyListReceivedCallback(ref callbackData);
-
-					_lobbyListReceivedCallHandle = 0;
-				}
-			}
-
-			if (_lobbyJoinedCallHandle != 0)
-			{
-				Byte failed;
-				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyJoinedCallHandle, out failed))
-				{
-					LobbyEnter_t callbackData = new LobbyEnter_t();
-					SteamUnityAPI_SteamUtils_GetLobbyEnteredResult(_lobbyJoinedCallHandle, out callbackData, out failed);
-
-					_lobbyJoinedCallback(ref callbackData);
-
-					_lobbyJoinedCallHandle = 0;
 				}
 			}
 		}
@@ -602,29 +551,6 @@ namespace CommunityExpressNS
 		{
 			_userGetEncryptedAppTicketCallHandle = handle;
 			_userGetEncryptedAppTicketCallback = callback;
-		}
-
-		internal void AddCreateLobbyCallback(SteamAPICall_t handle, OnLobbyCreatedBySteam callback)
-		{
-			_lobbyCreatedCallHandle = handle;
-			_lobbyCreatedCallback = callback;
-		}
-
-		internal void AddLobbyListRequestCallback(SteamAPICall_t handle, OnLobbyListReceivedFromSteam callback)
-		{
-			_lobbyListReceivedCallHandle = handle;
-			_lobbyListReceivedCallback = callback;
-		}
-
-		internal void RemoveLobbyListRequestCallback(SteamAPICall_t handle, OnLobbyListReceivedFromSteam callback)
-		{
-			_lobbyListReceivedCallHandle = 0;
-		}
-
-		internal void AddLobbyJoinedCallback(SteamAPICall_t handle, OnLobbyJoinedFromSteam callback)
-		{
-			_lobbyJoinedCallHandle = handle;
-			_lobbyJoinedCallback = callback;
 		}
 
 		private void OnSteamAPIDebugTextHookCallback(Int32 nSeverity, IntPtr pchDebugText)

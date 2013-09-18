@@ -780,13 +780,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePub
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
-	// SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSubscribedFiles(0);
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
 	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateWorkshopFilesResult, hAPICall );
 	
 	return hAPICall;
-
-	// return pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownload(void* pSteamRemoteStorage, UGCHandle_t hContent, uint32 unPriority )
@@ -1548,8 +1545,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyLi
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+	
+	SteamAPICall_t hAPICall = pISteamMatchmaking->JoinLobby(steamIDLobby);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LobbyEnterCallback, hAPICall );
 
-	return pISteamMatchmaking->JoinLobby(steamIDLobby);
+	return hAPICall;
 
 }
 

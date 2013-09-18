@@ -393,7 +393,7 @@ namespace SteamworksUnityTest
 
             leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(MyOnLeaderboardRetrievedCallback);
             leaderboards.FindLeaderboard("TestLeaderboard");
-            
+           
 			while (!_leaderboardEntriesReceived)
 			{
 				cesdk.RunCallbacks();
@@ -509,11 +509,16 @@ namespace SteamworksUnityTest
 			// filters.Add("gamedir", "EON");
 			//filters.Add("secure", "1");
 			filters.Add("secure", "1");
-			matchmaking.RequestInternetServerList(filters, MyOnServerReceivedCallback, MyOnServerListReceivedCallback);
+
+            matchmaking.ServerReceived += new Matchmaking.OnServerReceivedHandler(MyOnServerReceivedCallback);
+            matchmaking.ServerListReceived += new Matchmaking.OnServerListReceivedHandler(MyOnServerListReceivedCallback);
+
+			matchmaking.RequestInternetServerList(filters);
 			while (!_serversReceived)
 			{
 				cesdk.RunCallbacks();
 			}
+
 
 			Console.WriteLine("");
 			Console.WriteLine("Server List Complete! Server Count: {0}", _serverList.Count);
@@ -718,7 +723,7 @@ namespace SteamworksUnityTest
 		{
 		}
 
-		public static void MyOnServerReceivedCallback(Servers serverList, Server server)
+		public static void MyOnServerReceivedCallback(Matchmaking m, Servers serverList, Server server)
 		{
 			_serverList = serverList;
 
@@ -731,7 +736,7 @@ namespace SteamworksUnityTest
 			}
 		}
 
-		public static void MyOnServerListReceivedCallback(Servers serverList)
+        public static void MyOnServerListReceivedCallback(Matchmaking m, Servers serverList)
 		{
 			_serverList = serverList;
 			_serversReceived = true;

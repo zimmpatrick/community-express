@@ -29,7 +29,7 @@ namespace CommunityExpressNS
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
         [DllImport("CommunityExpressSW")]
         [return: MarshalAs(UnmanagedType.I1)]
-		private static extern Boolean SteamUnityAPI_SteamMatchmaking_RequestLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, IntPtr onLobbyDataUpdated);
+		private static extern Boolean SteamUnityAPI_SteamMatchmaking_RequestLobbyData(IntPtr matchmaking, UInt64 steamIDLobby);
         [DllImport("CommunityExpressSW")]
         [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_SetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby,
@@ -84,9 +84,6 @@ namespace CommunityExpressNS
 		private Boolean _isLocked;
 		private UInt32 _chatPermissions;
 
-		private OnLobbyDataUpdatedFromSteam _internalOnLobbyDataUpdated = null;
-		private OnLobbyDataUpdated _onLobbyDataUpdated;
-
 		private class FriendEnumator : IEnumerator<Friend>
 		{
 			private int _index;
@@ -138,6 +135,8 @@ namespace CommunityExpressNS
 			_matchmaking = SteamUnityAPI_SteamMatchmaking();
 			_lobbies = lobbies;
 			_id = id;
+
+            CommunityExpress.Instance.Matchmaking.LobbyDataUpdated += new Matchmaking.LobbyDataUpdatedHandler(Matchmaking_LobbyDataUpdated);
 		}
 
 		public void Invite(SteamID user)
@@ -150,10 +149,9 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamMatchmaking_InviteUserToLobby(_matchmaking, _id.ToUInt64(), user.SteamID.ToUInt64());
 		}
 
-		public void Join(OnLobbyJoined onLobbyJoined, OnLobbyDataUpdated onLobbyDataUpdated, OnLobbyChatUpdated onLobbyChatUpdated,
-			OnLobbyChatMessage onLobbyChatMessage, OnLobbyGameCreated onLobbyGameCreated)
+		public void Join()
 		{
-			CommunityExpress.Instance.Matchmaking.JoinLobby(this, onLobbyJoined, onLobbyDataUpdated, onLobbyChatUpdated, onLobbyChatMessage, onLobbyGameCreated);
+			CommunityExpress.Instance.Matchmaking.JoinLobby(this);
 		}
 
 		public void Leave()
@@ -170,14 +168,9 @@ namespace CommunityExpressNS
 		}
 
 		// Must call this to request Lobby Data if we are not yet a member of this lobby
-		public Boolean RequestData(OnLobbyDataUpdated onLobbyDataUpdated)
+		public Boolean RequestData()
 		{
-			if (_internalOnLobbyDataUpdated == null)
-			{
-				_internalOnLobbyDataUpdated = new OnLobbyDataUpdatedFromSteam(OnLobbyDataUpdatedCallback);
-			}
-
-			return SteamUnityAPI_SteamMatchmaking_RequestLobbyData(_matchmaking, _id.ToUInt64(), Marshal.GetFunctionPointerForDelegate(_internalOnLobbyDataUpdated));
+			return SteamUnityAPI_SteamMatchmaking_RequestLobbyData(_matchmaking, _id.ToUInt64());
 		}
 
 		public LobbyData GetData()
@@ -195,9 +188,18 @@ namespace CommunityExpressNS
 			return SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(_matchmaking, _id.ToUInt64(), key);
 		}
 
-		void OnLobbyDataUpdatedCallback(ref LobbyDataUpdate_t callbackData)
+        public delegate void LobbyDataUpdatedHandler(Lobby sender, bool Success);
+        public event LobbyDataUpdatedHandler LobbyDataUpdated;
+
+        void Matchmaking_LobbyDataUpdated(Matchmaking sender, SteamID lobbyId, bool Success)
 		{
-			_onLobbyDataUpdated(this, new SteamID(callbackData.m_ulSteamIDMember), callbackData.m_bSuccess != 0);
+            if (SteamID == lobbyId)
+            {
+                if (LobbyDataUpdated != null)
+                {
+                    LobbyDataUpdated(this, Success);
+                }
+            }
 		}
 
 		public String GetMemberData(SteamID user, String key)
