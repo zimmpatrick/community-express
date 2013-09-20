@@ -720,6 +720,7 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_PublishWorks
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->PublishWorkshopFile(pchFile, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, &pTags, eWorkshopFileType);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileResult, hAPICall );
 	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileProgress, hAPICall );
 	return hAPICall;
 }
