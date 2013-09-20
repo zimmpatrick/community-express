@@ -8,6 +8,9 @@ using System.Net;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// Information about a server
+    /// </summary>
 	public class Server
 	{
 		internal Server(Int32 version, IPAddress ip, UInt16 port, UInt16 queryPort, Int32 ping, String serverName, String mapName, String gameDesc,
@@ -30,97 +33,129 @@ namespace CommunityExpressNS
 			GameDir = gameDir;
 			AppId = appId;
 		}
-
+        /// <summary>
+        /// Server version
+        /// </summary>
 		public Int32 Version
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server IP
+        /// </summary>
 		public IPAddress IP
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server port
+        /// </summary>
 		public UInt16 Port
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server query port
+        /// </summary>
 		public UInt16 QueryPort
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server ping
+        /// </summary>
 		public Int32 Ping
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server app ID
+        /// </summary>
 		public UInt32 AppId
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server name
+        /// </summary>
 		public String ServerName
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server map name
+        /// </summary>
 		public String MapName
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server game description
+        /// </summary>
 		public String GameDescription
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server game directory
+        /// </summary>
 		public String GameDir
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// If the server is secure
+        /// </summary>
 		public Boolean IsSecure
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// If the server has a password
+        /// </summary>
 		public Boolean IsPassworded
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Number of players on server
+        /// </summary>
 		public Int32 Players
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Maximum number of players on server
+        /// </summary>
 		public Int32 MaxPlayers
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Number of bots on the server
+        /// </summary>
 		public Int32 BotPlayers
 		{
 			get;
 			private set;
 		}
-
+        /// <summary>
+        /// Server game tags
+        /// </summary>
 		public String GameTags
 		{
 			get;

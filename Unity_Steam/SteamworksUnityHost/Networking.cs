@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// Session error codes
+    /// </summary>
 	public enum EP2PSessionError
 	{
 		k_EP2PSessionErrorNone = 0,
@@ -20,8 +23,10 @@ namespace CommunityExpressNS
 		k_EP2PSessionErrorMax = 5
 	}
 
-	// SendP2PPacket() send types
-	// Typically k_EP2PSendUnreliable is what you want for UDP-like packets, k_EP2PSendReliable for TCP-like packets
+	/// <summary>
+    /// SendP2PPacket() send types
+    /// Typically k_EP2PSendUnreliable is what you want for UDP-like packets, k_EP2PSendReliable for TCP-like packets
+	/// </summary>
 	public enum EP2PSend
 	{
 		// Basic UDP send. Packets can't be bigger than 1200 bytes (your typical MTU size). Can be lost, or arrive out of order (rare).
@@ -61,13 +66,31 @@ namespace CommunityExpressNS
 	}
 
 	delegate void OnNewP2PSessionFromSteam(P2PSessionRequest_t callbackData);
+    /// <summary>
+    /// When a new P2P session is begun
+    /// </summary>
+    /// <param name="steamID">ID of session</param>
+    /// <returns>true if session created</returns>
 	public delegate Boolean OnNewP2PSession(SteamID steamID);
 
 	delegate void OnSendP2PPacketFailedFromSteam(P2PSessionConnectFail_t callbackData);
+    /// <summary>
+    /// When a P2P packet fails to connect
+    /// </summary>
+    /// <param name="steamID">ID of session</param>
+    /// <param name="error">Error code</param>
 	public delegate void OnSendP2PPacketFailed(SteamID steamID, EP2PSessionError error);
-
+    /// <summary>
+    /// When a P2P packet is recieved
+    /// </summary>
+    /// <param name="steamID">ID of session</param>
+    /// <param name="data">Packet data</param>
+    /// <param name="channel">Connection channel</param>
 	public delegate void OnP2PPacketReceived(SteamID steamID, Byte[] data, Int32 channel);
 
+    /// <summary>
+    /// Networking information
+    /// </summary>
 	public class Networking
 	{
 		[DllImport("CommunityExpressSW")]
@@ -112,7 +135,13 @@ namespace CommunityExpressNS
 		{
 			_networking = SteamUnityAPI_SteamNetworking();
 		}
-
+        /// <summary>
+        /// Initializes networking connection
+        /// </summary>
+        /// <param name="allowPacketRelay">Is packet relay allowed</param>
+        /// <param name="onNewP2PSession">Arguments for new session</param>
+        /// <param name="onSendP2PPacketFailed">Arguments for failed packet retrieval</param>
+        /// <param name="onP2PPacketReceived">Arguments for recieved packet</param>
 		public void Init(Boolean allowPacketRelay, OnNewP2PSession onNewP2PSession, OnSendP2PPacketFailed onSendP2PPacketFailed, OnP2PPacketReceived onP2PPacketReceived)
 		{
 			_onNewP2PSession = onNewP2PSession;
@@ -138,12 +167,24 @@ namespace CommunityExpressNS
 			if (_onNewP2PSession(new SteamID(callbackData.m_steamID)))
 				SteamUnityAPI_SteamNetworking_AcceptP2PSessionWithUser(_networking, callbackData.m_steamID);
 		}
-
+        /// <summary>
+        /// Send a P2P packet (String)
+        /// </summary>
+        /// <param name="steamID">ID of session</param>
+        /// <param name="data">Packet data</param>
+        /// <param name="sendType">Type of sending format</param>
+        /// <param name="channel">Connection channel</param>
 		public void SendP2PPacket(SteamID steamID, String data, EP2PSend sendType, Int32 channel = 0)
 		{
 			SteamUnityAPI_SteamNetworking_SendP2PPacket(_networking, steamID.ToUInt64(), Marshal.StringToHGlobalAnsi(data), (UInt32)data.Length, (Byte)sendType, channel);
 		}
-
+        /// <summary>
+        /// Send a P2P packet (Byte)
+        /// </summary>
+        /// <param name="steamID">ID of session</param>
+        /// <param name="data">Packet data</param>
+        /// <param name="sendType">Type of sending format</param>
+        /// <param name="channel">Connection channel</param>
 		public void SendP2PPacket(SteamID steamID, Byte[] data, EP2PSend sendType, Int32 channel = 0)
 		{
 			IntPtr dataPtr = Marshal.AllocHGlobal(data.Length);
@@ -153,12 +194,18 @@ namespace CommunityExpressNS
 
 			Marshal.FreeHGlobal(dataPtr);
 		}
-
+        /// <summary>
+        /// When the packet fails to connect
+        /// </summary>
+        /// <param name="callbackData">Callback data for failure</param>
 		private void OnSendP2PPacketFailed(P2PSessionConnectFail_t callbackData)
 		{
 			_onSendP2PPacketFailed(new SteamID(callbackData.m_steamID), (EP2PSessionError)callbackData.m_eP2PSessionError);
 		}
-
+        /// <summary>
+        /// Sets ability to listen to a channel
+        /// </summary>
+        /// <param name="listenChannels">Channel to listen to</param>
 		public void SetListenChannels(Int32[] listenChannels)
 		{
 			_listenChannels = listenChannels;
@@ -187,17 +234,26 @@ namespace CommunityExpressNS
 				}
 			}
 		}
-
+        /// <summary>
+        /// Close a P2P session
+        /// </summary>
+        /// <param name="steamID">ID of session</param>
 		public void CloseP2PSession(SteamID steamID)
 		{
 			SteamUnityAPI_SteamNetworking_CloseP2PSession(_networking, steamID.ToUInt64());
 		}
-
+        /// <summary>
+        /// Close a P2P session
+        /// </summary>
+        /// <param name="steamID">ID of session</param>
+        /// <param name="channel">Connection channel</param>
 		public void CloseP2PSession(SteamID steamID, Int32 channel)
 		{
 			SteamUnityAPI_SteamNetworking_CloseP2PChannel(_networking, steamID.ToUInt64(), channel);
 		}
-
+        /// <summary>
+        /// If the connection is initialized
+        /// </summary>
 		public Boolean IsInitialized
 		{
 			get { return _isInitialized; }

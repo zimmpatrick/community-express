@@ -4,13 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace CommunityExpressNS
 {
-	// General result codes
+    /// <summary>
+    /// These are the namespace comments for CommunityExpressNS
+    /// </summary>
+    [CompilerGenerated]
+    class NamespaceDoc
+    {
+    }
+
+	/// <summary>
+    ///  General result codes
+	/// </summary>
 	public enum EResult
 	{
-		EResultOK	= 1,							// success
+		EResultOK = 1,							    // success
 		EResultFail = 2,							// generic failure 
 		EResultNoConnection = 3,					// no/failed network connection
 	//	EResultNoConnectionRetry = 4,				// OBSOLETE - removed
@@ -66,7 +77,9 @@ namespace CommunityExpressNS
 		EResultDiskFull = 54,						// Operation canceled - not enough disk space.
 		EResultRemoteCallFailed = 55				// an remote call or IPC call failed
 	};
-
+    /// <summary>
+    /// Codes for the mode the game server is in
+    /// </summary>
 	public enum EServerMode
 	{
 		eServerModeNoAuthentication = 1, // Don't authenticate user logins and don't list on the server list
@@ -74,7 +87,9 @@ namespace CommunityExpressNS
 		eServerModeAuthenticationAndSecure = 3, // Authenticate users, list on the server list and VAC protect clients
 	};
 	
-	// Error codes for use with the voice functions
+	/// <summary>
+    /// Error codes for use with the voice functions
+	/// </summary>
 	public enum EVoiceResult
 	{
 		EVoiceResultOK = 0,
@@ -85,7 +100,9 @@ namespace CommunityExpressNS
 		EVoiceResultDataCorrupted = 5
 	};
 
-	// Result codes to GSHandleClientDeny/Kick
+	/// <summary>
+    /// Result codes to GSHandleClientDeny/Kick
+	/// </summary>
 	public enum EDenyReason
 	{
 		EDenyInvalid = 0,
@@ -106,7 +123,9 @@ namespace CommunityExpressNS
 		EDenySteamOwnerLeftGuestUser = 15
 	};
 
-	// results from BeginAuthSession
+	/// <summary>
+    /// results from BeginAuthSession
+	/// </summary>
 	public enum EBeginAuthSessionResult
 	{
 		EBeginAuthSessionResultOK = 0,						// Ticket is valid for this game and this steamID.
@@ -117,7 +136,10 @@ namespace CommunityExpressNS
 		EBeginAuthSessionResultExpiredTicket = 5			// Ticket has expired
 	};
 
-	// Callback values for callback ValidateAuthTicketResponse_t which is a response to BeginAuthSession
+	/// <summary>
+    /// Callback values for callback ValidateAuthTicketResponse_t which is a response to BeginAuthSession
+	/// </summary>
+ 
 	public enum EAuthSessionResponse
 	{
 		EAuthSessionResponseOK = 0,								// Steam has verified the user is online, the ticket is valid and ticket has not been reused.
@@ -131,7 +153,10 @@ namespace CommunityExpressNS
 		EAuthSessionResponseAuthTicketInvalid = 8				// This ticket is not from a user instance currently connected to steam.
 	};
 
-	// results from UserHasLicenseForApp
+	/// <summary>
+    /// results from UserHasLicenseForApp
+	/// </summary>
+ 
 	public enum EUserHasLicenseResult
 	{
 		EUserHasLicenseResultHasLicense = 0,					// User has a license for specified app
@@ -139,7 +164,10 @@ namespace CommunityExpressNS
 		EUserHasLicenseResultNoAuth = 2							// User has not been authenticated
 	};
 
-	// Steam universes.  Each universe is a self-contained Steam instance.
+	/// <summary>
+    /// Steam universes.  Each universe is a self-contained Steam instance.
+	/// </summary>
+ 
 	public enum EUniverse
 	{
 		EUniverseInvalid = 0,
@@ -150,7 +178,10 @@ namespace CommunityExpressNS
 		EUniverseRC = 5
 	};
 	
-	// Steam account types
+	/// <summary>
+    /// Steam account types
+	/// </summary>
+ 
 	public enum EAccountType
 	{
 		EAccountTypeInvalid = 0,

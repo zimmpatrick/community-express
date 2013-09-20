@@ -10,20 +10,27 @@ namespace CommunityExpressNS
 {
     using SteamAPICall_t = UInt64;
 
-	// Input modes for the Big Picture gamepad text entry
+	/// <summary>
+    /// Input modes for the Big Picture gamepad text entry
+	/// </summary>
 	public enum EGamepadTextInputMode
 	{
 		k_EGamepadTextInputModeNormal = 0,
 		k_EGamepadTextInputModePassword = 1
 	};
 
-	// Controls number of allowed lines for the Big Picture gamepad text entry
+	/// <summary>
+    /// Controls number of allowed lines for the Big Picture gamepad text entry
+	/// </summary>
 	public enum EGamepadTextInputLineMode
 	{
 		k_EGamepadTextInputLineModeSingleLine = 0,
 		k_EGamepadTextInputLineModeMultipleLines = 1
 	};
 
+    /// <summary>
+    /// Big Picture mode
+    /// </summary>
 	public class BigPicture
     {
         [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -47,8 +54,15 @@ namespace CommunityExpressNS
 
         private CommunityExpress.OnEventHandler<GamepadTextInputDismissed_t> _onGamepadTextInputDismissedCallback;
         private CommunityExpress _ce;
-
+        /// <summary>
+        /// When text input is dismissed
+        /// </summary>
+        /// <param name="submitted">Is text submitted</param>
+        /// <param name="text">Text submitted</param>
         public delegate void OnGamepadTextInputDismissed(Boolean submitted, String text);
+        /// <summary>
+        /// When the gamepad text input is dismissed by the user
+        /// </summary>
         public event OnGamepadTextInputDismissed GamepadTextInputDismissed;
 
         internal BigPicture(CommunityExpress ce)
@@ -57,7 +71,14 @@ namespace CommunityExpressNS
 
             _onGamepadTextInputDismissedCallback = new CommunityExpress.OnEventHandler<GamepadTextInputDismissed_t>(OnGamepadTextInputDismissedCallback);
         }
-
+        /// <summary>
+        /// Shows inputted text from gamepad controller
+        /// </summary>
+        /// <param name="inputMode">What input mode the user has chosen</param>
+        /// <param name="lineInputMode">What line the input is going to</param>
+        /// <param name="description">Description of the input mode</param>
+        /// <param name="maxCharacters">maximum number of characters</param>
+        /// <returns>true if input shown</returns>
 		public Boolean ShowGamepadTextInput(EGamepadTextInputMode inputMode, EGamepadTextInputLineMode lineInputMode, String description, UInt32 maxCharacters)
         {
             _ce.AddEventHandler(GamepadTextInputDismissed_t.k_iCallback, _onGamepadTextInputDismissedCallback);
@@ -67,7 +88,10 @@ namespace CommunityExpressNS
             Console.WriteLine(ret);
             return ret;
 		}
-
+        /// <summary>
+        /// Puts in text inputted from gamepad
+        /// </summary>
+        /// <param name="text">text input from gamepad controller</param>
 		public void GetEnteredGamepadTextInput(out String text)
 		{
 			Int32 textLength = (Int32)SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength();

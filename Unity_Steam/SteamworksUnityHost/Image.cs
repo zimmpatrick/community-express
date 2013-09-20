@@ -5,7 +5,10 @@ using System.Text;
 
 namespace CommunityExpressNS
 {
-	public class Image
+	/// <summary>
+	/// Image
+	/// </summary>
+    public class Image
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamUtils_GetImageSize(Int32 iconIndex, out UInt32 iconWidth, out UInt32 iconHeight);
@@ -24,7 +27,11 @@ namespace CommunityExpressNS
 			_steamImage = steamImage;
 			SteamUnityAPI_SteamUtils_GetImageSize(_steamImage, out _iconWidth, out _iconHeight);
 		}
-
+        /// <summary>
+        /// Gets the data for the image
+        /// </summary>
+        /// <param name="data">The data of the image</param>
+        /// <param name="dataSize">The size of the image data</param>
 		public void GetPixels(IntPtr data, Int32 dataSize)
 		{
 			if (_iconWidth > 0 && _iconHeight > 0)
@@ -32,7 +39,10 @@ namespace CommunityExpressNS
 				SteamUnityAPI_SteamUtils_GetImageRGBA_Ptr(_steamImage, data, dataSize);
 			}
 		}
-
+        /// <summary>
+        /// Turns image into game texture
+        /// </summary>
+        /// <returns>true if image is converted</returns>
 		public Byte[] AsBytes()
 		{
 			if (_iconWidth > 0 && _iconHeight > 0)
@@ -45,12 +55,16 @@ namespace CommunityExpressNS
 
 			return null;
 		}
-
+        /// <summary>
+        /// Width of the image
+        /// </summary>
 		public UInt32 Width
 		{
 			get { return _iconWidth; }
 		}
-
+        /// <summary>
+        /// Height of the image
+        /// </summary>
 		public UInt32 Height
 		{
 			get { return _iconHeight; }

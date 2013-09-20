@@ -32,6 +32,9 @@ namespace CommunityExpressNS
 		public Int32 m_cEntryCount; // the number of entries downloaded
 	};
     
+    /// <summary>
+    /// Information about a leaderboard
+    /// </summary>
 	public class Leaderboard
 	{
 		[DllImport("CommunityExpressSW")]
@@ -69,8 +72,15 @@ namespace CommunityExpressNS
 		private ELeaderboardDisplayType _displayType;
 
 		private Int32 _maxDetails;
-
+        /// <summary>
+        /// Retrieve Leaderboard entries
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="entries">Entries to recieve</param>
         public delegate void OnLeaderboardEntriesRetrievedHandler(Leaderboard sender, LeaderboardEntries entries);
+        /// <summary>
+        /// Entries on leaderboard are recieved
+        /// </summary>
         public event OnLeaderboardEntriesRetrievedHandler LeaderboardEntriesReceived;
 
         private CommunityExpress.OnEventHandler<LeaderboardScoresDownloaded_t> LeaderboardEntriesRetrievedCallback;
@@ -88,7 +98,12 @@ namespace CommunityExpressNS
 
             LeaderboardEntriesRetrievedCallback = new CommunityExpress.OnEventHandler<LeaderboardScoresDownloaded_t>(OnLeaderboardEntriesRetrievedCallback);
 		}
-
+        /// <summary>
+        /// Updates scores on leaderboard
+        /// </summary>
+        /// <param name="uploadScoreMethod">Method of updating</param>
+        /// <param name="score">Score to update</param>
+        /// <param name="scoreDetails">Details of score</param>
 		public void UploadLeaderboardScore(ELeaderboardUploadScoreMethod uploadScoreMethod, Int32 score, List<Int32> scoreDetails)
 		{
 			if (scoreDetails != null)
@@ -100,7 +115,12 @@ namespace CommunityExpressNS
 				SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(_leaderboards.Stats, _leaderboard, uploadScoreMethod, score, null, 0);
 			}
 		}
-
+        /// <summary>
+        /// Requests entries on leaderboard
+        /// </summary>
+        /// <param name="startIndex">Where the index starts</param>
+        /// <param name="endIndex">Where the index ends</param>
+        /// <param name="maxExpectedDetails">Maximum number of entries</param>
 		public void RequestLeaderboardEntries(Int32 startIndex, Int32 endIndex, Int32 maxExpectedDetails)
 		{
 			_maxDetails = maxExpectedDetails;
@@ -113,7 +133,12 @@ namespace CommunityExpressNS
                 if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, null);
             }
 		}
-
+        /// <summary>
+        /// Requests the entries near the current user's score
+        /// </summary>
+        /// <param name="rowsBefore">Rows before user</param>
+        /// <param name="rowsAfter">Rows after user</param>
+        /// <param name="maxExpectedDetails">Maximum number of entries</param>
 		public void RequestLeaderboardEntriesAroundCurrentUser(Int32 rowsBefore, Int32 rowsAfter, Int32 maxExpectedDetails)
 		{
             _maxDetails = maxExpectedDetails;
@@ -126,7 +151,10 @@ namespace CommunityExpressNS
                 if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, null);
             }
 		}
-
+        /// <summary>
+        /// Requests entries for a friend of the user
+        /// </summary>
+        /// <param name="maxExpectedDetails">Maximum number of entries</param>
 		public void RequestFriendLeaderboardEntries(Int32 maxExpectedDetails)
 		{
             _maxDetails = maxExpectedDetails;
@@ -165,7 +193,9 @@ namespace CommunityExpressNS
 
             if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, leaderboardEntries);
 		}
-
+        /// <summary>
+        /// Refresh the leaderboard
+        /// </summary>
 		public void Refresh()
 		{
             _leaderboards.FindLeaderboard(_leaderboardName, false);
@@ -181,22 +211,30 @@ namespace CommunityExpressNS
 				_displayType = SteamUnityAPI_SteamUserStats_GetLeaderboardDisplayType(_stats, findLearderboardResult.m_hSteamLeaderboard);
 			}
 		}
-
+        /// <summary>
+        /// Name of the leaderboard
+        /// </summary>
 		public String LeaderboardName
 		{
 			get { return _leaderboardName; }
 		}
-
+        /// <summary>
+        /// Number of entries on the leaderboard
+        /// </summary>
 		public Int32 EntryCount
 		{
 			get { return _entryCount; }
 		}
-
+        /// <summary>
+        /// Method in which the leaderboard is sorted
+        /// </summary>
 		public ELeaderboardSortMethod SortMethod
 		{
 			get { return _sortMethod; }
 		}
-
+        /// <summary>
+        /// Display type of the leaderboard
+        /// </summary>
 		public ELeaderboardDisplayType DisplayType
 		{
 			get { return _displayType; }

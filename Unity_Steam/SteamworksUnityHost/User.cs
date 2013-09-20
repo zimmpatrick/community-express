@@ -12,6 +12,9 @@ namespace CommunityExpressNS
 	using HSteamUser = Int32;
 	using AppId_t = UInt32;
 
+    /// <summary>
+    /// Information about a user
+    /// </summary>
 	public class User
 	{
 		[DllImport("CommunityExpressSW")]
@@ -56,7 +59,9 @@ namespace CommunityExpressNS
 			_friends = new Friends();
             _auth = new UserAuthentication(this);
 		}
-
+        /// <summary>
+        /// Finalize user
+        /// </summary>
 		~User()
 		{
 			OnDisconnect();
@@ -66,7 +71,15 @@ namespace CommunityExpressNS
         {
             get { return _user; }
         }
-
+        /// <summary>
+        /// Begins client authentication
+        /// </summary>
+        /// <param name="authTicket">User's authentication ticket</param>
+        /// <param name="steamIDServer">Server's ID</param>
+        /// <param name="ipServer">Server IP</param>
+        /// <param name="serverPort">Server port</param>
+        /// <param name="isSecure">If the server is secure</param>
+        /// <returns>true if user is allowed to access</returns>
 		public Boolean InitiateClientAuthentication(out Byte[] authTicket, SteamID steamIDServer, IPAddress ipServer, UInt16 serverPort, Boolean isSecure)
 		{
 			Byte[] serverIPBytes = ipServer.GetAddressBytes();
@@ -94,7 +107,9 @@ namespace CommunityExpressNS
 			authTicket = null;
 			return false;
 		}
-
+        /// <summary>
+        /// When the user disconnects from a server
+        /// </summary>
 		public void OnDisconnect()
 		{
 			if (_serverIP != 0)
@@ -107,13 +122,18 @@ namespace CommunityExpressNS
         /// After receiving a user's authentication data, and passing it to BeginAuthSession, use this function
         /// to determine if the user owns downloadable content specified by the provided AppID.
         /// </summary>
-        /// <param name="appID"></param>
-        /// <returns></returns>
+        /// <param name="appID">App ID</param>
+        /// <returns>Argument for result</returns>
         public EUserHasLicenseResult UserHasLicenseForApp(AppId_t appID)
 		{
 			return SteamUnityAPI_SteamUser_UserHasLicenseForApp(_user, SteamID.ToUInt64(), appID);
 		}
-
+        /// <summary>
+        /// Checks if the user has an app license
+        /// </summary>
+        /// <param name="steamID">User iD</param>
+        /// <param name="appID">App ID</param>
+        /// <returns>Argument for result</returns>
         public EUserHasLicenseResult UserHasLicenseForApp(SteamID steamID, AppId_t appID)
 		{
 			return SteamUnityAPI_SteamUser_UserHasLicenseForApp(_user, steamID.ToUInt64(), appID);
@@ -138,9 +158,9 @@ namespace CommunityExpressNS
         /// if you only have one set of cards, the series will be 1
         /// the user has can have two different badges for a series; the regular (max level 5) and the foil (max level 1)
         /// </summary>
-        /// <param name="nSeries"></param>
-        /// <param name="bFoil"></param>
-        /// <returns></returns>
+        /// <param name="nSeries">Series of card</param>
+        /// <param name="bFoil">If card is foil</param>
+        /// <returns>User's badge level</returns>
         public int GetGameBadgeLevel(int nSeries, bool bFoil)
         {
             return SteamUnityAPI_SteamUser_GetGameBadgeLevel(_user, nSeries, bFoil);
@@ -149,7 +169,7 @@ namespace CommunityExpressNS
         /// <summary>
         /// Gets the large (184x184) avatar of the user
         /// </summary>
-        /// <param name="largeAvatarReceivedCallback"></param>
+        /// <param name="largeAvatarReceivedCallback">Callback when avatar is received</param>
 		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
 		{
 			_friends.GetLargeFriendAvatar(SteamID, largeAvatarReceivedCallback);
@@ -191,7 +211,9 @@ namespace CommunityExpressNS
 		{
 			get { return new SteamID(SteamUnityAPI_SteamUser_GetSteamID(_user)); }
 		}
-
+        /// <summary>
+        /// Name of the user
+        /// </summary>
 		public String PersonaName
 		{
             get { return Marshal.PtrToStringAnsi(SteamUnityAPI_GetPersonaNameByID(SteamID.ToUInt64())); }
@@ -228,7 +250,9 @@ namespace CommunityExpressNS
 		{
 			get { return _friends.GetLargeFriendAvatar(SteamID, null); }
 		}
-
+        /// <summary>
+        /// The user's authentication status
+        /// </summary>
         public UserAuthentication Authentication
         {
             get { return _auth; }

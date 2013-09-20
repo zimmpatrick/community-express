@@ -251,8 +251,14 @@ namespace CommunityExpressNS
         }
     };
 
+    /// <summary>
+    /// User generated content information and uploading
+    /// </summary>
     public class UserGeneratedContent
     {
+        /// <summary>
+        /// Type of workshop file
+        /// </summary>
         public enum EWorkshopFileType
         {
             // k_EWorkshopFileTypeFirst = 0,
@@ -273,7 +279,9 @@ namespace CommunityExpressNS
             // k_EWorkshopFileTypeMax = 11
 
         };
-
+        /// <summary>
+        /// Enumeration type of file ranking
+        /// </summary>
         public enum EWorkshopEnumerationType
         {
             k_EWorkshopEnumerationTypeRankedByVote = 0,
@@ -284,13 +292,17 @@ namespace CommunityExpressNS
             k_EWorkshopEnumerationTypeContentByFriends = 5,
             k_EWorkshopEnumerationTypeRecentFromFollowedUsers = 6,
         };
-
+        /// <summary>
+        /// File action
+        /// </summary>
         public enum EWorkshopFileAction
         {
             k_EWorkshopFileActionPlayed = 0,
             k_EWorkshopFileActionCompleted = 1,
         };
-
+        /// <summary>
+        /// Visibility of published file
+        /// </summary>
         public enum ERemoteStoragePublishedFileVisibility
         {
             k_ERemoteStoragePublishedFileVisibilityPublic = 0,
@@ -303,7 +315,9 @@ namespace CommunityExpressNS
             k_EWorkshopVideoProviderNone = 0,
             k_EWorkshopVideoProviderYoutube = 1
         };
-
+        /// <summary>
+        /// Arguments for result of file download
+        /// </summary>
         public class PublishedFileDownloadResultArgs : System.EventArgs
         {
             internal PublishedFileDownloadResultArgs(PublishedFile publishedFile, bool primaryFile, string fileName)
@@ -312,7 +326,9 @@ namespace CommunityExpressNS
                 PrimaryFile = primaryFile;
                 FileName = fileName;
             }
-
+            /// <summary>
+            /// If the file was downloaded successfully
+            /// </summary>
             public bool Success
             {
                 get;
@@ -324,20 +340,26 @@ namespace CommunityExpressNS
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// The published file
+            /// </summary>
             public PublishedFile PublishedFile
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Name of published file
+            /// </summary>
             public string FileName
             {
                 get;
                 private set;
             }
         }
-
+        /// <summary>
+        /// Information about the published file
+        /// </summary>
         public class PublishedFile
         {
             [DllImport("CommunityExpressSW")]
@@ -372,73 +394,97 @@ namespace CommunityExpressNS
                     SubscribeDate = null;
                 }
             }
-
+            /// <summary>
+            /// Title of published file
+            /// </summary>
             public string Title
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Description of published file
+            /// </summary>
             public string Description
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Name of published file
+            /// </summary>
             public string FileName
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// File name preview
+            /// </summary>
             public string PreviewFileName
             {
                 get;
                 internal set;
             }
-
+            /// <summary>
+            /// File creator's Steam ID
+            /// </summary>
             public SteamID OwnerSteamID
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// File tags
+            /// </summary>
             public string[] Tags
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Shortened file tags
+            /// </summary>
             public bool TagsTruncated
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Size of file
+            /// </summary>
             public Int32 FileSize
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// URL of file
+            /// </summary>
             public string URL
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Type of file
+            /// </summary>
             public EWorkshopFileType FileType
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Date file was created
+            /// </summary>
             public DateTime CreatedDate
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Date file was subscribed to
+            /// </summary>
             public DateTime? SubscribeDate
             {
                 get;
@@ -463,6 +509,9 @@ namespace CommunityExpressNS
                 private set;
             }
 
+            /// <summary>
+            /// Directory of file
+            /// </summary>
             public string FileDirectory
             {
                 get
@@ -473,7 +522,9 @@ namespace CommunityExpressNS
                     return FileName.Substring(0, dir - 1);
                 }
             }
-
+            /// <summary>
+            /// Preview of file directory
+            /// </summary>
             public string PreviewFileDirectory
             {
                 get
@@ -492,6 +543,9 @@ namespace CommunityExpressNS
                 get { return (Result == EResult.EResultFileNotFound); }
             }
 
+            /// <summary>
+            /// File ID
+            /// </summary>
             public UInt64 ID
             {
                 get;
@@ -509,6 +563,8 @@ namespace CommunityExpressNS
             /// otherwise it will wait to download the file until all downloads with a lower priority
             /// value are completed.  Downloads with equal priority will occur simultaneously.
             /// </summary>
+            /// <param name="fileName">Name of file</param>
+            /// <param name="priority">Priority of download</param>
             public void Download(string fileName, UInt32 priority)
             {
                 // SteamUnityAPI_SteamRemoteStorage_UGCDownload(RemoteStorage, hFile, priority);
@@ -520,7 +576,10 @@ namespace CommunityExpressNS
                 UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UGCDownloadToLocation(RemoteStorage, hFile, fullFileName, 0);
                 CommunityExpress.Instance.UserGeneratedContent.AddUGCDownload(ret, new PublishedFileDownloadResultArgs(this, true, fileName));
             }
-
+            /// <summary>
+            /// Preview of file to be uploaded
+            /// </summary>
+            /// <param name="fileName">Name of file</param>
             public void WritePreviewFile(string fileName)
             {
                 string fullFileName = System.IO.Path.GetFullPath(fileName);
@@ -668,7 +727,9 @@ namespace CommunityExpressNS
 
             _ce.AddEventHandler(RemoteStorageDeletePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageDeletePublishedFileResult_t>(Events_FileDeleted));
         }
-
+        /// <summary>
+        /// Enumerates published files
+        /// </summary>
         public class EnumeratePublishedFileResultArgs : System.EventArgs
         {
             internal EnumeratePublishedFileResultArgs(ICollection<PublishedFile> publishedFiles, EResult result,
@@ -679,32 +740,42 @@ namespace CommunityExpressNS
                 Result = result;
                 PublishedFiles = publishedFiles;
             }
-
+            /// <summary>
+            /// Result of the enumeration
+            /// </summary>
             public EResult Result
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Where the index starts
+            /// </summary>
             public UInt32 StartIndex
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Total count of published files
+            /// </summary>
             public Int32 TotalCount
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Lists published files
+            /// </summary>
             public ICollection<PublishedFile> PublishedFiles
             {
                 get;
                 private set;
             }
         }
-
+        /// <summary>
+        /// Arguments for writing published file details
+        /// </summary>
         public class PublishedFileDetailsResultArgs : System.EventArgs
         {
             internal PublishedFileDetailsResultArgs(PublishedFile publishedFile, EResult result)
@@ -712,20 +783,26 @@ namespace CommunityExpressNS
                 Result = result;
                 PublishedFile = publishedFile;
             }
-
+            /// <summary>
+            /// Results of the publish
+            /// </summary>
             public EResult Result
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// The published file
+            /// </summary>
             public PublishedFile PublishedFile
             {
                 get;
                 private set;
             }
         }
-
+        /// <summary>
+        /// Arguments for publishing a file
+        /// </summary>
         public class PublishedFileResultArgs : System.EventArgs
         {
             internal PublishedFileResultArgs(EResult result,
@@ -734,13 +811,17 @@ namespace CommunityExpressNS
                 Result = result;
                 PublishedFileId = nPublishedFileId;
             }
-
+            /// <summary>
+            /// Result of publish
+            /// </summary>
             public EResult Result
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// ID of the published file
+            /// </summary>
             public PublishedFileId_t PublishedFileId
             {
                 get;
@@ -753,8 +834,15 @@ namespace CommunityExpressNS
         private List<PublishedFile> _publishedFiles = null;
         private List<PublishedFile> _oneOffpublishedFiles = new List<PublishedFile>();
         private Dictionary<PublishedFileId_t, UInt32> _subscribeTimes = null;
-
+        /// <summary>
+        /// Result of published file details
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="args">Arguments for result</param>
         public delegate void PublishedFileDetailsResultHandler(UserGeneratedContent sender, PublishedFileDetailsResultArgs args);
+        /// <summary>
+        /// Result of the search for published file details
+        /// </summary>
         public event PublishedFileDetailsResultHandler FileDetails;
 
         private void Events_GetUserSubscribedFilesReceived(RemoteStorageEnumerateUserSubscribedFilesResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -773,9 +861,19 @@ namespace CommunityExpressNS
                 EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, recv.m_eResult, _offset, _totalCount));
             }
         }
-
+        /// <summary>
+        /// Result of download of file
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="file">Arguments for result</param>
         public delegate void PublishedFileDownloadedHandler(UserGeneratedContent sender, PublishedFileDownloadResultArgs file);
+        /// <summary>
+        /// Published file was downloaded
+        /// </summary>
         public event PublishedFileDownloadedHandler PublishedFileDownloaded;
+        /// <summary>
+        /// File is downloaded
+        /// </summary>
         public event PublishedFileDownloadedHandler PublishedPreviewFileDownloaded;
 
         private void Events_SteamAPICallCompleted(SteamAPICallCompleted_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -803,8 +901,15 @@ namespace CommunityExpressNS
                 _ugcDownloads.Remove(recv.m_hAsyncCall);
             }
         }
-
+        /// <summary>
+        /// Result of updating published file
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="result">Arguments for result</param>
         public delegate void RemoteStorageUpdatePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        /// <summary>
+        /// The published file was updated on Steam Cloud
+        /// </summary>
         public event RemoteStorageUpdatePublishedFileResultHandler FileUpdated;
 
         private void Events_UpdatePublishedFileFinished(RemoteStorageUpdatePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
@@ -814,8 +919,15 @@ namespace CommunityExpressNS
                 FileUpdated(this, new PublishedFileResultArgs(recv.m_eResult, recv.m_nPublishedFileId));
             }
         }
-
+        /// <summary>
+        /// Subscribing to a published file
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="result">Argument for result</param>
         public delegate void RemoteStorageSubscribePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        /// <summary>
+        /// The published file was subscribed to
+        /// </summary>
         public event RemoteStorageSubscribePublishedFileResultHandler FileSubscribed;
 
         private void Events_SubscribePublishedFileResult(RemoteStorageSubscribePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
@@ -825,8 +937,15 @@ namespace CommunityExpressNS
                 FileSubscribed(this, new PublishedFileResultArgs(recv.m_eResult, recv.m_nPublishedFileId));
             }
         }
-
+        /// <summary>
+        /// Unsubscribing from a published file
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="result">Argument for result</param>
         public delegate void RemoteStorageUnsubscribePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        /// <summary>
+        /// The published file was unsubscribed from
+        /// </summary>
         public event RemoteStorageUnsubscribePublishedFileResultHandler FileUnsubscribed;
 
         private void Events_UnsubscribePublishedFileResult(RemoteStorageUnsubscribePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
@@ -852,8 +971,15 @@ namespace CommunityExpressNS
                 FileUnsubscribed(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
             }
         }
-
+        /// <summary>
+        /// Result of saving file to Steam Cloud
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="result">Argument for result</param>
         public delegate void RemoteStoragePublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        /// <summary>
+        /// The published file was saved to the Steam Cloud
+        /// </summary>
         public event RemoteStoragePublishedFileResultHandler FilePublished;
         
         private void Events_FilePublished(RemoteStoragePublishFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
@@ -863,8 +989,15 @@ namespace CommunityExpressNS
                 FilePublished(this, new PublishedFileResultArgs(EResult.EResultOK, recv.m_nPublishedFileId));
             }
         }
-        
+        /// <summary>
+        /// Result of deleting file from storage
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="result">Argument for result</param>
         public delegate void RemoteStorageDeletedPublishedFileResultHandler(UserGeneratedContent sender, PublishedFileResultArgs result);
+        /// <summary>
+        /// The published file was deleted from the Steam Cloud
+        /// </summary>
         public event RemoteStorageDeletedPublishedFileResultHandler FileDeleted;
         
         private void Events_FileDeleted(RemoteStorageDeletePublishedFileResult_t recv, bool Success, SteamAPICall_t hSteamAPICall)
@@ -879,8 +1012,15 @@ namespace CommunityExpressNS
         {
             _ugcDownloads.Add(hSteamAPICall, file);
         }
-
+        /// <summary>
+        /// Progress for file's storage
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="progress">Storage progress</param>
         public delegate void RemoteStoragePublishFileProgressHandler(UserGeneratedContent sender, float progress);
+        /// <summary>
+        /// The progress of the published file while being saved to the Steam Cloud
+        /// </summary>
         public event RemoteStoragePublishFileProgressHandler FileProgress;
 
         private void Events_PublishFileProgressReceived(RemoteStoragePublishFileProgress_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -973,8 +1113,15 @@ namespace CommunityExpressNS
                 EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, recv.m_eResult, _offset, _totalCount));
             }
         }
-
+        /// <summary>
+        /// Result of file enumeration
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="args">Arguments for result</param>
         public delegate void EnumeratePublishedFileResultHandler(UserGeneratedContent sender, EnumeratePublishedFileResultArgs args);
+        /// <summary>
+        /// Enumerates published files
+        /// </summary>
         public event EnumeratePublishedFileResultHandler EnumerateFileDetails;
 
         private void Events_GetPublishedFileDetailsReceived(RemoteStorageGetPublishedFileDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -1033,14 +1180,14 @@ namespace CommunityExpressNS
         }
 
         /// <summary>
-        /// 
+        /// Enumerates published files on the workshop
         /// </summary>
-        /// <param name="eEnumerationType"></param>
-        /// <param name="unStartIndex"></param>
-        /// <param name="unCount"></param>
-        /// <param name="unDays"></param>
-        /// <param name="tags"></param>
-        /// <param name="userTags"></param>
+        /// <param name="eEnumerationType">Type of enumeration</param>
+        /// <param name="unStartIndex">Where the index starts</param>
+        /// <param name="unCount">How many files are shown</param>
+        /// <param name="unDays">Days when the items were published</param>
+        /// <param name="tags">File tags</param>
+        /// <param name="userTags">File tags given by the user</param>
         public void EnumeratePublishedWorkshopFiles(EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays, ICollection<string> tags, ICollection<string> userTags)
         {
             _offset = unStartIndex;
@@ -1052,9 +1199,9 @@ namespace CommunityExpressNS
         }
 
         /// <summary>
-        /// 
+        /// Enumerates files published by the user
         /// </summary>
-        /// <param name="unStartIndex"></param>
+        /// <param name="unStartIndex">Where the index starts</param>
         public void EnumerateUserPublishedFiles(UInt32 unStartIndex)
         {
             _offset = unStartIndex;
@@ -1065,9 +1212,9 @@ namespace CommunityExpressNS
         }
 
         /// <summary>
-        /// 
+        /// Enumerates files subscribed to by the user
         /// </summary>
-        /// <param name="unStartIndex"></param>
+        /// <param name="unStartIndex">Where the index starts</param>
         public void EnumerateUserSubscribedFiles(UInt32 unStartIndex)
         {
             _offset = unStartIndex;
@@ -1078,18 +1225,18 @@ namespace CommunityExpressNS
         }
 
         /// <summary>
-        /// 
+        /// Subscribing to a published file
         /// </summary>
-        /// <param name="unPublishedFile"></param>
+        /// <param name="unPublishedFile">Published file</param>
         public void SubscribePublishedFile(PublishedFile unPublishedFile)
         {
             SteamUnityAPI_SteamRemoteStorage_SubscribePublishedFile(_remoteStorage, unPublishedFile.ID);
         }
 
         /// <summary>
-        /// 
+        /// Unsubscribes from a file
         /// </summary>
-        /// <param name="unPublishedFile"></param>
+        /// <param name="unPublishedFile">Published file</param>
         public void UnubscribePublishedFile(PublishedFile unPublishedFile)
         {
             UInt64 ret = SteamUnityAPI_SteamRemoteStorage_UnsubscribePublishedFile(_remoteStorage, unPublishedFile.ID);
@@ -1106,10 +1253,10 @@ namespace CommunityExpressNS
         }*/
 
         /// <summary>
-        /// 
+        /// Updates the vote number for items published by the user
         /// </summary>
-        /// <param name="unPublishedFile"></param>
-        /// <param name="bVoteUp"></param>
+        /// <param name="unPublishedFile">Published file</param>
+        /// <param name="bVoteUp">If voted up</param>
         public void UpdateUserPublishedItemVote(PublishedFile unPublishedFile, bool bVoteUp)
         {
             SteamUnityAPI_SteamRemoteStorage_UpdateUserPublishedItemVote(_remoteStorage, unPublishedFile.ID, bVoteUp);
@@ -1124,12 +1271,12 @@ namespace CommunityExpressNS
         }*/
 
         /// <summary>
-        /// 
+        /// Enumerates files shared by the user
         /// </summary>
-        /// <param name="steamId"></param>
-        /// <param name="unStartIndex"></param>
-        /// <param name="pRequiredTags"></param>
-        /// <param name="pExcludedTags"></param>
+        /// <param name="steamId">User's Steam ID</param>
+        /// <param name="unStartIndex">Where the index starts</param>
+        /// <param name="pRequiredTags">Required tags</param>
+        /// <param name="pExcludedTags">Excluded tags</param>
         public void EnumerateUserSharedWorkshopFiles(SteamID steamId, UInt32 unStartIndex, ICollection<string> pRequiredTags, ICollection<string> pExcludedTags)
         {
             _ce.AddEventHandler(RemoteStorageEnumerateUserSharedWorkshopFilesResult_t.k_iCallback, _userSharedFilesHandler);
@@ -1153,20 +1300,20 @@ namespace CommunityExpressNS
          */
 
         /// <summary>
-        /// 
+        /// Sets user action for file
         /// </summary>
-        /// <param name="unPublishedFile"></param>
-        /// <param name="eAction"></param>
+        /// <param name="unPublishedFile">Published file</param>
+        /// <param name="eAction">Action</param>
         public void SetUserPublishedFileAction(PublishedFile unPublishedFile, EWorkshopFileAction eAction)
         {
             SteamUnityAPI_SteamRemoteStorage_SetUserPublishedFileAction(_remoteStorage, unPublishedFile.ID, eAction);
         }
 
         /// <summary>
-        /// 
+        /// Enumerates files by user's action
         /// </summary>
-        /// <param name="eAction"></param>
-        /// <param name="unStartIndex"></param>
+        /// <param name="eAction">Action</param>
+        /// <param name="unStartIndex">Where the index starts</param>
         public void EnumeratePublishedFilesByUserAction(EWorkshopFileAction eAction, UInt32 unStartIndex)
         {
             SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedFilesByUserAction(_remoteStorage, eAction, unStartIndex);
@@ -1178,34 +1325,34 @@ namespace CommunityExpressNS
         }
 
         /// <summary>
-        /// 
+        /// Deletes a file published by the user
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="file">Published file</param>
         public void DeletePublishedFile(PublishedFile file)
         {
             SteamUnityAPI_SteamRemoteStorage_DeletePublishedFile(_remoteStorage, file.ID);
         }
 
         /// <summary>
-        /// 
+        /// Gets details on a published file
         /// </summary>
-        /// <param name="unPublishedFileId"></param>
+        /// <param name="unPublishedFileId">Published file</param>
         public void GetPublishedFileDetails(PublishedFileId_t unPublishedFileId)
         {
             SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(_remoteStorage, unPublishedFileId);
         }
 
         /// <summary>
-        /// 
+        /// Publishes a workship file
         /// </summary>
-        /// <param name="pchFile"></param>
-        /// <param name="pchPreviewFile"></param>
-        /// <param name="nConsumerAppId"></param>
-        /// <param name="pchTitle"></param>
-        /// <param name="pchDescription"></param>
-        /// <param name="eVisibility"></param>
-        /// <param name="pTags"></param>
-        /// <param name="eWorkshopFileType"></param>
+        /// <param name="pchFile">File to publish</param>
+        /// <param name="pchPreviewFile">Preview of published file</param>
+        /// <param name="nConsumerAppId">ID of app to upload to</param>
+        /// <param name="pchTitle">Title of file</param>
+        /// <param name="pchDescription">Description of file</param>
+        /// <param name="eVisibility">Who can see the file</param>
+        /// <param name="pTags">File tags</param>
+        /// <param name="eWorkshopFileType">File type</param>
         public void PublishWorkshopFile(string pchFile, string pchPreviewFile, AppId_t nConsumerAppId, string pchTitle, string pchDescription, ERemoteStoragePublishedFileVisibility eVisibility, ICollection<string> pTags, EWorkshopFileType eWorkshopFileType)
         {
             SteamParamStringArray_t pTagsArray = new CommunityExpressNS.SteamParamStringArray_t(pTags);
@@ -1222,15 +1369,15 @@ namespace CommunityExpressNS
         }
 
         /// <summary>
-        /// 
+        /// Updates a published file
         /// </summary>
-        /// <param name="unPublishedFileId"></param>
-        /// <param name="pchFile"></param>
-        /// <param name="pchPreviewFile"></param>
-        /// <param name="pchTitle"></param>
-        /// <param name="pchDescription"></param>
-        /// <param name="eVisibility"></param>
-        /// <param name="pTags"></param>
+        /// <param name="unPublishedFile">Published file</param>
+        /// <param name="pchFile">File to publish</param>
+        /// <param name="pchPreviewFile">Preview of published file</param>
+        /// <param name="pchTitle">Title of file</param>
+        /// <param name="pchDescription">Description of file</param>
+        /// <param name="eVisibility">Who can see the file</param>
+        /// <param name="pTags">File tags</param>
         public void UpdatePublishedFile(PublishedFile unPublishedFile, string pchFile, string pchPreviewFile, string pchTitle, string pchDescription, ERemoteStoragePublishedFileVisibility? eVisibility, ICollection<string> pTags)
         {
             PublishedFileUpdateHandle_t updateHandle = CreatePublishedFileUpdateRequest(unPublishedFile.ID);

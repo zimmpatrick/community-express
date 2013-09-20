@@ -20,10 +20,9 @@ namespace CommunityExpressNS
         [MarshalAs(UnmanagedType.U1)]
         internal bool m_bActive;	// true if it's just been activated, false otherwise
     };
-
-	//-----------------------------------------------------------------------------
-	// Purpose: set of relationships to other users
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// Set of relationships to other users
+    /// </summary>
 	public enum EFriendRelationship
 	{
 		k_EFriendRelationshipNone = 0,
@@ -35,9 +34,9 @@ namespace CommunityExpressNS
 		k_EFriendRelationshipIgnoredFriend = 6,
 	};
 
-	//-----------------------------------------------------------------------------
-	// Purpose: list of states a friend can be in
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// List of states a friend can be in
+    /// </summary>
 	public enum EPersonaState
 	{
 		EPersonaStateOffline = 0,		// friend is not currently logged on
@@ -46,10 +45,9 @@ namespace CommunityExpressNS
 		EPersonaStateAway = 3,			// auto-away feature
 		EPersonaStateSnooze = 4			// auto-away for a long time
 	};
-
-	//-----------------------------------------------------------------------------
-	// Purpose: flags for enumerating friends list, or quickly checking a the relationship between users
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// Flags for enumerating friends list, or quickly checking a the relationship between users
+    /// </summary>
 	public enum EFriendFlags
 	{
 		k_EFriendFlagNone = 0x00,
@@ -67,9 +65,9 @@ namespace CommunityExpressNS
 		k_EFriendFlagAll = 0xFFFF,
 	};
 
-	//-----------------------------------------------------------------------------
-	// Purpose flags are passed as parameters to the store
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// Flags are passed as parameters to the store
+    /// </summary>
 	public enum EOverlayToStoreFlag
 	{
 		k_EOverlayToStoreFlag_None = 0,
@@ -77,7 +75,9 @@ namespace CommunityExpressNS
 		k_EOverlayToStoreFlag_AddToCartAndShow = 2,
 	};
 
-
+    /// <summary>
+    /// Arguments for which overlay is open
+    /// </summary>
     public enum EGameOverlay
     {
         EGameOverlayFriends = 0,
@@ -88,7 +88,9 @@ namespace CommunityExpressNS
         EGameOverlayStats = 5,
         EGameOverlayAchievements = 6,
     };
-
+    /// <summary>
+    /// Arguments for which overlay is visible to user
+    /// </summary>
     public enum EGameOverlayToUser
     {
         EGameOverlayToUserSteamId = 0,
@@ -112,8 +114,16 @@ namespace CommunityExpressNS
 	}
 
 	delegate void OnLargeAvatarReceivedFromSteam(ref AvatarImageLoaded_t CallbackData);
+    /// <summary>
+    /// When large avatar is recieved
+    /// </summary>
+    /// <param name="steamID">ID of avatar's user</param>
+    /// <param name="avatar">Avatar to recieve</param>
 	public delegate void OnLargeAvatarReceived(SteamID steamID, Image avatar);
 
+    /// <summary>
+    /// Lists the current user's friends
+    /// </summary>
 	public class Friends : ICollection<Friend>
 	{
 		[DllImport("CommunityExpressSW")]
@@ -202,8 +212,14 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(GameOverlayActivated_t.k_iCallback, new CommunityExpress.OnEventHandler<GameOverlayActivated_t>(Events_GameOverlayActivated));
 
 		}
-
+        /// <summary>
+        /// Game overlay is activated
+        /// </summary>
+        /// <param name="result">Is overlay activated successfully</param>
         public delegate void GameOverlayActivatedHandler(bool result);
+        /// <summary>
+        /// Game overlay is activated
+        /// </summary>
         public event GameOverlayActivatedHandler GameOverlayActivated;
 
         private void Events_GameOverlayActivated(GameOverlayActivated_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -289,7 +305,11 @@ namespace CommunityExpressNS
 
 			return null;
 		}
-
+        /// <summary>
+        /// Gets a friend from their user ID
+        /// </summary>
+        /// <param name="steamIDFriend">User's Steam ID</param>
+        /// <returns>true if gotten</returns>
         public Friend GetFriendBySteamID(SteamID steamIDFriend)
         {
             Friend newFriend = new Friend(CommunityExpress.Instance.Friends, steamIDFriend);
@@ -300,14 +320,21 @@ namespace CommunityExpressNS
 		{
 			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));
 		}
-
+        /// <summary>
+        /// Brings up the in-game friend overlay
+        /// </summary>
+        /// <param name="dialog">Overlay dialog</param>
         public void ActivateGameOverlay(EGameOverlay dialog)
 		{
             string[] strdialogs = { "Friends", "Community", "Players", "Settings", "OfficialGameGroup", "Stats", "Achievements" };
 
             SteamUnityAPI_SteamFriends_ActivateGameOverlay(_friends, strdialogs[(int)dialog]);
 		}
-
+        /// <summary>
+        /// Brings up the overlay for the current user
+        /// </summary>
+        /// <param name="dialog">Overlay dialog</param>
+        /// <param name="user">The user who recieves the overlay</param>
         public void ActivateGameOverlayToUser(EGameOverlayToUser dialog, SteamID user)
         {
             string[] strdialogs = { "steamid" , "chat", "jointrade", "stats", "achievements", "friendadd", "friendremove",
@@ -315,52 +342,83 @@ namespace CommunityExpressNS
 
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(_friends, strdialogs[3], user.ToUInt64());
 		}
-
+        /// <summary>
+        /// Adds the Steam overlay to a website
+        /// </summary>
+        /// <param name="url">Webpage to add the overlay to</param>
 		public void ActivateGameOverlayToWebPage(String url)
 		{
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToWebPage(_friends, url);
 		}
-
+        /// <summary>
+        /// Adds the Steam overlay to an app on the Steam store
+        /// </summary>
+        /// <param name="appID">Store app to add the overlay to</param>
+        /// <param name="flag">Flags are passed as parameters to the store</param>
 		public void ActivateGameOverlayToStore(AppId_t appID, EOverlayToStoreFlag flag)
 		{
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(_friends, appID, flag);
 		}
-
+        /// <summary>
+        /// Counts the list of friends
+        /// </summary>
 		public int Count
 		{
 			get { return SteamUnityAPI_SteamFriends_GetFriendCount(_friends, (int)_friendFlags); }
 		}
-
+        /// <summary>
+        /// Determines if the list is read-only
+        /// </summary>
 		public bool IsReadOnly
 		{
 			get { return true; }
 		}
-
+        /// <summary>
+        /// Adds a new friend
+        /// </summary>
+        /// <param name="item">The friend to be added</param>
 		public void Add(Friend item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Clears the list of friends
+        /// </summary>
 		public void Clear()
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Checks if the list contains a certain friend
+        /// </summary>
+        /// <param name="item">Friend to be checked for</param>
+        /// <returns>true if the friend is found</returns>
 		public bool Contains(Friend item)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Copies the list to an index
+        /// </summary>
+        /// <param name="array">Array of friends</param>
+        /// <param name="arrayIndex">(Index to copy to</param>
 		public void CopyTo(Friend[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Removes a friend from the list
+        /// </summary>
+        /// <param name="item">Friend to be removed</param>
+        /// <returns>true if friend is removed</returns>
 		public bool Remove(Friend item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Gets the enumerator
+        /// </summary>
+        /// <returns>true if enumerator is gotten</returns>
 		public IEnumerator<Friend> GetEnumerator()
 		{
 			return new FriendEnumator(this);

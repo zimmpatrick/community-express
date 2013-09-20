@@ -8,6 +8,7 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
+
 	class ListEnumerator<T> : IEnumerator<T>
 	{
 			private int _index;

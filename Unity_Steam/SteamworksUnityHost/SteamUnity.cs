@@ -17,6 +17,9 @@ namespace CommunityExpressNS
 	using System.Security.Cryptography.Xml;
 	using System.Xml;
 
+    /// <summary>
+    /// Community Express driver
+    /// </summary>
 	public sealed class CommunityExpress
 	{
         [DllImport("CommunityExpressSW")]
@@ -69,23 +72,46 @@ namespace CommunityExpressNS
 
 		delegate void OnSteamAPIDebugTextHook(Int32 nSeverity, IntPtr pchDebugText);
 		private OnSteamAPIDebugTextHook _steamAPIDebugTextHook;
-		
+		/// <summary>
+		/// Log Meggage
+		/// </summary>
+		/// <param name="msg">Message to log</param>
 		public delegate void LogMessage(string msg);
+        /// <summary>
+        /// Message is logged
+        /// </summary>
         public event LogMessage Logger;
-
+        /// <summary>
+        /// Request to shutdown
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
         public delegate void ShutdownRequestHandler(CommunityExpress sender);
+        /// <summary>
+        /// Shutdown is requested
+        /// </summary>
         public event ShutdownRequestHandler ShutdownRequested;
-
+        /// <summary>
+        /// Low battery
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="e">Low battery argument</param>
         public delegate void LowBatteryHandler(CommunityExpress sender, LowBatteryArgs e);
+        /// <summary>
+        /// Battery charge is low
+        /// </summary>
         public event LowBatteryHandler LowBattery;
-
+        /// <summary>
+        /// Arguments for low battery
+        /// </summary>
         public class LowBatteryArgs : System.EventArgs
         {
             internal LowBatteryArgs(LowBatteryPower_t args)
             {
                 MinutesBatteryLeft = args.m_nMinutesBatteryLeft;
             }
-
+            /// <summary>
+            /// Number of battery minutes left
+            /// </summary>
             public int MinutesBatteryLeft
             {
                 get;
@@ -126,12 +152,19 @@ namespace CommunityExpressNS
 
 		private SteamAPICall_t _userGetEncryptedAppTicketCallHandle = 0;
 		private OnUserGetEncryptedAppTicketFromSteam _userGetEncryptedAppTicketCallback;
-
+        /// <summary>
+        /// Invalid app ID
+        /// </summary>
 		public const uint k_uAppIdInvalid = 0x0;
 
 		private CommunityExpress() { }
+        /// <summary>
+        /// Finalize Community Express
+        /// </summary>
 		~CommunityExpress() { Shutdown(); }
-
+        /// <summary>
+        /// Instance of community express running
+        /// </summary>
 		public static CommunityExpress Instance
 		{
 			get
@@ -139,22 +172,37 @@ namespace CommunityExpressNS
 				return _instance;
 			}
 		}
-
+        /// <summary>
+        /// Restarts app if needed
+        /// </summary>
+        /// <param name="unOwnAppID">If the current user does not own the current app's ID</param>
+        /// <returns>true if restart needed</returns>
 		public bool RestartAppIfNecessary(uint unOwnAppID)
 		{
 			return SteamUnityAPI_RestartAppIfNecessary(unOwnAppID);
 		}
-
+        /// <summary>
+        /// Writes a mini-dump for the app
+        /// </summary>
+        /// <param name="exceptionCode">Code for the exception</param>
+        /// <param name="exceptionInfo">Information about the exception</param>
+        /// <param name="buildID">ID of the build</param>
 		public void WriteMiniDump(uint exceptionCode, IntPtr exceptionInfo, uint buildID)
 		{
 			SteamUnityAPI_WriteMiniDump(exceptionCode, exceptionInfo, buildID);
 		}
-
+        /// <summary>
+        /// Sets a mini-dump comment in a message box
+        /// </summary>
+        /// <param name="comment">Comment for the message box</param>
 		public void SetMiniDumpComment(String comment)
 		{
 			SteamUnityAPI_SetMiniDumpComment(comment);
 		}
-
+        /// <summary>
+        /// Initializes the program
+        /// </summary>
+        /// <returns>true if initialized</returns>
 		public bool Initialize()
 		{
             foreach (MethodInfo mi in typeof(CommunityExpress).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
@@ -182,7 +230,10 @@ namespace CommunityExpressNS
 
 			return false;
 		}
-
+        /// <summary>
+        /// Log message
+        /// </summary>
+        /// <param name="msg">Message to log</param>
 		public void Log(string msg)
 		{
             if (Logger != null)
@@ -223,7 +274,9 @@ namespace CommunityExpressNS
                 _uploadStreams.Remove(fs);
             }
         }
-
+        /// <summary>
+        /// Runs callbacks for uploads
+        /// </summary>
 		public void RunCallbacks()
 		{
 			SteamUnityAPI_RunCallbacks();
@@ -271,7 +324,9 @@ namespace CommunityExpressNS
 				}
 			}
 		}
-
+        /// <summary>
+        /// Shuts down the Unity API
+        /// </summary>
 		public void Shutdown()
 		{
 			// todo: make thread safe?
@@ -281,12 +336,16 @@ namespace CommunityExpressNS
 				SteamUnityAPI_Shutdown();
 			}
 		}
-
+        /// <summary>
+        /// The ID of the app
+        /// </summary>
 		public AppId_t AppID
 		{
 			get { return SteamUnityAPI_SteamUtils_GetAppID(); }
 		}
-
+        /// <summary>
+        /// Gets App.cs
+        /// </summary>
 		public App App
 		{
 			get
@@ -299,7 +358,9 @@ namespace CommunityExpressNS
 				return _app;
 			}
 		}
-
+        /// <summary>
+        /// Gets User.cs
+        /// </summary>
 		public User User
 		{
 			get
@@ -312,7 +373,9 @@ namespace CommunityExpressNS
 				return _user;
 			}
 		}
-
+        /// <summary>
+        /// Gets GameServer.cs
+        /// </summary>
 		public GameServer GameServer
 		{
 			get
@@ -325,7 +388,9 @@ namespace CommunityExpressNS
 				return _gameserver;
 			}
 		}
-
+        /// <summary>
+        /// Gets Friends.cs
+        /// </summary>
 		public Friends Friends
 		{
 			get
@@ -338,7 +403,9 @@ namespace CommunityExpressNS
 				return _friends;
 			}
 		}
-
+        /// <summary>
+        /// Gets Groups.cs
+        /// </summary>
 		public Groups Groups
 		{
 			get
@@ -351,7 +418,9 @@ namespace CommunityExpressNS
 				return _groups;
 			}
 		}
-
+        /// <summary>
+        /// Gets UserStats.cs
+        /// </summary>
 		public Stats UserStats
 		{
 			get
@@ -364,7 +433,9 @@ namespace CommunityExpressNS
 				return _userStats;
 			}
 		}
-
+        /// <summary>
+        /// Gets Achivements.cs
+        /// </summary>
 		public Achievements UserAchievements
 		{
 			get
@@ -377,7 +448,9 @@ namespace CommunityExpressNS
 				return _achievements;
 			}
 		}
-
+        /// <summary>
+        /// Gets Leaderboards.cs
+        /// </summary>
 		public Leaderboards Leaderboards
 		{
 			get
@@ -390,7 +463,9 @@ namespace CommunityExpressNS
 				return _leaderboards; 
 			}
 		}
-
+        /// <summary>
+        /// Gets Matchmaking.cs
+        /// </summary>
 		public Matchmaking Matchmaking
 		{
 			get
@@ -403,7 +478,9 @@ namespace CommunityExpressNS
 				return _matchmaking;
 			}
 		}
-
+        /// <summary>
+        /// Gets RemoteStorage.cs
+        /// </summary>
 		public RemoteStorage RemoteStorage
 		{
 			get
@@ -416,7 +493,9 @@ namespace CommunityExpressNS
 				return _remoteStorage;
 			}
 		}
-
+        /// <summary>
+        /// Gets Networking.cs
+        /// </summary>
 		public Networking Networking
 		{
 			get
@@ -429,7 +508,9 @@ namespace CommunityExpressNS
 				return _networking;
 			}
 		}
-
+        /// <summary>
+        /// Gets InGamePurchasing.cs
+        /// </summary>
 		public InGamePurchasing InGamePurchasing
 		{
 			get
@@ -442,7 +523,9 @@ namespace CommunityExpressNS
 				return _inGamePurchasing;
 			}
 		}
-
+        /// <summary>
+        /// Gets SteamWebAPI.cs
+        /// </summary>
 		public SteamWebAPI SteamWebAPI
 		{
 			get
@@ -455,7 +538,9 @@ namespace CommunityExpressNS
 				return _steamWebAPI;
 			}
 		}
-
+        /// <summary>
+        /// Gets BigPicture.cs
+        /// </summary>
 		public BigPicture BigPicture
 		{
 			get
@@ -468,7 +553,9 @@ namespace CommunityExpressNS
 				return _bigPicture;
 			}
 		}
-
+        /// <summary>
+        /// Gets UserGeneratedContent.cs
+        /// </summary>
         public UserGeneratedContent UserGeneratedContent
         {
             get 
@@ -480,12 +567,16 @@ namespace CommunityExpressNS
                 return _ugc;
             }
         }
-
+        /// <summary>
+        /// Checks if the GameServer is running
+        /// </summary>
 		public Boolean IsGameServerInitialized
 		{
 			get { return _gameserver != null && _gameserver.IsInitialized; }
 		}
-
+        /// <summary>
+        /// Checks if Community is running
+        /// </summary>
         public Boolean IsCommunityRunning
         {
             get { return SteamUnityAPI_IsSteamRunning(); }

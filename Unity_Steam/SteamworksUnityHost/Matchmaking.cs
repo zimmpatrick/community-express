@@ -13,7 +13,9 @@ namespace CommunityExpressNS
 	using AppId_t = UInt32;
 	using HServerListRequest = UInt32;
 
-	// lobby type description
+	/// <summary>
+	/// Lobby type description
+	/// </summary>
 	public enum ELobbyType
 	{
 		k_ELobbyTypePrivate = 0,		// only way to join the lobby is to invite to someone else
@@ -24,7 +26,9 @@ namespace CommunityExpressNS
 		//	  a user can be in only one regular lobby, and up to two invisible lobbies
 	}
 
-	// lobby search filter tools
+	/// <summary>
+    /// Lobby search filter tools
+	/// </summary>
 	public enum ELobbyComparison
 	{
 		k_ELobbyComparisonEqualToOrLessThan = -2,
@@ -35,7 +39,10 @@ namespace CommunityExpressNS
 		k_ELobbyComparisonNotEqual = 3,
 	}
 
-	// lobby search distance. Lobby results are sorted from closest to farthest.
+	/// <summary>
+    /// Lobby search distance. Lobby results are sorted from closest to farthest.
+	/// </summary>
+ 
 	public enum ELobbyDistanceFilter
 	{
 		k_ELobbyDistanceFilterClose,		// only lobbies in the same immediate region will be returned
@@ -44,9 +51,9 @@ namespace CommunityExpressNS
 		k_ELobbyDistanceFilterWorldwide,	// no filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients)
 	}
 
-	//-----------------------------------------------------------------------------
-	// Purpose: Chat Room Enter Responses
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// Chat Room Enter Responses
+    /// </summary>
 	public enum EChatRoomEnterResponse
 	{
 		k_EChatRoomEnterResponseSuccess = 1,		// Success
@@ -62,9 +69,9 @@ namespace CommunityExpressNS
 		k_EChatRoomEnterResponseYouBlockedMember = 11, // Join failed - you have blocked some member already in the chat
 	}
 
-	//-----------------------------------------------------------------------------
-	// Purpose: Used in ChatInfo messages - fields specific to a chat member - must fit in a uint32
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// Used in ChatInfo messages - fields specific to a chat member - must fit in a uint32
+    /// </summary>
 	public enum EChatMemberStateChange
 	{
 		// Specific to joining / leaving the chatroom
@@ -74,10 +81,9 @@ namespace CommunityExpressNS
 		k_EChatMemberStateChangeKicked = 0x0008,		// User kicked
 		k_EChatMemberStateChangeBanned = 0x0010,		// User kicked and banned
 	};
-
-	//-----------------------------------------------------------------------------
-	// Purpose: Chat Entry Types (previously was only friend-to-friend message types)
-	//-----------------------------------------------------------------------------
+    /// <summary>
+    /// Chat Entry Types (previously was only friend-to-friend message types)
+    /// </summary>
 	public enum EChatEntryType
 	{
 		k_EChatEntryTypeInvalid = 0,
@@ -196,24 +202,49 @@ namespace CommunityExpressNS
 		public char[] m_szGameTags;					// the tags this server exposes
 		public UInt64 m_steamID;					// steamID of the game server - invalid if it's doesn't have one (old server, or not connected to Steam)
 	}
-
+    /// <summary>
+    /// Filters lobby string variables
+    /// </summary>
 	public struct LobbyStringFilter
 	{
+        /// <summary>
+        /// Key value
+        /// </summary>
 		public String key;
+        /// <summary>
+        /// Data value
+        /// </summary>
 		public String value;
+        /// <summary>
+        /// Compares values
+        /// </summary>
 		public ELobbyComparison comparison;
 	}
-
+    /// <summary>
+    /// Filters lobby integer variables
+    /// </summary>
 	public struct LobbyIntFilter
 	{
+        /// <summary>
+        /// Key value
+        /// </summary>
 		public String key;
+        /// <summary>
+        /// Data value
+        /// </summary>
 		public Int32 value;
+        /// <summary>
+        /// Compares values
+        /// </summary>
 		public ELobbyComparison comparison;
 	}
 
 	delegate void OnMatchmakingServerReceivededFromSteam(HServerListRequest request, ref gameserveritem_t callbackData);
 	delegate void OnMatchmakingServerListReceivededFromSteam(HServerListRequest request);
 
+    /// <summary>
+    /// Controls matchmaking in-game
+    /// </summary>
 	public class Matchmaking
 	{
 		[DllImport("CommunityExpressSW")]
@@ -282,7 +313,9 @@ namespace CommunityExpressNS
 			UInt32 keyvalueCount, IntPtr serverReceivedCallback, IntPtr serverListReceivedCallback);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(IntPtr matchmakingServers, HServerListRequest request);
-
+        /// <summary>
+        /// Invalid server list request
+        /// </summary>
 		public const HServerListRequest HServerListRequest_Invalid = 0x0;
 
 		private IntPtr _matchmaking;
@@ -311,7 +344,11 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(LobbyChatMsg_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyChatMsg_t>(Event_LobbyChatMessageCallback));
             _ce.AddEventHandler(LobbyGameCreated_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyGameCreated_t>(Event_LobbyGameCreatedCallback));
 		}
-
+        /// <summary>
+        /// Creates a lobby
+        /// </summary>
+        /// <param name="lobbyType">Type of lobby</param>
+        /// <param name="maxMembers">Maximum number of users in lobby</param>
 		public void CreateLobby(ELobbyType lobbyType, Int32 maxMembers)
 		{
 			if (CommunityExpress.Instance.IsGameServerInitialized)
@@ -321,10 +358,18 @@ namespace CommunityExpressNS
 			}
             SteamUnityAPI_SteamMatchmaking_CreateLobby(_matchmaking, lobbyType, maxMembers);
 		}
-
+        /// <summary>
+        /// Creates lobby
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="lobby">Lobby</param>
+        /// <param name="result">Result of attempted creation</param>
         public delegate void CreateLobbyHandler(Matchmaking sender, Lobby lobby, EResult result);
+        /// <summary>
+        /// Lobby is created
+        /// </summary>
         public event CreateLobbyHandler LobbyCreated;
-
+        
         private void Events_LobbyCreated(LobbyCreated_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
         {
             Lobby lobby = new Lobby(null, new SteamID(callbackData.m_ulSteamIDLobby));
@@ -334,7 +379,16 @@ namespace CommunityExpressNS
                 LobbyCreated(this, lobby, callbackData.m_eResult);
             }
         }
-
+        /// <summary>
+        /// Requests a list of lobbies
+        /// </summary>
+        /// <param name="stringFilters">Word filters</param>
+        /// <param name="intFilters">Number filters</param>
+        /// <param name="nearValueFilters">Filters values near or at determined value</param>
+        /// <param name="requiredSlotsAvailable">Requoired slots available in lobby</param>
+        /// <param name="lobbyDistance">Lobby connect distance</param>
+        /// <param name="maxResults">Maximum number of results</param>
+        /// <param name="compatibleSteamIDs">Lobby IDs allowed</param>
 		public void RequestLobbyList(ICollection<LobbyStringFilter> stringFilters, ICollection<LobbyIntFilter> intFilters, Dictionary<String, Int32> nearValueFilters, Int32 requiredSlotsAvailable, ELobbyDistanceFilter lobbyDistance, Int32 maxResults, ICollection<SteamID> compatibleSteamIDs)
         {
             _ce.AddEventHandler(LobbyMatchList_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyMatchList_t>(Events_LobbyListReceivedCallback));
@@ -390,10 +444,17 @@ namespace CommunityExpressNS
 
             _lobbyListRequest = SteamUnityAPI_SteamMatchmaking_RequestLobbyList(_matchmaking);
 		}
-
+        /// <summary>
+        /// Requests lobby list
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="lobbyList">List of lobbies</param>
         public delegate void LobbyListHandler(Matchmaking sender, Lobbies lobbyList);
+        /// <summary>
+        /// Recieved lobby list
+        /// </summary>
         public event LobbyListHandler LobbyListReceived;
-
+        
         private void Events_LobbyListReceivedCallback(LobbyMatchList_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
 		{
 			Lobbies lobbyList = new Lobbies();
@@ -425,13 +486,19 @@ namespace CommunityExpressNS
 
             _ce.RemoveEventHandler<LobbyMatchList_t>(LobbyMatchList_t.k_iCallback, Events_LobbyListReceivedCallback);
 		}
-
+        /// <summary>
+        /// Request to get list of lobbies cancelled
+        /// </summary>
 		public void CancelCurrentLobbyListRequest()
         {
             _ce.RemoveEventHandler<LobbyMatchList_t>(LobbyMatchList_t.k_iCallback, Events_LobbyListReceivedCallback);
 			_lobbyListRequest = 0;
 		}
-
+        /// <summary>
+        /// Join a lobby
+        /// </summary>
+        /// <param name="steamIDLobby">Lobby ID</param>
+        /// <returns>true if joined</returns>
 		public Lobby JoinLobby(SteamID steamIDLobby)
 		{
 			Lobby lobby = null;
@@ -455,7 +522,10 @@ namespace CommunityExpressNS
 
 			return lobby;
 		}
-
+        /// <summary>
+        /// Join a lobby
+        /// </summary>
+        /// <param name="lobby">Lobby to join</param>
 		public void JoinLobby(Lobby lobby)
 		{
 			if (_lobbyJoined != null)
@@ -467,8 +537,16 @@ namespace CommunityExpressNS
 
 			SteamUnityAPI_SteamMatchmaking_JoinLobby(_matchmaking, lobby.SteamID.ToUInt64());
 		}
-
+        /// <summary>
+        /// Joining a lobby
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="lobby">Lobby to join</param>
+        /// <param name="chatRoomEnterResponse">Chat message to display when lobby is joined</param>
         public delegate void LobbyJoinedHandler(Matchmaking sender, Lobby lobby, EChatRoomEnterResponse chatRoomEnterResponse);
+        /// <summary>
+        /// Lobby is joined
+        /// </summary>
         public event LobbyJoinedHandler LobbyJoined;
 
         private void Event_LobbyJoinedCallback(LobbyEnter_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
@@ -487,7 +565,10 @@ namespace CommunityExpressNS
                 LobbyJoined(this, _lobbyJoined, (EChatRoomEnterResponse)callbackData.m_EChatRoomEnterResponse);
             }
 		}
-
+        /// <summary>
+        /// Leave a lobby
+        /// </summary>
+        /// <returns>true if left</returns>
 		public Boolean LeaveLobby()
 		{
 			if (_lobbyJoined != null)
@@ -499,8 +580,16 @@ namespace CommunityExpressNS
 
 			return false;
 		}
-
+        /// <summary>
+        /// Lobby data is updated
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="ID">ID of lobby</param>
+        /// <param name="Success">Update is successful</param>
         public delegate void LobbyDataUpdatedHandler(Matchmaking sender, SteamID ID, bool Success);
+        /// <summary>
+        /// Lobby data is updated
+        /// </summary>
         public event LobbyDataUpdatedHandler LobbyDataUpdated;
 
         void Event_LobbyDataUpdatedCallback(LobbyDataUpdate_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
@@ -510,8 +599,18 @@ namespace CommunityExpressNS
                 LobbyDataUpdated(this, new SteamID(callbackData.m_ulSteamIDMember), callbackData.m_bSuccess != 0);
             }
 		}
-
+        /// <summary>
+        /// Lobby chat is updated
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="lobby">Lobby</param>
+        /// <param name="UserIDChanged">ID of lobby member changed</param>
+        /// <param name="MakingIDChange">Lobby member changing ID</param>
+        /// <param name="MemberStateChange">State of lobby member</param>
         public delegate void LobbyChatUpdatedHandler(Matchmaking sender, Lobby lobby, SteamID UserIDChanged, SteamID MakingIDChange, EChatMemberStateChange MemberStateChange);
+        /// <summary>
+        /// Lobby chat is updated
+        /// </summary>
         public event LobbyChatUpdatedHandler LobbyChatUpdated;
 
         void Event_LobbyChatUpdatedCallback(LobbyChatUpdate_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
@@ -522,8 +621,18 @@ namespace CommunityExpressNS
 				    (EChatMemberStateChange)callbackData.m_rgfChatMemberStateChange);
             }
 		}
-
+        /// <summary>
+        /// Chat Message sent
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="lobby">Lobby</param>
+        /// <param name="ID">ID of user</param>
+        /// <param name="chatEntryType">Chat message type</param>
+        /// <param name="data">Byte data of message</param>
         public delegate void LobbyChatMessageHandler(Matchmaking sender, Lobby lobby, SteamID ID, EChatEntryType chatEntryType, Byte[] data);
+        /// <summary>
+        /// Lobby chat message is sent
+        /// </summary>
         public event LobbyChatMessageHandler LobbyChatMessage;
 
         void Event_LobbyChatMessageCallback(LobbyChatMsg_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
@@ -539,8 +648,18 @@ namespace CommunityExpressNS
                 LobbyChatMessage(this, _lobbyJoined, new SteamID(steamID), chatEntryType, data);
             }
 		}
-
+        /// <summary>
+        /// Game server is created in lobby
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="lobby">Lobby</param>
+        /// <param name="GameServerID">ID of game server</param>
+        /// <param name="ipAddress">IP address of game server</param>
+        /// <param name="port">Port of game server</param>
         public delegate void LobbyGameCreatedHandler(Matchmaking sender, Lobby lobby, SteamID GameServerID, IPAddress ipAddress, UInt16 port);
+        /// <summary>
+        /// Lobby game is created
+        /// </summary>
         public event LobbyGameCreatedHandler LobbyGameCreated;
 
         void Event_LobbyGameCreatedCallback(LobbyGameCreated_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
@@ -580,7 +699,11 @@ namespace CommunityExpressNS
 				values = null;
 			}
 		}
-
+        /// <summary>
+        /// Request for internet server list
+        /// </summary>
+        /// <param name="filters">Filters for applicable servers</param>
+        /// <returns>Servers available</returns>
 		public Servers RequestInternetServerList(Dictionary<String, String> filters)
 		{
 			String[] keys, values;
@@ -601,7 +724,10 @@ namespace CommunityExpressNS
 
 			return _serverList;
 		}
-
+        /// <summary>
+        /// Requests list of LAN servers
+        /// </summary>
+        /// <returns>Applicable LAN servers</returns>
 		public Servers RequestLANServerList()
 		{
 			String[] keys, values;
@@ -613,7 +739,11 @@ namespace CommunityExpressNS
 
 			return _serverList;
 		}
-
+        /// <summary>
+        /// Requests list of spectator servers
+        /// </summary>
+        /// <param name="filters">Filters for applicable servers</param>
+        /// <returns>Applicable spectator servers</returns>
 		public Servers RequestSpecatorServerList(Dictionary<String, String> filters)
 		{
 			String[] keys, values;
@@ -634,7 +764,11 @@ namespace CommunityExpressNS
 
 			return _serverList;
 		}
-
+        /// <summary>
+        /// List of servers previously joined by the user
+        /// </summary>
+        /// <param name="filters">Filters for applicable servers</param>
+        /// <returns>Applicable servers previously joined by user</returns>
 		public Servers RequestHistoryServerList(Dictionary<String, String> filters)
 		{
 			String[] keys, values;
@@ -655,7 +789,11 @@ namespace CommunityExpressNS
 
 			return _serverList;
 		}
-
+        /// <summary>
+        /// Servers favorited by the user
+        /// </summary>
+        /// <param name="filters">Filters for applicable servers</param>
+        /// <returns>Applicable servers favorited by user</returns>
 		public Servers RequestFavoriteServerList(Dictionary<String, String> filters)
 		{
 			String[] keys, values;
@@ -676,7 +814,11 @@ namespace CommunityExpressNS
 
 			return _serverList;
 		}
-
+        /// <summary>
+        /// Requests list of servers that user's friends are currently in
+        /// </summary>
+        /// <param name="filters">Filters for applicable servers</param>
+        /// <returns>Applicable servers that user's friends are currently in</returns>
 		public Servers RequestFriendServerList(Dictionary<String, String> filters)
 		{
 			String[] keys, values;
@@ -714,8 +856,16 @@ namespace CommunityExpressNS
 
 			return new String(buffer, 0, StrLen(buffer));
 		}
-
+        /// <summary>
+        /// When server is recieved
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="serverList">List of servers</param>
+        /// <param name="server">Server</param>
         public delegate void OnServerReceivedHandler(Matchmaking sender, Servers serverList, Server server);
+        /// <summary>
+        /// Server is received
+        /// </summary>
         public event OnServerReceivedHandler ServerReceived;
 
 		private void OnServerReceived(HServerListRequest request, ref gameserveritem_t callbackData)
@@ -738,8 +888,15 @@ namespace CommunityExpressNS
                 ServerReceived(this, _serverList, server);
 			}
 		}
-
+        /// <summary>
+        /// When server list is recieved
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="serverList">Server list</param>
         public delegate void OnServerListReceivedHandler(Matchmaking sender, Servers serverList);
+        /// <summary>
+        /// List of servers received
+        /// </summary>
         public event OnServerListReceivedHandler ServerListReceived;
 
 		private void OnServerListComplete(HServerListRequest request)
@@ -754,7 +911,9 @@ namespace CommunityExpressNS
                 ServerListReceived(this, _serverList);
 			}
 		}
-
+        /// <summary>
+        /// Request to receive list of servers cancelled
+        /// </summary>
 		public void CancelCurrentServerListRequest()
 		{
 			if (_serverListRequest == HServerListRequest_Invalid)

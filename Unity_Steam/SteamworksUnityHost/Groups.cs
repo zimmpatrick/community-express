@@ -9,6 +9,9 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// List of groups the user is in
+    /// </summary>
 	public class Groups : ICollection<Group>
 	{
 		[DllImport("CommunityExpressSW")]
@@ -91,42 +94,66 @@ namespace CommunityExpressNS
 		{
 			return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamFriends_GetClanTag(_friends, steamIDClan.ToUInt64()));
 		}
-
+        /// <summary>
+        /// Counts the number of groups
+        /// </summary>
 		public int Count
 		{
 			get { return SteamUnityAPI_SteamFriends_GetClanCount(_friends); }
 		}
-
+        /// <summary>
+        /// If the list is read-only
+        /// </summary>
 		public bool IsReadOnly
 		{
 			get { return true; }
 		}
-
+        /// <summary>
+        /// Adds group to list
+        /// </summary>
+        /// <param name="item">Group to add</param>
 		public void Add(Group item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Clears list
+        /// </summary>
 		public void Clear()
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Checks if list contains certain group
+        /// </summary>
+        /// <param name="item">Group to check for</param>
+        /// <returns>true if group found</returns>
 		public bool Contains(Group item)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Copies list to index
+        /// </summary>
+        /// <param name="array">Array of groups</param>
+        /// <param name="arrayIndex">Index to copy to</param>
 		public void CopyTo(Group[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Removes group from list
+        /// </summary>
+        /// <param name="item">Group to remove</param>
+        /// <returns>true if group removed</returns>
 		public bool Remove(Group item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Tries to get enumerator
+        /// </summary>
+        /// <returns>true if enumerator gotten</returns>
 		public IEnumerator<Group> GetEnumerator()
 		{
 			return new GroupEnumator(this, _friendsRef);

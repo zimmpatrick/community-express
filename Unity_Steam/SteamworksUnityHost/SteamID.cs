@@ -12,6 +12,10 @@ namespace CommunityExpressNS
 	/// </summary>
 	public class SteamID
 	{
+        /// <summary>
+        /// Steam Account ID
+        /// </summary>
+        /// <param name="id">Steam ID</param>
 		public SteamID(UInt64 id)
 		{
 			_id = id;
@@ -149,25 +153,35 @@ namespace CommunityExpressNS
 		{
 			return _id;
 		}
-
+        /// <summary>
+        /// Writes ID to string
+        /// </summary>
+        /// <returns>true if written</returns>
 		public override string ToString()
 		{
 			return _id.ToString();
 		}
-
+        /// <summary>
+        /// Id fields are equal
+        /// </summary>
+        /// <param name="obj">field</param>
+        /// <returns>true if the fields match, false if parameter cannot be cast to ThreeDPoint</returns>
 		public override bool Equals(System.Object obj)
 		{
-			// If parameter cannot be cast to ThreeDPoint return false:
+			// 
 			SteamID p = obj as SteamID;
 			if ((object)p == null)
 			{
 				return false;
 			}
-
-			// Return true if the fields match:
 			return _id == p.ToUInt64();
 		}
-
+        /// <summary>
+        /// If IDs are equal
+        /// </summary>
+        /// <param name="a">First ID</param>
+        /// <param name="b">Second ID</param>
+        /// <returns>true if equal</returns>
 		public static bool operator ==(SteamID a, SteamID b)
 		{
 			if (System.Object.ReferenceEquals(a, b))
@@ -182,12 +196,22 @@ namespace CommunityExpressNS
 
 			return a.ToUInt64() == b.ToUInt64();
 		}
-
+        /// <summary>
+        /// If IDs are not equal
+        /// </summary>
+        /// <param name="a">First ID</param>
+        /// <param name="b">Second ID</param>
+        /// <returns>true if not equal</returns>
 		public static bool operator !=(SteamID a, SteamID b)
 		{
 			return !(a == b);
 		}
-
+        /// <summary>
+        /// If ID is equal to Integer
+        /// </summary>
+        /// <param name="a">ID</param>
+        /// <param name="b">Integer</param>
+        /// <returns>true if equal</returns>
 		public static bool operator ==(SteamID a, UInt64 b)
 		{
 			if (System.Object.ReferenceEquals(a, null))
@@ -195,12 +219,20 @@ namespace CommunityExpressNS
 
 			return a.ToUInt64() == b;
 		}
-
+        /// <summary>
+        /// If ID is not equal to Integer
+        /// </summary>
+        /// <param name="a">ID</param>
+        /// <param name="b">Integer</param>
+        /// <returns>true if not equal</returns>
 		public static bool operator !=(SteamID a, UInt64 b)
 		{
 			return !(a == b);
 		}
-
+        /// <summary>
+        /// Gets hashcode of ID
+        /// </summary>
+        /// <returns>true if gotten</returns>
 		public override int GetHashCode()
 		{
 			return base.GetHashCode() ^ (int)_id;

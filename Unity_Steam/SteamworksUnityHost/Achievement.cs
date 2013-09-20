@@ -8,6 +8,9 @@ using System.Runtime.InteropServices;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// Achievement
+    /// </summary>
 	public class Achievement
 	{
 		[DllImport("CommunityExpressSW")]
@@ -39,19 +42,26 @@ namespace CommunityExpressNS
 			_achievementName = achievementName;
 			_isAchieved = isAchieved;
 		}
-
+        /// <summary>
+        /// Name of the achievement
+        /// </summary>
 		public String AchievementName
 		{
 			get { return _achievementName; }
 			private set { _achievementName = value; }
 		}
-
+        /// <summary>
+        /// Whether or not the achievement is unlocked
+        /// </summary>
 		public bool IsAchieved
 		{
 			get { return _isAchieved; }
 			internal set { _isAchieved = true; }
 		}
 
+        /// <summary>
+        /// Localized achievement name
+        /// </summary>
 		public String DisplayName
 		{
 			get
@@ -66,6 +76,9 @@ namespace CommunityExpressNS
 			}
 		}
 
+        /// <summary>
+        /// Localized achievement description
+        /// </summary>
 		public String DisplayDescription
 		{
 			get
@@ -80,19 +93,32 @@ namespace CommunityExpressNS
 			}
 		}
 
+        /// <summary>
+        /// Gets the icon of the achievement, or null if none set. 
+        /// A return value of null may indicate we are still fetching data, and you can wait for the UserAchievementIconFetched_t callback
+        /// which will notify you when the bits are ready. If the callback still returns null, then there is no image set for the
+        /// specified achievement.
+        /// </summary>
 		public Image Icon
 		{
 			get {
 				if (_image == null && _stats != IntPtr.Zero)
 				{
 					Int32 iconImage = SteamUnityAPI_SteamUserStats_GetAchievementIcon(_stats, _achievementName);
-					_image = new Image(iconImage);
+                    if (iconImage != 0)
+                    {
+                        _image = new Image(iconImage);
+                    }
 				}
 
 				return _image;
 			}
 		}
 
+        /// <summary>
+        /// Gets the icon of the achievement, or null if none set.
+        /// (See Icon description for details)
+        /// </summary>
 		public Byte[] IconData
 		{
 			get
@@ -107,6 +133,9 @@ namespace CommunityExpressNS
 			}
 		}
 
+        /// <summary>
+        /// Width of the Icon
+        /// </summary>
 		public UInt32 IconWidth
 		{
 			get
@@ -120,7 +149,9 @@ namespace CommunityExpressNS
 				return 0;
 			}
 		}
-
+        /// <summary>
+        /// Height of the Icon
+        /// </summary>
 		public UInt32 IconHeight
 		{
 			get

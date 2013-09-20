@@ -9,6 +9,9 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// Information about a group
+    /// </summary>
 	public class Group : ICollection<Friend>
 	{
 		[DllImport("CommunityExpressSW")]
@@ -82,57 +85,87 @@ namespace CommunityExpressNS
 		{
 			return new SteamID(SteamUnityAPI_SteamFriends_GetFriendFromSourceByIndex(_friends, _id.ToUInt64(), iGroupMember));
 		}
-
+        /// <summary>
+        /// Name of the group
+        /// </summary>
 		public String GroupName
 		{
 			get { return _groups.GetGroupName(_id); }
 		}
-
+        /// <summary>
+        /// Clan tag for the group
+        /// </summary>
 		public String ClanTag
 		{
 			get { return _groups.GetClanTag(_id); }
 		}
-
+        /// <summary>
+        /// ID of the group
+        /// </summary>
 		public SteamID SteamID
 		{
 			get { return _id; }
 		}
-
+        /// <summary>
+        /// Number of people in the group
+        /// </summary>
 		public int Count
 		{
 			get { return SteamUnityAPI_SteamFriends_GetFriendCountFromSource(_friends, _id.ToUInt64()); }
 		}
-
+        /// <summary>
+        /// If the group is read-only
+        /// </summary>
 		public bool IsReadOnly
 		{
 			get { return true; }
 		}
-
+        /// <summary>
+        /// Add new member
+        /// </summary>
+        /// <param name="item">Member to add</param>
 		public void Add(Friend item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Clears group
+        /// </summary>
 		public void Clear()
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Checks if a group contains a specific member
+        /// </summary>
+        /// <param name="item">Member to check for</param>
+        /// <returns>true if member found</returns>
 		public bool Contains(Friend item)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Copies group member list to index
+        /// </summary>
+        /// <param name="array">Array of group members</param>
+        /// <param name="arrayIndex">Index to copy to</param>
 		public void CopyTo(Friend[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Removes member from group
+        /// </summary>
+        /// <param name="item">Member to remove</param>
+        /// <returns>true if member removed</returns>
 		public bool Remove(Friend item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Tries to get the enumerator
+        /// </summary>
+        /// <returns>true if enumerator gotten</returns>
 		public IEnumerator<Friend> GetEnumerator()
 		{
 			return new FriendEnumator(this, _friendsRef);

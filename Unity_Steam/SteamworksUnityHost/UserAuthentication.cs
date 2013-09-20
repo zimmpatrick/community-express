@@ -9,7 +9,9 @@ namespace CommunityExpressNS
 	using AppId_t = UInt32;
 	using SteamAPICall_t = UInt64;
     using HAuthTicket = UInt32;
-
+    /// <summary>
+    /// Information on the session ticket
+    /// </summary>
     public class SessionTicket
     {
         private User _user;
@@ -23,17 +25,23 @@ namespace CommunityExpressNS
         {
             _user = user;
         }
-
+        /// <summary>
+        /// Byte form of the ticket
+        /// </summary>
         public Byte[] AutheticationTicket
         {
             get { return authTicket; }
         }
-
+        /// <summary>
+        /// If the ticket is valid
+        /// </summary>
         public EResult Valid
         {
             get { return result; }
         }
-
+        /// <summary>
+        /// If the ticket is cancelled
+        /// </summary>
         public void Cancel()
         {
             _user.Authentication.CancelAuthSessionTicket(this);
@@ -41,6 +49,10 @@ namespace CommunityExpressNS
     }
 
     delegate void OnUserGetEncryptedAppTicketFromSteam();
+    /// <summary>
+    /// When a ticket is created
+    /// </summary>
+    /// <param name="ticket">Created ticket</param>
     public delegate void OnUserEncryptedAppTicketCreated(Byte[] ticket);
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -53,8 +65,16 @@ namespace CommunityExpressNS
     }
 
     delegate void OnAuthSessionTicketResponseReceivedFromSteam(ref GetAuthSessionTicketResponse_t CallbackData);
+    /// <summary>
+    /// When the ticket is recieved
+    /// </summary>
+    /// <param name="user">User recieveing ticket</param>
+    /// <param name="st">Session ticket</param>
     public delegate void OnAuthSessionTicketResponseReceived(User user, SessionTicket st);
 
+    /// <summary>
+    /// Information on user authentication
+    /// </summary>
     public class UserAuthentication
     {
         [DllImport("CommunityExpressSW")]
@@ -74,7 +94,9 @@ namespace CommunityExpressNS
         private User _user;
         private OnUserEncryptedAppTicketCreated _onUserEncryptedAppTicketCreated;
         private List<SessionTicket> _sts;
-
+        /// <summary>
+        /// Authorization ticket is recieved
+        /// </summary>
         public event OnAuthSessionTicketResponseReceived AuthSessionTicketResponseReceived;
 
         internal UserAuthentication(User user)
@@ -87,7 +109,11 @@ namespace CommunityExpressNS
                 new CommunityExpress.OnEventHandler<GetAuthSessionTicketResponse_t>(OnAuthSessionTicketResponseReceivedCallback));
         }
 
-
+        /// <summary>
+        /// Request for encrypted app ticket
+        /// </summary>
+        /// <param name="dataToInclude">Inclueded data</param>
+        /// <param name="onUserEncryptedAppTicketCreated">When the ticket is created</param>
         public void RequestEncryptedAppTicket(Byte[] dataToInclude, OnUserEncryptedAppTicketCreated onUserEncryptedAppTicketCreated)
         {
             _onUserEncryptedAppTicketCreated = onUserEncryptedAppTicketCreated;
@@ -144,8 +170,11 @@ namespace CommunityExpressNS
             }
         }
 
-        // Retrieve ticket to be sent to the entity who wishes to authenticate you ( using BeginAuthSession API ). 
-        // pcbTicket retrieves the length of the actual ticket.
+        /// <summary>
+        /// Retrieve ticket to be sent to the entity who wishes to authenticate you ( using BeginAuthSession API )
+        /// pcbTicket retrieves the length of the actual ticket.
+        /// </summary>
+        /// <returns>true if ticket gotten</returns>
         public SessionTicket GetAuthSessionTicket()
         {
             SessionTicket st = new SessionTicket(_user);

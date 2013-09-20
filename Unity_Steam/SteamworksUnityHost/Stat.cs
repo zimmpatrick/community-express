@@ -89,13 +89,17 @@ namespace CommunityExpressNS
                 }
             }
 		}
-
+        /// <summary>
+        /// Name of the stat
+        /// </summary>
 		public String StatName
 		{
 			get { return _statName; }
 			private set { _statName = value; }
 		}
-
+        /// <summary>
+        /// Value of the stat
+        /// </summary>
 		public object StatValue
 		{
 			get { return _statValue; }

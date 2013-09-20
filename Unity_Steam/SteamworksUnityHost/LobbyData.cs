@@ -9,6 +9,9 @@ using System.Collections;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// Information about a lobby
+    /// </summary>
 	public class LobbyData : ICollection<KeyValuePair<String, String>>
 	{
 		[DllImport("CommunityExpressSW")]
@@ -80,12 +83,23 @@ namespace CommunityExpressNS
 			_matchmaking = matchmaking;
 			_lobby = lobby;
 		}
-
+        /// <summary>
+        /// Gets lobby data value
+        /// </summary>
+        /// <param name="key">Lobby key</param>
+        /// <returns>true if gotten</returns>
 		public String GetValue(String key)
 		{
             return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamMatchmaking_GetLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), key));
 		}
-
+        /// <summary>
+        /// Gets index of lobby data
+        /// </summary>
+        /// <param name="index">Index of data</param>
+        /// <param name="key">Lobby key</param>
+        /// <param name="maxKeyLength">Maximum lobby key length</param>
+        /// <param name="value">Lobby data value</param>
+        /// <param name="maxValueLength">Maximum value length</param>
 		public void GetDataByIndex(Int32 index, out String key, Int32 maxKeyLength, out String value, Int32 maxValueLength)
 		{
 			IntPtr keyDataPtr = Marshal.AllocHGlobal(maxKeyLength + 1);
@@ -99,52 +113,85 @@ namespace CommunityExpressNS
 			Marshal.FreeHGlobal(keyDataPtr);
 			Marshal.FreeHGlobal(valueDataPtr);
 		}
-
+        /// <summary>
+        /// Sets lobby  data
+        /// </summary>
+        /// <param name="key">Lobby key</param>
+        /// <param name="value">Value to change</param>
+        /// <returns>true if set</returns>
 		public Boolean SetLobbyData(String key, String value)
 		{
 			return SteamUnityAPI_SteamMatchmaking_SetLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), key, value);
 		}
-
+        /// <summary>
+        /// Deletes lobby data
+        /// </summary>
+        /// <param name="key">Lobby key</param>
+        /// <returns>true if deleted</returns>
 		public Boolean DeleteLobbyData(String key)
 		{
 			return SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), key);
 		}
-
+        /// <summary>
+        /// Number of lobby data values
+        /// </summary>
 		public int Count
 		{
 			get { return SteamUnityAPI_SteamMatchmaking_GetLobbyDataCount(_matchmaking, _lobby.SteamID.ToUInt64()); }
 		}
-
+        /// <summary>
+        /// If data is read-only
+        /// </summary>
 		public bool IsReadOnly
 		{
 			get { return true; }
 		}
-
+        /// <summary>
+        /// Adds data point to lobby
+        /// </summary>
+        /// <param name="item">Data to add</param>
 		public void Add(KeyValuePair<String, String> item)
 		{
 			SteamUnityAPI_SteamMatchmaking_SetLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), item.Key, item.Value);
 		}
-
+        /// <summary>
+        /// Clears lobby data
+        /// </summary>
 		public void Clear()
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Checks if lobby data contains certain point
+        /// </summary>
+        /// <param name="item">Data point to check for</param>
+        /// <returns>true if found</returns>
 		public bool Contains(KeyValuePair<String, String> item)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Copies lobby data to index
+        /// </summary>
+        /// <param name="array">Array of data</param>
+        /// <param name="arrayIndex">Index to copy to</param>
 		public void CopyTo(KeyValuePair<String, String>[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Removes data point from lobby
+        /// </summary>
+        /// <param name="item">Data point to remove</param>
+        /// <returns>true if removed</returns>
 		public bool Remove(KeyValuePair<String, String> item)
 		{
 			return SteamUnityAPI_SteamMatchmaking_DeleteLobbyData(_matchmaking, _lobby.SteamID.ToUInt64(), item.Key);
 		}
-
+        /// <summary>
+        /// Gets enumerator for lobby data
+        /// </summary>
+        /// <returns>true if gotten</returns>
 		public IEnumerator<KeyValuePair<String, String>> GetEnumerator()
 		{
 			return new KeyValueEnumator(this);

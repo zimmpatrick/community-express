@@ -18,8 +18,16 @@ namespace CommunityExpressNS
 	}
 
 	delegate void OnTransactionAuthorizationReceivedFromSteam(ref MicroTxnAuthorizationResponse_t CallbackData);
+    /// <summary>
+    /// When the purchase is complete
+    /// </summary>
+    /// <param name="purchase">Purchase</param>
+    /// <param name="successful">If the purchase was successful</param>
 	public delegate void OnInGamePurchaseComplete(InGamePurchase purchase, bool successful);
 
+    /// <summary>
+    /// Runs in-game purchases and online transactions
+    /// </summary>
 	public class InGamePurchasing
 	{
         [DllImport("CommunityExpressSW")]
@@ -55,7 +63,13 @@ namespace CommunityExpressNS
 				SteamUnityAPI_SetTransactionAuthorizationCallback(Marshal.GetFunctionPointerForDelegate(_internalOnTransactionAuthorizationReceived));
 			}
 		}
-
+        /// <summary>
+        /// Creates a new purchase
+        /// </summary>
+        /// <param name="useTestMode">If test mode is being used</param>
+        /// <param name="webAPIKey">User's authentication key</param>
+        /// <param name="orderID">ID of the purchase</param>
+        /// <returns>true if purchase created</returns>
 		public InGamePurchase NewPurchase(bool useTestMode, String webAPIKey, UInt64 orderID)
 		{
 			if (_regionInfo == null)
@@ -81,7 +95,12 @@ namespace CommunityExpressNS
 			return new InGamePurchase(useTestMode, webAPIKey, orderID);
 		}
 
-		// Returns true if the Purchase process was started successfully
+        /// <summary>
+        /// Starts the purchase
+        /// </summary>
+        /// <param name="purchase">What items are being purchased</param>
+        /// <param name="callback">Checks to see if the purchase starts</param>
+        /// <returns>true if the Purchase process was started successfully</returns>
 		public bool StartPurchase(InGamePurchase purchase, OnInGamePurchaseComplete callback)
 		{
 			if (_regionInfo != null)
@@ -248,7 +267,9 @@ namespace CommunityExpressNS
 
 			return "ISteamMicroTxn";
 		}
-
+        /// <summary>
+        /// Region where purchase is occurring
+        /// </summary>
 		public RegionInfo RegionInfo
 		{
 			get { return _regionInfo; }

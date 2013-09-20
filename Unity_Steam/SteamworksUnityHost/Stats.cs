@@ -41,8 +41,15 @@ namespace CommunityExpressNS
 	}
 
 	delegate void OnUserStatsReceivedFromSteam(ref UserStatsReceived_t CallbackData);
+    /// <summary>
+    /// When stats are received
+    /// </summary>
+    /// <param name="stats">Stats to receive</param>
+    /// <param name="achievements">Achievements to receive</param>
 	public delegate void OnUserStatsReceived(Stats stats, Achievements achievements);
-
+    /// <summary>
+    /// Information about stats lists
+    /// </summary>
 	public class Stats : ICollection<Stat>
 	{
 		[DllImport("CommunityExpressSW")]
@@ -74,10 +81,21 @@ namespace CommunityExpressNS
 
         private CommunityExpress.OnEventHandler<UserStatsReceived_t> _statsRecievedEventHandler = null;
         private CommunityExpress.OnEventHandler<UserStatsStored_t> _statsStoredEventHandler = null;
-
+        /// <summary>
+        /// Stats are recieved
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="e">Retrieval argument</param>
         public delegate void UserStatsReceivedHandler(Stats sender, UserStatsReceivedArgs e);
+        /// <summary>
+        /// Stats are stored
+        /// </summary>
+        /// <param name="sender">Sender of request</param>
+        /// <param name="e">Storing argument</param>
         public delegate void UserStatsStoredHandler(Stats sender, UserStatsStoredArgs e);
-
+        /// <summary>
+        /// Arguments of stats receiving
+        /// </summary>
         public class UserStatsReceivedArgs : System.EventArgs
         {
             internal UserStatsReceivedArgs(UserStatsReceived_t args)
@@ -86,26 +104,34 @@ namespace CommunityExpressNS
                 Result = args.m_eResult;
                 SteamID = new SteamID(args.m_steamIDUser);
             }
-
+            /// <summary>
+            /// ID of game
+            /// </summary>
             public UInt64 GameID
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Result of retrieval
+            /// </summary>
             public EResult Result
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// ID of user
+            /// </summary>
             public SteamID SteamID
             {
                 get;
                 private set;
             }
         }
-
+        /// <summary>
+        /// Arguments for stats stoarge
+        /// </summary>
         public class UserStatsStoredArgs : System.EventArgs
         {
             internal UserStatsStoredArgs(UserStatsStored_t args)
@@ -113,21 +139,30 @@ namespace CommunityExpressNS
                 GameID = args.m_nGameID;
                 Result = args.m_eResult;
             }
-
+            /// <summary>
+            /// ID of game
+            /// </summary>
             public UInt64 GameID
             {
                 get;
                 private set;
             }
-
+            /// <summary>
+            /// Result of storage
+            /// </summary>
             public EResult Result
             {
                 get;
                 private set;
             }
         }
-
+        /// <summary>
+        /// Stats are received
+        /// </summary>
         public event UserStatsReceivedHandler UserStatsReceived;
+        /// <summary>
+        /// Stats are stored
+        /// </summary>
         public event UserStatsStoredHandler UserStatsStored;
 
 		internal Stats(CommunityExpress ce, SteamID steamID, Boolean isGameServer = false)
@@ -188,7 +223,10 @@ namespace CommunityExpressNS
             if (UserStatsStored != null) UserStatsStored(this, new UserStatsStoredArgs(stored));
         }
 
-
+        /// <summary>
+        /// Requests the overall stats from a user
+        /// </summary>
+        /// <param name="requestedStats">Stats that are requested</param>
         public void RequestCurrentStats(IEnumerable<String> requestedStats)
         {
             List<Type> requestedTypes = new List<Type>();
@@ -199,7 +237,11 @@ namespace CommunityExpressNS
 
             RequestCurrentStats(requestedStats, requestedTypes);
         }
-
+        /// <summary>
+        /// Requests the current stats of a user
+        /// </summary>
+        /// <param name="requestedStats">Stats that are requested</param>
+        /// <param name="requestedTypes">Types of stats requested</param>
         public void RequestCurrentStats(IEnumerable<String> requestedStats,
              IEnumerable<Type> requestedTypes)
 		{
@@ -249,58 +291,86 @@ namespace CommunityExpressNS
         /// <summary>
         /// Reset stats 
         /// </summary>
-        /// <param name="achievementsToo"></param>
-        /// <returns></returns>
+        /// <param name="achievementsToo">If acheivements are reset as well</param>
+        /// <returns>true if stats are reser</returns>
         public bool ResetAllStats(bool achievementsToo)
         { 
             return SteamUnityAPI_SteamUserStats_ResetAllStats(_stats, achievementsToo);
         }
-
+        /// <summary>
+        /// Steam ID of the user
+        /// </summary>
 		public SteamID SteamID
 		{
 			get { return _id; }
 		}
-
+        /// <summary>
+        /// Retrieves the stat list of a user
+        /// </summary>
 		public IList<Stat> StatsList
 		{
 			get { return _statList; }
 		}
-		
+		/// <summary>
+		/// Counts the number of stats on the list
+		/// </summary>
 		public int Count
 		{
 			get { return _statList.Count; }
 		}
-
+        /// <summary>
+        /// If the stat is read only
+        /// </summary>
 		public bool IsReadOnly
 		{
 			get { return true; }
 		}
-
+        /// <summary>
+        /// Adds a stat
+        /// </summary>
+        /// <param name="item">Stat to be added</param>
 		public void Add(Stat item)
 		{
 			_statList.Add(item);
 		}
-
+        /// <summary>
+        /// Clears the list of stats
+        /// </summary>
 		public void Clear()
 		{
 			_statList.Clear();
 		}
-
+        /// <summary>
+        /// If the list of stats contains a specific stat
+        /// </summary>
+        /// <param name="item">Stat to be checked for</param>
+        /// <returns>true if stat is found</returns>
 		public bool Contains(Stat item)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Copies stat list to index
+        /// </summary>
+        /// <param name="array">Array of stats</param>
+        /// <param name="arrayIndex">Index to copy to</param>
 		public void CopyTo(Stat[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Removes a stat
+        /// </summary>
+        /// <param name="item">Stat to be removed</param>
+        /// <returns>true if stat is removed</returns>
 		public bool Remove(Stat item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Tries to get stat enumerator
+        /// </summary>
+        /// <returns>true if enumerator is gotten</returns>
 		public IEnumerator<Stat> GetEnumerator()
 		{
 			return new ListEnumerator<Stat>(_statList);

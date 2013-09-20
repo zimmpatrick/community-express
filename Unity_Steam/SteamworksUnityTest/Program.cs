@@ -81,7 +81,21 @@ namespace SteamworksUnityTest
             if (st != null) st.Cancel();
 
             st = cesdk.User.Authentication.GetAuthSessionTicket();
-            
+
+
+            Console.WriteLine("Friends: ");
+            foreach (Friend friend in cesdk.Friends)
+            {
+                if (friend.PersonaState == EPersonaState.EPersonaStateOffline)
+                {
+                    Console.WriteLine("{0,20} ({1}) is Offline", friend.PersonaName, friend.SteamID);                
+                }
+                else
+                {
+                    Console.WriteLine("{0,20} ({1}) is Online  ({2})", friend.PersonaName, friend.SteamID, friend.PersonaState);
+                }
+            }
+
 
             /*
 
@@ -181,11 +195,7 @@ namespace SteamworksUnityTest
 			Console.WriteLine(user.LoggedOn);
 			Console.WriteLine(user.SteamID);
 
-			Console.WriteLine("Friends: ");
-			foreach (Friend friend in cesdk.Friends)
-			{
-				Console.WriteLine("  {0} - {1} - {2}", friend.SteamID, friend.PersonaName, friend.PersonaState);
-			}
+			
 
 			Console.WriteLine("Groups/Clans: ");
 			foreach (Group group in cesdk.Groups)

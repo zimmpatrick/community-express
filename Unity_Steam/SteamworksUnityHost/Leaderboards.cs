@@ -12,7 +12,9 @@ namespace CommunityExpressNS
 	using SteamLeaderboard_t = UInt64;
     using SteamAPICall_t = UInt64;
 
-	// type of data request, when downloading leaderboard entries
+	/// <summary>
+    /// type of data request, when downloading leaderboard entries
+	/// </summary>
 	public enum ELeaderboardDataRequest
 	{
 		k_ELeaderboardDataRequestGlobal = 0,
@@ -20,7 +22,9 @@ namespace CommunityExpressNS
 		k_ELeaderboardDataRequestFriends = 2,
 	};
 
-	// the sort order of a leaderboard
+	/// <summary>
+    /// the sort order of a leaderboard
+	/// </summary>
 	public enum ELeaderboardSortMethod
 	{
 		k_ELeaderboardSortMethodNone = 0,
@@ -28,7 +32,9 @@ namespace CommunityExpressNS
 		k_ELeaderboardSortMethodDescending = 2,	// top-score is highest number
 	};
 
-	// the display type (used by the Steam Community web site) for a leaderboard
+	/// <summary>
+    /// the display type (used by the Steam Community web site) for a leaderboard
+	/// </summary>
 	public enum ELeaderboardDisplayType
 	{
 		k_ELeaderboardDisplayTypeNone = 0,
@@ -36,7 +42,9 @@ namespace CommunityExpressNS
 		k_ELeaderboardDisplayTypeTimeSeconds = 2,		// the score represents a time, in seconds
 		k_ELeaderboardDisplayTypeTimeMilliSeconds = 3,	// the score represents a time, in milliseconds
 	};
-
+    /// <summary>
+    /// The method from uploading scores to a leaderboard
+    /// </summary>
 	public enum ELeaderboardUploadScoreMethod
 	{
 		k_ELeaderboardUploadScoreMethodNone = 0,
@@ -44,6 +52,9 @@ namespace CommunityExpressNS
 		k_ELeaderboardUploadScoreMethodForceUpdate = 2,	// Leaderboard will always replace score with specified
 	};
 
+    /// <summary>
+    /// List of leaderboards
+    /// </summary>
 	public class Leaderboards : ICollection<Leaderboard>
     {
         [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -54,7 +65,10 @@ namespace CommunityExpressNS
             public SteamLeaderboard_t m_hSteamLeaderboard;	// handle to the leaderboard serarched for, 0 if no leaderboard found
             public Byte m_bLeaderboardFound;				// 0 if no leaderboard found
         };
-
+        /// <summary>
+        /// When the leaderboard is retrieved
+        /// </summary>
+        /// <param name="leaderboard">Leaderboard to retrieve</param>
         public delegate void OnLeaderboardRetrieved(Leaderboard leaderboard);
 
 		[DllImport("CommunityExpressSW")]
@@ -78,8 +92,15 @@ namespace CommunityExpressNS
 		private List<Leaderboard> _leaderboardList = new List<Leaderboard>();
 
         private CommunityExpress.OnEventHandler<LeaderboardFindResult_t> _onLeaderboardRetrieved;
-
+        /// <summary>
+        /// Leaderboard is retireved
+        /// </summary>
+        /// <param name="sender">Sender of retrieval request</param>
+        /// <param name="leaderboard">Leaderboard</param>
         public delegate void LeaderboardRetrievedHandler(Leaderboards sender, Leaderboard leaderboard);
+        /// <summary>
+        /// Leaderboard is retrieved
+        /// </summary>
         public event LeaderboardRetrievedHandler LeaderboardReceived;
 
 		internal Leaderboards(CommunityExpress ce)
@@ -93,8 +114,8 @@ namespace CommunityExpressNS
         /// <summary>
         /// Asks the Steam back-end for a leaderboard by name
         /// </summary>
-        /// <param name="leaderboardName"></param>
-        /// <param name="useCache"></param>
+        /// <param name="leaderboardName">Name of the leaderboard</param>
+        /// <param name="useCache">Uses the cached data</param>
         public void FindLeaderboard(String leaderboardName, bool useCache = true)
 		{
 			Leaderboard leaderboard = null;
@@ -128,9 +149,9 @@ namespace CommunityExpressNS
         /// <summary>
         /// Asks the Steam back-end for a leaderboard by name, and will create it if needed
         /// </summary>
-        /// <param name="leaderboardName"></param>
-        /// <param name="sortMethod"></param>
-        /// <param name="displayType"></param>
+        /// <param name="leaderboardName">Name of leaderboard</param>
+        /// <param name="sortMethod">Method of sorting leaderboard entries</param>
+        /// <param name="displayType">Type of leaderboard display</param>
 		public void FindOrCreateLeaderboard(String leaderboardName, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType)
 		{
 			Leaderboard leaderboard = null;
@@ -206,42 +227,66 @@ namespace CommunityExpressNS
 		{
 			get { return _stats; }
 		}
-
+        /// <summary>
+        /// Number of leaderboards on the list
+        /// </summary>
 		public int Count
 		{
 			get { return _leaderboardList.Count; }
 		}
-
+        /// <summary>
+        /// If the leaderboard is read-only
+        /// </summary>
 		public bool IsReadOnly
 		{
 			get { return true; }
 		}
-
+        /// <summary>
+        /// Adds a leaderboard to the list
+        /// </summary>
+        /// <param name="item">Entry to add</param>
 		public void Add(Leaderboard item)
 		{
 			_leaderboardList.Add(item);
 		}
-
+        /// <summary>
+        /// Clears list
+        /// </summary>
 		public void Clear()
 		{
 			_leaderboardList.Clear();
 		}
-
+        /// <summary>
+        /// Checks if the list contains a specific leaderboard
+        /// </summary>
+        /// <param name="item">Leaderboard to check for</param>
+        /// <returns>true if found</returns>
 		public bool Contains(Leaderboard item)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Copies list to index
+        /// </summary>
+        /// <param name="array">Array of leaderboards</param>
+        /// <param name="arrayIndex">Index to copy to</param>
 		public void CopyTo(Leaderboard[] array, int arrayIndex)
 		{
 			throw new NotImplementedException();
 		}
-
+        /// <summary>
+        /// Removes leaderboard from list
+        /// </summary>
+        /// <param name="item">Leaderboard to remove</param>
+        /// <returns>true if entry removed</returns>
 		public bool Remove(Leaderboard item)
 		{
 			throw new NotSupportedException();
 		}
-
+        /// <summary>
+        /// Gets enumerator for list
+        /// </summary>
+        /// <returns>true if enumerator gotten</returns>
 		public IEnumerator<Leaderboard> GetEnumerator()
 		{
 			return new ListEnumerator<Leaderboard>(_leaderboardList);

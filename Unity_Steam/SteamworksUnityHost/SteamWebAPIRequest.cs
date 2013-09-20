@@ -7,8 +7,16 @@ using System.IO;
 
 namespace CommunityExpressNS
 {
+    /// <summary>
+    /// When the request is completed
+    /// </summary>
+    /// <param name="request">API request</param>
+    /// <param name="response">Response to show</param>
 	public delegate void OnRequestComplete(SteamWebAPIRequest request, String response);
 
+    /// <summary>
+    /// Reqeust for Web API
+    /// </summary>
 	public class SteamWebAPIRequest
 	{
 		private Uri _url;
@@ -20,7 +28,11 @@ namespace CommunityExpressNS
 		{
 			_url = new Uri(url);
 		}
-
+        /// <summary>
+        /// Adds get value
+        /// </summary>
+        /// <param name="key">API key</param>
+        /// <param name="value">Value to add</param>
 		public void AddGetValue(String key, String value)
 		{
 			// Tack the new value onto the end of our current URL
@@ -33,7 +45,11 @@ namespace CommunityExpressNS
 				_url = new Uri(_url.ToString() + "&" + key + "=" + value);
 			}
 		}
-
+        /// <summary>
+        /// Adds post value
+        /// </summary>
+        /// <param name="key">API key</param>
+        /// <param name="value">Value to add</param>
 		public void AddPostValue(String key, String value)
 		{
 			if (_postValues == "")
@@ -45,7 +61,11 @@ namespace CommunityExpressNS
 				_postValues += "&" + key + "=" + value;
 			}
 		}
-
+        /// <summary>
+        /// Gets post value
+        /// </summary>
+        /// <param name="key">API key</param>
+        /// <returns>true if gotten</returns>
 		public String GetPostValue(String key)
 		{
 			int start = _postValues.IndexOf(key, 0, StringComparison.OrdinalIgnoreCase);
@@ -61,7 +81,10 @@ namespace CommunityExpressNS
 
 			return "";
 		}
-
+        /// <summary>
+        /// Executes API request
+        /// </summary>
+        /// <param name="onRequestComplete">When request is completed</param>
 		public void Execute(OnRequestComplete onRequestComplete)
 		{
 			_onRequestComplete = onRequestComplete;

@@ -43,17 +43,37 @@ namespace CommunityExpressNS
 	};
 
 	delegate void OnGameServerClientApprovedBySteam(ref GSClientApprove_t callbackData);
+    /// <summary>
+    /// When server client is approved
+    /// </summary>
+    /// <param name="approvedPlayer">Approved user</param>
 	public delegate void OnGameServerClientApproved(SteamID approvedPlayer);
 
 	delegate void OnGameServerClientDeniedBySteam(ref GSClientDeny_t callbackData);
+    /// <summary>
+    /// When server client is denied
+    /// </summary>
+    /// <param name="deniedPlayer">Denied user</param>
+    /// <param name="denyReason">Why user was denied</param>
+    /// <param name="optionalText">Text for user</param>
 	public delegate void OnGameServerClientDenied(SteamID deniedPlayer, EDenyReason denyReason, String optionalText);
 
 	delegate void OnGameServerClientKickFromSteam(ref GSClientKick_t callbackData);
+    /// <summary>
+    /// When server client is kicked
+    /// </summary>
+    /// <param name="playerToKick">Kicked user</param>
+    /// <param name="denyReason">Why user was kicked</param>
 	public delegate void OnGameServerClientKick(SteamID playerToKick, EDenyReason denyReason);
 
 	delegate void OnGameServerPolicyResponseFromSteam(ref GSPolicyResponse_t callbackData);
+    /// <summary>
+    /// When server policy response is received
+    /// </summary>
 	public delegate void OnGameServerPolicyResponse();
-
+    /// <summary>
+    /// Information about game server
+    /// </summary>
 	public class GameServer
 	{
 		[DllImport("CommunityExpressSW")]
@@ -137,12 +157,37 @@ namespace CommunityExpressNS
             _ce = ce;
 			_gameServer = SteamUnityAPI_SteamGameServer();
 		}
-
+        /// <summary>
+        /// Finalize game server
+        /// </summary>
 		~GameServer()
 		{
 			Shutdown();
 		}
 
+        /// <summary>
+        /// Initialize GameServer and set server properties which may not be changed.
+        /// </summary>
+        /// <param name="isDedicated">If the server is dedicated</param>
+        /// <param name="ip">IP address of the server</param>
+        /// <param name="port">Port of the server</param>
+        /// <param name="queryPort">Port DNS queries are sent to</param>
+        /// <param name="masterServerPort">The port the main server is running from</param>
+        /// <param name="spectatorPort">The port the game spectator joins from</param>
+        /// <param name="serverMode">Mode the server is in</param>
+        /// <param name="serverName">Name of the server</param>
+        /// <param name="spectatorServerName">Name of the server the spectator sees</param>
+        /// <param name="regionName">Region the server is in</param>
+        /// <param name="gameName">Game the server is running</param>
+        /// <param name="gameDescription">Description of the game</param>
+        /// <param name="gameVersion">Version the game is running</param>
+        /// <param name="mapName">Name of the map the server is running</param>
+        /// <param name="maxClients">Maximum number of clients allowed in the server</param>
+        /// <param name="isPassworded">If the server has a password</param>
+        /// <param name="onGameServerClientApproved">If the server client is allowed to join the server</param>
+        /// <param name="onGameServerClientDenied">If the server client is not allowed to join the server</param>
+        /// <param name="onGameServerClientKick">If the server client was kicked from the server</param>
+        /// <returns>true if server is created</returns>
 		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
 			EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
 			String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, OnGameServerClientApproved onGameServerClientApproved,
@@ -153,7 +198,30 @@ namespace CommunityExpressNS
 			gameVersion, mapName, maxClients, isPassworded, string.Empty, onGameServerClientApproved,
 			onGameServerClientDenied, onGameServerClientKick);
 		}
-
+        /// <summary>
+        /// Initialize GameServer and set server properties which may not be changed.
+        /// </summary>
+        /// <param name="isDedicated">If the server is dedicated</param>
+        /// <param name="ip">IP address of the server</param>
+        /// <param name="port">Port of the server</param>
+        /// <param name="queryPort">Port DNS queries are sent to</param>
+        /// <param name="masterServerPort">The port the main server is running from</param>
+        /// <param name="spectatorPort">The port the game spectator joins from</param>
+        /// <param name="serverMode">Mode the server is in</param>
+        /// <param name="serverName">Name of the server</param>
+        /// <param name="spectatorServerName">Name of the server the spectator sees</param>
+        /// <param name="regionName">Region the server is in</param>
+        /// <param name="gameName">Game the server is running</param>
+        /// <param name="gameDescription">Description of the game</param>
+        /// <param name="gameVersion">Version the game is running</param>
+        /// <param name="mapName">Name of the map the server is running</param>
+        /// <param name="maxClients">Maximum number of clients allowed in the server</param>
+        /// <param name="isPassworded">If the server has a password</param>
+        /// <param name="modDir">Directory of mods needed for server</param>
+        /// <param name="onGameServerClientApproved">If the server client is allowed to join the server</param>
+        /// <param name="onGameServerClientDenied">If the server client is not allowed to join the server</param>
+        /// <param name="onGameServerClientKick">If the server client was kicked from the server</param>
+        /// <returns>true if server is created</returns>
 		public Boolean Init(Boolean isDedicated, IPAddress ip, UInt16 port, UInt16 queryPort, UInt16 masterServerPort, UInt16 spectatorPort,
 			EServerMode serverMode, String serverName, String spectatorServerName, String regionName, String gameName, String gameDescription,
 			String gameVersion, String mapName, UInt16 maxClients, Boolean isPassworded, String modDir, OnGameServerClientApproved onGameServerClientApproved,
@@ -208,7 +276,13 @@ namespace CommunityExpressNS
 
 			return false;
 		}
-
+        /// <summary>
+        /// Client tries to connect to the GameServer
+        /// </summary>
+        /// <param name="ipClient">Ip of the client computer</param>
+        /// <param name="authTicket">Client's authentication ticket</param>
+        /// <param name="steamIDClient">Client's Steam ID</param>
+        /// <returns>true if the client can connect</returns>
 		public Boolean ClientConnected(IPAddress ipClient, Byte[] authTicket, out SteamID steamIDClient)
 		{
 			Byte[] clientIPBytes = ipClient.GetAddressBytes();
@@ -229,7 +303,10 @@ namespace CommunityExpressNS
 			steamIDClient = null;
 			return false;
 		}
-
+        /// <summary>
+        /// Adds a bot to the server
+        /// </summary>
+        /// <returns>true if the bot is added</returns>
 		public SteamID AddBot()
 		{
 			SteamID ret = new SteamID(SteamUnityAPI_SteamGameServer_CreateUnauthenticatedUserConnection(_gameServer));
@@ -238,12 +315,21 @@ namespace CommunityExpressNS
 
 			return ret;
 		}
-
+        /// <summary>
+        /// Updates the current user's details
+        /// </summary>
+        /// <param name="steamID">User's Steam ID</param>
+        /// <param name="displayableName">User's display name</param>
+        /// <param name="score">User's score</param>
+        /// <returns>true if the details are updated successfully</returns>
 		public Boolean UpdateUserDetails(SteamID steamID, String displayableName, UInt32 score)
 		{
 			return SteamUnityAPI_SteamGameServer_UpdateUserData(_gameServer, steamID.ToUInt64(), displayableName, score);
 		}
-
+        /// <summary>
+        /// Client disconnects from the server
+        /// </summary>
+        /// <param name="steamIDClient">Client's Steam ID</param>
 		public void ClientDisconnected(SteamID steamIDClient)
 		{
 			Boolean found = false;
@@ -346,7 +432,10 @@ namespace CommunityExpressNS
 				}
 			}
 		}
-
+        /// <summary>
+        /// Gets list of players connected to the server
+        /// </summary>
+        /// <returns>List of connected players</returns>
 		public ICollection<Friend> GetPlayersConnected()
 		{
 			List<Friend> friends = new List<Friend>();
@@ -374,29 +463,43 @@ namespace CommunityExpressNS
 		{
 			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameServer, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _spectatorPort, _regionName, _mapName, _isPassworded);
 		}
-
+        /// <summary>
+        /// Requests stats from a user on the server
+        /// </summary>
+        /// <param name="steamID">Steam ID for the user</param>
+        /// <param name="requestedStats">Stats requested from the user</param>
 		public void RequestUserStats(SteamID steamID, IEnumerable<String> requestedStats)
 		{
             Stats stats = new Stats(_ce, steamID, true);
 			stats.RequestCurrentStats(requestedStats);
 		}
-
+        /// <summary>
+        /// Requests achievements from a user on the server
+        /// </summary>
+        /// <param name="steamID">Steam ID for the user</param>
+        /// <param name="requestedAchievements">Achievements requested from the user</param>
 		public void RequestUserAchievements(SteamID steamID, IEnumerable<String> requestedAchievements)
 		{
 			Achievements achievements = new Achievements(_ce, steamID, true);
 			achievements.RequestCurrentAchievements(requestedAchievements);
 		}
-
+        /// <summary>
+        /// Shuts down the server
+        /// </summary>
 		public void Shutdown()
 		{
 			SteamUnityAPI_SteamGameServer_Shutdown();
 		}
-
+        /// <summary>
+        /// Checks if the server is running
+        /// </summary>
 		public Boolean IsInitialized
 		{
 			get { return _isInitialized; }
 		}
-
+        /// <summary>
+        /// IP of the server
+        /// </summary>
 		public IPAddress PublicIP
 		{
 			get
@@ -405,71 +508,95 @@ namespace CommunityExpressNS
 				return new IPAddress(new byte[] { (byte)(ip >> 24), (byte)(ip >> 16), (byte)(ip >> 8), (byte)ip });
 			}
 		}
-
+        /// <summary>
+        /// Checks if the server is Valve Anti-Cheat secured
+        /// </summary>
 		public Boolean IsVacSecured
 		{
 			get { return _vacSecured; }
 		}
-
+        /// <summary>
+        /// Gets the Steam ID of the server
+        /// </summary>
 		public SteamID SteamID
 		{
 			get { return new SteamID(SteamUnityAPI_SteamGameServer_GetSteamID(_gameServer)); }
 		}
-
+        /// <summary>
+        /// Checks if the server is a Dedicated Server
+        /// </summary>
 		public Boolean IsDedicated
 		{
 			get { return _isDedicated; }
 			set { _isDedicated = value; SendBasicServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the server's name
+        /// </summary>
 		public String ServerName
 		{
 			get { return _serverName; }
 			set { _serverName = value; SendUpdatedServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the name of a spectator server
+        /// </summary>
 		public String SpectatorServerName
 		{
 			get { return _spectatorServerName; }
 			set { _spectatorServerName = value; SendUpdatedServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the region the server is hosted in
+        /// </summary>
 		public String RegionName
 		{
 			get { return _regionName; }
 			set { _regionName = value; SendUpdatedServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the name of the game the server is running
+        /// </summary>
 		public String GameName
 		{
 			get { return _gameName; }
 			set { _gameName = value; SendBasicServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the description of the game the server is running
+        /// </summary>
 		public String GameDescription
 		{
 			get { return _gameDescription; }
 			set { _gameDescription = value; SendBasicServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the maximum number of clients allowed in the server
+        /// </summary>
 		public UInt16 MaxClients
 		{
 			get { return _maxClients; }
 			set { _maxClients = value; SendBasicServerStatus(); }
 		}
-
+        /// <summary>
+        /// Checks if the server has a password
+        /// </summary>
 		public Boolean IsPassworded
 		{
 			get { return _isPassworded; }
 			set { _isPassworded = value; SendBasicServerStatus(); }
 		}
-
+        /// <summary>
+        /// Gets the name of the map the server is running on
+        /// </summary>
 		public String MapName
 		{
 			get { return _mapName; }
 			set { _mapName = value; SendUpdatedServerStatus(); }
 		}
-
+        /// <summary>
+        /// Defines key values strings
+        /// </summary>
 		public Dictionary<String, String> KeyValues
 		{
 			get
@@ -488,13 +615,17 @@ namespace CommunityExpressNS
 				SteamUnityAPI_SteamGameServer_SetKeyValues(_gameServer, keys, values, _keyValues.Count);
 			}
 		}
-
+        /// <summary>
+        /// Gets the tags of the game the server is running
+        /// </summary>
 		public String GameTags
 		{
 			get { return _gameTags; }
 			set { _gameTags = value; SteamUnityAPI_SteamGameServer_SetGameTags(_gameServer, _gameTags); }
 		}
-
+        /// <summary>
+        /// Gets the data of the game the server is running
+        /// </summary>
 		public String GameData
 		{
 			get { return _gameData; }
