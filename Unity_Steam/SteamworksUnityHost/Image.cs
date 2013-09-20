@@ -22,6 +22,9 @@ namespace CommunityExpressNS
 		private UInt32 _iconWidth = 0;
 		private UInt32 _iconHeight = 0;
 
+        public delegate void AvatarImageLoadedHandler(SteamID ID, Image img, bool result);
+        public static event AvatarImageLoadedHandler AvatarImageLoaded;
+
 		internal Image(Int32 steamImage)
 		{
 			_steamImage = steamImage;
@@ -69,5 +72,13 @@ namespace CommunityExpressNS
 		{
 			get { return _iconHeight; }
 		}
+
+        internal static void NotifyAvatarImageLoaded(SteamID ID, Image image, bool result)
+        {
+            if (AvatarImageLoaded != null)
+            {
+                AvatarImageLoaded(ID, image, result);
+            }
+        }
 	}
 }

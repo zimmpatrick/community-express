@@ -74,6 +74,8 @@ namespace SteamworksUnityTest
 
             Matchmaking matchmaking = cesdk.Matchmaking;
 
+            cesdk.Friends.PersonaStateChange += new Friends.PersonaStateChangeHandler(Friends_PersonaStateChange);
+
 
             cesdk.User.Authentication.AuthSessionTicketResponseReceived += new OnAuthSessionTicketResponseReceived(Authentication_AuthSessionTicketResponseReceived);
 
@@ -96,6 +98,11 @@ namespace SteamworksUnityTest
                 }
             }
 
+            foreach (Friend f in cesdk.Friends)
+            {
+                Console.WriteLine("{0}: {2}/{1}", f.PersonaName, 
+                    f.GamePlayed.GameID.AppID, f.GamePlayed.GameID.Type); 
+            }
 
             /*
 
@@ -262,8 +269,8 @@ namespace SteamworksUnityTest
            // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
             
             /// BEGIN PUBLISH
-            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
-            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
@@ -546,6 +553,12 @@ namespace SteamworksUnityTest
 			return 0;
 		}
 
+        static void Friends_PersonaStateChange(Friends sender, SteamID ID, int ChangeFlags, bool result)
+        {
+            Friend f = sender.GetFriendBySteamID(ID);
+            Console.WriteLine("{0}: {1}", f.PersonaName, f.PersonaState);
+        }
+
         public static void OnReceiveLeaderboard(Leaderboards board, Leaderboard l)
         {
             CommunityExpress.Instance.Leaderboards.LeaderboardReceived -= OnReceiveLeaderboard;
@@ -684,6 +697,7 @@ namespace SteamworksUnityTest
 			{
 				Console.WriteLine("  Failed to Retreive Leaderboard Entries");
 			}
+
 		}
 
 		public static void MyOnInGamePurchaseComplete(InGamePurchase purchase, bool success)

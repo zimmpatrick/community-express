@@ -44,6 +44,10 @@ public:
 		
 		// k_iSteamFriendsCallbacks
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, GameOverlayActivated)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnPersonaStateChange, PersonaStateChange_t, PersonaStateChange)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAvatarImageLoaded, AvatarImageLoaded_t, AvatarImageLoaded)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendRichPresenceUpdate, FriendRichPresenceUpdate_t, FriendRichPresenceUpdate)
+
 
 		// k_iSteamUtilsCallbacks
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry)
@@ -143,6 +147,9 @@ public:
 
 	// k_iSteamFriendsCallbacks
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameOverlayActivated, GameOverlayActivated_t, GameOverlayActivated);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnPersonaStateChange, PersonaStateChange_t, PersonaStateChange);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnAvatarImageLoaded, AvatarImageLoaded_t, AvatarImageLoaded);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendRichPresenceUpdate, FriendRichPresenceUpdate_t, FriendRichPresenceUpdate);
 
 	// k_iSteamUtilsCallbacks
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry);

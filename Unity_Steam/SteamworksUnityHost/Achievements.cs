@@ -61,7 +61,39 @@ namespace CommunityExpressNS
 		private List<Achievement> _achievementList = new List<Achievement>();
 		private IEnumerable<string> _requestedAchievements;
         private CommunityExpress.OnEventHandler<UserStatsReceived_t> _statsRecievedEventHandler = null;
-        
+
+        public delegate void UserAchievementsReceivedHandler(Achievements sender, UserAchievementsReceivedArgs e);
+
+        public class UserAchievementsReceivedArgs : System.EventArgs
+        {
+            internal UserAchievementsReceivedArgs(UserStatsReceived_t args)
+            {
+                GameID = args.m_nGameID;
+                Result = args.m_eResult;
+                SteamID = new SteamID(args.m_steamIDUser);
+            }
+
+            public UInt64 GameID
+            {
+                get;
+                private set;
+            }
+
+            public EResult Result
+            {
+                get;
+                private set;
+            }
+
+            public SteamID SteamID
+            {
+                get;
+                private set;
+            }
+        }
+
+        public event UserAchievementsReceivedHandler UserAchievementsReceived;
+
         internal Achievements(CommunityExpress ce, SteamID steamID, Boolean isGameServer = false)
 		{
             _ce = ce;
@@ -102,6 +134,8 @@ namespace CommunityExpressNS
 
             _ce.RemoveEventHandler(UserStatsReceived_t.k_iCallback, _statsRecievedEventHandler);
             _statsRecievedEventHandler = null;
+
+            if (UserAchievementsReceived != null) UserAchievementsReceived(this, new UserAchievementsReceivedArgs(CallbackData));
 		}
         /// <summary>
         /// Creates a list of achievements

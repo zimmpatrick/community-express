@@ -1073,6 +1073,29 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(void* pS
 	return pISteamFriends->GetLargeFriendAvatar( CSteamID(steamIDFriend) );
 }
 
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_RequestFriendRichPresence(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+	
+	pISteamFriends->RequestFriendRichPresence( CSteamID(steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API AppId_t SteamUnityAPI_SteamFriends_GetFriendCoplayGame(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return (AppId_t)pISteamFriends->GetFriendCoplayGame( CSteamID(steamIDFriend) );
+}
+
+STEAMWORKSUNITY_API FriendGameInfo_t SteamUnityAPI_SteamFriends_GetFriendGamePlayed(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	FriendGameInfo_t friendGameInfo;
+	pISteamFriends->GetFriendGamePlayed( CSteamID(steamIDFriend), &friendGameInfo);
+	return friendGameInfo;
+}
+
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlay(void* pSteamFriends, const char* pchDialog)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );

@@ -126,7 +126,7 @@ namespace CommunityExpressNS
 		private App _app = null;
 		private User _user = null;
 		private GameServer _gameserver = null;
-		private Friends _friends = null;
+        private Friends _friends = null;
 		private Groups _groups = null;
 		private Stats _userStats = null;
 		private Friends _serverFriends = null;
@@ -224,9 +224,13 @@ namespace CommunityExpressNS
 				_steamAPIDebugTextHook = new OnSteamAPIDebugTextHook(OnSteamAPIDebugTextHookCallback);
 				SteamUnityAPI_SetWarningMessageHook(Marshal.GetFunctionPointerForDelegate(_steamAPIDebugTextHook));
 
-				// ValidateLicense();
+				ValidateLicense();
+                
+                // startup friends so we start getting events, etc.
+                _friends = new Friends(this);
+
 				return true;
-			}
+            }
 
 			return false;
 		}
@@ -394,11 +398,11 @@ namespace CommunityExpressNS
 		public Friends Friends
 		{
 			get
-			{
-				if (_friends == null)
-				{
-					_friends = new Friends();
-				}
+            {
+                if (_friends == null)
+                {
+                    _friends = new Friends(this);
+                }
 
 				return _friends;
 			}

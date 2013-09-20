@@ -56,7 +56,7 @@ namespace CommunityExpressNS
 		internal User()
 		{
 			_user = SteamUnityAPI_SteamUser();
-			_friends = new Friends();
+			_friends = new Friends(CommunityExpress.Instance);
             _auth = new UserAuthentication(this);
 		}
         /// <summary>
@@ -169,10 +169,10 @@ namespace CommunityExpressNS
         /// <summary>
         /// Gets the large (184x184) avatar of the user
         /// </summary>
-        /// <param name="largeAvatarReceivedCallback">Callback when avatar is received</param>
-		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
+        /// <returns>large (184x184) avatar of the user</returns>
+		public Image GetLargeAvatar()
 		{
-			_friends.GetLargeFriendAvatar(SteamID, largeAvatarReceivedCallback);
+			return _friends.GetLargeFriendAvatar(SteamID);
 		}
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace CommunityExpressNS
         /// </summary>
 		public Image LargeAvatar
 		{
-			get { return _friends.GetLargeFriendAvatar(SteamID, null); }
+			get { return _friends.GetLargeFriendAvatar(SteamID); }
 		}
         /// <summary>
         /// The user's authentication status

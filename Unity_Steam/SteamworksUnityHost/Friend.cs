@@ -20,14 +20,16 @@ namespace CommunityExpressNS
 			_friends = friends;
 			_id = id;
 		}
+
         /// <summary>
         /// Gets large-size avatar for user
         /// </summary>
-        /// <param name="largeAvatarReceivedCallback">If the large avatar was recieved</param>
-		public void GetLargeAvatar(OnLargeAvatarReceived largeAvatarReceivedCallback)
+        /// <returns>large avatar</returns>
+		public Image GetLargeAvatar()
 		{
-			_friends.GetLargeFriendAvatar(_id, largeAvatarReceivedCallback);
+			return _friends.GetLargeFriendAvatar(_id);
 		}
+
         /// <summary>
         /// Name of the friend's account
         /// </summary>
@@ -68,7 +70,12 @@ namespace CommunityExpressNS
         /// </summary>
 		public Image LargeAvatar
 		{
-			get { return _friends.GetLargeFriendAvatar(_id, null); }
+			get { return _friends.GetLargeFriendAvatar(_id); }
 		}
+
+        public FriendGameInfo GamePlayed
+        {
+            get { return _friends.GetFriendGamePlayed(_id); }
+        }
 	}
 }

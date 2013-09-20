@@ -11,6 +11,7 @@ namespace CommunityExpressNS
 {
     using AppId_t = UInt32;
     using SteamAPICall_t = UInt64;
+    using SteamID_t = UInt64;
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct GameOverlayActivated_t
@@ -20,6 +21,64 @@ namespace CommunityExpressNS
         [MarshalAs(UnmanagedType.U1)]
         internal bool m_bActive;	// true if it's just been activated, false otherwise
     };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct AvatarImageLoaded_t
+    {
+        internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 34;
+        internal SteamID_t m_steamID; // steamid the avatar has been loaded for
+        internal int m_iImage; // the image index of the now loaded image
+        internal int m_iWide; // width of the loaded image
+        internal int m_iTall; // height of the loaded image
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct PersonaStateChange_t
+    {
+        internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 4;
+
+        internal SteamID_t m_ulSteamID;		// steamID of the friend who changed
+        internal int m_nChangeFlags;		// what's changed
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct FriendGameInfo_t
+    {
+        internal UInt64 m_gameID;
+        internal UInt32 m_unGameIP;
+        internal UInt16 m_usGamePort;
+        internal UInt16 m_usQueryPort;
+        internal SteamID_t m_steamIDLobby;
+    };
+
+    internal struct FriendRichPresenceUpdate_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 36;
+        internal SteamID_t m_steamIDFriend;	// friend who's rich presence has changed
+        internal AppId_t m_nAppID;			// the appID of the game (should always be the current game)
+    };
+
+    /// <summary>
+    /// Personas that can be changed
+    /// </summary>
+    public enum EPersonaChange
+    {
+        k_EPersonaChangeName = 0x0001,
+        k_EPersonaChangeStatus = 0x0002,
+        k_EPersonaChangeComeOnline = 0x0004,
+        k_EPersonaChangeGoneOffline = 0x0008,
+        k_EPersonaChangeGamePlayed = 0x0010,
+        k_EPersonaChangeGameServer = 0x0020,
+        k_EPersonaChangeAvatar = 0x0040,
+        k_EPersonaChangeJoinedSource = 0x0080,
+        k_EPersonaChangeLeftSource = 0x0100,
+        k_EPersonaChangeRelationshipChanged = 0x0200,
+        k_EPersonaChangeNameFirstSet = 0x0400,
+        k_EPersonaChangeFacebookInfo = 0x0800,
+        k_EPersonaChangeNickname = 0x1000,
+        k_EPersonaChangeSteamLevel = 0x2000,
+    };
+
     /// <summary>
     /// Set of relationships to other users
     /// </summary>
@@ -104,14 +163,49 @@ namespace CommunityExpressNS
         EGameOverlayToUserFriendRequestIgnore = 8,
     };
 
-	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct AvatarImageLoaded_t
-	{
-		public UInt64 m_steamID; // steamid the avatar has been loaded for
-		public int m_iImage; // the image index of the now loaded image
-		public int m_iWide; // width of the loaded image
-		public int m_iTall; // height of the loaded image
-	}
+    public class FriendGameInfo
+    {
+        internal FriendGameInfo(FriendGameInfo_t friendInfo)
+        {
+            GameID = new GameID(friendInfo.m_gameID);
+            GameIP = friendInfo.m_unGameIP;
+            GamePort = friendInfo.m_usGamePort;
+            QueryPort = friendInfo.m_usQueryPort;
+            Lobby = new Lobby(null, new SteamID(friendInfo.m_steamIDLobby));
+        }
+
+        public GameID GameID
+        {
+            get;
+            private set;
+        }
+
+        public UInt32 GameIP
+        {
+            get;
+            private set;
+        }
+
+        public UInt32 GamePort
+        {
+            get;
+            private set;
+        }
+
+        public UInt32 QueryPort
+        {
+            get;
+            private set;
+        }
+
+        public Lobby Lobby
+        {
+            get;
+            private set;
+        }
+    };
+
+
 
 	delegate void OnLargeAvatarReceivedFromSteam(ref AvatarImageLoaded_t CallbackData);
     /// <summary>
@@ -150,6 +244,12 @@ namespace CommunityExpressNS
         private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToWebPage(IntPtr friends, [MarshalAs(UnmanagedType.LPStr)] String url);
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(IntPtr friends, AppId_t appID, EOverlayToStoreFlag flag);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_RequestFriendRichPresence(IntPtr friends, UInt64 steamIDFriend);
+        [DllImport("CommunityExpressSW")]
+        private static extern AppId_t SteamUnityAPI_SteamFriends_GetFriendCoplayGame(IntPtr friends, UInt64 steamIDFriend);
+        [DllImport("CommunityExpressSW")]
+        private static extern FriendGameInfo_t SteamUnityAPI_SteamFriends_GetFriendGamePlayed(IntPtr friends, UInt64 steamIDFriend);
 
 		private IntPtr _friends;
 		private EFriendFlags _friendFlags;
@@ -202,14 +302,17 @@ namespace CommunityExpressNS
 
         private CommunityExpress _ce;
 
-		internal Friends()
-		{
+        internal Friends(CommunityExpress ce)
+        {
+            _ce = ce;
+
 			_friends = SteamUnityAPI_SteamFriends();
 			_friendFlags = EFriendFlags.k_EFriendFlagImmediate;
 
-            _ce = CommunityExpress.Instance;
-            
             _ce.AddEventHandler(GameOverlayActivated_t.k_iCallback, new CommunityExpress.OnEventHandler<GameOverlayActivated_t>(Events_GameOverlayActivated));
+            _ce.AddEventHandler(AvatarImageLoaded_t.k_iCallback, new CommunityExpress.OnEventHandler<AvatarImageLoaded_t>(Events_AvatarImagedLoaded));
+            _ce.AddEventHandler(PersonaStateChange_t.k_iCallback, new CommunityExpress.OnEventHandler<PersonaStateChange_t>(Events_PersonaStateChange));
+            _ce.AddEventHandler(FriendRichPresenceUpdate_t.k_iCallback, new CommunityExpress.OnEventHandler<FriendRichPresenceUpdate_t>(Events_FriendRichPresenceUpdate));
 
 		}
         /// <summary>
@@ -228,6 +331,36 @@ namespace CommunityExpressNS
             {
                 GameOverlayActivated(recv.m_bActive);
             }
+        }
+
+        public delegate void PersonaStateChangeHandler(Friends sender, SteamID ID, int ChangeFlags, bool result);
+        public event PersonaStateChangeHandler PersonaStateChange;
+
+        private void Events_PersonaStateChange(PersonaStateChange_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (PersonaStateChange != null)
+            {
+                PersonaStateChange(this, new SteamID(recv.m_ulSteamID), recv.m_nChangeFlags, bIOFailure);
+                //GetFriendCoplayGame(new SteamID(recv.m_ulSteamID));
+                GetFriendGamePlayed(new SteamID(recv.m_ulSteamID));
+               // RequestFriendRichPresence(new SteamID(recv.m_ulSteamID));
+            }
+        }
+
+        public delegate void FriendRichPresenceUpdateHandler(Friends sender, SteamID ID, AppId_t appID, bool result);
+        public event FriendRichPresenceUpdateHandler FriendRichPresenceUpdate;
+
+        private void Events_FriendRichPresenceUpdate(FriendRichPresenceUpdate_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (FriendRichPresenceUpdate != null)
+            {
+                FriendRichPresenceUpdate(this, new SteamID(recv.m_steamIDFriend), recv.m_nAppID, bIOFailure);
+            }
+        }
+
+        private void Events_AvatarImagedLoaded(AvatarImageLoaded_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            Image.NotifyAvatarImageLoaded(new SteamID(recv.m_steamID), new Image(recv.m_iImage), bIOFailure);
         }
 
 		internal Friends(EFriendFlags friendFlags)
@@ -274,33 +407,15 @@ namespace CommunityExpressNS
 			return null;
 		}
 
-		internal Image GetLargeFriendAvatar(SteamID steamIDFriend, OnLargeAvatarReceived largeAvatarReceivedCallback)
+		internal Image GetLargeFriendAvatar(SteamID steamIDFriend)
 		{
-			_largeAvatarReceivedCallback = largeAvatarReceivedCallback;
-
-			if (_internalOnLargeAvatarReceived == null)
-			{
-				_internalOnLargeAvatarReceived = new OnLargeAvatarReceivedFromSteam(InternalOnLargeAvatarReceived);
-			}
-
 			int id = SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(_friends, steamIDFriend.ToUInt64());
             if (id > 0)
             {
                 Image img = new Image(id);
 
-                if (_largeAvatarReceivedCallback != null)
-                {
-                    _largeAvatarReceivedCallback(steamIDFriend, img);
-                }
-
+                Image.NotifyAvatarImageLoaded(steamIDFriend, img, true);
                 return img;
-            }
-            else
-            {
-                if (_largeAvatarReceivedCallback != null)
-                {
-                    _largeAvatarReceivedCallback(steamIDFriend, null);
-                }
             }
 
 			return null;
@@ -316,10 +431,17 @@ namespace CommunityExpressNS
             return newFriend;
         }
 
+        public FriendGameInfo GetFriendGamePlayed(SteamID steamIDFriend)
+        {
+            FriendGameInfo_t friendGameInfo = SteamUnityAPI_SteamFriends_GetFriendGamePlayed(_friends, steamIDFriend.ToUInt64());
+            return new FriendGameInfo(friendGameInfo);
+        }
+
 		private void InternalOnLargeAvatarReceived(ref AvatarImageLoaded_t CallbackData)
 		{
 			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));
 		}
+
         /// <summary>
         /// Brings up the in-game friend overlay
         /// </summary>
@@ -330,6 +452,7 @@ namespace CommunityExpressNS
 
             SteamUnityAPI_SteamFriends_ActivateGameOverlay(_friends, strdialogs[(int)dialog]);
 		}
+
         /// <summary>
         /// Brings up the overlay for the current user
         /// </summary>
@@ -342,6 +465,18 @@ namespace CommunityExpressNS
 
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(_friends, strdialogs[3], user.ToUInt64());
 		}
+
+        public void RequestFriendRichPresence(SteamID id)
+		{
+            SteamUnityAPI_SteamFriends_RequestFriendRichPresence(_friends, id.ToUInt64());
+		}
+        
+        private void GetFriendCoplayGame(SteamID id)
+        {
+            AppId_t appID = SteamUnityAPI_SteamFriends_GetFriendCoplayGame(_friends, id.ToUInt64());
+            Console.WriteLine(appID);
+        }
+
         /// <summary>
         /// Adds the Steam overlay to a website
         /// </summary>
