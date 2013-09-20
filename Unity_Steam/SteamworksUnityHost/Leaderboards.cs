@@ -17,8 +17,11 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum ELeaderboardDataRequest
 	{
+        /// Global leaderboard request
 		k_ELeaderboardDataRequestGlobal = 0,
+        /// Global leaderboard request for entries near the current user's
 		k_ELeaderboardDataRequestGlobalAroundUser = 1,
+        /// Leaderboard request for user's friends' entries
 		k_ELeaderboardDataRequestFriends = 2,
 	};
 
@@ -27,9 +30,12 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum ELeaderboardSortMethod
 	{
+        /// No sort method
 		k_ELeaderboardSortMethodNone = 0,
-		k_ELeaderboardSortMethodAscending = 1,	// top-score is lowest number
-		k_ELeaderboardSortMethodDescending = 2,	// top-score is highest number
+        /// Top-score is lowest number
+		k_ELeaderboardSortMethodAscending = 1,
+        /// Top-score is highest number
+		k_ELeaderboardSortMethodDescending = 2,	
 	};
 
 	/// <summary>
@@ -37,19 +43,26 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum ELeaderboardDisplayType
 	{
+        ///No display type
 		k_ELeaderboardDisplayTypeNone = 0,
-		k_ELeaderboardDisplayTypeNumeric = 1,			// simple numerical score
-		k_ELeaderboardDisplayTypeTimeSeconds = 2,		// the score represents a time, in seconds
-		k_ELeaderboardDisplayTypeTimeMilliSeconds = 3,	// the score represents a time, in milliseconds
+        /// simple numerical score
+		k_ELeaderboardDisplayTypeNumeric = 1,
+        /// the score represents a time, in seconds	
+		k_ELeaderboardDisplayTypeTimeSeconds = 2,
+        /// the score represents a time, in milliseconds
+		k_ELeaderboardDisplayTypeTimeMilliSeconds = 3,	
 	};
     /// <summary>
     /// The method from uploading scores to a leaderboard
     /// </summary>
 	public enum ELeaderboardUploadScoreMethod
 	{
+        /// No method
 		k_ELeaderboardUploadScoreMethodNone = 0,
-		k_ELeaderboardUploadScoreMethodKeepBest = 1,	// Leaderboard will keep user's best score
-		k_ELeaderboardUploadScoreMethodForceUpdate = 2,	// Leaderboard will always replace score with specified
+        /// Leaderboard will keep user's best score
+		k_ELeaderboardUploadScoreMethodKeepBest = 1,
+        /// Leaderboard will always replace score with specified
+		k_ELeaderboardUploadScoreMethodForceUpdate = 2,	
 	};
 
     /// <summary>

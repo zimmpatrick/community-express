@@ -15,7 +15,9 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum EGamepadTextInputMode
 	{
+        /// Normal text input
 		k_EGamepadTextInputModeNormal = 0,
+        /// Password text input
 		k_EGamepadTextInputModePassword = 1
 	};
 
@@ -24,7 +26,9 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum EGamepadTextInputLineMode
 	{
+        /// Single line text input
 		k_EGamepadTextInputLineModeSingleLine = 0,
+        /// Multiple line text input
 		k_EGamepadTextInputLineModeMultipleLines = 1
 	};
 

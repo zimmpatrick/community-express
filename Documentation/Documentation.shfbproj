@@ -27,9 +27,8 @@
     <CppCommentsFixup>False</CppCommentsFixup>
     <CleanIntermediates>True</CleanIntermediates>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.dll" xmlns="" />
-      <DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.XML" xmlns="" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.dll" />
+<DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.XML" /></DocumentationSources>
     <SyntaxFilters>CSharp</SyntaxFilters>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <RootNamespaceContainer>False</RootNamespaceContainer>

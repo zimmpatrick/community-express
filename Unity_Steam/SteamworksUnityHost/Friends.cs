@@ -84,13 +84,20 @@ namespace CommunityExpressNS
     /// </summary>
 	public enum EFriendRelationship
 	{
+        /// No relationship
 		k_EFriendRelationshipNone = 0,
-		k_EFriendRelationshipBlocked = 1,
-		k_EFriendRelationshipRequestRecipient = 2,
-		k_EFriendRelationshipFriend = 3,
-		k_EFriendRelationshipRequestInitiator = 4,
-		k_EFriendRelationshipIgnored = 5,
-		k_EFriendRelationshipIgnoredFriend = 6,
+		/// User is blocked
+        k_EFriendRelationshipBlocked = 1,
+		/// User has recieved friend request
+        k_EFriendRelationshipRequestRecipient = 2,
+		/// User is a friend
+        k_EFriendRelationshipFriend = 3,
+		/// User sent you a friend request
+        k_EFriendRelationshipRequestInitiator = 4,
+		/// User has been ignored
+        k_EFriendRelationshipIgnored = 5,
+		/// User is a friend who has been ignored
+        k_EFriendRelationshipIgnoredFriend = 6,
 	};
 
     /// <summary>
@@ -98,30 +105,48 @@ namespace CommunityExpressNS
     /// </summary>
 	public enum EPersonaState
 	{
-		EPersonaStateOffline = 0,		// friend is not currently logged on
-		EPersonaStateOnline = 1,		// friend is logged on
-		EPersonaStateBusy = 2,			// user is on, but busy
-		EPersonaStateAway = 3,			// auto-away feature
-		EPersonaStateSnooze = 4			// auto-away for a long time
+        /// friend is not currently logged on
+		EPersonaStateOffline = 0,
+        /// friend is logged on
+        EPersonaStateOnline = 1,
+        /// user is on, but busy
+        EPersonaStateBusy = 2,
+        /// auto-away feature
+        EPersonaStateAway = 3,
+        /// auto-away for a long time
+        EPersonaStateSnooze = 4			
 	};
     /// <summary>
     /// Flags for enumerating friends list, or quickly checking a the relationship between users
     /// </summary>
 	public enum EFriendFlags
 	{
+        /// None
 		k_EFriendFlagNone = 0x00,
+        /// Blocked
 		k_EFriendFlagBlocked = 0x01,
-		k_EFriendFlagFriendshipRequested = 0x02,
-		k_EFriendFlagImmediate = 0x04,			// "regular" friend
-		k_EFriendFlagClanMember = 0x08,
-		k_EFriendFlagOnGameServer = 0x10,
-		// k_EFriendFlagHasPlayedWith	= 0x20,	// not currently used
-		// k_EFriendFlagFriendOfFriend	= 0x40, // not currently used
-		k_EFriendFlagRequestingFriendship = 0x80,
-		k_EFriendFlagRequestingInfo = 0x100,
-		k_EFriendFlagIgnored = 0x200,
-		k_EFriendFlagIgnoredFriend = 0x400,
-		k_EFriendFlagAll = 0xFFFF,
+		/// Friendship has been requested
+        k_EFriendFlagFriendshipRequested = 0x02,
+        /// "regular" friend
+        k_EFriendFlagImmediate = 0x04,			
+		/// Fellow clan member
+        k_EFriendFlagClanMember = 0x08,
+		/// Currently on game server
+        k_EFriendFlagOnGameServer = 0x10,
+        // not currently used
+        // k_EFriendFlagHasPlayedWith	= 0x20,	
+        // not currently used
+        // k_EFriendFlagFriendOfFriend	= 0x40, 
+		/// Has requested friendship to you
+        k_EFriendFlagRequestingFriendship = 0x80,
+		/// Requesting your info
+        k_EFriendFlagRequestingInfo = 0x100,
+		/// Is being ignored
+        k_EFriendFlagIgnored = 0x200,
+		/// Is a friend being ignored
+        k_EFriendFlagIgnoredFriend = 0x400,
+		/// All flags
+        k_EFriendFlagAll = 0xFFFF,
 	};
 
     /// <summary>
@@ -129,8 +154,11 @@ namespace CommunityExpressNS
     /// </summary>
 	public enum EOverlayToStoreFlag
 	{
+        /// No flags
 		k_EOverlayToStoreFlag_None = 0,
+        /// Added to cart
 		k_EOverlayToStoreFlag_AddToCart = 1,
+        /// Added to cart and show
 		k_EOverlayToStoreFlag_AddToCartAndShow = 2,
 	};
 
@@ -139,27 +167,43 @@ namespace CommunityExpressNS
     /// </summary>
     public enum EGameOverlay
     {
+        /// Friends overlay
         EGameOverlayFriends = 0,
+        /// Community overlay
         EGameOverlayCommunity = 1,
+        /// Players overlay
         EGameOverlayPlayers = 2,
+        /// Settings overlay
         EGameOverlaySettings = 3,
+        /// Official game group overlay
         EGameOverlayOfficialGameGroup = 4,
+        /// Stats overlay
         EGameOverlayStats = 5,
+        /// Achievements overlay
         EGameOverlayAchievements = 6,
     };
     /// <summary>
-    /// Arguments for which overlay is visible to user
+    /// Arguments for which overlay for another user
     /// </summary>
     public enum EGameOverlayToUser
     {
+        /// User's Steam ID
         EGameOverlayToUserSteamId = 0,
+        /// Chat with user
         EGameOverlayToUserChat = 1,
+        /// Join trade with user
         EGameOverlayToUserJoinTrade = 2,
+        /// User's stats
         EGameOverlayToUserStats = 3,
+        /// User's achievements
         EGameOverlayToUserAchievements = 4,
+        /// Add user as a friend
         EGameOverlayToUserFriendAdd = 5,
+        /// Remove user as a friend
         EGameOverlayToUserFriendRemove = 6,
+        /// Accept user's friend request
         EGameOverlayToUserFriendRequestAccept = 7,
+        /// Ignore user's friend request
         EGameOverlayToUserFriendRequestIgnore = 8,
     };
 

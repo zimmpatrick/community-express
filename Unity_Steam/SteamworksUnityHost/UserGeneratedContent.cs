@@ -263,18 +263,28 @@ namespace CommunityExpressNS
         {
             // k_EWorkshopFileTypeFirst = 0,
 
+            /// Community file
             k_EWorkshopFileTypeCommunity = 0,
+            /// Microtransaction file
             k_EWorkshopFileTypeMicrotransaction = 1,
+            /// Collection of files
             k_EWorkshopFileTypeCollection = 2,
+            /// Art file
             k_EWorkshopFileTypeArt = 3,
+            /// Video file
             k_EWorkshopFileTypeVideo = 4,
+            /// Screenshot file
             k_EWorkshopFileTypeScreenshot = 5,
+            /// Game file
             k_EWorkshopFileTypeGame = 6,
+            /// Software file
             k_EWorkshopFileTypeSoftware = 7,
+            /// Concept file
             k_EWorkshopFileTypeConcept = 8,
+            /// Web guide file
             k_EWorkshopFileTypeWebGuide = 9,
+            /// Steam integrated guide file
             k_EWorkshopFileTypeIntegratedGuide = 10,
-
             // Update k_EWorkshopFileTypeMax if you add values
             // k_EWorkshopFileTypeMax = 11
 
@@ -284,12 +294,19 @@ namespace CommunityExpressNS
         /// </summary>
         public enum EWorkshopEnumerationType
         {
+            /// Ranked by vote
             k_EWorkshopEnumerationTypeRankedByVote = 0,
+            /// Most recent addition
             k_EWorkshopEnumerationTypeRecent = 1,
+            /// Recently popular
             k_EWorkshopEnumerationTypeTrending = 2,
+            /// Favorites of user's friends
             k_EWorkshopEnumerationTypeFavoritesOfFriends = 3,
+            /// Voted on by friends
             k_EWorkshopEnumerationTypeVotedByFriends = 4,
+            /// Content made by friends
             k_EWorkshopEnumerationTypeContentByFriends = 5,
+            /// Content made by users followed by the current user
             k_EWorkshopEnumerationTypeRecentFromFollowedUsers = 6,
         };
         /// <summary>
@@ -297,7 +314,9 @@ namespace CommunityExpressNS
         /// </summary>
         public enum EWorkshopFileAction
         {
+            /// File has been played
             k_EWorkshopFileActionPlayed = 0,
+            /// File has been completed
             k_EWorkshopFileActionCompleted = 1,
         };
         /// <summary>
@@ -305,8 +324,11 @@ namespace CommunityExpressNS
         /// </summary>
         public enum ERemoteStoragePublishedFileVisibility
         {
+            /// Anyone can view the file
             k_ERemoteStoragePublishedFileVisibilityPublic = 0,
+            /// Friends of the user can view the file
             k_ERemoteStoragePublishedFileVisibilityFriendsOnly = 1,
+            /// Only the user can view the file
             k_ERemoteStoragePublishedFileVisibilityPrivate = 2,
         };
 
@@ -538,13 +560,16 @@ namespace CommunityExpressNS
                 }
             }
 
+            /// <summary>
+            /// True if the user has deleted the file
+            /// </summary>
             public bool Deleted
             {
                 get { return (Result == EResult.EResultFileNotFound); }
             }
 
             /// <summary>
-            /// File ID
+            /// Published File ID
             /// </summary>
             public UInt64 ID
             {

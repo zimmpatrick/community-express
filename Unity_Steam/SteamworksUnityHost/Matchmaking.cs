@@ -18,10 +18,14 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum ELobbyType
 	{
-		k_ELobbyTypePrivate = 0,		// only way to join the lobby is to invite to someone else
-		k_ELobbyTypeFriendsOnly = 1,	// shows for friends or invitees, but not in lobby list
-		k_ELobbyTypePublic = 2,			// visible for friends and in lobby list
-		k_ELobbyTypeInvisible = 3,		// returned by search, but not visible to other friends 
+        /// only way to join the lobby is to invite to someone else
+		k_ELobbyTypePrivate = 0,
+        /// shows for friends or invitees, but not in lobby list
+		k_ELobbyTypeFriendsOnly = 1,
+        /// visible for friends and in lobby list
+		k_ELobbyTypePublic = 2,
+        /// returned by search, but not visible to other friends 
+		k_ELobbyTypeInvisible = 3,		
 		//	useful if you want a user in two lobbies, for example matching groups together
 		//	  a user can be in only one regular lobby, and up to two invisible lobbies
 	}
@@ -31,11 +35,17 @@ namespace CommunityExpressNS
 	/// </summary>
 	public enum ELobbyComparison
 	{
+        /// Equat to or less than
 		k_ELobbyComparisonEqualToOrLessThan = -2,
+        /// Less than
 		k_ELobbyComparisonLessThan = -1,
+        /// Equal to
 		k_ELobbyComparisonEqual = 0,
+        /// Greater than
 		k_ELobbyComparisonGreaterThan = 1,
+        /// Equal to or greater than
 		k_ELobbyComparisonEqualToOrGreaterThan = 2,
+        /// Is not equal to
 		k_ELobbyComparisonNotEqual = 3,
 	}
 
@@ -45,10 +55,14 @@ namespace CommunityExpressNS
  
 	public enum ELobbyDistanceFilter
 	{
-		k_ELobbyDistanceFilterClose,		// only lobbies in the same immediate region will be returned
-		k_ELobbyDistanceFilterDefault,		// only lobbies in the same region or near by regions
-		k_ELobbyDistanceFilterFar,			// for games that don't have many latency requirements, will return lobbies about half-way around the globe
-		k_ELobbyDistanceFilterWorldwide,	// no filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients)
+        /// only lobbies in the same immediate region will be returned
+		k_ELobbyDistanceFilterClose,
+        /// only lobbies in the same region or near by regions
+        k_ELobbyDistanceFilterDefault,
+        /// for games that don't have many latency requirements, will return lobbies about half-way around the globe
+        k_ELobbyDistanceFilterFar,
+        /// no filtering, will match lobbies as far as India to NY (not recommended, expect multiple seconds of latency between the clients)
+        k_ELobbyDistanceFilterWorldwide,	
 	}
 
     /// <summary>
@@ -56,17 +70,28 @@ namespace CommunityExpressNS
     /// </summary>
 	public enum EChatRoomEnterResponse
 	{
-		k_EChatRoomEnterResponseSuccess = 1,		// Success
-		k_EChatRoomEnterResponseDoesntExist = 2,	// Chat doesn't exist (probably closed)
-		k_EChatRoomEnterResponseNotAllowed = 3,		// General Denied - You don't have the permissions needed to join the chat
-		k_EChatRoomEnterResponseFull = 4,			// Chat room has reached its maximum size
-		k_EChatRoomEnterResponseError = 5,			// Unexpected Error
-		k_EChatRoomEnterResponseBanned = 6,			// You are banned from this chat room and may not join
-		k_EChatRoomEnterResponseLimited = 7,		// Joining this chat is not allowed because you are a limited user (no value on account)
-		k_EChatRoomEnterResponseClanDisabled = 8,	// Attempt to join a clan chat when the clan is locked or disabled
-		k_EChatRoomEnterResponseCommunityBan = 9,	// Attempt to join a chat when the user has a community lock on their account
-		k_EChatRoomEnterResponseMemberBlockedYou = 10, // Join failed - some member in the chat has blocked you from joining
-		k_EChatRoomEnterResponseYouBlockedMember = 11, // Join failed - you have blocked some member already in the chat
+        /// Success
+		k_EChatRoomEnterResponseSuccess = 1,
+        /// Chat doesn't exist (probably closed)
+        k_EChatRoomEnterResponseDoesntExist = 2,
+        /// General Denied - You don't have the permissions needed to join the chat
+        k_EChatRoomEnterResponseNotAllowed = 3,
+        /// Chat room has reached its maximum size
+        k_EChatRoomEnterResponseFull = 4,
+        /// Unexpected Error
+        k_EChatRoomEnterResponseError = 5,
+        /// You are banned from this chat room and may not join
+        k_EChatRoomEnterResponseBanned = 6,
+        /// Joining this chat is not allowed because you are a limited user (no value on account)
+        k_EChatRoomEnterResponseLimited = 7,
+        /// Attempt to join a clan chat when the clan is locked or disabled
+        k_EChatRoomEnterResponseClanDisabled = 8,
+        /// Attempt to join a chat when the user has a community lock on their account
+        k_EChatRoomEnterResponseCommunityBan = 9,
+        /// Join failed - some member in the chat has blocked you from joining
+        k_EChatRoomEnterResponseMemberBlockedYou = 10,
+        /// Join failed - you have blocked some member already in the chat
+        k_EChatRoomEnterResponseYouBlockedMember = 11, 
 	}
 
     /// <summary>
@@ -75,30 +100,50 @@ namespace CommunityExpressNS
 	public enum EChatMemberStateChange
 	{
 		// Specific to joining / leaving the chatroom
-		k_EChatMemberStateChangeEntered = 0x0001,		// This user has joined or is joining the chat room
-		k_EChatMemberStateChangeLeft = 0x0002,			// This user has left or is leaving the chat room
-		k_EChatMemberStateChangeDisconnected = 0x0004,	// User disconnected without leaving the chat first
-		k_EChatMemberStateChangeKicked = 0x0008,		// User kicked
-		k_EChatMemberStateChangeBanned = 0x0010,		// User kicked and banned
+
+        /// This user has joined or is joining the chat room
+        k_EChatMemberStateChangeEntered = 0x0001,		
+        /// This user has left or is leaving the chat room
+        k_EChatMemberStateChangeLeft = 0x0002,			
+        /// User disconnected without leaving the chat first
+        k_EChatMemberStateChangeDisconnected = 0x0004,	
+        /// User kicked
+        k_EChatMemberStateChangeKicked = 0x0008,		
+        /// User kicked and banned
+        k_EChatMemberStateChangeBanned = 0x0010,		
 	};
     /// <summary>
     /// Chat Entry Types (previously was only friend-to-friend message types)
     /// </summary>
 	public enum EChatEntryType
 	{
+        /// Invalid type
 		k_EChatEntryTypeInvalid = 0,
-		k_EChatEntryTypeChatMsg = 1,			// Normal text message from another user
-		k_EChatEntryTypeTyping = 2,				// Another user is typing (not used in multi-user chat)
-		k_EChatEntryTypeInviteGame = 3,			// Invite from other user into that users current game
-		k_EChatEntryTypeEmote = 4,				// text emote message (deprecated, should be treated as ChatMsg)
-		//k_EChatEntryTypeLobbyGameStart = 5,	// lobby game is starting (dead - listen for LobbyGameCreated_t callback instead)
-		k_EChatEntryTypeLeftConversation = 6,	// user has left the conversation ( closed chat window )
-		// Above are previous FriendMsgType entries, now merged into more generic chat entry types
-		k_EChatEntryTypeEntered = 7,			// user has entered the conversation (used in multi-user chat and group chat)
-		k_EChatEntryTypeWasKicked = 8,			// user was kicked (data: 64-bit steamid of actor performing the kick)
-		k_EChatEntryTypeWasBanned = 9,			// user was banned (data: 64-bit steamid of actor performing the ban)
-		k_EChatEntryTypeDisconnected = 10,		// user disconnected
-		k_EChatEntryTypeHistoricalChat = 11,	// a chat message from user's chat history or offilne message
+        /// Normal text message from another user
+        k_EChatEntryTypeChatMsg = 1,
+        /// Another user is typing (not used in multi-user chat)
+        k_EChatEntryTypeTyping = 2,
+        /// Invite from other user into that users current game
+        k_EChatEntryTypeInviteGame = 3,
+        /// text emote message (deprecated, should be treated as ChatMsg)
+        k_EChatEntryTypeEmote = 4,
+        // lobby game is starting (dead - listen for LobbyGameCreated_t callback instead)
+        //k_EChatEntryTypeLobbyGameStart = 5,	
+        /// user has left the conversation ( closed chat window )
+        k_EChatEntryTypeLeftConversation = 6,	
+		
+        // Above are previous FriendMsgType entries, now merged into more generic chat entry types
+
+        /// user has entered the conversation (used in multi-user chat and group chat)
+        k_EChatEntryTypeEntered = 7,
+        /// user was kicked (data: 64-bit steamid of actor performing the kick)
+        k_EChatEntryTypeWasKicked = 8,
+        /// user was banned (data: 64-bit steamid of actor performing the ban)
+        k_EChatEntryTypeWasBanned = 9,
+        /// user disconnected
+        k_EChatEntryTypeDisconnected = 10,
+        /// a chat message from user's chat history or offilne message
+        k_EChatEntryTypeHistoricalChat = 11,	
 	};
 
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
