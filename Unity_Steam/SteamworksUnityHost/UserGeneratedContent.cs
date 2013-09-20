@@ -347,7 +347,7 @@ namespace CommunityExpressNS
             {
                 RemoteStorage = remoteStorage;
 
-                // Result = args.m_eResult;
+                Result = args.m_eResult;
                 Title = args.m_rgchTitle;
                 Description = args.m_rgchDescription;
                 OwnerSteamID = new SteamID(args.m_ulSteamIDOwner);
@@ -457,6 +457,12 @@ namespace CommunityExpressNS
                 set;
             }
 
+            internal EResult Result
+            {
+                get;
+                private set;
+            }
+
             public string FileDirectory
             {
                 get
@@ -479,6 +485,11 @@ namespace CommunityExpressNS
 
                     return PreviewFileName.Substring(0, dir - 1);
                 }
+            }
+
+            public bool Deleted
+            {
+                get { return (Result == EResult.EResultFileNotFound); }
             }
 
             public UInt64 ID
@@ -889,14 +900,14 @@ namespace CommunityExpressNS
                 if (pf.hPreviewFile == recv.m_hFile)
                 {
                     pf.PreviewFileName = recv.m_pchFileName;
-                }
+                    
+                    if (FileDetails != null)
+                    {
+                        FileDetails(this, new PublishedFileDetailsResultArgs(pf, pf.Result));
+                    }
 
-                if (FileDetails != null)
-                {
-                    FileDetails(this, new PublishedFileDetailsResultArgs(pf, EResult.EResultOK));
+                    deleteList.Add(pf);
                 }
-
-                deleteList.Add(pf);
             }
 
             foreach (PublishedFile df in deleteList)
@@ -914,7 +925,7 @@ namespace CommunityExpressNS
                     pf.PreviewFileName = recv.m_pchFileName;
                 }
 
-                if (pf.PreviewFileName != null) goodFiles++;
+                if (pf.PreviewFileName != null || pf.Deleted) goodFiles++;
             }
 
             if (goodFiles == _subscribeTimes.Count)
@@ -977,7 +988,8 @@ namespace CommunityExpressNS
                     found = true;
 
                     // enumerate request
-                    if (recv.m_eResult == EResult.EResultOK)
+                    if (recv.m_eResult == EResult.EResultOK ||
+                        recv.m_eResult == EResult.EResultFileNotFound)
                     {
                         PublishedFile pf = new PublishedFile(recv, _subscribeTimes[recv.m_nPublishedFileId], _remoteStorage);
                         pf.InernalDownloadPreview(0);
