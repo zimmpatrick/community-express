@@ -28,7 +28,8 @@
     <CleanIntermediates>True</CleanIntermediates>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.dll" />
-<DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.XML" /></DocumentationSources>
+      <DocumentationSource sourceFile="..\Unity_Steam\SteamworksUnityHost\bin\Release\CommunityExpress.XML" />
+    </DocumentationSources>
     <SyntaxFilters>CSharp</SyntaxFilters>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -57,6 +58,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
   </PropertyGroup>
+  <ItemGroup>
+    <ContentLayout Include="Content Layout.content" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Welcome.aml" />
+    <None Include="FAQ.aml" />
+  </ItemGroup>
   <!-- Import the SHFB build targets -->
   <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
 </Project>
