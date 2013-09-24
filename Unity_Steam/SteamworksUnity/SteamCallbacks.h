@@ -47,7 +47,19 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnPersonaStateChange, PersonaStateChange_t, PersonaStateChange)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAvatarImageLoaded, AvatarImageLoaded_t, AvatarImageLoaded)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendRichPresenceUpdate, FriendRichPresenceUpdate_t, FriendRichPresenceUpdate)
-
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerChangeRequested, GameServerChangeRequested_t, GameServerChangeRequested)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, GameLobbyJoinRequested)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnClanOfficerListResponse, ClanOfficerListResponse_t, ClanOfficerListResponse)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameRichPresenceJoinRequested, GameRichPresenceJoinRequested_t, GameRichPresenceJoinRequested)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedClanChatMsg, GameConnectedClanChatMsg_t, GameConnectedClanChatMsg)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedChatJoin, GameConnectedChatJoin_t, GameConnectedChatJoin)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedChatLeave, GameConnectedChatLeave_t, GameConnectedChatLeave)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnDownloadClanActivityCountsResult, DownloadClanActivityCountsResult_t, DownloadClanActivityCountsResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedFriendChatMsg, GameConnectedFriendChatMsg_t, GameConnectedFriendChatMsg)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendsGetFollowerCount, FriendsGetFollowerCount_t, FriendsGetFollowerCount)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendsIsFollowing, FriendsIsFollowing_t, FriendsIsFollowing)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendsEnumerateFollowingList, FriendsEnumerateFollowingList_t, FriendsEnumerateFollowingList)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSetPersonaNameResponse, SetPersonaNameResponse_t, SetPersonaNameResponse)
 
 		// k_iSteamUtilsCallbacks
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry)
@@ -111,6 +123,12 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerPolicyResponse, GSPolicyResponse_t, GameServerPolicyResponseCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSClientAchievementStatus, GSClientAchievementStatus_t, GSClientAchievementStatus)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSGameplayStats, GSGameplayStats_t, GSGameplayStats)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSClientGroupStatus, GSClientGroupStatus_t, GSClientGroupStatus)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSReputation, GSReputation_t, GSReputation)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAssociateWithClanResult, AssociateWithClanResult_t, AssociateWithClanResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnComputeNewPlayerCompatibilityResult, ComputeNewPlayerCompatibilityResult_t, ComputeNewPlayerCompatibilityResult)
 	{
 		delegateOnServerResponded = 0;
 		delegateOnServerListComplete = 0;
@@ -150,6 +168,20 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnPersonaStateChange, PersonaStateChange_t, PersonaStateChange);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnAvatarImageLoaded, AvatarImageLoaded_t, AvatarImageLoaded);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendRichPresenceUpdate, FriendRichPresenceUpdate_t, FriendRichPresenceUpdate);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameServerChangeRequested, GameServerChangeRequested_t, GameServerChangeRequested);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, GameLobbyJoinRequested);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnClanOfficerListResponse, ClanOfficerListResponse_t, ClanOfficerListResponse);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameRichPresenceJoinRequested, GameRichPresenceJoinRequested_t, GameRichPresenceJoinRequested);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedClanChatMsg, GameConnectedClanChatMsg_t, GameConnectedClanChatMsg);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedChatJoin, GameConnectedChatJoin_t, GameConnectedChatJoin);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedChatLeave, GameConnectedChatLeave_t, GameConnectedChatLeave);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnDownloadClanActivityCountsResult, DownloadClanActivityCountsResult_t, DownloadClanActivityCountsResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedFriendChatMsg, GameConnectedFriendChatMsg_t, GameConnectedFriendChatMsg);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendsGetFollowerCount, FriendsGetFollowerCount_t, FriendsGetFollowerCount);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendsIsFollowing, FriendsIsFollowing_t, FriendsIsFollowing);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendsEnumerateFollowingList, FriendsEnumerateFollowingList_t, FriendsEnumerateFollowingList);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnSetPersonaNameResponse, SetPersonaNameResponse_t, SetPersonaNameResponse);
+
 
 	// k_iSteamUtilsCallbacks
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnIPCountry, IPCountry_t, IPCountry);
@@ -214,6 +246,12 @@ public:
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerPolicyResponse, GSPolicyResponse_t, GameServerPolicyResponseCallback);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSClientAchievementStatus, GSClientAchievementStatus_t, GSClientAchievementStatus);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSGameplayStats, GSGameplayStats_t, GSGameplayStats);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSClientGroupStatus, GSClientGroupStatus_t, GSClientGroupStatus);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSReputation, GSReputation_t, GSReputation);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnAssociateWithClanResult, AssociateWithClanResult_t, AssociateWithClanResult);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnComputeNewPlayerCompatibilityResult, ComputeNewPlayerCompatibilityResult_t, ComputeNewPlayerCompatibilityResult);
 
 	FPOnServerResponded delegateOnServerResponded;
 	FPOnServerListComplete delegateOnServerListComplete;

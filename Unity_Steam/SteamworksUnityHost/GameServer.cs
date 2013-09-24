@@ -9,17 +9,23 @@ using System.Net;
 
 namespace CommunityExpressNS
 {
+    using AppId_t = UInt32;
+    using SteamAPICall_t = UInt64;
+    using SteamID_t = UInt64;
+
 	// client has been approved to connect to this game server
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct GSClientApprove_t
+    internal struct GSClientApprove_t
 	{
+        internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 1;
 		public UInt64 m_SteamID;
 	};
 
 	// client has been denied to connection to this game server
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct GSClientDeny_t
+    internal struct GSClientDeny_t
 	{
+        internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 2;
 		public UInt64 m_SteamID;
 		public EDenyReason m_eDenyReason;
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
@@ -28,19 +34,97 @@ namespace CommunityExpressNS
 
 	// request the game server should kick the user
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct GSClientKick_t
+    internal struct GSClientKick_t
 	{
+        internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 3;
 		public UInt64 m_SteamID;
 		public EDenyReason m_eDenyReason;
 	};
+    
+    // client achievement info
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct GSClientAchievementStatus_t
+    {
+        internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 6;
+	    internal UInt64 m_SteamID;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+	    internal char[] m_pchAchievement;
+	    internal bool m_bUnlocked;
+    };
 
 	// received when the game server requests to be displayed as secure (VAC protected)
 	// m_bSecure is true if the game server should display itself as secure to users, false otherwise
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct GSPolicyResponse_t
+    internal struct GSPolicyResponse_t
 	{
+        internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 15;
 		public Byte m_bSecure;
 	};
+    
+    // GS gameplay stats info
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct GSGameplayStats_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 7;
+        internal EResult m_eResult;					// Result of the call
+        internal Int32 m_nRank;					// Overall rank of the server (0-based)
+        internal UInt32 m_unTotalConnects;			// Total number of clients who have ever connected to the server
+        internal UInt32 m_unTotalMinutesPlayed;		// Total number of minutes ever played on the server
+    };
+
+    
+    // send as a reply to RequestUserGroupStatus()
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct GSClientGroupStatus_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 8;
+        internal SteamID_t m_SteamIDUser;
+        internal SteamID_t m_SteamIDGroup;
+        internal bool m_bMember;
+        internal bool m_bOfficer;
+    };
+    
+    // Sent as a reply to GetServerReputation()
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct GSReputation_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 9;
+        internal EResult m_eResult;				// Result of the call;
+        internal UInt32 m_unReputationScore;	// The reputation score for the game server
+        internal bool m_bBanned;				// True if the server is banned from the Steam master servers
+
+	    // The following members are only filled out if m_bBanned is true. They will all 
+	    // be set to zero otherwise. Master server bans are by IP so it is possible to be
+	    // banned even when the score is good high if there is a bad server on another port.
+	    // This information can be used to determine which server is bad.
+
+        internal UInt32 m_unBannedIP;		// The IP of the banned server
+        internal UInt16 m_usBannedPort;		// The port of the banned server
+        internal UInt64 m_ulBannedGameID;	// The game ID the banned server is serving
+        internal UInt32 m_unBanExpires;		// Time the ban expires, expressed in the Unix epoch (seconds since 1/1/1970)
+    };
+    
+    // Sent as a reply to AssociateWithClan()
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct AssociateWithClanResult_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 10;
+	    internal EResult	m_eResult;				// Result of the call;
+    };
+    
+    // Sent as a reply to ComputeNewPlayerCompatibility()
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct ComputeNewPlayerCompatibilityResult_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamGameServerCallbacks + 11;
+        internal EResult m_eResult;				// Result of the call;
+        internal int m_cPlayersThatDontLikeCandidate;
+        internal int m_cPlayersThatCandidateDoesntLike;
+        internal int m_cClanPlayersThatDontLikeCandidate;
+        internal SteamID_t m_SteamIDCandidate;
+    };
+
+
 
 	delegate void OnGameServerClientApprovedBySteam(ref GSClientApprove_t callbackData);
     /// <summary>
@@ -117,7 +201,15 @@ namespace CommunityExpressNS
 		private static extern void SteamUnityAPI_SteamGameServer_SetGameData(IntPtr gameserver, [MarshalAs(UnmanagedType.LPStr)] String data);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamGameServer_Shutdown();
+		[DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamGameServer_GetGameplayStats(IntPtr gameserver);
+		[DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamGameServer_AssociateWithClan(IntPtr gameserver);
+		[DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamGameServer_RequestUserGroupStatus(IntPtr gameserver, UInt64 userID, UInt64 groupID);
 		
+        
+
 		private IntPtr _gameServer;
         private CommunityExpress _ce;
 
@@ -141,9 +233,6 @@ namespace CommunityExpressNS
 		private List<SteamID> _playersConnected = new List<SteamID>();
 		private List<SteamID> _botsConnected = new List<SteamID>();
 
-		private OnGameServerClientApprovedBySteam _internalOnGameServerClientApproved = null;
-		private OnGameServerClientApproved _onGameServerClientApproved;
-
 		private OnGameServerClientDeniedBySteam _internalOnGameServerClientDenied = null;
 		private OnGameServerClientDenied _onGameServerClientDenied;
 
@@ -156,7 +245,176 @@ namespace CommunityExpressNS
 		{
             _ce = ce;
 			_gameServer = SteamUnityAPI_SteamGameServer();
+
+            _ce.AddEventHandler(GSClientApprove_t.k_iCallback, new CommunityExpress.OnEventHandler<GSClientApprove_t>(Events_GSClientApprove));
+            _ce.AddEventHandler(GSClientDeny_t.k_iCallback, new CommunityExpress.OnEventHandler<GSClientDeny_t>(Events_GSClientDeny));
+            _ce.AddEventHandler(GSClientKick_t.k_iCallback, new CommunityExpress.OnEventHandler<GSClientKick_t>(Events_GSClientKick));
+            _ce.AddEventHandler(GSClientAchievementStatus_t.k_iCallback, new CommunityExpress.OnEventHandler<GSClientAchievementStatus_t>(Events_GSClientAchievementStatus));
+            _ce.AddEventHandler(GSPolicyResponse_t.k_iCallback, new CommunityExpress.OnEventHandler<GSPolicyResponse_t>(Events_GSPolicyResponse));
+            _ce.AddEventHandler(GSGameplayStats_t.k_iCallback, new CommunityExpress.OnEventHandler<GSGameplayStats_t>(Events_GSGameplayStats));
+            _ce.AddEventHandler(GSClientGroupStatus_t.k_iCallback, new CommunityExpress.OnEventHandler<GSClientGroupStatus_t>(Events_GSClientGroupStatus));
+            _ce.AddEventHandler(GSReputation_t.k_iCallback, new CommunityExpress.OnEventHandler<GSReputation_t>(Events_GSReputation));
+            _ce.AddEventHandler(AssociateWithClanResult_t.k_iCallback, new CommunityExpress.OnEventHandler<AssociateWithClanResult_t>(Events_AssociateWithClanResult));
+            _ce.AddEventHandler(ComputeNewPlayerCompatibilityResult_t.k_iCallback, new CommunityExpress.OnEventHandler<ComputeNewPlayerCompatibilityResult_t>(Events_ComputeNewPlayerCompatibilityResult));
 		}
+        
+        public delegate void GSClientApproveHandler(GameServer sender, SteamID steamID);
+        public event GSClientApproveHandler ServerClientApproved;
+
+        private void Events_GSClientApprove(GSClientApprove_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            foreach (SteamID s in _playersPendingAuth)
+            {
+                if (s == recv.m_SteamID)
+                {
+                    if (ServerClientApproved != null)
+                    {
+                        ServerClientApproved(this, s);
+                    }
+                    _playersConnected.Add(s);
+                    _playersPendingAuth.Remove(s);
+                    break;
+                }
+            }
+        }
+
+        public delegate void GSClientDenyHandler(GameServer sender, SteamID steamID, EDenyReason denyReason, String optionalText);
+        public event GSClientDenyHandler ServerClientDenied;
+
+        private void Events_GSClientDeny(GSClientDeny_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            foreach (SteamID s in _playersPendingAuth)
+            {
+                if (s == recv.m_SteamID)
+                {
+                    if (ServerClientDenied != null)
+                    {
+                        ServerClientDenied(this, s, recv.m_eDenyReason, recv.m_rgchOptionalText.ToString());
+                    }
+                    _playersConnected.Remove(s);
+                    _playersPendingAuth.Remove(s);
+                    break;
+                }
+            }
+        }
+
+        public delegate void GSClientKickHandler(GameServer sender, SteamID steamID, EDenyReason denyReason);
+        public event GSClientKickHandler ServerClientKicked;
+
+        private void Events_GSClientKick(GSClientKick_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            Boolean found = false;
+
+            foreach (SteamID s in _playersPendingAuth)
+            {
+                if (s == recv.m_SteamID)
+                {
+                    if (ServerClientKicked != null)
+                    {
+                        ServerClientKicked(this, s, recv.m_eDenyReason);
+                    }
+                    _playersPendingAuth.Remove(s);
+                    found = true;
+                    break;
+                }
+            }
+
+            foreach (SteamID s in _playersConnected)
+            {
+                if (s == recv.m_SteamID)
+                {
+                    if (!found)
+                    {
+                        if (ServerClientKicked != null)
+                        {
+                            ServerClientKicked(this, s, recv.m_eDenyReason);
+                        }
+                    }
+
+                    _playersConnected.Remove(s);
+                    break;
+                }
+            }
+        }
+        
+        public delegate void GSClientAchievementStatusHandler(GameServer sender, SteamID steamID, String achievement, bool isUnlocked);
+        public event GSClientAchievementStatusHandler ClientAchievementStatus;
+        
+        private void Events_GSClientAchievementStatus(GSClientAchievementStatus_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (ClientAchievementStatus != null)
+            {
+                ClientAchievementStatus(this, new SteamID(recv.m_SteamID), recv.m_pchAchievement.ToString(), recv.m_bUnlocked);
+            }
+        }
+
+        public delegate void GSPolicyResponseHandler(GameServer sender, bool isSecure);
+        public event GSPolicyResponseHandler ServerPolicy;
+
+        private void Events_GSPolicyResponse(GSPolicyResponse_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            _vacSecured = recv.m_bSecure != 0;
+            if (ServerPolicy != null)
+            {
+                ServerPolicy(this, recv.m_bSecure != 0);
+            }
+        }
+
+        public delegate void GSGameplayStatsHandler(GameServer sender, int serverRank, UInt32 totalConnections, UInt32 totalMinutesPlayed, EResult result);
+        public event GSGameplayStatsHandler ServerStats;
+
+        private void Events_GSGameplayStats(GSGameplayStats_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (ServerStats != null)
+            {
+                ServerStats(this, recv.m_nRank, recv.m_unTotalConnects, recv.m_unTotalMinutesPlayed, recv.m_eResult);
+            }
+        }
+
+        public delegate void GSClientGroupStatusHandler(GameServer sender, SteamID userID, SteamID groupID, bool isMember, bool isOfficer);
+        public event GSClientGroupStatusHandler GroupStatus;
+
+        private void Events_GSClientGroupStatus(GSClientGroupStatus_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (GroupStatus != null)
+            {
+                GroupStatus(this, new SteamID(recv.m_SteamIDUser), new SteamID(recv.m_SteamIDGroup), recv.m_bMember, recv.m_bOfficer);
+            }
+        }
+
+        public delegate void GSReputationHandler(GameServer sender, UInt32 reputationScore, bool isBanned, UInt32 bannedIP, UInt16 bannedPort, UInt64 bannedGameID, UInt32 expireTime, EResult result);
+        public event GSReputationHandler ServerReputation;
+
+        private void Events_GSReputation(GSReputation_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (ServerReputation != null)
+            {
+                ServerReputation(this, recv.m_unReputationScore, recv.m_bBanned, recv.m_unBannedIP, recv.m_usBannedPort, recv.m_ulBannedGameID, recv.m_unBanExpires, recv.m_eResult);
+            }
+        }
+
+        public delegate void AssociateWithClanResultHandler(GameServer sender, EResult result);
+        public event AssociateWithClanResultHandler AssociatWithClanResult;
+
+        private void Events_AssociateWithClanResult(AssociateWithClanResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (AssociatWithClanResult != null)
+            {
+                AssociatWithClanResult(this, recv.m_eResult);
+            }
+        }
+
+        public delegate void ComputeNewPlayerCompatibilityResultHandler(GameServer sender, EResult result);
+        public event ComputeNewPlayerCompatibilityResultHandler ComputeNewPlayerCompatibilityResult;
+
+        private void Events_ComputeNewPlayerCompatibilityResult(ComputeNewPlayerCompatibilityResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (AssociatWithClanResult != null)
+            {
+                AssociatWithClanResult(this, recv.m_eResult);
+            }
+        }
+
         /// <summary>
         /// Finalize game server
         /// </summary>
@@ -234,17 +492,11 @@ namespace CommunityExpressNS
 			_playersConnected.Clear();
 			_botsConnected.Clear();
 
-			_onGameServerClientApproved = onGameServerClientApproved;
 			_onGameServerClientDenied = onGameServerClientDenied;
 			_onGameServerClientKick = onGameServerClientKick;
 
-			if (_internalOnGameServerClientApproved == null)
-			{
-				_internalOnGameServerClientApproved = new OnGameServerClientApprovedBySteam(OnGameServerClientApprovedCallback);
-				_internalOnGameServerClientDenied = new OnGameServerClientDeniedBySteam(OnGameServerClientDeniedCallback);
-				_internalOnGameServerClientKick = new OnGameServerClientKickFromSteam(OnGameServerClientKickCallback);
-				_internalOnGameServerPolicyResponse = new OnGameServerPolicyResponseFromSteam(OnGameServerPolicyResponseCallback);
-			}
+			_internalOnGameServerClientKick = new OnGameServerClientKickFromSteam(OnGameServerClientKickCallback);
+			_internalOnGameServerPolicyResponse = new OnGameServerPolicyResponseFromSteam(OnGameServerPolicyResponseCallback);
 
 			/*SteamUnityAPI_SteamGameServer_SetCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientApproved),
 				Marshal.GetFunctionPointerForDelegate(_internalOnGameServerClientDenied),
@@ -276,6 +528,28 @@ namespace CommunityExpressNS
 
 			return false;
 		}
+        /// <summary>
+        /// Ask for the gameplay stats for the server. Results returned in ServerStats callback
+        /// </summary>
+        public void GetGameplayStats()
+        {
+            SteamUnityAPI_SteamGameServer_GetGameplayStats(_gameServer);
+        }
+        /// <summary>
+        /// Associate this game server with this clan for the purposes of computing player compatability
+        /// </summary>
+        public void AssociateWithClan()
+        {
+            SteamUnityAPI_SteamGameServer_AssociateWithClan(_gameServer);
+        }
+        /// <summary>
+        /// Ask if a user in in the specified group, results returns async by GSUserGroupStatus_t
+        /// returns false if you're not connected to the steam servers and thus cannot ask
+        /// </summary>
+        public void RequestUserGroupStatus(SteamID userID, SteamID groupID)
+        {
+            SteamUnityAPI_SteamGameServer_RequestUserGroupStatus(_gameServer, userID.ToUInt64(), groupID.ToUInt64());
+        }
         /// <summary>
         /// Client tries to connect to the GameServer
         /// </summary>
@@ -373,34 +647,6 @@ namespace CommunityExpressNS
 			_playersPendingAuth.Remove(steamIDClient);
 			_playersConnected.Remove(steamIDClient);
 			_botsConnected.Remove(steamIDClient);
-		}
-
-		private void OnGameServerClientApprovedCallback(ref GSClientApprove_t callbackData)
-		{
-			foreach (SteamID s in _playersPendingAuth)
-			{
-				if (s == callbackData.m_SteamID)
-				{
-					_onGameServerClientApproved(s);
-					_playersConnected.Add(s);
-					_playersPendingAuth.Remove(s);
-					break;
-				}
-			}
-		}
-
-		private void OnGameServerClientDeniedCallback(ref GSClientDeny_t callbackData)
-		{
-			foreach (SteamID s in _playersPendingAuth)
-			{
-				if (s == callbackData.m_SteamID)
-				{
-					_onGameServerClientDenied(s, callbackData.m_eDenyReason, new String(callbackData.m_rgchOptionalText));
-					_playersPendingAuth.Remove(s);
-					_playersConnected.Remove(s);
-					break;
-				}
-			}
 		}
 
 		private void OnGameServerClientKickCallback(ref GSClientKick_t callbackData)

@@ -9,7 +9,6 @@ namespace CommunityExpressNS
     using System.Diagnostics;
     using System.Reflection;
 
-    
     /// <summary>
     /// The country of the user changed
     /// </summary>
@@ -23,11 +22,11 @@ namespace CommunityExpressNS
     /// Fired when running on a laptop and less than 10 minutes of battery is left, fires then every minute
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    struct LowBatteryPower_t
+    internal struct LowBatteryPower_t
     {
 	    internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 2;
 
-        public byte m_nMinutesBatteryLeft;
+        internal byte m_nMinutesBatteryLeft;
     };
 
 
@@ -46,7 +45,7 @@ namespace CommunityExpressNS
     /// Called when Steam wants to shutdown
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    struct SteamShutdown_t
+    internal struct SteamShutdown_t
     {
 	    internal const int k_iCallback = Events.k_iSteamUtilsCallbacks + 4;
     };
@@ -73,8 +72,7 @@ namespace CommunityExpressNS
         public ECheckFileSignature m_eCheckFileSignature;
     };
 
-
-    internal class Events
+    public class Events
     {
         //-----------------------------------------------------------------------------
         // Purpose: Base values for callback identifiers, each callback must
@@ -113,6 +111,44 @@ namespace CommunityExpressNS
         internal const int k_iClientNetworkDeviceManagerCallbacks = 3100;
         internal const int k_iClientMusicCallbacks = 3200;
 
+        public Events()
+        {
+            CommunityExpress _ce = CommunityExpress.Instance;
 
+            _ce.AddEventHandler(LowBatteryPower_t.k_iCallback, new CommunityExpress.OnEventHandler<LowBatteryPower_t>(Events_LowBatteryPower));
+            _ce.AddEventHandler(SteamShutdown_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamShutdown_t>(Events_SteamShutdown));
+        }
+        /// <summary>
+        /// Low battery
+        /// </summary>
+        /// <param name="minutesLeft">Number of minutes left</param>
+        public delegate void LowBatteryHandler(int minutesLeft);
+        /// <summary>
+        /// Battery charge is low
+        /// </summary>
+        public event LowBatteryHandler LowBattery;
+        private void Events_LowBatteryPower(LowBatteryPower_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (LowBattery != null)
+            {
+                LowBattery(recv.m_nMinutesBatteryLeft);
+            }
+        }
+
+        /// <summary>
+        /// Steam Shutdown
+        /// </summary>
+        public delegate void SteamShutdownHandler();
+        /// <summary>
+        /// Steam wants to shut down
+        /// </summary>
+        public event SteamShutdownHandler SteamShutdown;
+        private void Events_SteamShutdown(SteamShutdown_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (SteamShutdown != null)
+            {
+                SteamShutdown();
+            }
+        }
     }
 }

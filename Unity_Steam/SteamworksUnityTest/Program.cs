@@ -104,8 +104,6 @@ namespace SteamworksUnityTest
                     f.GamePlayed.GameID.AppID, f.GamePlayed.GameID.Type); 
             }
 
-            /*
-
             cesdk.UserStats.UserStatsReceived += (Stats sender, Stats.UserStatsReceivedArgs e) =>
             {
                 Console.WriteLine("woot!");
@@ -153,6 +151,21 @@ namespace SteamworksUnityTest
 				Console.WriteLine("Medium: {0}x{1} ({2})", image.Width, image.Height, image.AsBytes().Length);
 			}
 
+            RemoteStorage remoteStorage = cesdk.RemoteStorage;
+            Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("CloudTest.txt"), remoteStorage.GetFileSize("CloudTest.txt"));
+            remoteStorage.WriteFile("CloudTest.txt", "I has file!");
+
+            while (true)
+            {
+                cesdk.RunCallbacks();
+            }
+
+
+            return 0;
+
+            /*
+
+
             cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles (UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending,
                                                                         0, 50, 30,
                                                                         null,
@@ -177,7 +190,7 @@ namespace SteamworksUnityTest
             
 
 			RemoteStorage remoteStorage = cesdk.RemoteStorage;
-			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("tits.asd"), remoteStorage.GetFileSize("titty"));
+			Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("CloudTest.txt"), remoteStorage.GetFileSize("CloudTest.txt"));
 			remoteStorage.WriteFile("CloudTest.txt", "I has file!");
 			cesdk.RunCallbacks();
 

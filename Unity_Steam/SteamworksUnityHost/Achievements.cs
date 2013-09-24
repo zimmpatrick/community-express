@@ -290,13 +290,15 @@ namespace CommunityExpressNS
 		{
 			get { return _id; }
 		}
+        
         /// <summary>
         /// List of achievements
         /// </summary>
-		public IList<Achievement> AchievementList
+		internal IList<Achievement> AchievementList
 		{
 			get { return _achievementList; }
 		}
+        
         /// <summary>
         /// Counts achievements in list
         /// </summary>
@@ -304,6 +306,7 @@ namespace CommunityExpressNS
 		{
 			get { return _achievementList.Count; }
 		}
+
         /// <summary>
         /// If list is read-only
         /// </summary>
@@ -311,6 +314,7 @@ namespace CommunityExpressNS
 		{
 			get { return true; }
 		}
+        
         /// <summary>
         /// Adds achievement to list
         /// </summary>
@@ -326,26 +330,29 @@ namespace CommunityExpressNS
 		{
 			_achievementList.Clear();
 		}
+
         /// <summary>
-        /// Checks if a list contains a certain achievement
+        /// Checks if a list contains a certain achievement (NotImplemented)
         /// </summary>
         /// <param name="item">Achievement to check for</param>
         /// <returns>true if achievement is found</returns>
 		public bool Contains(Achievement item)
 		{
-			throw new NotImplementedException();
+            return _achievementList.Contains(item);
 		}
+
         /// <summary>
-        /// Copies list to index
+        /// Copies list to index (NotImplemented)
         /// </summary>
         /// <param name="array">Array of achievements</param>
         /// <param name="arrayIndex">Index to copy to</param>
 		public void CopyTo(Achievement[] array, int arrayIndex)
 		{
-			throw new NotImplementedException();
+            _achievementList.CopyTo(array, arrayIndex);
 		}
+
         /// <summary>
-        /// Removes achievement from list
+        /// Removes achievement from list (NotSupported)
         /// </summary>
         /// <param name="item">Achievement to remove</param>
         /// <returns>true if successfully removed</returns>
@@ -353,6 +360,7 @@ namespace CommunityExpressNS
 		{
 			throw new NotSupportedException();
 		}
+
         /// <summary>
         /// Gets enumerator for achievements
         /// </summary>

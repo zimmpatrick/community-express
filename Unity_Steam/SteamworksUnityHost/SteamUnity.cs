@@ -90,16 +90,7 @@ namespace CommunityExpressNS
         /// Shutdown is requested
         /// </summary>
         public event ShutdownRequestHandler ShutdownRequested;
-        /// <summary>
-        /// Low battery
-        /// </summary>
-        /// <param name="sender">Sender of request</param>
-        /// <param name="e">Low battery argument</param>
-        public delegate void LowBatteryHandler(CommunityExpress sender, LowBatteryArgs e);
-        /// <summary>
-        /// Battery charge is low
-        /// </summary>
-        public event LowBatteryHandler LowBattery;
+       
         /// <summary>
         /// Arguments for low battery
         /// </summary>
@@ -118,7 +109,6 @@ namespace CommunityExpressNS
                 private set;
             }
         }
-
 
 		private static readonly CommunityExpress _instance = new CommunityExpress();
 		private bool _shutdown = false;
@@ -673,24 +663,7 @@ namespace CommunityExpressNS
                 _internalOnEventFactory[k_iCallback].Invoke(this, new object[] { k_iCallback, obj, bIOFailure, hSteamAPICall });
             }
 
-            if (k_iCallback == SteamShutdown_t.k_iCallback)
-            {
-                if (ShutdownRequested != null) ShutdownRequested(this);
-            }
-            else if (k_iCallback == LowBatteryPower_t.k_iCallback)
-            {
-                if (LowBattery != null)
-                {
-                    LowBatteryPower_t lbp = (LowBatteryPower_t)Marshal.PtrToStructure(pvParam, typeof(LowBatteryPower_t));
-
-                    LowBattery(this, new LowBatteryArgs(lbp));
-                }
-            }
-          
-            else
-            {
-                Console.WriteLine(k_iCallback);
-            }
+            Console.WriteLine(k_iCallback);
         }
 
         [Conditional("LICENSED")]

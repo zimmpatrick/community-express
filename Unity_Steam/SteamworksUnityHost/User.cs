@@ -45,8 +45,16 @@ namespace CommunityExpressNS
 		private static extern Int32 SteamUnityAPI_SteamUser_GetPlayerSteamLevel(IntPtr user);
         [DllImport("CommunityExpressSW")]
 		private static extern Int32 SteamUnityAPI_SteamUser_GetGameBadgeLevel(IntPtr user, Int32 nSeries, Boolean bFoil);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamUser_StartVoiceRecording(IntPtr user);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamUser_StopVoiceRecording(IntPtr user);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamUser_GetVoice(IntPtr user, bool bWantCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, bool bWantUncompressed, void* pUncompressedDestBuffer, UInt32 cbUncompressedDestBufferSize, UInt32* nUncompressBytesWritten, UInt32 nUncompressedVoiceDesiredSampleRate);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamUser_DecompressVoice(IntPtr user, void* pCompressed, UInt32 cbCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, UInt32 nDesiredSampleRate);
         
-
+        
 		private IntPtr _user;
 		private Friends _friends; // for user avatar
         private UserAuthentication _auth;
@@ -117,6 +125,26 @@ namespace CommunityExpressNS
 				SteamUnityAPI_SteamUser_TerminateGameConnection(_user, _serverIP, _serverPort);
 			}
 		}
+
+        public void StartVoiceRecording()
+        {
+            SteamUnityAPI_SteamUser_StartVoiceRecording(_user);
+        }
+
+        public void StopVoiceRecording()
+        {
+            SteamUnityAPI_SteamUser_StopVoiceRecording(_user);
+        }
+
+        public void GetVoice(bool bWantCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, bool bWantUncompressed, void* pUncompressedDestBuffer, UInt32 cbUncompressedDestBufferSize, UInt32* nUncompressBytesWritten, UInt32 nUncompressedVoiceDesiredSampleRate)
+        {
+            SteamUnityAPI_SteamUser_GetVoice(_user, bWantCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, bWantUncompressed, pUncompressedDestBuffer, cbUncompressedDestBufferSize, nUncompressBytesWritten, nUncompressedVoiceDesiredSampleRate);
+        }
+
+        public void DecompressVoice(void* pCompressed, UInt32 cbCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, UInt32 nDesiredSampleRate)
+        {
+            SteamUnityAPI_SteamUser_DecompressVoice(_user, pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, nDesiredSampleRate);
+        }
 
         /// <summary>
         /// After receiving a user's authentication data, and passing it to BeginAuthSession, use this function

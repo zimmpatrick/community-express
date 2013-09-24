@@ -14,12 +14,50 @@ namespace CommunityExpressNS
     using SteamID_t = UInt64;
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct FriendGameInfo_t
+    {
+        internal UInt64 m_gameID;
+        internal UInt32 m_unGameIP;
+        internal UInt16 m_usGamePort;
+        internal UInt16 m_usQueryPort;
+        internal SteamID_t m_steamIDLobby;
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct PersonaStateChange_t
+    {
+        internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 4;
+
+        internal SteamID_t m_ulSteamID;		// steamID of the friend who changed
+        internal int m_nChangeFlags;		// what's changed
+    };
+
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct GameOverlayActivated_t
     {
         internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 31;
-	    
+
         [MarshalAs(UnmanagedType.U1)]
         internal bool m_bActive;	// true if it's just been activated, false otherwise
+    };
+
+    /////////Add these callbacks past this point
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct GameServerChangeRequested_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 32;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+        internal String m_rgchServer;		// server address ("127.0.0.1:27015", "tf2.valvesoftware.com")
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
+        internal String m_rgchPassword;	// server password, if any
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct GameLobbyJoinRequested_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 33;
+	    internal SteamID_t m_steamIDLobby;
+	    internal SteamID_t m_steamIDFriend;		
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -33,29 +71,68 @@ namespace CommunityExpressNS
     };
     
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    internal struct PersonaStateChange_t
+    internal struct FriendRichPresenceUpdate_t
     {
-        internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 4;
-
-        internal SteamID_t m_ulSteamID;		// steamID of the friend who changed
-        internal int m_nChangeFlags;		// what's changed
+        internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 36;
+        internal SteamID_t m_steamIDFriend;	// friend who's rich presence has changed
+        internal AppId_t m_nAppID;			// the appID of the game (should always be the current game)
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    internal struct FriendGameInfo_t
+    internal struct GameRichPresenceJoinRequested_t
     {
-        internal UInt64 m_gameID;
-        internal UInt32 m_unGameIP;
-        internal UInt16 m_usGamePort;
-        internal UInt16 m_usQueryPort;
-        internal SteamID_t m_steamIDLobby;
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 37;
+        internal SteamID_t m_steamIDFriend;		// the friend they did the join via (will be invalid if not directly via a friend)
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        internal String m_rgchConnect;
     };
-
-    internal struct FriendRichPresenceUpdate_t
+    
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    struct GameConnectedFriendChatMsg_t
     {
-	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 36;
-        internal SteamID_t m_steamIDFriend;	// friend who's rich presence has changed
-        internal AppId_t m_nAppID;			// the appID of the game (should always be the current game)
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 43 ;
+        internal SteamID_t m_steamIDUser;
+        internal int m_iMessageID;
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct FriendsGetFollowerCount_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 44;
+        internal EResult m_eResult;
+        internal SteamID_t m_steamID;
+        internal int m_nCount;
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct FriendsIsFollowing_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 45;
+        internal EResult m_eResult;
+        internal SteamID_t m_steamID;
+        internal bool m_bIsFollowing;
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct FriendsEnumerateFollowingList_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 46;
+        internal EResult m_eResult;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 50)]
+        internal SteamID_t[] m_rgSteamID;
+	    internal Int32 m_nResultsReturned;
+	    internal Int32 m_nTotalResultCount;
+    };
+    
+    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct SetPersonaNameResponse_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 47;
+
+	    internal bool m_bSuccess; // true if name change succeeded completely.
+	    internal bool m_bLocalSuccess; // true if name change was retained locally.  (We might not have been able to communicate with Steam)
+	    internal EResult m_result; // detailed result code
     };
 
     /// <summary>
@@ -294,6 +371,18 @@ namespace CommunityExpressNS
         private static extern AppId_t SteamUnityAPI_SteamFriends_GetFriendCoplayGame(IntPtr friends, UInt64 steamIDFriend);
         [DllImport("CommunityExpressSW")]
         private static extern FriendGameInfo_t SteamUnityAPI_SteamFriends_GetFriendGamePlayed(IntPtr friends, UInt64 steamIDFriend);
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool SteamUnityAPI_SteamFriends_InviteUserToGame(IntPtr friends, UInt64 steamIDClan, [MarshalAs(UnmanagedType.LPStr)] String pchConnectString);
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool SteamUnityAPI_SteamFriends_GetFollowerCount(IntPtr friends, UInt64 steamID);
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool SteamUnityAPI_SteamFriends_IsFollowing(IntPtr friends, UInt64 steamID);
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool SteamUnityAPI_SteamFriends_EnumerateFollowingList(IntPtr friends, UInt32 startIndex);
 
 		private IntPtr _friends;
 		private EFriendFlags _friendFlags;
@@ -357,6 +446,14 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(AvatarImageLoaded_t.k_iCallback, new CommunityExpress.OnEventHandler<AvatarImageLoaded_t>(Events_AvatarImagedLoaded));
             _ce.AddEventHandler(PersonaStateChange_t.k_iCallback, new CommunityExpress.OnEventHandler<PersonaStateChange_t>(Events_PersonaStateChange));
             _ce.AddEventHandler(FriendRichPresenceUpdate_t.k_iCallback, new CommunityExpress.OnEventHandler<FriendRichPresenceUpdate_t>(Events_FriendRichPresenceUpdate));
+            _ce.AddEventHandler(GameServerChangeRequested_t.k_iCallback, new CommunityExpress.OnEventHandler<GameServerChangeRequested_t>(Events_GameServerChange));
+            _ce.AddEventHandler(GameLobbyJoinRequested_t.k_iCallback, new CommunityExpress.OnEventHandler<GameLobbyJoinRequested_t>(Events_GameLobbyJoin));
+            _ce.AddEventHandler(GameRichPresenceJoinRequested_t.k_iCallback, new CommunityExpress.OnEventHandler<GameRichPresenceJoinRequested_t>(Events_GameRichPresenceJoin));
+            _ce.AddEventHandler(GameConnectedFriendChatMsg_t.k_iCallback, new CommunityExpress.OnEventHandler<GameConnectedFriendChatMsg_t>(Events_GameConnectedFriendChatMsg));
+            _ce.AddEventHandler(FriendsGetFollowerCount_t.k_iCallback, new CommunityExpress.OnEventHandler<FriendsGetFollowerCount_t>(Events_FriendsGetFollowerCount));
+            _ce.AddEventHandler(FriendsIsFollowing_t.k_iCallback, new CommunityExpress.OnEventHandler<FriendsIsFollowing_t>(Events_FriendsIsFollowing));
+            _ce.AddEventHandler(FriendsEnumerateFollowingList_t.k_iCallback, new CommunityExpress.OnEventHandler<FriendsEnumerateFollowingList_t>(Events_FriendsEnumerateFollowingList));
+            _ce.AddEventHandler(SetPersonaNameResponse_t.k_iCallback, new CommunityExpress.OnEventHandler<SetPersonaNameResponse_t>(Events_SetPersonaNameResponse));
 
 		}
         /// <summary>
@@ -407,6 +504,102 @@ namespace CommunityExpressNS
             Image.NotifyAvatarImageLoaded(new SteamID(recv.m_steamID), new Image(recv.m_iImage), bIOFailure);
         }
 
+        public delegate void GameServerChangeHandler(Friends sender, String serverIP, String serverPassword, bool result);
+        public event GameServerChangeHandler GameServerChange;
+
+        private void Events_GameServerChange(GameServerChangeRequested_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if(GameServerChange != null)
+            {
+                GameServerChange(this, recv.m_rgchServer, recv.m_rgchPassword, bIOFailure);
+            }
+        }
+
+        public delegate void GameLobbyJoinHandler(Friends sender, SteamID lobbyID, SteamID friendID, bool result);
+        public event GameLobbyJoinHandler GameLobbyJoin;
+
+        private void Events_GameLobbyJoin(GameLobbyJoinRequested_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (GameLobbyJoin != null)
+            {
+                GameLobbyJoin(this, new SteamID(recv.m_steamIDFriend), new SteamID(recv.m_steamIDLobby), bIOFailure);
+            }
+        }
+
+        public delegate void GameRichPresenceJoinHandler(Friends sender, SteamID ClanID, String m_rgchConnect, bool result);
+        public event GameRichPresenceJoinHandler GameRichPresenceJoin;
+
+        private void Events_GameRichPresenceJoin(GameRichPresenceJoinRequested_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (GameRichPresenceJoin != null)
+            {
+                GameRichPresenceJoin(this, new SteamID(recv.m_steamIDFriend), recv.m_rgchConnect, bIOFailure);
+            }
+        }
+
+        public delegate void GameConnectedFriendChatMsgHandler(Friends sender, SteamID UserID, int MessageID, bool result);
+        public event GameConnectedFriendChatMsgHandler GameConnectedFriendChatMsg;
+
+        private void Events_GameConnectedFriendChatMsg(GameConnectedFriendChatMsg_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (GameConnectedFriendChatMsg != null)
+            {
+                GameConnectedFriendChatMsg(this, new SteamID(recv.m_steamIDUser), recv.m_iMessageID, bIOFailure);
+            }
+        }
+
+        public delegate void FriendsGetFollowerCountHandler(Friends sender, EResult result, SteamID UserID, int followerCount, bool callResult);
+        public event FriendsGetFollowerCountHandler FriendsGetFollowerCount;
+
+        private void Events_FriendsGetFollowerCount(FriendsGetFollowerCount_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (FriendsGetFollowerCount != null)
+            {
+                FriendsGetFollowerCount(this, recv.m_eResult, new SteamID(recv.m_steamID), recv.m_nCount, bIOFailure);
+            }
+        }
+
+        public delegate void FriendsIsFollowingHandler(Friends sender, EResult result, SteamID UserID, bool isFollowing, bool callResult);
+        public event FriendsIsFollowingHandler FriendsIsFollowing;
+
+        private void Events_FriendsIsFollowing(FriendsIsFollowing_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (FriendsIsFollowing != null)
+            {
+                FriendsIsFollowing(this, recv.m_eResult, new SteamID(recv.m_steamID), recv.m_bIsFollowing, bIOFailure);
+            }
+        }
+
+        public delegate void FriendsEnumerateFollowingListHandler(Friends sender, EResult result, SteamID[] UserIDs, Int32 resultsReturned, Int32 resultCount, bool callResult);
+        public event FriendsEnumerateFollowingListHandler FriendsEnumerateFollowingList;
+
+        private void Events_FriendsEnumerateFollowingList(FriendsEnumerateFollowingList_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            List<SteamID> ids = new List<SteamID>();
+            SteamID[] steamIDs = new SteamID[recv.m_rgSteamID.Length];
+            foreach (SteamID_t id in recv.m_rgSteamID)
+            {
+                ids.Add(new SteamID(id));
+            }
+            steamIDs = ids.ToArray();
+
+            if (FriendsEnumerateFollowingList != null)
+            {
+                FriendsEnumerateFollowingList(this, recv.m_eResult, steamIDs, recv.m_nResultsReturned, recv.m_nTotalResultCount, bIOFailure);
+            }
+        }
+
+        public delegate void SetPersonaNameResponseHandler(Friends sender, EResult result, bool localSuccess, bool success);
+        public event SetPersonaNameResponseHandler SetPersonaNameResponse;
+
+        private void Events_SetPersonaNameResponse(SetPersonaNameResponse_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (SetPersonaNameResponse != null)
+            {
+                SetPersonaNameResponse(this, recv.m_result, recv.m_bLocalSuccess, recv.m_bSuccess);
+            }
+        }
+        
 		internal Friends(EFriendFlags friendFlags)
 		{
 			_friends = SteamUnityAPI_SteamFriends();
@@ -538,6 +731,27 @@ namespace CommunityExpressNS
 		{
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(_friends, appID, flag);
 		}
+
+        public void InviteUserToGame(SteamID clanID, string pchConnectString)
+        {
+            SteamUnityAPI_SteamFriends_InviteUserToGame(_friends, clanID.ToUInt64(), pchConnectString);
+        }
+
+        public void GetFollowerCount(SteamID steamID)
+        {
+            SteamUnityAPI_SteamFriends_GetFollowerCount(_friends, steamID.ToUInt64());
+        }
+
+        public bool IsFollowing(SteamID steamID)
+        {
+            return SteamUnityAPI_SteamFriends_IsFollowing(_friends, steamID.ToUInt64());
+        }
+
+        public void EnumerateFollowingList(UInt32 startIndex)
+        {
+            SteamUnityAPI_SteamFriends_EnumerateFollowingList(_friends, startIndex);
+        }
+
         /// <summary>
         /// Counts the list of friends
         /// </summary>

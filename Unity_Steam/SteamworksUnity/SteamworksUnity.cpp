@@ -976,6 +976,52 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_SetGameData(void* pSteamG
 	pISteamGameServer->SetGameData(pchData);
 }
 
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamGameServer_GetGameplayStats(void* pSteamGameServer)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	pISteamGameServer->GetGameplayStats();
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_GetServerReputation(void* pSteamGameServer)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	SteamAPICall_t hAPICall = pISteamGameServer->GetServerReputation();
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().GSReputation, hAPICall );
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_AssociateWithClan(void* pSteamGameServer)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	SteamAPICall_t hAPICall = pISteamGameServer->AssociateWithClan();
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().AssociateWithClanResult, hAPICall );
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_ComputeNewPlayerCompatibility(void* pSteamGameServer)
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	SteamAPICall_t hAPICall = pISteamGameServer->ComputeNewPlayerCompatibility();
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ComputeNewPlayerCompatibilityResult, hAPICall );
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_RequestUserGroupStatus(void* pSteamGameServer, uint64 steamIDUser, uint64 steamIDGroup )
+{
+	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
+
+	SteamAPICall_t hAPICall = pISteamGameServer->RequestUserGroupStatus(steamIDUser, steamIDGroup);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().GSClientGroupStatus, hAPICall );
+
+	return hAPICall;
+}
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamFriends()
 {
@@ -1094,6 +1140,73 @@ STEAMWORKSUNITY_API FriendGameInfo_t SteamUnityAPI_SteamFriends_GetFriendGamePla
 	FriendGameInfo_t friendGameInfo;
 	pISteamFriends->GetFriendGamePlayed( CSteamID(steamIDFriend), &friendGameInfo);
 	return friendGameInfo;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_RequestClanOfficerList(void* pSteamFriends, uint64 steamIDClan)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	SteamAPICall_t hAPICall = pISteamFriends->RequestClanOfficerList(steamIDClan);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ClanOfficerListResponse, hAPICall );
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamFriends_InviteUserToGame(void* pSteamFriends,  uint64 steamIDFriend, const char *pchConnectString)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	bool bSuccess = pISteamFriends->InviteUserToGame( CSteamID(steamIDFriend), pchConnectString);
+	return bSuccess;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_DownloadClanActivityCounts(void* pSteamFriends,  uint64 psteamIDClans[], int cClansToRequest)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	CSteamID * aSteamIDClans = new CSteamID[cClansToRequest];
+	for(int i=0;i<cClansToRequest;i++)
+	{
+		aSteamIDClans[i].SetFromUint64(psteamIDClans[i]);
+	}
+
+	SteamAPICall_t hAPICall = pISteamFriends->DownloadClanActivityCounts(aSteamIDClans, cClansToRequest);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().DownloadClanActivityCountsResult, hAPICall );
+
+	delete[] aSteamIDClans;
+	aSteamIDClans = 0;
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_GetFollowerCount(void* pSteamFriends,  uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	SteamAPICall_t hAPICall = pISteamFriends->GetFollowerCount(steamIDFriend);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsGetFollowerCount, hAPICall );
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_IsFollowing(void* pSteamFriends,  uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	SteamAPICall_t hAPICall = pISteamFriends->IsFollowing(steamIDFriend);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsIsFollowing, hAPICall );
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_EnumerateFollowingList(void* pSteamFriends,  uint32 startIndex)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	SteamAPICall_t hAPICall = pISteamFriends->EnumerateFollowingList(startIndex);
+	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsEnumerateFollowingList, hAPICall );
+
+	return hAPICall;
 }
 
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlay(void* pSteamFriends, const char* pchDialog)
@@ -1232,6 +1345,41 @@ STEAMWORKSUNITY_API int SteamUnityAPI_SteamUser_GetGameBadgeLevel(void* pSteamUs
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 
 	return pISteamUser->GetGameBadgeLevel(nSeries, bFoil);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_StartVoiceRecording(void* pSteamUser)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	pISteamUser->StartVoiceRecording();
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_StopVoiceRecording(void* pSteamUser)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	pISteamUser->StopVoiceRecording();
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_GetVoice(void* pSteamUser, bool bWantCompressed, void *pDestBuffer, uint32 cbDestBufferSize, uint32 *nBytesWritten, bool bWantUncompressed, void *pUncompressedDestBuffer, uint32 cbUncompressedDestBufferSize, uint32 *nUncompressBytesWritten, uint32 nUncompressedVoiceDesiredSampleRate )
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	pISteamUser->GetVoice(bWantCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, bWantUncompressed, pUncompressedDestBuffer, cbUncompressedDestBufferSize, nUncompressBytesWritten, nUncompressedVoiceDesiredSampleRate);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_DecompressVoice(void* pSteamUser, const void *pCompressed, uint32 cbCompressed, void *pDestBuffer, uint32 cbDestBufferSize, uint32 *nBytesWritten, uint32 nDesiredSampleRate )
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	pISteamUser->DecompressVoice(pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, nDesiredSampleRate);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_GetVoiceOptimalSampleRate(void* pSteamUser)
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	pISteamUser->GetVoiceOptimalSampleRate();
 }
 
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserStats()
