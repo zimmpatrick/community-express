@@ -1003,11 +1003,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_AssociateWithCl
 	return hAPICall;
 }
 
-STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_ComputeNewPlayerCompatibility(void* pSteamGameServer)
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_ComputeNewPlayerCompatibility(void* pSteamGameServer, uint64 steamIDNewPlayer)
 {
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
-	SteamAPICall_t hAPICall = pISteamGameServer->ComputeNewPlayerCompatibility();
+	SteamAPICall_t hAPICall = pISteamGameServer->ComputeNewPlayerCompatibility(steamIDNewPlayer);
 	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ComputeNewPlayerCompatibilityResult, hAPICall );
 
 	return hAPICall;
@@ -1360,22 +1360,29 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_StopVoiceRecording(void* pSteam
 
 	pISteamUser->StopVoiceRecording();
 }
-
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_GetVoice(void* pSteamUser, bool bWantCompressed, void *pDestBuffer, uint32 cbDestBufferSize, uint32 *nBytesWritten, bool bWantUncompressed, void *pUncompressedDestBuffer, uint32 cbUncompressedDestBufferSize, uint32 *nUncompressBytesWritten, uint32 nUncompressedVoiceDesiredSampleRate )
+	
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamUser_GetAvailableVoice(void* pSteamUser, uint32 *pcbCompressed, uint32 *pcbUncompressed, uint32 nUncompressedVoiceDesiredSampleRate)
 {
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 
-	pISteamUser->GetVoice(bWantCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, bWantUncompressed, pUncompressedDestBuffer, cbUncompressedDestBufferSize, nUncompressBytesWritten, nUncompressedVoiceDesiredSampleRate);
+	return pISteamUser->GetAvailableVoice(pcbCompressed, pcbUncompressed, nUncompressedVoiceDesiredSampleRate)
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_DecompressVoice(void* pSteamUser, const void *pCompressed, uint32 cbCompressed, void *pDestBuffer, uint32 cbDestBufferSize, uint32 *nBytesWritten, uint32 nDesiredSampleRate )
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamUser_GetVoice(void* pSteamUser, bool bWantCompressed, void *pDestBuffer, uint32 cbDestBufferSize, uint32 *nBytesWritten, bool bWantUncompressed, void *pUncompressedDestBuffer, uint32 cbUncompressedDestBufferSize, uint32 *nUncompressBytesWritten, uint32 nUncompressedVoiceDesiredSampleRate )
 {
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 
-	pISteamUser->DecompressVoice(pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, nDesiredSampleRate);
+	return pISteamUser->GetVoice(bWantCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, bWantUncompressed, pUncompressedDestBuffer, cbUncompressedDestBufferSize, nUncompressBytesWritten, nUncompressedVoiceDesiredSampleRate);
 }
 
-STEAMWORKSUNITY_API void SteamUnityAPI_SteamUser_GetVoiceOptimalSampleRate(void* pSteamUser)
+STEAMWORKSUNITY_API int SteamUnityAPI_SteamUser_DecompressVoice(void* pSteamUser, const void *pCompressed, uint32 cbCompressed, void *pDestBuffer, uint32 cbDestBufferSize, uint32 *nBytesWritten, uint32 nDesiredSampleRate )
+{
+	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
+
+	return pISteamUser->DecompressVoice(pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, nDesiredSampleRate);
+}
+
+STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUser_GetVoiceOptimalSampleRate(void* pSteamUser)
 {
 	ISteamUser * pISteamUser = static_cast<ISteamUser*>( pSteamUser );
 

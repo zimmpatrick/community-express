@@ -118,6 +118,8 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite)
 
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback)
@@ -241,6 +243,8 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallback);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite);
 
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);

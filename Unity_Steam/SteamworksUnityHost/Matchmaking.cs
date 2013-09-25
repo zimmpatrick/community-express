@@ -10,7 +10,8 @@ using System.Net;
 namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
-	using AppId_t = UInt32;
+    using AppId_t = UInt32;
+    using SteamID_t = UInt64;
 	using HServerListRequest = UInt32;
 
 	/// <summary>
@@ -145,6 +146,28 @@ namespace CommunityExpressNS
         /// a chat message from user's chat history or offilne message
         k_EChatEntryTypeHistoricalChat = 11,	
 	};
+    
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    struct FavoritesListChanged_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamMatchmakingCallbacks + 2;
+        internal UInt32 m_nIP; // an IP of 0 means reload the whole list, any other value means just one server
+        internal UInt32 m_nQueryPort;
+        internal UInt32 m_nConnPort;
+        internal UInt32 m_nAppID;
+        internal UInt32 m_nFlags;
+        internal bool m_bAdd; // true if this is adding the entry, otherwise it is a remove
+    };
+    
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    struct LobbyInvite_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamMatchmakingCallbacks + 3;
+
+        internal SteamID_t m_ulSteamIDUser;		// Steam ID of the person making the invite
+        internal SteamID_t m_ulSteamIDLobby;	// Steam ID of the Lobby
+        internal UInt64 m_ulGameID;			// GameID of the Lobby
+    };
 
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct LobbyCreated_t
@@ -388,6 +411,8 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(LobbyChatUpdate_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyChatUpdate_t>(Event_LobbyChatUpdatedCallback));
             _ce.AddEventHandler(LobbyChatMsg_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyChatMsg_t>(Event_LobbyChatMessageCallback));
             _ce.AddEventHandler(LobbyGameCreated_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyGameCreated_t>(Event_LobbyGameCreatedCallback));
+            _ce.AddEventHandler(FavoritesListChanged_t.k_iCallback, new CommunityExpress.OnEventHandler<FavoritesListChanged_t>(Event_FavoritesListChangedCallback));
+            _ce.AddEventHandler(LobbyInvite_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyInvite_t>(Event_LobbyInviteCallback));
 		}
         /// <summary>
         /// Creates a lobby
@@ -716,6 +741,28 @@ namespace CommunityExpressNS
             }
 		}
 
+        public delegate void FavoritesListChangedHandler(Matchmaking sender, UInt32 ip, UInt32 queryPort, UInt32 connPort, AppId_t AppID, UInt32 flags, bool added);
+        public event FavoritesListChangedHandler FavoritesListChanged;
+
+        void Event_FavoritesListChangedCallback(FavoritesListChanged_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
+		{
+            if (FavoritesListChanged != null)
+            {
+                FavoritesListChanged(this, callbackData.m_nAppID, callbackData.m_nQueryPort, callbackData.m_nConnPort, callbackData.m_nAppID, callbackData.m_nFlags, callbackData.m_bAdd);
+            }
+		}
+
+        public delegate void LobbyInviteHandler(Matchmaking sender, SteamID userID, SteamID lobbyID, UInt64 gameID);
+        public event LobbyInviteHandler LobbyInvite;
+
+        void Event_LobbyInviteCallback(LobbyInvite_t callbackData, bool Success, SteamAPICall_t hSteamAPICall)
+		{
+            if (LobbyInvite != null)
+            {
+                LobbyInvite(this, new SteamID(callbackData.m_ulSteamIDUser), new SteamID(callbackData.m_ulSteamIDLobby), callbackData.m_ulGameID);
+            }
+		}
+        
 		private void PrepServerListRequest(Dictionary<String, String> filters, out String[] keys, out String[] values)
 		{
 			if (_serverListRequest != HServerListRequest_Invalid)

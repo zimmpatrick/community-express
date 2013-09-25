@@ -207,9 +207,11 @@ namespace CommunityExpressNS
         private static extern void SteamUnityAPI_SteamGameServer_AssociateWithClan(IntPtr gameserver);
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamGameServer_RequestUserGroupStatus(IntPtr gameserver, UInt64 userID, UInt64 groupID);
+		[DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamGameServer_ComputeNewPlayerCompatibility(IntPtr gameserver, UInt64 userID);
 		
         
-
+        
 		private IntPtr _gameServer;
         private CommunityExpress _ce;
 
@@ -528,6 +530,11 @@ namespace CommunityExpressNS
 
 			return false;
 		}
+        public void ComputeNewPlayerCompatibility( SteamID playerID )
+        {
+            SteamUnityAPI_SteamGameServer_ComputeNewPlayerCompatibility(_gameServer, playerID.ToUInt64());
+        }
+
         /// <summary>
         /// Ask for the gameplay stats for the server. Results returned in ServerStats callback
         /// </summary>

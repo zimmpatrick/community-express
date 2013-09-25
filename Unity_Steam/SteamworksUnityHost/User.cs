@@ -50,9 +50,11 @@ namespace CommunityExpressNS
         [DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamUser_StopVoiceRecording(IntPtr user);
         [DllImport("CommunityExpressSW")]
-        private static extern void SteamUnityAPI_SteamUser_GetVoice(IntPtr user, bool bWantCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, bool bWantUncompressed, void* pUncompressedDestBuffer, UInt32 cbUncompressedDestBufferSize, UInt32* nUncompressBytesWritten, UInt32 nUncompressedVoiceDesiredSampleRate);
+        private static extern int SteamUnityAPI_SteamUser_GetAvailableVoice(IntPtr user, [Out] UInt32 pcbCompressed, [Out] UInt32 pcbUncompressed, UInt32 nUncompressedVoiceDesiredSampleRate);
         [DllImport("CommunityExpressSW")]
-        private static extern void SteamUnityAPI_SteamUser_DecompressVoice(IntPtr user, void* pCompressed, UInt32 cbCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, UInt32 nDesiredSampleRate);
+        private static extern int SteamUnityAPI_SteamUser_GetVoice(IntPtr user, bool bWantCompressed, byte[] pDestBuffer, UInt32 cbDestBufferSize, [Out] UInt32 nBytesWritten, bool bWantUncompressed, byte[] pUncompressedDestBuffer, UInt32 cbUncompressedDestBufferSize, [Out] UInt32 nUncompressBytesWritten, UInt32 nUncompressedVoiceDesiredSampleRate);
+        [DllImport("CommunityExpressSW")]
+        private static extern int SteamUnityAPI_SteamUser_DecompressVoice(IntPtr user, byte[] pCompressed, UInt32 cbCompressed, byte[] pDestBuffer, UInt32 cbDestBufferSize, [Out] UInt32 nBytesWritten, UInt32 nDesiredSampleRate);
         
         
 		private IntPtr _user;
@@ -136,14 +138,34 @@ namespace CommunityExpressNS
             SteamUnityAPI_SteamUser_StopVoiceRecording(_user);
         }
 
-        public void GetVoice(bool bWantCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, bool bWantUncompressed, void* pUncompressedDestBuffer, UInt32 cbUncompressedDestBufferSize, UInt32* nUncompressBytesWritten, UInt32 nUncompressedVoiceDesiredSampleRate)
+        public EVoiceResult GetAvailableVoice(out UInt32 cbCompressed, out UInt32 cbUncompressed, UInt32 nUncompressedVoiceDesiredSampleRate)
         {
-            SteamUnityAPI_SteamUser_GetVoice(_user, bWantCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, bWantUncompressed, pUncompressedDestBuffer, cbUncompressedDestBufferSize, nUncompressBytesWritten, nUncompressedVoiceDesiredSampleRate);
+            UInt32 pcbCompressed = 0;
+            UInt32 pcbUncompressed = 0;
+
+            EVoiceResult ret = (EVoiceResult)SteamUnityAPI_SteamUser_GetAvailableVoice(_user, pcbCompressed, pcbUncompressed, nUncompressedVoiceDesiredSampleRate);
+            cbCompressed = pcbCompressed;
+            cbUncompressed = pcbUncompressed;
+            return ret;
         }
 
-        public void DecompressVoice(void* pCompressed, UInt32 cbCompressed, void* pDestBuffer, UInt32 cbDestBufferSize, UInt32* nBytesWritten, UInt32 nDesiredSampleRate)
+        public EVoiceResult GetVoice(bool bWantCompressed, byte[] pDestBuffer, out UInt32 nBytesWritten, bool bWantUncompressed, byte[] pUncompressedDestBuffer, out UInt32 nUncompressBytesWritten, UInt32 nUncompressedVoiceDesiredSampleRate)
         {
-            SteamUnityAPI_SteamUser_DecompressVoice(_user, pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, nBytesWritten, nDesiredSampleRate);
+            UInt32 pnBytesWritten = 0;
+            UInt32 pnUncompressBytesWritten = 0;
+
+            EVoiceResult ret = (EVoiceResult)SteamUnityAPI_SteamUser_GetVoice(_user, bWantCompressed, pDestBuffer, (uint)pDestBuffer.Length, pnBytesWritten, bWantUncompressed, pUncompressedDestBuffer, (uint)pUncompressedDestBuffer.Length, pnUncompressBytesWritten, nUncompressedVoiceDesiredSampleRate);
+            nBytesWritten = pnBytesWritten;
+            nUncompressBytesWritten = pnUncompressBytesWritten;
+            return ret;
+        }
+
+        public EVoiceResult DecompressVoice(byte[] pCompressed, UInt32 cbCompressed, byte[] pDestBuffer, UInt32 cbDestBufferSize, out UInt32 nBytesWritten, UInt32 nDesiredSampleRate)
+        {
+            UInt32 pnBytesWritten = 0;
+            EVoiceResult ret = (EVoiceResult)SteamUnityAPI_SteamUser_DecompressVoice(_user, pCompressed, cbCompressed, pDestBuffer, cbDestBufferSize, pnBytesWritten, nDesiredSampleRate);
+            nBytesWritten = pnBytesWritten;
+            return ret;
         }
 
         /// <summary>

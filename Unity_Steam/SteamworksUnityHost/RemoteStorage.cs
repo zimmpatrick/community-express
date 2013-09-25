@@ -11,12 +11,28 @@ namespace CommunityExpressNS
 {
     using UGCHandle_t = UInt64;
     using SteamAPICall_t = UInt64;
+    using AppId_t = UInt32;
+    using PublishedFileId_t = UInt64;
     /// <summary>
     /// Steam Cloud file storage
     /// </summary>
 	public class RemoteStorage : ICollection<File>
 	{
         int _fsCount = 0;
+
+        public enum EWorkshopVote
+        {
+            k_EWorkshopVoteUnvoted = 0,
+            k_EWorkshopVoteFor = 1,
+            k_EWorkshopVoteAgainst = 2,
+        };
+
+        public enum EWorkshopFileAction
+        {
+	        k_EWorkshopFileActionPlayed = 0,
+	        k_EWorkshopFileActionCompleted = 1,
+        };
+
 
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
@@ -47,6 +63,112 @@ namespace CommunityExpressNS
         [DllImport("CommunityExpressSW")]
         private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_FileShare(IntPtr remoteStorage, [MarshalAs(UnmanagedType.LPStr)] String fileName);
         
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageAppSyncedClient_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 1;
+	        internal AppId_t m_nAppID;
+	        internal EResult m_eResult;
+	        internal int m_unNumDownloads;
+        };
+        
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        struct RemoteStorageAppSyncedServer_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 2;
+            internal AppId_t m_nAppID;
+            internal EResult m_eResult;
+            internal int m_unNumUploads;
+        };
+        
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageAppSyncProgress_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 3;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+	        internal char[] m_rgchCurrentFile;				// Current file being transferred
+	        internal AppId_t m_nAppID;							// App this info relates to
+	        internal UInt32 m_uBytesTransferredThisChunk;		// Bytes transferred this chunk
+	        internal double m_dAppPercentComplete;				// Percent complete that this app's transfers are
+	        internal bool m_bUploading;							// if false, downloading
+        };
+        
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageAppSyncStatusCheck_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 5;
+            internal AppId_t m_nAppID;
+            internal EResult m_eResult;
+        };
+        
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageConflictResolution_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 6;
+	        internal AppId_t m_nAppID;
+	        internal EResult m_eResult;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageGetPublishedItemVoteDetailsResult_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 20;
+            internal EResult m_eResult;
+            internal PublishedFileId_t m_unPublishedFileId;
+            internal Int32 m_nVotesFor;
+            internal Int32 m_nVotesAgainst;
+            internal Int32 m_nReports;
+            internal float m_fScore;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStoragePublishedFileDeleted_t
+        {
+	       internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 23;
+           internal PublishedFileId_t m_unPublishedFileId;	// The published file id
+           internal AppId_t m_nAppID;						// ID of the app that will consume this file.
+        };
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageUpdateUserPublishedItemVoteResult_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 24;
+            internal EResult m_eResult;				// The result of the operation.
+            internal PublishedFileId_t m_nPublishedFileId;	// The published file id
+        };
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageUserVoteDetails_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 25;
+            internal EResult m_eResult;				// The result of the operation.
+            internal PublishedFileId_t m_nPublishedFileId;	// The published file id
+            internal EWorkshopVote m_eVote;			// what the user voted
+        };
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageSetUserPublishedFileActionResult_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 27;
+            internal EResult m_eResult;				// The result of the operation.
+            internal PublishedFileId_t m_nPublishedFileId;	// The published file id
+            internal EWorkshopFileAction m_eAction;	// the action that was attempted
+        };
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct RemoteStorageEnumeratePublishedFilesByUserActionResult_t
+        {
+	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 28;
+	        internal EResult m_eResult;				// The result of the operation.
+	        internal EWorkshopFileAction m_eAction;	// the action that was filtered on
+	        internal Int32 m_nResultsReturned;
+	        internal Int32 m_nTotalResultCount;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50)]
+	        internal PublishedFileId_t[] m_rgPublishedFileId;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 50)]
+	        internal UInt32[] m_rgRTimeUpdated;
+        };
+
 	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
         internal struct RemoteStorageFileShareResult_t
         {
@@ -187,6 +309,19 @@ namespace CommunityExpressNS
 
             CommunityExpress.OnEventHandler<RemoteStorageFileShareResult_t> h = new CommunityExpress.OnEventHandler<RemoteStorageFileShareResult_t>(Events_FileShareResultReceived);
             _ce.AddEventHandler(RemoteStorageFileShareResult_t.k_iCallback, h);
+            _ce.AddEventHandler(RemoteStorageAppSyncedClient_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageAppSyncedClient_t>(Event_RemoteStorageAppSyncedClient));
+            _ce.AddEventHandler(RemoteStorageAppSyncedServer_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageAppSyncedServer_t>(Event_RemoteStorageAppSyncedServer));
+            _ce.AddEventHandler(RemoteStorageAppSyncProgress_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageAppSyncProgress_t>(Event_RemoteStorageAppSyncProgress));
+            _ce.AddEventHandler(RemoteStorageAppSyncStatusCheck_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageAppSyncStatusCheck_t>(Event_RemoteStorageAppSyncStatusCheck));
+            _ce.AddEventHandler(RemoteStorageConflictResolution_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageConflictResolution_t>(Event_RemoteStorageConflictResolution));
+            _ce.AddEventHandler(RemoteStorageGetPublishedItemVoteDetailsResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageGetPublishedItemVoteDetailsResult_t>(Event_RemoteStorageGetPublishedItemVoteDetailsResult));
+            _ce.AddEventHandler(RemoteStoragePublishedFileDeleted_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishedFileDeleted_t>(Event_RemoteStoragePublishedFileDeleted));
+            _ce.AddEventHandler(RemoteStorageUpdateUserPublishedItemVoteResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageUpdateUserPublishedItemVoteResult_t>(Event_RemoteStorageUpdateUserPublishedItemVoteResult));
+            _ce.AddEventHandler(RemoteStorageUserVoteDetails_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageUserVoteDetails_t>(Event_RemoteStorageUserVoteDetails));
+            _ce.AddEventHandler(RemoteStorageSetUserPublishedFileActionResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageSetUserPublishedFileActionResult_t>(Event_RemoteStorageSetUserPublishedFileActionResult));
+            _ce.AddEventHandler(RemoteStorageEnumeratePublishedFilesByUserActionResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageEnumeratePublishedFilesByUserActionResult_t>(Event_RemoteStorageEnumeratePublishedFilesByUserActionResult));
+
+            
 		}
 
         private void Events_FileShareResultReceived(RemoteStorageFileShareResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
@@ -198,6 +333,127 @@ namespace CommunityExpressNS
             }
         }
 
+        public delegate void RemoteStorageAppSyncedClientHandler(RemoteStorage sender, AppId_t appID, EResult result, int numDownloads);
+        public event RemoteStorageAppSyncedClientHandler RemoteStorageAppSyncedClient;
+
+        private void Event_RemoteStorageAppSyncedClient(RemoteStorageAppSyncedClient_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageAppSyncedClient != null)
+            {
+                RemoteStorageAppSyncedClient(this, recv.m_nAppID, recv.m_eResult, recv.m_unNumDownloads);
+            }
+        }
+
+        public delegate void RemoteStorageAppSyncedServerHandler(RemoteStorage sender, AppId_t appID, EResult result, int numUploads);
+        public event RemoteStorageAppSyncedServerHandler RemoteStorageAppSyncedServer;
+
+        private void Event_RemoteStorageAppSyncedServer(RemoteStorageAppSyncedServer_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageAppSyncedServer != null)
+            {
+                RemoteStorageAppSyncedServer(this, recv.m_nAppID, recv.m_eResult, recv.m_unNumUploads);
+            }
+        }
+
+        public delegate void RemoteStorageAppSyncProgressHandler(RemoteStorage sender, String currentFile, AppId_t appID, UInt32 chunkSize, double percentage, bool isUploading);
+        public event RemoteStorageAppSyncProgressHandler RemoteStorageAppSyncProgress;
+
+        private void Event_RemoteStorageAppSyncProgress(RemoteStorageAppSyncProgress_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageAppSyncProgress != null)
+            {
+                RemoteStorageAppSyncProgress(this, recv.m_rgchCurrentFile.ToString(), recv.m_nAppID, recv.m_uBytesTransferredThisChunk, recv.m_dAppPercentComplete, recv.m_bUploading);
+            }
+        }
+
+        public delegate void RemoteStorageAppSyncStatusCheckHandler(RemoteStorage sender, AppId_t appID, EResult result);
+        public event RemoteStorageAppSyncStatusCheckHandler RemoteStorageAppSyncStatusCheck;
+
+        private void Event_RemoteStorageAppSyncStatusCheck(RemoteStorageAppSyncStatusCheck_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageAppSyncStatusCheck != null)
+            {
+                RemoteStorageAppSyncStatusCheck(this, recv.m_nAppID, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStorageConflictResolutionHandler(RemoteStorage sender, AppId_t appID, EResult result);
+        public event RemoteStorageConflictResolutionHandler RemoteStorageConflictResolution;
+
+        private void Event_RemoteStorageConflictResolution(RemoteStorageConflictResolution_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageConflictResolution != null)
+            {
+                RemoteStorageConflictResolution(this, recv.m_nAppID, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStorageGetPublishedItemVoteDetailsResultHandler(RemoteStorage sender, PublishedFileId_t fileID, Int32 votesFor, Int32 votesAgaints, Int32 reports, float score, EResult result);
+        public event RemoteStorageGetPublishedItemVoteDetailsResultHandler RemoteStorageGetPublishedItemVoteDetailsResult;
+
+        private void Event_RemoteStorageGetPublishedItemVoteDetailsResult(RemoteStorageGetPublishedItemVoteDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageGetPublishedItemVoteDetailsResult != null)
+            {
+                RemoteStorageGetPublishedItemVoteDetailsResult(this, recv.m_unPublishedFileId, recv.m_nVotesFor, recv.m_nVotesAgainst, recv.m_nReports, recv.m_fScore, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStoragePublishedFileDeletedHandler(RemoteStorage sender, PublishedFileId_t fileID, AppId_t appID);
+        public event RemoteStoragePublishedFileDeletedHandler RemoteStoragePublishedFileDeleted;
+
+        private void Event_RemoteStoragePublishedFileDeleted(RemoteStoragePublishedFileDeleted_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStoragePublishedFileDeleted != null)
+            {
+                RemoteStoragePublishedFileDeleted(this, recv.m_unPublishedFileId, recv.m_nAppID);
+            }
+        }
+
+        public delegate void RemoteStorageUpdateUserPublishedItemVoteResultHandler(RemoteStorage sender, PublishedFileId_t fileID, EResult result);
+        public event RemoteStorageUpdateUserPublishedItemVoteResultHandler RemoteStorageUpdateUserPublishedItemVoteResult;
+
+        private void Event_RemoteStorageUpdateUserPublishedItemVoteResult(RemoteStorageUpdateUserPublishedItemVoteResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageUpdateUserPublishedItemVoteResult != null)
+            {
+                RemoteStorageUpdateUserPublishedItemVoteResult(this, recv.m_nPublishedFileId, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStorageUserVoteDetailsHandler(RemoteStorage sender, PublishedFileId_t fileID, EWorkshopVote vote, EResult result);
+        public event RemoteStorageUserVoteDetailsHandler RemoteStorageUserVoteDetails;
+
+        private void Event_RemoteStorageUserVoteDetails(RemoteStorageUserVoteDetails_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageUserVoteDetails != null)
+            {
+                RemoteStorageUserVoteDetails(this, recv.m_nPublishedFileId, recv.m_eVote, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStorageSetUserPublishedFileActionResultHandler(RemoteStorage sender, PublishedFileId_t fileID, EWorkshopFileAction action, EResult result);
+        public event RemoteStorageSetUserPublishedFileActionResultHandler RemoteStorageSetUserPublishedFileActionResult;
+
+        private void Event_RemoteStorageSetUserPublishedFileActionResult(RemoteStorageSetUserPublishedFileActionResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageSetUserPublishedFileActionResult != null)
+            {
+                RemoteStorageSetUserPublishedFileActionResult(this, recv.m_nPublishedFileId, recv.m_eAction, recv.m_eResult);
+            }
+        }
+
+        public delegate void RemoteStorageEnumeratePublishedFilesByUserActionResultHandler(RemoteStorage sender, Int32 resultsReturned, Int32 totalResults, PublishedFileId_t[] fileIDs, UInt32[] timeUpdated, EWorkshopFileAction action, EResult result);
+        public event RemoteStorageEnumeratePublishedFilesByUserActionResultHandler RemoteStorageEnumeratePublishedFilesByUserActionResult;
+
+        private void Event_RemoteStorageEnumeratePublishedFilesByUserActionResult(RemoteStorageEnumeratePublishedFilesByUserActionResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (RemoteStorageEnumeratePublishedFilesByUserActionResult != null)
+            {
+                RemoteStorageEnumeratePublishedFilesByUserActionResult(this, recv.m_nResultsReturned, recv.m_nTotalResultCount, recv.m_rgPublishedFileId, recv.m_rgRTimeUpdated, recv.m_eAction, recv.m_eResult);
+            }
+        }
+        
 		internal IntPtr SteamPointer
 		{
 			get { return _remoteStorage; }
