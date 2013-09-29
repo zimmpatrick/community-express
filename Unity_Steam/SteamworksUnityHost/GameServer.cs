@@ -204,7 +204,7 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamGameServer_GetGameplayStats(IntPtr gameserver);
 		[DllImport("CommunityExpressSW")]
-        private static extern void SteamUnityAPI_SteamGameServer_AssociateWithClan(IntPtr gameserver);
+        private static extern void SteamUnityAPI_SteamGameServer_AssociateWithClan(IntPtr gameserver, UInt64 userID);
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamGameServer_RequestUserGroupStatus(IntPtr gameserver, UInt64 userID, UInt64 groupID);
 		[DllImport("CommunityExpressSW")]
@@ -545,9 +545,9 @@ namespace CommunityExpressNS
         /// <summary>
         /// Associate this game server with this clan for the purposes of computing player compatability
         /// </summary>
-        public void AssociateWithClan()
+        public void AssociateWithGroup(Group g)
         {
-            SteamUnityAPI_SteamGameServer_AssociateWithClan(_gameServer);
+            SteamUnityAPI_SteamGameServer_AssociateWithClan(_gameServer, g.SteamID.ToUInt64());
         }
         /// <summary>
         /// Ask if a user in in the specified group, results returns async by GSUserGroupStatus_t
