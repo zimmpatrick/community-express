@@ -383,6 +383,16 @@ namespace CommunityExpressNS
         [DllImport("CommunityExpressSW")]
         [return: MarshalAs(UnmanagedType.I1)]
         private static extern bool SteamUnityAPI_SteamFriends_EnumerateFollowingList(IntPtr friends, UInt32 startIndex);
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_SteamFriends_SetRichPresence(IntPtr friends, [MarshalAs(UnmanagedType.LPStr)] String pchKey, [MarshalAs(UnmanagedType.LPStr)] String pchValue);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ClearRichPresence(IntPtr friends);
+        [DllImport("CommunityExpressSW")]
+        private static extern IntPtr SteamUnityAPI_GetFriendRichPresence(IntPtr friends, UInt64 steamDIFriend, [MarshalAs(UnmanagedType.LPStr)] String pchKey);
+        [DllImport("CommunityExpressSW")]
+        private static extern int SteamUnityAPI_GetFriendRichPresenceKeyCount(IntPtr friends, UInt64 steamDIFriend);
+        [DllImport("CommunityExpressSW")]
+        private static extern IntPtr SteamUnityAPI_GetFriendRichPresenceKeyByIndex(IntPtr friends, UInt64 steamDIFriend, int pchKeyIndex);
 
 		private IntPtr _friends;
 		private EFriendFlags _friendFlags;
@@ -750,6 +760,36 @@ namespace CommunityExpressNS
         public void EnumerateFollowingList(UInt32 startIndex)
         {
             SteamUnityAPI_SteamFriends_EnumerateFollowingList(_friends, startIndex);
+        }
+
+        //Sets a new Key and value for that key
+        public void SetRichPresence(String key, String value)
+        {
+            SteamUnityAPI_SteamFriends_SetRichPresence(_friends, key, value);
+        }
+
+        //Clears Rich Presence Data
+        public void ClearRichPresence()
+        {
+            SteamUnityAPI_SteamFriends_ClearRichPresence(_friends);
+        }
+
+        //Gets friend data by key
+        public String GetFriendRichPresence(SteamID friendSteamID, String key)
+        {
+            return Marshal.PtrToStringAnsi(SteamUnityAPI_GetFriendRichPresence(_friends, friendSteamID.ToUInt64(), key));
+        }
+
+        //Gets number of keys from friend data
+        public int GetFriendRichPresenceKeyCount(SteamID friendSteamID, String key)
+        {
+            return SteamUnityAPI_GetFriendRichPresenceKeyCount(_friends, friendSteamID.ToUInt64());
+        }
+
+        //Gets number of keys from friend data
+        public String GetFriendRichPresenceKeyCount(SteamID friendSteamID, int keyIndex)
+        {
+            return Marshal.PtrToStringAnsi(SteamUnityAPI_GetFriendRichPresenceKeyByIndex(_friends, friendSteamID.ToUInt64(), keyIndex));
         }
 
         /// <summary>

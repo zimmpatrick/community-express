@@ -1152,6 +1152,49 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_RequestClanOfficer
 	return hAPICall;
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamFriends_SetRichPresence(void* pSteamFriends, const char* pchKey, const char* pchValue)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	bool bSuccess = pISteamFriends->SetRichPresence(pchKey, pchValue);
+	return bSuccess;
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ClearRichPresence(void* pSteamFriends)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->ClearRichPresence();
+}
+
+STEAMWORKSUNITY_API const char * SteamUnityAPI_GetFriendRichPresence(void* pSteamFriends, uint64 steamIDFriend, const char *pchKey)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendRichPresence( CSteamID(steamIDFriend), pchKey);
+}
+
+STEAMWORKSUNITY_API int SteamUnityAPI_GetFriendRichPresenceKeyCount(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendRichPresenceKeyCount( CSteamID(steamIDFriend));
+}
+
+STEAMWORKSUNITY_API const char * SteamUnityAPI_GetFriendRichPresenceKeyByIndex(void* pSteamFriends, uint64 steamIDFriend, int pchKeyIndex)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	return pISteamFriends->GetFriendRichPresenceKeyByIndex( CSteamID(steamIDFriend), pchKeyIndex);
+}
+
+STEAMWORKSUNITY_API void SteamUnityAPI_RequestFriendRichPresence(void* pSteamFriends, uint64 steamIDFriend)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->RequestFriendRichPresence( CSteamID(steamIDFriend));
+}
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamFriends_InviteUserToGame(void* pSteamFriends,  uint64 steamIDFriend, const char *pchConnectString)
 {
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
