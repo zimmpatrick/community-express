@@ -154,7 +154,7 @@ namespace SteamworksUnityTest
             RemoteStorage remoteStorage = cesdk.RemoteStorage;
             Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("CloudTest.txt"), remoteStorage.GetFileSize("CloudTest.txt"));
             remoteStorage.WriteFile("CloudTest.txt", "I has file!");
-
+/*
             while (true)
             {
                 cesdk.RunCallbacks();
@@ -163,7 +163,7 @@ namespace SteamworksUnityTest
 
             return 0;
 
-            /*
+            
 
 
             cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles (UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending,
@@ -351,7 +351,10 @@ namespace SteamworksUnityTest
 
             cesdk.UserGeneratedContent.FileDetails += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDetailsResultArgs result) =>
             {
-                Console.WriteLine("Got file details : " + result.PublishedFile.ID);
+                if (result.PublishedFile != null)
+                {
+                    Console.WriteLine("Got file details : " + result.PublishedFile.ID);
+                }
             };
 
             cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileResultArgs result) =>
@@ -462,10 +465,7 @@ namespace SteamworksUnityTest
 				}
 			}
 			
-			*/
-			
-			GameServer gameserver = cesdk.GameServer;
-			const UInt16 gsPort = 8793;
+		
 			if (gameserver.Init(false, new IPAddress(0), gsPort, gsPort + 1, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "Fake Unity Server",
 				"Fake Unity Spec Server", "US", "Killing Floor", "Killing Floor", "1.0.2.9", "KF-FakeMap", 2, true, 
 				MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick))
@@ -476,7 +476,10 @@ namespace SteamworksUnityTest
 			{
 				Console.WriteLine("GameServer Failed to Initialize");
 			}
-
+	*/
+			
+			GameServer gameserver = cesdk.GameServer;
+			const UInt16 gsPort = 8793;
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
             if (user.InitiateClientAuthentication(out authTicket, gameserver.SteamID, IPAddress.Loopback, gsPort, true))

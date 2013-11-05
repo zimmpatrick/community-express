@@ -525,7 +525,7 @@ namespace CommunityExpressNS
                 set;
             }
 
-            internal EResult Result
+            public EResult Result
             {
                 get;
                 private set;
@@ -1160,20 +1160,10 @@ namespace CommunityExpressNS
                     found = true;
 
                     // enumerate request
-                    if (recv.m_eResult == EResult.EResultOK ||
-                        recv.m_eResult == EResult.EResultFileNotFound)
-                    {
-                        PublishedFile pf = new PublishedFile(recv, _subscribeTimes[recv.m_nPublishedFileId], _remoteStorage);
-                        pf.InernalDownloadPreview(0);
+                    PublishedFile pf = new PublishedFile(recv, _subscribeTimes[recv.m_nPublishedFileId], _remoteStorage);
+                    pf.InernalDownloadPreview(0);
 
-                        _publishedFiles.Add(pf);
-                    }
-                    else
-                    {
-                        _publishedFiles = null; // signal done
-                        EnumerateFileDetails(this,
-                            new EnumeratePublishedFileResultArgs(null, recv.m_eResult, _offset, _totalCount));
-                    }
+                    _publishedFiles.Add(pf);
                 }
             }
 
@@ -1187,7 +1177,7 @@ namespace CommunityExpressNS
 
                     _oneOffpublishedFiles.Add(pf);
                 }
-                else
+                else if (FileDetails != null)
                 {
                     // one off request
                     FileDetails(this,

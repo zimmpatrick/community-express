@@ -86,7 +86,7 @@ namespace CommunityExpressNS
         {
 	        internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 3;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-	        internal char[] m_rgchCurrentFile;				// Current file being transferred
+            internal string m_rgchCurrentFile;				// Current file being transferred
 	        internal AppId_t m_nAppID;							// App this info relates to
 	        internal UInt32 m_uBytesTransferredThisChunk;		// Bytes transferred this chunk
 	        internal double m_dAppPercentComplete;				// Percent complete that this app's transfers are
