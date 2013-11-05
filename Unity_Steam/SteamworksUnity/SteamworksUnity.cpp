@@ -1732,6 +1732,13 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void
 
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamMatchmaking_InviteUserToLobby(void* pSteamMatchmaking, uint64 steamIDLobby, uint64 steamID)
+{
+		ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
+
+		return pISteamMatchmaking->InviteUserToLobby(steamIDLobby, steamID);
+}
+
 STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmaking_LeaveLobby(void* pSteamMatchmaking, uint64 steamIDLobby)
 {
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );

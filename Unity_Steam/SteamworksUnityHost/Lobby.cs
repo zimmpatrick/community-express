@@ -22,8 +22,9 @@ namespace CommunityExpressNS
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
-		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamMatchmaking_InviteUserToLobby(IntPtr matchmaking, UInt64 steamIDLobby, UInt64 steamID);
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
+		private static extern Boolean SteamUnityAPI_SteamMatchmaking_InviteUserToLobby(IntPtr matchmaking, UInt64 steamIDLobby, UInt64 steamID);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamMatchmaking_LeaveLobby(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
@@ -145,9 +146,9 @@ namespace CommunityExpressNS
         /// Invite a user to a lobby
         /// </summary>
         /// <param name="user">SteamID of user to invite</param>
-		public void Invite(SteamID user)
+		public bool Invite(SteamID user)
 		{
-			SteamUnityAPI_SteamMatchmaking_InviteUserToLobby(_matchmaking, _id.ToUInt64(), user.ToUInt64());
+			return SteamUnityAPI_SteamMatchmaking_InviteUserToLobby(_matchmaking, _id.ToUInt64(), user.ToUInt64());
 		}
         /// <summary>
         /// Invite a user to a lobby
