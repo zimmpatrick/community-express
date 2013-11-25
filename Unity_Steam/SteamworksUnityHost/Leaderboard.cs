@@ -97,6 +97,7 @@ namespace CommunityExpressNS
             _ce = CommunityExpress.Instance;
 
             LeaderboardEntriesRetrievedCallback = new CommunityExpress.OnEventHandler<LeaderboardScoresDownloaded_t>(OnLeaderboardEntriesRetrievedCallback);
+            _ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
 		}
         /// <summary>
         /// Updates scores on leaderboard
@@ -125,11 +126,11 @@ namespace CommunityExpressNS
 		{
 			_maxDetails = maxExpectedDetails;
 
-            _ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+            //_ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
 
             if (!SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(_leaderboards.Stats, _leaderboard, ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobal, startIndex, endIndex))
             {
-                _ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+               // _ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
                 if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, null);
             }
 		}
@@ -143,11 +144,11 @@ namespace CommunityExpressNS
 		{
             _maxDetails = maxExpectedDetails;
 
-            _ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+           // _ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
 
             if (!SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(_leaderboards.Stats, _leaderboard, ELeaderboardDataRequest.k_ELeaderboardDataRequestGlobalAroundUser, -1 * rowsBefore, rowsAfter))
             {
-                _ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+               // _ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
                 if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, null);
             }
 		}
@@ -159,17 +160,19 @@ namespace CommunityExpressNS
 		{
             _maxDetails = maxExpectedDetails;
 
-            _ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+           // _ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
 
             if (!SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(_leaderboards.Stats, _leaderboard, ELeaderboardDataRequest.k_ELeaderboardDataRequestFriends, 0, Int32.MaxValue - 1))
             {
-                _ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+                //_ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
                 if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, null);
             }
 		}
 
         private void OnLeaderboardEntriesRetrievedCallback(LeaderboardScoresDownloaded_t callbackData, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
 		{
+            //_ce.RemoveEventHandler<LeaderboardScoresDownloaded_t>(Leaderboards.LeaderboardFindResult_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+
 			int entryCount = callbackData.m_cEntryCount;
 			LeaderboardEntry_t leaderboardEntry = new LeaderboardEntry_t();
 

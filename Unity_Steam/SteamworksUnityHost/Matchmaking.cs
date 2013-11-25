@@ -178,7 +178,7 @@ namespace CommunityExpressNS
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
-	struct LobbyMatchList_t
+	public struct LobbyMatchList_t
     {
         internal const int k_iCallback = Events.k_iSteamMatchmakingCallbacks + 10;
         internal UInt32 m_nLobbiesMatching;		// Number of lobbies that matched search criteria and we have SteamIDs for
@@ -513,7 +513,39 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamMatchmaking_AddRequestLobbyListDistanceFilter(_matchmaking, lobbyDistance);
 
             _lobbyListRequest = SteamUnityAPI_SteamMatchmaking_RequestLobbyList(_matchmaking);
+            CommunityExpress.Instance._lobbyRequest = _lobbyListRequest;
 		}
+        internal void GetLobbyList(CommunityExpress.LobbyMatchList_t lml)
+        {
+            Lobbies lobbyList = new Lobbies();
+			Lobby lobby;
+
+            for (int i = 0; i < lml.m_nLobbiesMatching; i++)
+			{
+				UInt64 id = SteamUnityAPI_SteamMatchmaking_GetLobbyByIndex(_matchmaking, i);
+
+				lobby = null;
+				foreach (Lobby l in _lobbyList)
+				{
+					if (l.SteamID == id)
+					{
+						lobby = l;
+						break;
+					}
+				}
+
+				if (lobby == null)
+				{
+					lobby = new Lobby(_lobbyList, new SteamID(id));
+				}
+
+				lobbyList.Add(lobby);
+			}
+
+            LobbyListReceived(this, lobbyList);
+            _lobbyListRequest = 0;
+            CommunityExpress.Instance._lobbyRequest = _lobbyListRequest;
+        }
         /// <summary>
         /// Requests lobby list
         /// </summary>
@@ -979,6 +1011,8 @@ namespace CommunityExpressNS
 			{
                 ServerReceived(this, _serverList, server);
 			}
+
+
 		}
         /// <summary>
         /// When server list is recieved

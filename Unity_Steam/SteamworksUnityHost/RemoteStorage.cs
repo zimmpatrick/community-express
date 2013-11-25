@@ -463,23 +463,28 @@ namespace CommunityExpressNS
         /// </summary>
         /// <param name="fileName">File to write</param>
         /// <param name="fileContents">Contents of file in string</param>
-		public void WriteFile(String fileName, String fileContents)
-		{
-			SteamUnityAPI_SteamRemoteStorage_WriteFile(_remoteStorage, fileName, Marshal.StringToHGlobalAnsi(fileContents), fileContents.Length);
+		public bool WriteFile(String fileName, String fileContents)
+        {
+            bool retB = false;
+            retB = SteamUnityAPI_SteamRemoteStorage_WriteFile(_remoteStorage, fileName, Marshal.StringToHGlobalAnsi(fileContents), fileContents.Length);
+            return retB;
 		}
         /// <summary>
         /// Write file to storage in byte form
         /// </summary>
         /// <param name="fileName">File to write</param>
         /// <param name="fileContents">Contents of file in byte</param>
-		public void WriteFile(String fileName, Byte[] fileContents)
+        public bool WriteFile(String fileName, Byte[] fileContents)
 		{
 			IntPtr fileContentsPtr = Marshal.AllocHGlobal(fileContents.Length);
 			Marshal.Copy(fileContents, 0, fileContentsPtr, fileContents.Length);
+            bool retB = false;
 
-			SteamUnityAPI_SteamRemoteStorage_WriteFile(_remoteStorage, fileName, fileContentsPtr, fileContents.Length);
+            retB = SteamUnityAPI_SteamRemoteStorage_WriteFile(_remoteStorage, fileName, fileContentsPtr, fileContents.Length);
 
 			Marshal.FreeHGlobal(fileContentsPtr);
+
+            return retB;
 		}
 
         /// <summary>

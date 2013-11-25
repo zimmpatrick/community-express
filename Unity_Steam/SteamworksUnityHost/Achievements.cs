@@ -92,7 +92,7 @@ namespace CommunityExpressNS
             }
         }
 
-        public event UserAchievementsReceivedHandler UserAchievementsReceived;
+        internal event UserAchievementsReceivedHandler UserAchievementsReceived;
 
         internal Achievements(CommunityExpress ce, SteamID steamID, Boolean isGameServer = false)
 		{
@@ -294,7 +294,7 @@ namespace CommunityExpressNS
         /// <summary>
         /// List of achievements
         /// </summary>
-		internal IList<Achievement> AchievementList
+		public IList<Achievement> AchievementList
 		{
 			get { return _achievementList; }
 		}

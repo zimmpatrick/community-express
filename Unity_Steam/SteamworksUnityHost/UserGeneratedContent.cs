@@ -1099,9 +1099,9 @@ namespace CommunityExpressNS
                 {
                     EnumerateFileDetails(this, new EnumeratePublishedFileResultArgs(_publishedFiles, EResult.EResultOK, _offset, _totalCount));
 
-                    _subscribeTimes.Clear();
-                    _publishedFiles = null;
                 }
+                _subscribeTimes.Clear();
+                _publishedFiles = null;
             }
         }
         
@@ -1112,8 +1112,15 @@ namespace CommunityExpressNS
 
             for (int i = 0; i < recv.m_nResultsReturned; i++)
             {
-                _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
-                GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+                if (!_subscribeTimes.ContainsKey(recv.m_rgPublishedFileId[i]))
+                {
+                    _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
+                    GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+                }
+                else
+                {
+                    _totalCount--;
+                }
             }
 
             if (recv.m_nResultsReturned == 0 && EnumerateFileDetails != null)
@@ -1126,11 +1133,19 @@ namespace CommunityExpressNS
         {
             _totalCount = recv.m_nTotalResultCount;
             _subscribeTimes = new Dictionary<PublishedFileUpdateHandle_t, AppId_t>();
+            _publishedFiles = null;
 
             for (int i = 0; i < recv.m_nResultsReturned; i++)
             {
-                _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
-                GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+                if (!_subscribeTimes.ContainsKey(recv.m_rgPublishedFileId[i]))
+                {
+                    _subscribeTimes.Add(recv.m_rgPublishedFileId[i], 0);
+                    GetPublishedFileDetails(recv.m_rgPublishedFileId[i]);
+                }
+                else
+                {
+                    _totalCount--;
+                }
             }
 
             if (recv.m_nResultsReturned == 0 && EnumerateFileDetails != null)

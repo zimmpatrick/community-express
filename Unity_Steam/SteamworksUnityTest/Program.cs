@@ -24,11 +24,17 @@ namespace SteamworksUnityTest
 		private static bool _lobbyListReceived = false;
 		private static bool _lobbyJoined = false;
 		private static bool _packetReceived = false;
+        
 
 		private static Lobby _lobby;
 		private static Servers _serverList = null;
 
-		private const String _webAPIKey = "6477773857A981BC6F4F50D7CAFD59E4";
+        private const String _webAPIKey = "6477773857A981BC6F4F50D7CAFD59E4";
+        static bool callbackInvoked = false;
+        static CommunityExpressNS.Leaderboard leaderboard = null;
+
+        static int callbacksInvoked = 0;
+        static bool callbackReceived;
 
         static private void onLog(string msg)
         {
@@ -275,15 +281,16 @@ namespace SteamworksUnityTest
             }
             */
             _statsReceived = false;
+           // CommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard("TestLeaderboard", ELeaderboardSortMethod.k_ELeaderboardSortMethodDescending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNone);
+           // CommunityExpress.Instance.Leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(OnReceiveLeaderboard);
+           
             
-            CommunityExpress.Instance.Leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(OnReceiveLeaderboard);
-           // CommunityExpress.Instance.Leaderboards.FindLeaderboard("Pong Lead");
             
-           // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
             
-            /// BEGIN PUBLISH
-            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
-            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"Content\Maps\Winterfell.png");
+            
+            
+            /*
+            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
@@ -304,7 +311,112 @@ namespace SteamworksUnityTest
                     cesdk.UserGeneratedContent.PublishWorkshopFile(@"bacon.png",
                         @"bacon.png",
                         241720,
-                        "Abduction - Workshop Level",
+                        "Abduction - Workshop Level 6",
+                        "This is Abduction, we have toast here too",
+                        UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
+                        new string[] { "Map", "Tower" },
+                        UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
+                    cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeRecent, 0, 5, 50, null, null);
+                    //
+                }
+            };
+
+
+            
+
+
+            cesdk.UserGeneratedContent.EnumerateFileDetails += (UserGeneratedContent sender, UserGeneratedContent.EnumeratePublishedFileResultArgs e) =>
+            {
+                Console.WriteLine("Hello");
+            };
+            */
+
+
+
+
+
+
+			const UInt16 gsPort = 8793;
+            IPAddress ip = IPAddress.Any;
+            Dictionary<string, string> filters2 = new Dictionary<string, string>();
+            filters2.Add("gamedir", "spacewar");
+            bool testB = false;
+            
+            testB = cesdk.GameServer.Init(false, ip, gsPort, gsPort + 1100, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "spacewar",
+                "spacewar", "US", "spacewar", "spacewar", "1.0.2.9", "spacewar", 2, true, "spacewar",
+                MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick);
+
+            cesdk.Matchmaking.RequestLANServerList();
+
+            cesdk.Matchmaking.ServerReceived += (Matchmaking sender, Servers serverList, Server server) =>
+            {
+                Console.WriteLine("Server Name: " + server.ServerName);
+            };
+            
+            while (true)
+            {
+                cesdk.RunCallbacks();
+            }
+
+
+            string name = "TestServer";
+
+            CommunityExpressNS.CommunityExpress.Instance.Initialize();
+            CommunityExpressNS.CommunityExpress.Instance.Leaderboards.LeaderboardReceived += new CommunityExpressNS.Leaderboards.LeaderboardRetrievedHandler(Leaderboards_LeaderboardReceived);
+            bool b = cesdk.RemoteStorage.WriteFile("bah", "I ha File");
+
+            CommunityExpressNS.CommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard("TestServer", CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending, CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeTimeMilliSeconds);
+
+            Console.WriteLine("Waiting for leaderboards");
+            while (leaderboard == null)
+            {
+                CommunityExpressNS.CommunityExpress.Instance.RunCallbacks();
+            }
+
+            leaderboard.LeaderboardEntriesReceived += new CommunityExpressNS.Leaderboard.OnLeaderboardEntriesRetrievedHandler(OnLeaderboardEntriesReceived);
+            leaderboard.RequestLeaderboardEntriesAroundCurrentUser(0, 10, 5);
+            for (int i = 0; i < 10; i++)
+            {
+                callbacksInvoked = 0;
+                callbackReceived = false;
+                while (!callbackReceived)
+                {
+                    Thread.Sleep(500);
+                    CommunityExpressNS.CommunityExpress.Instance.RunCallbacks();
+                }
+
+                Console.WriteLine("Callbacks invoked: " + callbacksInvoked);
+                leaderboard.RequestLeaderboardEntriesAroundCurrentUser(0, 10, 5);
+            }
+
+
+           // CommunityExpress.Instance.Leaderboards.FindLeaderboard("Pong Lead");
+            
+           // cesdk.UserGeneratedContent.EnumerateUserSharedWorkshopFiles(new SteamID(76561197975509070), 0, null, null);
+            
+            /// BEGIN PUBLISH
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
+
+            cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
+            {
+                cesdk.RemoteStorage.FileShare(e.FileWriteStream.FileName);
+            };
+
+            cesdk.UserGeneratedContent.FileProgress += (UserGeneratedContent sender, float progress) =>
+            {
+                Console.WriteLine("Program Progress " + progress);
+            };
+
+            cesdk.RemoteStorage.FileShared += (RemoteStorage sender, RemoteStorage.RemoteStorageFileShareResultArgs e) =>
+            {
+                if (e.RemainingFiles == 0)
+                {
+                    Console.WriteLine("Publishing File");
+
+                    cesdk.UserGeneratedContent.PublishWorkshopFile(@"bacon.png",
+                        @"bacon.png",
+                        241720,
+                        "Abduction - Workshop Level 6",
                         "This is Abduction, we have toast here too",
                         UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
                         new string[] { "Map", "Tower" },
@@ -313,8 +425,40 @@ namespace SteamworksUnityTest
                     //
                 }
             };
+            Dictionary<string, string> filter = new Dictionary<string, string>();
+            filter.Add("gameDir", "pong");
+            Servers allServers;
+            allServers = cesdk.Matchmaking.RequestLANServerList();
 
+            cesdk.Matchmaking.ServerListReceived += (Matchmaking sender, Servers serverList) =>
+            {
+                Console.WriteLine("Server List Recieved");
+            };
+            Console.WriteLine("Server List Recieved");
+            //Lobby create and request list
+            /*
+            cesdk.Matchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, 5);
+            cesdk.Matchmaking.RequestLobbyList(null, null, null, 1, ELobbyDistanceFilter.k_ELobbyDistanceFilterWorldwide, 10, null);
+
+            cesdk.Matchmaking.LobbyCreated += (Matchmaking sender, Lobby lobby, EResult result) =>
+            {
+                cesdk.Matchmaking.RequestLobbyList(null, null, null, 1, ELobbyDistanceFilter.k_ELobbyDistanceFilterWorldwide, 10, null);
+            };
+
+            cesdk.Matchmaking.LobbyListReceived += (Matchmaking sender, Lobbies lobbyList) =>
+            {
+                Console.WriteLine("woot");
+                
+                foreach(Lobby lb in lobbyList)
+                {
+                    Console.WriteLine("yeah");
+                }
+            };
+            */
+
+            
             cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+            cesdk.UserGeneratedContent.EnumerateUserPublishedFiles(0);
             //cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeTrending, 0, 50, 10, null, null);
             /// END PUBLISH
             //cesdk.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayFriends);
@@ -329,7 +473,7 @@ namespace SteamworksUnityTest
             {
                 foreach (UserGeneratedContent.PublishedFile p in e.PublishedFiles)
                 {
-                    Console.WriteLine("  " + p.Description);
+                    Console.WriteLine("  " + p.Title);
                     if (p.Tags.Contains("Map"))
                     {
                         /*
@@ -426,7 +570,7 @@ namespace SteamworksUnityTest
 
             leaderboards.LeaderboardReceived += new Leaderboards.LeaderboardRetrievedHandler(MyOnLeaderboardRetrievedCallback);
             leaderboards.FindLeaderboard("TestLeaderboard");
-           
+            
 			while (!_leaderboardEntriesReceived)
 			{
 				cesdk.RunCallbacks();
@@ -479,7 +623,7 @@ namespace SteamworksUnityTest
 	*/
 			
 			GameServer gameserver = cesdk.GameServer;
-			const UInt16 gsPort = 8793;
+			//const UInt16 gsPort = 8793;
 			// The server would have had to send down its SteamID and its VAC status to allow the generation of the Steam Auth Ticket
 			Byte[] authTicket;
             if (user.InitiateClientAuthentication(out authTicket, gameserver.SteamID, IPAddress.Loopback, gsPort, true))
@@ -569,22 +713,34 @@ namespace SteamworksUnityTest
 			return 0;
 		}
 
+        static void Leaderboards_LeaderboardReceived(CommunityExpressNS.Leaderboards sender, CommunityExpressNS.Leaderboard leaderboard)
+        {
+            Program.leaderboard = leaderboard;
+            Console.WriteLine("Leaderboard received");
+        }
+
+        static void OnLeaderboardEntriesReceived(Leaderboard sender, LeaderboardEntries entries)
+        {
+            callbackReceived = true;
+
+            callbacksInvoked++;
+        }
+
+        /*
+
+        public static void Leaderboards_LeaderboardReceived(Leaderboards board, Leaderboard l)
+        {
+            if (l != null)
+            {
+                Console.WriteLine("Leaderboard Found/Created");
+            }
+            Console.WriteLine("callback retrieved");
+        }
+        */
         static void Friends_PersonaStateChange(Friends sender, SteamID ID, int ChangeFlags, bool result)
         {
             Friend f = sender.GetFriendBySteamID(ID);
             Console.WriteLine("{0}: {1}", f.PersonaName, f.PersonaState);
-        }
-
-        public static void OnReceiveLeaderboard(Leaderboards board, Leaderboard l)
-        {
-            CommunityExpress.Instance.Leaderboards.LeaderboardReceived -= OnReceiveLeaderboard;
-            if (l != null)
-            {
-                l.LeaderboardEntriesReceived += OnEntriesReceived;
-                l.RequestFriendLeaderboardEntries(5);
-            }
-            Console.WriteLine("callback retrieved");
-           // l.RequestFriendLeaderboardEntries(5, MyOnLeaderboardEntriesRetrievedCallback);
         }
 
         public static void OnEntriesReceived(Leaderboard board, LeaderboardEntries l)

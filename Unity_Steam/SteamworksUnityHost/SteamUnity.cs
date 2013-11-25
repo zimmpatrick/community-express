@@ -22,6 +22,15 @@ namespace CommunityExpressNS
     /// </summary>
 	public sealed class CommunityExpress
 	{
+        
+	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+	    internal struct LobbyMatchList_t
+        {
+            internal const int k_iCallback = Events.k_iSteamMatchmakingCallbacks + 10;
+            internal UInt32 m_nLobbiesMatching;		// Number of lobbies that matched search criteria and we have SteamIDs for
+	    }
+
+
         [DllImport("CommunityExpressSW")]
         [return: MarshalAs(UnmanagedType.I1)]
 		private static extern bool SteamUnityAPI_RestartAppIfNecessary(uint unOwnAppID);
@@ -129,6 +138,7 @@ namespace CommunityExpressNS
 		private SteamWebAPI _steamWebAPI = null;
 		private BigPicture _bigPicture = null;
         private UserGeneratedContent _ugc = null;
+        public SteamAPICall_t _lobbyRequest = 0;
         
         internal delegate void OnEventHandler<T>(T pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall);
 
@@ -276,6 +286,16 @@ namespace CommunityExpressNS
 			SteamUnityAPI_RunCallbacks();
 
             RunUploads();
+            Byte failed;
+            if (_lobbyRequest != 0)
+            {
+                LobbyMatchList_t _lobbyListResult;
+                if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_lobbyRequest, out failed))
+                {
+                    SteamUnityAPI_SteamUtils_GetLobbyListReceivedResult(_lobbyRequest, out _lobbyListResult, out failed);
+                    Matchmaking.GetLobbyList(_lobbyListResult);
+                }
+            }
 
 			if (_gameserver != null && _gameserver.IsInitialized)
 			{
@@ -285,7 +305,6 @@ namespace CommunityExpressNS
 				{
 					SteamAPICall_t h = _gameserverUserStatsReceivedCallHandles[i];
 
-					Byte failed;
 					if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(h, out failed))
 					{
 						GSStatsReceived_t callbackData = new GSStatsReceived_t();
@@ -310,7 +329,6 @@ namespace CommunityExpressNS
 
 			if (_userGetEncryptedAppTicketCallHandle != 0)
 			{
-				Byte failed;
 				if (SteamUnityAPI_SteamUtils_IsAPICallCompleted(_userGetEncryptedAppTicketCallHandle, out failed))
 				{
 					_userGetEncryptedAppTicketCallback();
@@ -650,7 +668,7 @@ namespace CommunityExpressNS
 			// Put a real functional test in here
 			return (UInt64)Math.Sqrt((double)challenge);
 		}
-        
+
         private void OnCallback(Int32 k_iCallback, IntPtr pvParam, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
         {
             if (_internalHandlers.ContainsKey(k_iCallback) &&

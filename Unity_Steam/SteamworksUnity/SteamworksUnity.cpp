@@ -1759,7 +1759,6 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_RequestLobbyLi
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
 
 	SteamAPICall_t hAPICall = pISteamMatchmaking->RequestLobbyList();
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LobbyGameCreatedCallback, hAPICall );
 
 	return hAPICall;
 }
@@ -1974,8 +1973,14 @@ STEAMWORKSUNITY_API HServerListRequest SteamUnityAPI_SteamMatchmakingServers_Req
 			strcpy_s(g_pKeyValuePairs[i].m_szKey, 256, pKeys[i]);
 			strcpy_s(g_pKeyValuePairs[i].m_szValue, 256, pValues[i]);
 		}
+		MatchMakingKeyValuePair_t pFilters[2];
+		MatchMakingKeyValuePair_t *pFilter = pFilters;
+	
+		strncpy( pFilters[ 0 ].m_szKey, "gamedir", sizeof(pFilters[ 0 ].m_szKey) );
+		strncpy( pFilters[ 0 ].m_szValue, "spacewar", sizeof(pFilters[ 0 ].m_szValue) );
 
-		return pISteamMatchmakingServers->RequestInternetServerList(iApp, &g_pKeyValuePairs, uiKeyValueCount, &SteamCallbacks::getInstance());
+
+		return pISteamMatchmakingServers->RequestInternetServerList(iApp, &pFilter, uiKeyValueCount, &SteamCallbacks::getInstance());
 	}
 
 	return pISteamMatchmakingServers->RequestInternetServerList(iApp, NULL, 0, &SteamCallbacks::getInstance());
@@ -2089,7 +2094,7 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamMatchmakingServers_ReleaseRequest(vo
 		g_pKeyValuePairs = NULL;
 	}
 
-	return pISteamMatchmakingServers->ReleaseRequest(hRequest);
+	pISteamMatchmakingServers->ReleaseRequest(hRequest);
 }
 
 
@@ -2164,7 +2169,7 @@ void SteamCallbacks::ServerResponded(HServerListRequest hRequest, int iServer)
 
 void SteamCallbacks::ServerFailedToRespond(HServerListRequest hRequest, int iServer)
 {
-	// gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+	 gameserveritem_t* callbackData = context.SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
 }
 
 void SteamCallbacks::RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response)
