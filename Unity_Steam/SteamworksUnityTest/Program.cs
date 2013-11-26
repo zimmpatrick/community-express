@@ -289,7 +289,7 @@ namespace SteamworksUnityTest
             
             
             
-            /*
+           
             cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
@@ -316,48 +316,60 @@ namespace SteamworksUnityTest
                         UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
                         new string[] { "Map", "Tower" },
                         UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
-                    cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeRecent, 0, 5, 50, null, null);
+                    cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
                     //
                 }
             };
 
-
+            cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileResultArgs result) =>
+            {
+                Console.WriteLine("File Subsribed");
+            };
             
 
 
             cesdk.UserGeneratedContent.EnumerateFileDetails += (UserGeneratedContent sender, UserGeneratedContent.EnumeratePublishedFileResultArgs e) =>
             {
                 Console.WriteLine("Hello");
+                foreach(UserGeneratedContent.PublishedFile p in e.PublishedFiles)
+                {
+                    cesdk.UserGeneratedContent.GetPublishedFileDetails(p.ID);
+                    p.Download(p.FileName, 0);
+                }
             };
-            */
 
+            cesdk.UserGeneratedContent.PublishedFileDownloaded += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDownloadResultArgs pf) =>
+            {
+                // ready to play!
+                Console.WriteLine(pf.FileName);
+            };
 
-
-
-
-
+            
 			const UInt16 gsPort = 8793;
             IPAddress ip = IPAddress.Any;
             Dictionary<string, string> filters2 = new Dictionary<string, string>();
-            filters2.Add("gamedir", "spacewar");
+            filters2.Add("gamedir", "tf");
+            //filters2.Add("map", "mvm_coaltown");
             bool testB = false;
-            
+ /*
+            Console.WriteLine("AppID " + cesdk.AppID);
+
             testB = cesdk.GameServer.Init(false, ip, gsPort, gsPort + 1100, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "spacewar",
                 "spacewar", "US", "spacewar", "spacewar", "1.0.2.9", "spacewar", 2, true, "spacewar",
                 MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick);
 
-            cesdk.Matchmaking.RequestLANServerList();
+            Console.WriteLine("Server Successfully Created: " + testB);
 
+            cesdk.Matchmaking.RequestInternetServerList(filters2);
             cesdk.Matchmaking.ServerReceived += (Matchmaking sender, Servers serverList, Server server) =>
             {
                 Console.WriteLine("Server Name: " + server.ServerName);
             };
-            
+            */
             while (true)
             {
                 cesdk.RunCallbacks();
             }
-
 
             string name = "TestServer";
 
@@ -500,7 +512,7 @@ namespace SteamworksUnityTest
                     Console.WriteLine("Got file details : " + result.PublishedFile.ID);
                 }
             };
-
+           
             cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileResultArgs result) =>
             {
                 Console.WriteLine("File Subscribed : " + result);
