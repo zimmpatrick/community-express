@@ -632,7 +632,7 @@ namespace CommunityExpressNS
         private static extern IntPtr SteamUnityAPI_SteamRemoteStorage();
 
         [DllImport("CommunityExpressSW")]
-        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(IntPtr remoteStorage, EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays);
+        private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(IntPtr remoteStorage, EWorkshopEnumerationType eEnumerationType, UInt32 unStartIndex, UInt32 unCount, UInt32 unDays, SteamParamStringArray_t pTags, SteamParamStringArray_t pUserTags);
 
         [DllImport("CommunityExpressSW")]
         private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_EnumerateUserSubscribedFiles(IntPtr remoteStorage, UInt32 unStartIndex);
@@ -1133,7 +1133,6 @@ namespace CommunityExpressNS
         {
             _totalCount = recv.m_nTotalResultCount;
             _subscribeTimes = new Dictionary<PublishedFileUpdateHandle_t, AppId_t>();
-            _publishedFiles = null;
 
             for (int i = 0; i < recv.m_nResultsReturned; i++)
             {
@@ -1224,7 +1223,10 @@ namespace CommunityExpressNS
             _totalCount = 0;
             _publishedFiles = new List<PublishedFile>();
 
-            SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(_remoteStorage, eEnumerationType, unStartIndex, unCount, unDays);
+            SteamParamStringArray_t pTagsArray = new CommunityExpressNS.SteamParamStringArray_t(tags);
+            SteamParamStringArray_t pUserTagsArray = new CommunityExpressNS.SteamParamStringArray_t(userTags);
+
+            SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(_remoteStorage, eEnumerationType, unStartIndex, unCount, unDays, pTagsArray, pUserTagsArray);
 
         }
 

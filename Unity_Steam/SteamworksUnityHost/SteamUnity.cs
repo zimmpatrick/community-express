@@ -681,7 +681,7 @@ namespace CommunityExpressNS
                 _internalOnEventFactory[k_iCallback].Invoke(this, new object[] { k_iCallback, obj, bIOFailure, hSteamAPICall });
             }
 
-            Console.WriteLine(k_iCallback);
+            //Console.WriteLine(k_iCallback);
         }
 
         [Conditional("LICENSED")]

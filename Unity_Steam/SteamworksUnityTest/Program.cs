@@ -290,7 +290,7 @@ namespace SteamworksUnityTest
             
             
            
-            cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
+            //cesdk.RemoteStorage.AsyncWriteUpload(@"C:\Program Files (x86)\Steam\steamapps\common\Guncraft\Content\Maps\Winterfell.png", @"bacon.png");
 
             cesdk.RemoteStorage.FileWriteStreamClosed += (RemoteStorage sender, RemoteStorage.FileWriteStreamCloseArgs e) =>
             {
@@ -314,12 +314,28 @@ namespace SteamworksUnityTest
                         "Abduction - Workshop Level 6",
                         "This is Abduction, we have toast here too",
                         UserGeneratedContent.ERemoteStoragePublishedFileVisibility.k_ERemoteStoragePublishedFileVisibilityFriendsOnly,
-                        new string[] { "Map", "Tower" },
+                        new string[] { "Tbttest", "Caster Starter" },
                         UserGeneratedContent.EWorkshopFileType.k_EWorkshopFileTypeCommunity);
-                    cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+
                     //
                 }
             };
+
+            cesdk.UserGeneratedContent.EnumerateFileDetails += (UserGeneratedContent sender, UserGeneratedContent.EnumeratePublishedFileResultArgs e) =>
+            {
+                Console.WriteLine("Enumerating File Details");
+                foreach (UserGeneratedContent.PublishedFile p in e.PublishedFiles)
+                {
+                    //cesdk.UserGeneratedContent.GetPublishedFileDetails(p.ID);
+                    //p.Download(p.FileName, 0);
+                    Console.WriteLine("File Name " + p.Title);
+                }
+            };
+
+
+            cesdk.UserGeneratedContent.EnumeratePublishedWorkshopFiles(UserGeneratedContent.EWorkshopEnumerationType.k_EWorkshopEnumerationTypeRecent, 0, 50, 50, new string[] { "Tbttest" }, null);
+            //cesdk.UserGeneratedContent.EnumerateUserSubscribedFiles(0);
+
 
             cesdk.UserGeneratedContent.FileSubscribed += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileResultArgs result) =>
             {
@@ -328,23 +344,18 @@ namespace SteamworksUnityTest
             
 
 
-            cesdk.UserGeneratedContent.EnumerateFileDetails += (UserGeneratedContent sender, UserGeneratedContent.EnumeratePublishedFileResultArgs e) =>
-            {
-                Console.WriteLine("Hello");
-                foreach(UserGeneratedContent.PublishedFile p in e.PublishedFiles)
-                {
-                    cesdk.UserGeneratedContent.GetPublishedFileDetails(p.ID);
-                    p.Download(p.FileName, 0);
-                }
-            };
-
             cesdk.UserGeneratedContent.PublishedFileDownloaded += (UserGeneratedContent sender, UserGeneratedContent.PublishedFileDownloadResultArgs pf) =>
             {
                 // ready to play!
                 Console.WriteLine(pf.FileName);
             };
 
-            
+
+            while (true)
+            {
+                cesdk.RunCallbacks();
+            }
+
 			const UInt16 gsPort = 8793;
             IPAddress ip = IPAddress.Any;
             Dictionary<string, string> filters2 = new Dictionary<string, string>();
@@ -366,11 +377,6 @@ namespace SteamworksUnityTest
                 Console.WriteLine("Server Name: " + server.ServerName);
             };
             */
-            while (true)
-            {
-                cesdk.RunCallbacks();
-            }
-
             string name = "TestServer";
 
             CommunityExpressNS.CommunityExpress.Instance.Initialize();

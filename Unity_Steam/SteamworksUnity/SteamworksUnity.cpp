@@ -777,11 +777,11 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTag
 	return pISteamRemoteStorage->UpdatePublishedFileTags(updateHandle, &pTags);
 }
 
-STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(void* pSteamRemoteStorage, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays)
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePublishedWorkshopFiles(void* pSteamRemoteStorage, EWorkshopEnumerationType eEnumerationType, uint32 unStartIndex, uint32 unCount, uint32 unDays, SteamParamStringArray_t tags, SteamParamStringArray_t userTags)
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
-	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, NULL, NULL);
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, &tags, &userTags);
 	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateWorkshopFilesResult, hAPICall );
 	
 	return hAPICall;
