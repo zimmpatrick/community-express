@@ -366,6 +366,8 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(IntPtr friends, AppId_t appID, EOverlayToStoreFlag flag);
         [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayInviteDialog(IntPtr friends, SteamID lobbID);
+        [DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_RequestFriendRichPresence(IntPtr friends, UInt64 steamIDFriend);
         [DllImport("CommunityExpressSW")]
         private static extern AppId_t SteamUnityAPI_SteamFriends_GetFriendCoplayGame(IntPtr friends, UInt64 steamIDFriend);
@@ -741,7 +743,15 @@ namespace CommunityExpressNS
 		{
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(_friends, appID, flag);
 		}
-
+        /// <summary>
+        /// Adds the Steam overlay to an app on the Ivite Window
+        /// </summary>
+        /// <param name="lobbyID">Lobby player is being invited to</param>
+        public void ActivateGameOverlayInviteDialog(SteamID lobbyID)
+		{
+            SteamUnityAPI_SteamFriends_ActivateGameOverlayInviteDialog(_friends, lobbyID);
+		}
+        
         public void InviteUserToGame(SteamID clanID, string pchConnectString)
         {
             SteamUnityAPI_SteamFriends_InviteUserToGame(_friends, clanID.ToUInt64(), pchConnectString);

@@ -1280,6 +1280,13 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(v
 	pISteamFriends->ActivateGameOverlayToStore(iApp, eFlag);
 }
 
+STEAMWORKSUNITY_API void SteamUnityAPI_SteamFriends_ActivateGameOverlayInviteDialog(void* pSteamFriends, uint64 steamIDLobby)
+{
+	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
+
+	pISteamFriends->ActivateGameOverlayInviteDialog(steamIDLobby);
+}
+
 STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUser()
 {
 	return context.SteamUser();
