@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace CommunityExpressNS
 {
+    using SteamAPICall_t = UInt64;
     /// <summary>
     /// Session error codes
     /// </summary>
@@ -60,26 +61,28 @@ namespace CommunityExpressNS
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct P2PSessionRequest_t
 	{
-		public UInt64 m_steamID;
+        internal const int k_iCallback = Events.k_iSteamNetworkingCallbacks + 2;
+
+        public UInt64 m_steamID;
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct P2PSessionConnectFail_t
 	{
-		public UInt64 m_steamID;
+        internal const int k_iCallback = Events.k_iSteamNetworkingCallbacks + 3;
+        
+        public UInt64 m_steamID;
 		public Byte m_eP2PSessionError;
 	}
 
-	delegate void OnNewP2PSessionFromSteam(P2PSessionRequest_t callbackData);
-    /// <summary>
+	/// <summary>
     /// When a new P2P session is begun
     /// </summary>
     /// <param name="steamID">ID of session</param>
     /// <returns>true if session created</returns>
 	public delegate Boolean OnNewP2PSession(SteamID steamID);
 
-	delegate void OnSendP2PPacketFailedFromSteam(P2PSessionConnectFail_t callbackData);
-    /// <summary>
+	/// <summary>
     /// When a P2P packet fails to connect
     /// </summary>
     /// <param name="steamID">ID of session</param>
@@ -100,8 +103,6 @@ namespace CommunityExpressNS
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamNetworking();
-		[DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SteamNetworking_SetCallbacks(IntPtr onNewP2PSession, IntPtr onSendP2PPacketFailed);
 		[DllImport("CommunityExpressSW")]
 		private static extern void SteamUnityAPI_SteamNetworking_AllowP2PPacketRelay(IntPtr networking, Boolean allow);
 		[DllImport("CommunityExpressSW")]
@@ -128,16 +129,17 @@ namespace CommunityExpressNS
 		private Boolean _isInitialized = false;
 		private Int32[] _listenChannels = new Int32[] {0};
 
-		private OnNewP2PSessionFromSteam _internalOnNewP2PSession = null;
 		private OnNewP2PSession _onNewP2PSession;
 
-		private OnSendP2PPacketFailedFromSteam _internalOnSendP2PPacketFailed = null;
 		private OnSendP2PPacketFailed _onSendP2PPacketFailed;
 
 		private OnP2PPacketReceived _onP2PPacketReceived;
 
-		internal Networking()
+        private CommunityExpress _ce;
+        
+        internal Networking(CommunityExpress ce)
 		{
+            _ce = ce;
 			_networking = SteamUnityAPI_SteamNetworking();
 		}
         /// <summary>
@@ -153,21 +155,29 @@ namespace CommunityExpressNS
 			_onSendP2PPacketFailed = onSendP2PPacketFailed;
 			_onP2PPacketReceived = onP2PPacketReceived;
 
-			if (_internalOnNewP2PSession == null)
-			{
-				_internalOnNewP2PSession = new OnNewP2PSessionFromSteam(OnNewP2PSession);
-				_internalOnSendP2PPacketFailed = new OnSendP2PPacketFailedFromSteam(OnSendP2PPacketFailed);
-			}
 
-			SteamUnityAPI_SteamNetworking_SetCallbacks(Marshal.GetFunctionPointerForDelegate(_internalOnNewP2PSession),
-				Marshal.GetFunctionPointerForDelegate(_internalOnSendP2PPacketFailed));
-
+            _ce.AddEventHandler(P2PSessionRequest_t.k_iCallback, new CommunityExpress.OnEventHandler<P2PSessionRequest_t>(OnNewP2PSession));
+            _ce.AddEventHandler(P2PSessionConnectFail_t.k_iCallback, new CommunityExpress.OnEventHandler<P2PSessionConnectFail_t>(OnSendP2PPacketFailed));
+            
 			SteamUnityAPI_SteamNetworking_AllowP2PPacketRelay(_networking, allowPacketRelay);
 
 			_isInitialized = true;
 		}
 
-		private void OnNewP2PSession(P2PSessionRequest_t callbackData)
+        public void Shutdown()
+        {
+            _onNewP2PSession = null;
+            _onSendP2PPacketFailed = null;
+            _onP2PPacketReceived = null;
+
+            _ce.RemoveEventHandler(P2PSessionRequest_t.k_iCallback, new CommunityExpress.OnEventHandler<P2PSessionRequest_t>(OnNewP2PSession));
+            _ce.RemoveEventHandler(P2PSessionConnectFail_t.k_iCallback, new CommunityExpress.OnEventHandler<P2PSessionConnectFail_t>(OnSendP2PPacketFailed));
+
+            _isInitialized = false;
+
+        }
+
+		private void OnNewP2PSession(P2PSessionRequest_t callbackData, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
 		{
 			if (_onNewP2PSession(new SteamID(callbackData.m_steamID)))
 				SteamUnityAPI_SteamNetworking_AcceptP2PSessionWithUser(_networking, callbackData.m_steamID);
@@ -183,6 +193,7 @@ namespace CommunityExpressNS
 		{
 			SteamUnityAPI_SteamNetworking_SendP2PPacket(_networking, steamID.ToUInt64(), Marshal.StringToHGlobalAnsi(data), (UInt32)data.Length, (Byte)sendType, channel);
 		}
+
         /// <summary>
         /// Send a P2P packet (Byte)
         /// </summary>
@@ -190,20 +201,37 @@ namespace CommunityExpressNS
         /// <param name="data">Packet data</param>
         /// <param name="sendType">Type of sending format</param>
         /// <param name="channel">Connection channel</param>
-		public void SendP2PPacket(SteamID steamID, Byte[] data, EP2PSend sendType, Int32 channel = 0)
+		public unsafe void SendP2PPacket(SteamID steamID, Byte[] data, EP2PSend sendType, Int32 channel = 0)
 		{
-			IntPtr dataPtr = Marshal.AllocHGlobal(data.Length);
-			Marshal.Copy(data, 0, dataPtr, data.Length);
+            fixed (byte* p = data)
+            {
+                IntPtr dataPtr = (IntPtr)p;
 
-			SteamUnityAPI_SteamNetworking_SendP2PPacket(_networking, steamID.ToUInt64(), dataPtr, (UInt32)data.Length, (Byte)sendType, channel);
-
-			Marshal.FreeHGlobal(dataPtr);
+                SteamUnityAPI_SteamNetworking_SendP2PPacket(_networking, steamID.ToUInt64(), dataPtr, (UInt32)data.Length, (Byte)sendType, channel);
+            }
 		}
+
+        /// <summary>
+        /// Send a P2P packet (Byte)
+        /// </summary>
+        /// <param name="steamID">ID of session</param>
+        /// <param name="data">Packet data</param>
+        /// <param name="sendType">Type of sending format</param>
+        /// <param name="channel">Connection channel</param>
+        public unsafe void SendP2PPacket(SteamID steamID, Byte[] data, uint count, EP2PSend sendType, Int32 channel = 0)
+        {
+            fixed (byte* p = data)
+            {
+                IntPtr dataPtr = (IntPtr)p;
+
+                SteamUnityAPI_SteamNetworking_SendP2PPacket(_networking, steamID.ToUInt64(), dataPtr, count, (Byte)sendType, channel);
+            }
+        }
         /// <summary>
         /// When the packet fails to connect
         /// </summary>
         /// <param name="callbackData">Callback data for failure</param>
-		private void OnSendP2PPacketFailed(P2PSessionConnectFail_t callbackData)
+        private void OnSendP2PPacketFailed(P2PSessionConnectFail_t callbackData, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
 		{
 			_onSendP2PPacketFailed(new SteamID(callbackData.m_steamID), (EP2PSessionError)callbackData.m_eP2PSessionError);
 		}

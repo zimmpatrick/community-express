@@ -13,7 +13,12 @@
 	#define ZIMM_STDCALL	__attribute__((stdcall))
 	#define ZIMM_CDECL		__attribute__((cdecl))
 	#define ZIMM_CALLBACK	ZIMM_CDECL
+#else
+	#define ZIMM_STDCALL
+	#define ZIMM_CDECL
+	#define ZIMM_CALLBACK
 #endif
+
 
 
 
@@ -117,9 +122,13 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyListReceived, LobbyMatchList_t, LobbyListReceivedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite)
+
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnP2PSessionRequest, P2PSessionRequest_t, P2PSessionRequest)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnP2PSessionConnectFail, P2PSessionConnectFail_t, P2PSessionConnectFail)
 
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback)
@@ -242,9 +251,13 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyListReceived, LobbyMatchList_t, LobbyListReceivedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite);
+
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnP2PSessionRequest, P2PSessionRequest_t, P2PSessionRequest);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnP2PSessionConnectFail, P2PSessionConnectFail_t, P2PSessionConnectFail);
 
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);

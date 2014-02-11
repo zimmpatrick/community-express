@@ -18,7 +18,7 @@ namespace CommunityExpressNS
     /// <summary>
     /// Information about a lobby
     /// </summary>
-	public class Lobby : ICollection<Friend>
+	public class Lobby : ICollection<Friend>,IDisposable
 	{
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamMatchmaking();
@@ -30,6 +30,8 @@ namespace CommunityExpressNS
 		private static extern int SteamUnityAPI_SteamMatchmaking_GetNumLobbyMembers(IntPtr matchmaking, UInt64 steamIDLobby);
 		[DllImport("CommunityExpressSW")]
 		private static extern UInt64 SteamUnityAPI_SteamMatchmaking_GetLobbyMemberByIndex(IntPtr matchmaking, UInt64 steamIDLobby, int iLobbyMember);
+        [DllImport("CommunityExpressSW")]
+        private static extern IntPtr SteamUnityAPI_SteamMatchmaking_GetLobbyData(IntPtr matchmaking, UInt64 steamIDLobby, [MarshalAs(UnmanagedType.LPStr)] String key);
         [DllImport("CommunityExpressSW")]
         [return: MarshalAs(UnmanagedType.I1)]
 		private static extern Boolean SteamUnityAPI_SteamMatchmaking_RequestLobbyData(IntPtr matchmaking, UInt64 steamIDLobby);
@@ -140,6 +142,7 @@ namespace CommunityExpressNS
 			_id = id;
 
             CommunityExpress.Instance.Matchmaking.LobbyDataUpdated += new Matchmaking.LobbyDataUpdatedHandler(Matchmaking_LobbyDataUpdated);
+            CommunityExpress.Instance.Matchmaking.LobbyChatUpdated += new Matchmaking.LobbyChatUpdatedHandler(Matchmaking_LobbyChatUpdated);
 		}
         /// <summary>
         /// Invite a user to a lobby
@@ -201,6 +204,15 @@ namespace CommunityExpressNS
 			return new LobbyData(_matchmaking, this);
 		}
         /// <summary>
+        /// Gets lobby data value
+        /// </summary>
+        /// <param name="key">Lobby key</param>
+        /// <returns>true if gotten</returns>
+        public String GetData(String key)
+        {
+            return Marshal.PtrToStringAnsi(SteamUnityAPI_SteamMatchmaking_GetLobbyData(_matchmaking, _id.ToUInt64(), key));
+        }
+        /// <summary>
         /// Sets lobby data
         /// </summary>
         /// <param name="key">Lobby key</param>
@@ -226,9 +238,17 @@ namespace CommunityExpressNS
         /// <param name="Success">If update is successful</param>
         public delegate void LobbyDataUpdatedHandler(Lobby sender, bool Success);
         /// <summary>
+        /// Lobby chat is updated
+        /// </summary>
+        public delegate void LobbyChatUpdatedHandler(Lobby sender, SteamID userIdChanged, SteamID makingIDChange, EChatMemberStateChange MemberStateChange);
+        /// <summary>
         /// Lobby data is updated
         /// </summary>
         public event LobbyDataUpdatedHandler LobbyDataUpdated;
+        /// <summary>
+        /// Lobby data is updated
+        /// </summary>
+        public event LobbyChatUpdatedHandler LobbyChatUpdated;
 
         void Matchmaking_LobbyDataUpdated(Matchmaking sender, SteamID lobbyId, bool Success)
 		{
@@ -240,6 +260,17 @@ namespace CommunityExpressNS
                 }
             }
 		}
+
+        void Matchmaking_LobbyChatUpdated(Matchmaking sender, Lobby lobby, SteamID UserIDChanged, SteamID MakingIDChange, EChatMemberStateChange MemberStateChange)
+        {
+            if (lobby == this)
+            {
+                if (LobbyChatUpdated != null)
+                {
+                    LobbyChatUpdated(this, UserIDChanged, MakingIDChange, MemberStateChange);
+                }
+            }
+        }
         /// <summary>
         /// Gets data about a member
         /// </summary>
@@ -509,5 +540,11 @@ namespace CommunityExpressNS
 		{
 			return GetEnumerator();
 		}
-	}
+
+        public void Dispose()
+        {
+            CommunityExpress.Instance.Matchmaking.LobbyDataUpdated -= new Matchmaking.LobbyDataUpdatedHandler(Matchmaking_LobbyDataUpdated);
+            CommunityExpress.Instance.Matchmaking.LobbyChatUpdated -= new Matchmaking.LobbyChatUpdatedHandler(Matchmaking_LobbyChatUpdated);   
+        }
+    }
 }

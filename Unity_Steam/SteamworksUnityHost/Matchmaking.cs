@@ -461,14 +461,14 @@ namespace CommunityExpressNS
         /// <param name="compatibleSteamIDs">Lobby IDs allowed</param>
 		public void RequestLobbyList(ICollection<LobbyStringFilter> stringFilters, ICollection<LobbyIntFilter> intFilters, Dictionary<String, Int32> nearValueFilters, Int32 requiredSlotsAvailable, ELobbyDistanceFilter lobbyDistance, Int32 maxResults, ICollection<SteamID> compatibleSteamIDs)
         {
-            _ce.AddEventHandler(LobbyMatchList_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyMatchList_t>(Events_LobbyListReceivedCallback));
-
             if (_lobbyListRequest != 0)
             {
                 CancelCurrentLobbyListRequest();
             }
 
-			if (stringFilters != null)
+            _ce.AddEventHandler(LobbyMatchList_t.k_iCallback, new CommunityExpress.OnEventHandler<LobbyMatchList_t>(Events_LobbyListReceivedCallback));
+
+            if (stringFilters != null)
 			{
 				foreach (LobbyStringFilter f in stringFilters)
 				{

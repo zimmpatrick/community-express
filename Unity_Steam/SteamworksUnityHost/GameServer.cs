@@ -346,7 +346,7 @@ namespace CommunityExpressNS
         {
             if (ClientAchievementStatus != null)
             {
-                ClientAchievementStatus(this, new SteamID(recv.m_SteamID), recv.m_pchAchievement.ToString(), recv.m_bUnlocked);
+                ClientAchievementStatus(this, new SteamID(recv.m_SteamID), new string(recv.m_pchAchievement).Trim('\0'), recv.m_bUnlocked);
             }
         }
 
@@ -741,7 +741,8 @@ namespace CommunityExpressNS
         /// </summary>
 		public void Shutdown()
 		{
-			SteamUnityAPI_SteamGameServer_Shutdown();
+            SteamUnityAPI_SteamGameServer_Shutdown();
+            _isInitialized = false;
 		}
         /// <summary>
         /// Checks if the server is running

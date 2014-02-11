@@ -47,9 +47,9 @@ namespace CommunityExpressNS
     {
 	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 32;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
-        internal String m_rgchServer;		// server address ("127.0.0.1:27015", "tf2.valvesoftware.com")
+        internal char[] m_rgchServer;		// server address ("127.0.0.1:27015", "tf2.valvesoftware.com")
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
-        internal String m_rgchPassword;	// server password, if any
+        internal char[] m_rgchPassword;	// server password, if any
     };
     
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -84,7 +84,7 @@ namespace CommunityExpressNS
 	    internal const int k_iCallback = Events.k_iSteamFriendsCallbacks + 37;
         internal SteamID_t m_steamIDFriend;		// the friend they did the join via (will be invalid if not directly via a friend)
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-        internal String m_rgchConnect;
+        internal char[] m_rgchConnect;
     };
     
     
@@ -366,7 +366,11 @@ namespace CommunityExpressNS
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToStore(IntPtr friends, AppId_t appID, EOverlayToStoreFlag flag);
         [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayInviteDialog(IntPtr friends, UInt64 steamIDLobby);
+        [DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_RequestFriendRichPresence(IntPtr friends, UInt64 steamIDFriend);
+        [DllImport("CommunityExpressSW")]
+        private static extern void SteamUnityAPI_SteamFriends_SetRichPresence(IntPtr friends,[MarshalAs(UnmanagedType.LPStr)] String key,[MarshalAs(UnmanagedType.LPStr)] String value);
         [DllImport("CommunityExpressSW")]
         private static extern AppId_t SteamUnityAPI_SteamFriends_GetFriendCoplayGame(IntPtr friends, UInt64 steamIDFriend);
         [DllImport("CommunityExpressSW")]
@@ -511,7 +515,7 @@ namespace CommunityExpressNS
         {
             if(GameServerChange != null)
             {
-                GameServerChange(this, recv.m_rgchServer, recv.m_rgchPassword, bIOFailure);
+                GameServerChange(this, new string(recv.m_rgchServer).Trim('\0'), new string(recv.m_rgchPassword).Trim('\0'), bIOFailure);
             }
         }
 
@@ -533,7 +537,7 @@ namespace CommunityExpressNS
         {
             if (GameRichPresenceJoin != null)
             {
-                GameRichPresenceJoin(this, new SteamID(recv.m_steamIDFriend), recv.m_rgchConnect, bIOFailure);
+                GameRichPresenceJoin(this, new SteamID(recv.m_steamIDFriend), new string(recv.m_rgchConnect).Trim('\0'), bIOFailure);
             }
         }
 
@@ -703,10 +707,25 @@ namespace CommunityExpressNS
             SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(_friends, strdialogs[3], user.ToUInt64());
 		}
 
+        /// <summary>
+        /// Brings up the overlay for the current user
+        /// </summary>
+        /// <param name="dialog">Overlay dialog</param>
+        /// <param name="user">The user who recieves the overlay</param>
+        public void ActivateGameOverlayInviteDialog(SteamID lobby)
+        {
+            SteamUnityAPI_SteamFriends_ActivateGameOverlayInviteDialog(_friends, lobby.ToUInt64());
+        }
+
         public void RequestFriendRichPresence(SteamID id)
 		{
             SteamUnityAPI_SteamFriends_RequestFriendRichPresence(_friends, id.ToUInt64());
 		}
+
+        public void SetRichPresence(string key, string value)
+        {
+            SteamUnityAPI_SteamFriends_SetRichPresence(_friends, key,value);
+        }
         
         private void GetFriendCoplayGame(SteamID id)
         {

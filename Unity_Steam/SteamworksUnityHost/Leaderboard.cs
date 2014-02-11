@@ -170,6 +170,8 @@ namespace CommunityExpressNS
 
         private void OnLeaderboardEntriesRetrievedCallback(LeaderboardScoresDownloaded_t callbackData, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
 		{
+            if (callbackData.m_hSteamLeaderboard != _leaderboard)
+                return;
 			int entryCount = callbackData.m_cEntryCount;
 			LeaderboardEntry_t leaderboardEntry = new LeaderboardEntry_t();
 

@@ -496,7 +496,7 @@ namespace CommunityExpressNS
 			{
 				if (_networking == null)
 				{
-					_networking = new Networking();
+					_networking = new Networking(this);
 				}
 
 				return _networking;
@@ -662,8 +662,6 @@ namespace CommunityExpressNS
 
                 _internalOnEventFactory[k_iCallback].Invoke(this, new object[] { k_iCallback, obj, bIOFailure, hSteamAPICall });
             }
-
-            Console.WriteLine(k_iCallback);
         }
 
         [Conditional("LICENSED")]
