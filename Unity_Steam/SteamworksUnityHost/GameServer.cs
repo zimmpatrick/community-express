@@ -123,8 +123,19 @@ namespace CommunityExpressNS
         internal int m_cClanPlayersThatDontLikeCandidate;
         internal SteamID_t m_SteamIDCandidate;
     };
-
-
+    
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct SteamServerConnectFailure_t
+    {
+        internal const int k_iCallback = Events.k_iSteamUserCallbacks + 2;
+	    internal EResult m_eResult;
+    };
+    
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+    internal struct SteamServersConnected_t
+    {
+	    internal const int k_iCallback = Events.k_iSteamUserCallbacks + 1;
+    };
 
 	delegate void OnGameServerClientApprovedBySteam(ref GSClientApprove_t callbackData);
     /// <summary>
@@ -258,6 +269,9 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(GSReputation_t.k_iCallback, new CommunityExpress.OnEventHandler<GSReputation_t>(Events_GSReputation));
             _ce.AddEventHandler(AssociateWithClanResult_t.k_iCallback, new CommunityExpress.OnEventHandler<AssociateWithClanResult_t>(Events_AssociateWithClanResult));
             _ce.AddEventHandler(ComputeNewPlayerCompatibilityResult_t.k_iCallback, new CommunityExpress.OnEventHandler<ComputeNewPlayerCompatibilityResult_t>(Events_ComputeNewPlayerCompatibilityResult));
+            _ce.AddEventHandler(SteamServerConnectFailure_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamServerConnectFailure_t>(Events_SteamServerConnectFailure));
+            _ce.AddEventHandler(SteamServersConnected_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamServersConnected_t>(Events_SteamServersConnected));
+            
 		}
         
         public delegate void GSClientApproveHandler(GameServer sender, SteamID steamID);
@@ -417,6 +431,28 @@ namespace CommunityExpressNS
             }
         }
 
+        public delegate void SteamServerConnectFailureHandler(GameServer sender, EResult result);
+        public event SteamServerConnectFailureHandler SteamServerConnectFailure;
+
+        private void Events_SteamServerConnectFailure(SteamServerConnectFailure_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (SteamServerConnectFailure != null)
+            {
+                SteamServerConnectFailure(this, recv.m_eResult);
+            }
+        }
+
+        public delegate void SteamServersConnectedHandler(GameServer sender);
+        public event SteamServersConnectedHandler SteamServersConnected;
+
+        private void Events_SteamServersConnected(SteamServersConnected_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            if (SteamServersConnected != null)
+            {
+                SteamServersConnected(this);
+            }
+        }
+        
         /// <summary>
         /// Finalize game server
         /// </summary>
@@ -530,6 +566,7 @@ namespace CommunityExpressNS
 
 			return false;
 		}
+
         public void ComputeNewPlayerCompatibility( SteamID playerID )
         {
             SteamUnityAPI_SteamGameServer_ComputeNewPlayerCompatibility(_gameServer, playerID.ToUInt64());
@@ -712,9 +749,9 @@ namespace CommunityExpressNS
 			SteamUnityAPI_SteamGameServer_SetBasicServerData(_gameServer, _isDedicated, _gameName, _gameDescription, _modDir);
 		}
 
-		private void SendUpdatedServerStatus()
+		internal void SendUpdatedServerStatus()
 		{
-			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameServer, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _spectatorPort, _regionName, _mapName, _isPassworded);
+			SteamUnityAPI_SteamGameServer_UpdateServerStatus(_gameServer, _maxClients, _botsConnected.Count, _serverName, _spectatorServerName, _spectatorPort, _regionName, _mapName, false);
 		}
         /// <summary>
         /// Requests stats from a user on the server

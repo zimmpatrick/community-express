@@ -26,7 +26,7 @@ namespace SteamworksUnityTestDX
         {
             CommunityExpress.Instance.Initialize();
 
-            CommunityExpress.Instance.Friends.GameOverlayActivated += new Friends.GameOverlayActivatedHandler(Friends_GameOverlayActivated);
+            //CommunityExpress.Instance.Friends.GameOverlayActivated += new Friends.GameOverlayActivatedHandler(Friends_GameOverlayActivated);
 
             // Creates a graphics manager. This is mandatory.
             graphicsDeviceManager = new GraphicsDeviceManager(this);
@@ -54,16 +54,29 @@ namespace SteamworksUnityTestDX
         {
             // Clears the screen with the Color.CornflowerBlue
             GraphicsDevice.Clear(GraphicsDevice.BackBuffer, Color.CornflowerBlue);
-
-            if (!shown && gameTime.TotalGameTime.TotalSeconds > 10.0f)
+            //if(!shown)  Console.WriteLine("first "+ CommunityExpress.Instance.Friends.IsOverlayEnabled());
+            if (!shown && gameTime.TotalGameTime.TotalSeconds > 20.0f)
             {
                 shown = true;
-                CommunityExpress.Instance.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayCommunity);
+               // CommunityExpress.Instance.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayCommunity);
+                CommunityExpress.Instance.BigPicture.ShowGamepadTextInput(EGamepadTextInputMode.k_EGamepadTextInputModeNormal, EGamepadTextInputLineMode.k_EGamepadTextInputLineModeMultipleLines, "Enterness", 100);
+   
+              //  Console.WriteLine("then "+ CommunityExpress.Instance.Friends.IsOverlayEnabled());
             }
+
+            CommunityExpress.Instance.BigPicture.GamepadTextInputDismissed += new BigPicture.OnGamepadTextInputDismissed(BigPicture_GamepadTextInputDismissed);
 
             base.Draw(gameTime);
 
             CommunityExpress.Instance.RunCallbacks();
+        }
+
+        void BigPicture_GamepadTextInputDismissed(bool submitted, string text)
+        {
+            string textString = "Nothing";
+            CommunityExpress.Instance.BigPicture.GetEnteredGamepadTextInput(out textString);
+            Console.WriteLine(textString);
+            throw new NotImplementedException();
         }
 
         static void Main(string[] args)

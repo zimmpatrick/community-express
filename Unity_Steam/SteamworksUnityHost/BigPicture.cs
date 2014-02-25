@@ -101,7 +101,7 @@ namespace CommunityExpressNS
 			Int32 textLength = (Int32)SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength();
 			IntPtr textDataPtr = Marshal.AllocHGlobal(textLength + 1);
 
-			if (SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(textDataPtr, textLength))
+			if (SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(textDataPtr, textLength + 1))
 			{
 				text = Marshal.PtrToStringAnsi(textDataPtr);
 			}

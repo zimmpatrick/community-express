@@ -359,6 +359,9 @@ namespace CommunityExpressNS
 		private static extern int SteamUnityAPI_SteamFriends_GetLargeFriendAvatar(IntPtr friends, UInt64 steamIDFriend);
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlay(IntPtr friends, [MarshalAs(UnmanagedType.LPStr)] String dialog);
+        [DllImport("CommunityExpressSW")]
+        [return: MarshalAs(UnmanagedType.I1)]
+        private static extern bool SteamUnityAPI_SteamUtils_IsOverlayEnabled();
 		[DllImport("CommunityExpressSW")]
         private static extern void SteamUnityAPI_SteamFriends_ActivateGameOverlayToUser(IntPtr friends, [MarshalAs(UnmanagedType.LPStr)] String dialog, UInt64 steamIDUser);
 		[DllImport("CommunityExpressSW")]
@@ -691,6 +694,17 @@ namespace CommunityExpressNS
 			_largeAvatarReceivedCallback(new SteamID(CallbackData.m_steamID), new Image(CallbackData.m_iImage));
 		}
 
+
+         /// <summary>
+        /// Says if over lay is active
+        /// </summary>
+        /// <param name="dialog">Overlay dialog</param>
+        public bool IsOverlayEnabled()
+		{
+            return SteamUnityAPI_SteamUtils_IsOverlayEnabled();
+		}
+
+
         /// <summary>
         /// Brings up the in-game friend overlay
         /// </summary>
@@ -767,9 +781,9 @@ namespace CommunityExpressNS
             return SteamUnityAPI_SteamFriends_IsFollowing(_friends, steamID.ToUInt64());
         }
 
-        public void EnumerateFollowingList(UInt32 startIndex)
+        public bool EnumerateFollowingList(UInt32 startIndex)
         {
-            SteamUnityAPI_SteamFriends_EnumerateFollowingList(_friends, startIndex);
+            return SteamUnityAPI_SteamFriends_EnumerateFollowingList(_friends, startIndex);
         }
 
         //Sets a new Key and value for that key

@@ -301,6 +301,8 @@ namespace CommunityExpressNS
 			{
 				SteamUnityAPI_SteamGameServer_RunCallbacks();
 
+               // GameServer.SendUpdatedServerStatus();
+
 				for (int i = 0; i < _gameserverUserStatsReceivedCallHandles.Count; i++)
 				{
 					SteamAPICall_t h = _gameserverUserStatsReceivedCallHandles[i];

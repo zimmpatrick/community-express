@@ -79,7 +79,7 @@ namespace SteamworksUnityTest
             User user = cesdk.User;
 
             Matchmaking matchmaking = cesdk.Matchmaking;
-
+            /*
             cesdk.Friends.PersonaStateChange += new Friends.PersonaStateChangeHandler(Friends_PersonaStateChange);
 
 
@@ -160,7 +160,7 @@ namespace SteamworksUnityTest
             RemoteStorage remoteStorage = cesdk.RemoteStorage;
             Console.WriteLine("Remote Storage: Files={0} AvailableSpace={1} {2} {3}", remoteStorage.Count, remoteStorage.AvailableSpace, remoteStorage.FileExists("CloudTest.txt"), remoteStorage.GetFileSize("CloudTest.txt"));
             remoteStorage.WriteFile("CloudTest.txt", "I has file!");
-/*
+
             while (true)
             {
                 cesdk.RunCallbacks();
@@ -286,7 +286,7 @@ namespace SteamworksUnityTest
            
             
             
-            
+        /*    
             
             
            
@@ -355,58 +355,66 @@ namespace SteamworksUnityTest
             {
                 cesdk.RunCallbacks();
             }
+*/
+            Console.WriteLine(cesdk.AppID);
+            Achievements achievements = cesdk.UserAchievements;
+            achievements.InitializeAchievementList(new string[] { "ACH_LeroyJenkins", 
+                                                                        "ACH_GetRich1000000", 
+                                                                        "ACH_GetRichMetal250000", 
+                                                                        "ACH_GetRichGem500000", 
+                                                                        "ACH_GetRichWeapon250000", 
+                                                                        "ACH_Kill2000Enemies", 
+                                                                        "ACH_Kill500EnemiesPistol", 
+                                                                        "ACH_Kill500EnemiesShotgun", 
+                                                                        "ACH_Kill500EnemiesMachinegun", 
+                                                                        "ACH_Kill500EnemiesBazooka", 
+                                                                        "ACH_Everywhere", 
+                                                                        "ACH_CreeperHat", 
+                                                                        "ACH_LuckyExplorer", 
+                                                                        "ACH_Sniper", 
+                                                                        "ACH_EyeOfTheTiger", 
+                                                                        "ACH_TreasureHunter", 
+                                                                        "ACH_High"
+                                                                    });
+            MyOnUserStatsReceivedCallback(null, achievements);
 
-			const UInt16 gsPort = 8793;
+            while (true)
+            {
+                cesdk.RunCallbacks();
+            }
+
+
+             Console.WriteLine(cesdk.Friends.IsOverlayEnabled());
+
+            const UInt16 gsPort = 27015;
             IPAddress ip = IPAddress.Any;
             Dictionary<string, string> filters2 = new Dictionary<string, string>();
-            filters2.Add("gamedir", "tf");
+            filters2.Add("gamedir", "spacewar");
             //filters2.Add("map", "mvm_coaltown");
             bool testB = false;
- /*
+            
             Console.WriteLine("AppID " + cesdk.AppID);
 
-            testB = cesdk.GameServer.Init(false, ip, gsPort, gsPort + 1100, 27015, gsPort, EServerMode.eServerModeAuthenticationAndSecure, "spacewar",
-                "spacewar", "US", "spacewar", "spacewar", "1.0.2.9", "spacewar", 2, true, "spacewar",
+            testB = cesdk.GameServer.Init(true, ip, gsPort+1, 27015, 27015, gsPort + 100, EServerMode.eServerModeAuthenticationAndSecure, "spacewares",
+                "spacewares", "US", "spacewares", "spacewares", "1.0.2.9", "spacewares", 6, true, "50",
                 MyOnGSClientApproved, MyOnGSClientDenied, MyOnGSClientKick);
-
+            
             Console.WriteLine("Server Successfully Created: " + testB);
 
-            cesdk.Matchmaking.RequestInternetServerList(filters2);
             cesdk.Matchmaking.ServerReceived += (Matchmaking sender, Servers serverList, Server server) =>
             {
                 Console.WriteLine("Server Name: " + server.ServerName);
             };
-            */
-            string name = "TestServer";
 
-            CommunityExpressNS.CommunityExpress.Instance.Initialize();
-            CommunityExpressNS.CommunityExpress.Instance.Leaderboards.LeaderboardReceived += new CommunityExpressNS.Leaderboards.LeaderboardRetrievedHandler(Leaderboards_LeaderboardReceived);
-            bool b = cesdk.RemoteStorage.WriteFile("bah", "I ha File");
+            //cesdk.Matchmaking.RequestInternetServerList(filters2);
+            cesdk.Matchmaking.RequestLANServerList();
+           
 
-            CommunityExpressNS.CommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard("TestServer", CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending, CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeTimeMilliSeconds);
-
-            Console.WriteLine("Waiting for leaderboards");
-            while (leaderboard == null)
+            while (true)
             {
-                CommunityExpressNS.CommunityExpress.Instance.RunCallbacks();
+                Console.WriteLine(cesdk.Friends.IsOverlayEnabled());
+                cesdk.RunCallbacks();
             }
-
-            leaderboard.LeaderboardEntriesReceived += new CommunityExpressNS.Leaderboard.OnLeaderboardEntriesRetrievedHandler(OnLeaderboardEntriesReceived);
-            leaderboard.RequestLeaderboardEntriesAroundCurrentUser(0, 10, 5);
-            for (int i = 0; i < 10; i++)
-            {
-                callbacksInvoked = 0;
-                callbackReceived = false;
-                while (!callbackReceived)
-                {
-                    Thread.Sleep(500);
-                    CommunityExpressNS.CommunityExpress.Instance.RunCallbacks();
-                }
-
-                Console.WriteLine("Callbacks invoked: " + callbacksInvoked);
-                leaderboard.RequestLeaderboardEntriesAroundCurrentUser(0, 10, 5);
-            }
-
 
            // CommunityExpress.Instance.Leaderboards.FindLeaderboard("Pong Lead");
             
@@ -578,11 +586,6 @@ namespace SteamworksUnityTest
             }
 			
 
-			Achievements achievements = cesdk.UserAchievements;
-			achievements.InitializeAchievementList(new string[] { "KillEnemyUsingBloatAcid", "KillHalloweenPatriarchInBedlam",
-				"DecapBurningHalloweenZedInBedlam", "Kill250HalloweenZedsInBedlam", "WinBedlamHardHalloween", "Kill25HalloweenScrakesInBedlam",
-				"Kill5HalloweenZedsWithoutReload", "Unlock6ofHalloweenAchievements" });
-			MyOnUserStatsReceivedCallback(null, achievements);
 
 			Leaderboards leaderboards = cesdk.Leaderboards;
 

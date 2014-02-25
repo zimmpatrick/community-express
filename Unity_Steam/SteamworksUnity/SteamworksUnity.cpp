@@ -328,6 +328,12 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsAPICallCompleted(SteamAPICal
 	return result;
 }
 
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_IsOverlayEnabled()
+{
+	return context.SteamUtils()->IsOverlayEnabled();
+}
+
+
 STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetAPICallResult(SteamAPICall_t hSteamAPICall, void *pCallback, int cubCallback, int iCallbackExpected, unsigned char &bFailed)
 {
 	bool result, failed;
@@ -450,7 +456,7 @@ STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength(
 	return context.SteamUtils()->GetEnteredGamepadTextLength();
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(char* pchText, int32 cchText)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_GetEnteredGamepadTextInput(char* pchText, uint32 cchText)
 {
 	return context.SteamUtils()->GetEnteredGamepadTextInput(pchText, cchText);
 }
