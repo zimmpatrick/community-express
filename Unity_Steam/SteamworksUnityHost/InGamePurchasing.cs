@@ -9,15 +9,18 @@ using Newtonsoft.Json;
 
 namespace CommunityExpressNS
 {
+	using SteamAPICall_t = UInt64;
+
 	[StructLayout(LayoutKind.Sequential, Pack = 8)]
 	struct MicroTxnAuthorizationResponse_t
 	{
+		internal const int k_iCallback = Events.k_iSteamUserCallbacks + 52;
+
 		public UInt32 m_unAppID;	// App Purchase originated in
 		public UInt64 m_ulOrderID;	// Order number specified for this purchase
 		public Byte m_bAuthorized;	// Whether or not the user authorized the purchase
 	}
 
-	delegate void OnTransactionAuthorizationReceivedFromSteam(ref MicroTxnAuthorizationResponse_t CallbackData);
     /// <summary>
     /// When the purchase is complete
     /// </summary>
@@ -30,8 +33,6 @@ namespace CommunityExpressNS
     /// </summary>
 	public class InGamePurchasing
 	{
-        [DllImport("CommunityExpressSW")]
-		private static extern void SteamUnityAPI_SetTransactionAuthorizationCallback(IntPtr OnTransactionAuthorizationReceivedCallback);
 		[DllImport("CommunityExpressSW")]
 		private static extern IntPtr SteamUnityAPI_SteamUser();
 		[DllImport("CommunityExpressSW")]
@@ -50,17 +51,17 @@ namespace CommunityExpressNS
 		private RegionInfo _regionInfo = null;
 		private List<InGamePurchase> _outstandingPurchases = new List<InGamePurchase>();
 
-		private OnTransactionAuthorizationReceivedFromSteam _internalOnTransactionAuthorizationReceived = null;
+		private CommunityExpress.OnEventHandler<MicroTxnAuthorizationResponse_t> _transactionAuthorizationRecievedEventHandler = null;
 
 		internal InGamePurchasing()
 		{
 			_user = SteamUnityAPI_SteamUser();
 			_apps = SteamUnityAPI_SteamApps();
 
-			if (_internalOnTransactionAuthorizationReceived == null)
+			if (_transactionAuthorizationRecievedEventHandler == null)
 			{
-				_internalOnTransactionAuthorizationReceived = new OnTransactionAuthorizationReceivedFromSteam(OnTransactionAuthorizationReceived);
-				SteamUnityAPI_SetTransactionAuthorizationCallback(Marshal.GetFunctionPointerForDelegate(_internalOnTransactionAuthorizationReceived));
+				_transactionAuthorizationRecievedEventHandler = new CommunityExpress.OnEventHandler<MicroTxnAuthorizationResponse_t>(OnTransactionAuthorizationReceived);
+				CommunityExpress.Instance.AddEventHandler(MicroTxnAuthorizationResponse_t.k_iCallback, _transactionAuthorizationRecievedEventHandler);
 			}
 		}
         /// <summary>
@@ -175,7 +176,7 @@ namespace CommunityExpressNS
 			}
 		}
 
-		private void OnTransactionAuthorizationReceived(ref MicroTxnAuthorizationResponse_t callbackData)
+		private void OnTransactionAuthorizationReceived(MicroTxnAuthorizationResponse_t callbackData, bool bIOFailure, SteamAPICall_t hSteamAPICall)
 		{
 			foreach (InGamePurchase purchase in _outstandingPurchases)
 			{
