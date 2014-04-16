@@ -66,7 +66,7 @@ public class CreateLobby : MonoBehaviour {
 	
 	void OnLobbyCreated(CommunityExpressNS.Lobby newLobby){
 		Debug.Log("Lobby Created");
-		newLobby.Join(OnLobbyJoined, OnLobbyDataUpdated, OnLobbyChatUpdated, OnLobbyChatMessage, OnLobbyGameCreated);
+		newLobby.Join();
 	}
 	
 	void OnListRecieved(CommunityExpressNS.Lobbies newLobbies){
@@ -105,10 +105,12 @@ public class CreateLobby : MonoBehaviour {
 		Debug.Log("Gamepad Text Input Dismissed " + textInput);
 	}
 	
-	void OnGUI(){
+	void OnGUI()
+    {
+        
 		if(joinedLobby==null){
 			if(GUI.Button(new Rect(100, 100, 150, 30), "Create Lobby")){
-				communityExpress.Matchmaking.CreateLobby(CommunityExpressNS.ELobbyType.k_ELobbyTypePublic,6, OnLobbyCreated);
+				communityExpress.Matchmaking.CreateLobby(CommunityExpressNS.ELobbyType.k_ELobbyTypePublic,6);
 			}
 		
 			if(GUI.Button(new Rect(100, 150, 150, 30), "Lobby List")){
@@ -118,7 +120,7 @@ public class CreateLobby : MonoBehaviour {
 				ICollection<CommunityExpressNS.LobbyIntFilter> intFilter = null;
 				Dictionary<string, int> filter = null;
 				ICollection<CommunityExpressNS.SteamID> steamIDFilter = null;
-				communityExpress.Matchmaking.RequestLobbyList(stringFilter, intFilter ,filter , 1,CommunityExpressNS.ELobbyDistanceFilter.k_ELobbyDistanceFilterDefault,5,steamIDFilter, OnListRecieved);
+				communityExpress.Matchmaking.RequestLobbyList(stringFilter, intFilter ,filter , 1,CommunityExpressNS.ELobbyDistanceFilter.k_ELobbyDistanceFilterDefault,5,steamIDFilter);
 			}
 		
 			if(!hideLobbyList){
@@ -128,7 +130,7 @@ public class CreateLobby : MonoBehaviour {
 					{
 						GUI.Label(new Rect(Screen.width/2+130, servY, 300, 30), lobby.Count + " / " + lobby.GetMemberLimit());
 						if (GUI.Button(new Rect(Screen.width/2+300, servY, 75, 30), "Connect")){
-							lobby.Join(OnLobbyJoined, OnLobbyDataUpdated, OnLobbyChatUpdated, OnLobbyChatMessage, OnLobbyGameCreated);
+							lobby.Join();
 							lobbyMemberCount = 0;
 						}
 						
@@ -139,7 +141,7 @@ public class CreateLobby : MonoBehaviour {
 		}
 		
 		//Show BigPicture keyboard
-		UnityCommunityExpress.Instance.BigPicture.ShowGamepadTextInput(CommunityExpressNS.EGamepadTextInputMode.k_EGamepadTextInputModeNormal, CommunityExpressNS.EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, chatText, 300, OnGamePadTextInputDismissed);
+		UnityCommunityExpress.Instance.BigPicture.ShowGamepadTextInput(CommunityExpressNS.EGamepadTextInputMode.k_EGamepadTextInputModeNormal, CommunityExpressNS.EGamepadTextInputLineMode.k_EGamepadTextInputLineModeSingleLine, chatText, 300);
 			
 		if(joinedLobby!=null){
 			//Chat log for lobby

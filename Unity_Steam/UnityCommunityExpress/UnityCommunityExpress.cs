@@ -42,6 +42,9 @@ public sealed class UnityCommunityExpress : MonoBehaviour
                 if (!IsCommunityRunning)
                 {
                     _exception = new Exception("Steam must be running to play this game.");
+
+                    // Disable this script, this prevents calling update and getting _exception many times.
+                    enabled = false;
                 }
             }
         }

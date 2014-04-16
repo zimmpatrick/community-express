@@ -79,7 +79,7 @@ public class Menu : MonoBehaviour {
 		myAvatar = UnityCommunityExpress.Instance.ConvertImageToTexture2D(myPersona.MediumAvatar);
 		myPersonaName = myPersona.PersonaName;
 		string[] stats = { "NumWins" };
-		communityExpress.UserStats.RequestCurrentStats(OnUserStatsRecieved, stats);
+		communityExpress.UserStats.RequestCurrentStats(stats);
 		if(!communityExpress.RemoteStorage.FileExists("UserColor")){
 			communityExpress.RemoteStorage.WriteFile("UserColor", "white");
 			userColor = "white";
@@ -234,7 +234,7 @@ public class Menu : MonoBehaviour {
 				//showServerList = true;
 				Dictionary<string, string> filters = new Dictionary<string, string>();
 				filters.Add("gameDir", "pong");
-				communityExpress.Matchmaking.RequestInternetServerList(filters, OnServerReceivedCallback, OnServerListReceivedCallback);
+				communityExpress.Matchmaking.RequestInternetServerList(filters);
 			}
 			if (serverList!=null)
 			{

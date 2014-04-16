@@ -50,7 +50,7 @@ public class LeaderBoard : MonoBehaviour {
 		Debug.Log(UnityCommunityExpress.Instance.Leaderboards.Count);
 		pongLead = leaderBoard;
 		
-		pongLead.RequestLeaderboardEntries(0, 30, 2, OnLeaderBoardEntriesRetrieved);
+		pongLead.RequestLeaderboardEntries(0, 30, 2);
 	}
 			
 	// Update is called once per frame
@@ -78,7 +78,7 @@ public class LeaderBoard : MonoBehaviour {
 	
 	void OnGUI(){
 		if(GUI.Button(new Rect(400, 15, 150, 30), "Leaderboards")){
-			UnityCommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard(OnLeaderBoardRetrieved, 
+			UnityCommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard(
 																				"Pong Lead", 
 																				CommunityExpressNS.ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending,
 																				CommunityExpressNS.ELeaderboardDisplayType.k_ELeaderboardDisplayTypeNumeric);
