@@ -250,6 +250,10 @@ namespace CommunityExpressNS
 
         private void RunUploads()
         {
+            if (_uploadStreams.Count == 0)
+            {
+                return;
+            }
 
             byte[] data = new byte[1024];
             List<FileStream> toRemove = new List<FileStream>();
