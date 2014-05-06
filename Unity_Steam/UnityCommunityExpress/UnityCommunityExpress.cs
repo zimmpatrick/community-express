@@ -59,7 +59,9 @@ public sealed class UnityCommunityExpress : MonoBehaviour
         }
     }
 
-	public void OnDestroy()
+    // This function is called when the behaviour becomes disabled () or inactive.
+    // This is also called when the object is destroyed and can be used for any cleanup code.
+    public void OnDisable()
 	{
         ValidateSDK();
 
@@ -238,6 +240,15 @@ public sealed class UnityCommunityExpress : MonoBehaviour
             return _ceInstance.BigPicture;
         }
 	}
+
+    public UserGeneratedContent UserGeneratedContent
+    {
+        get
+        {
+            ValidateSDK();
+            return _ceInstance.UserGeneratedContent;
+        }
+    }
 
 	public Boolean IsGameServerInitialized
 	{
