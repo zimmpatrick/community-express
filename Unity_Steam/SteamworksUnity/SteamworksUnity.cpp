@@ -868,6 +868,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownload(
 
 // Start ----------- User Generated Content -----------
 
+STEAMWORKSUNITY_API void* SteamUnityAPI_SteamUserGeneratedContent()
+{
+	return context.SteamUGC();
+}
+
 STEAMWORKSUNITY_API UGCQueryHandle_t SteamUnityAPI_UserGeneratedContent_CreateQueryUserUGCRequest(void* pSteamUGC, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage)
 {
 	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);

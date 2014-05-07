@@ -820,6 +820,9 @@ namespace CommunityExpressNS
 
 
         #region steamugc
+
+        [DllImport("CommunityExpressSW")]
+        private static extern IntPtr SteamUnityAPI_SteamUserGeneratedContent();
       
         [DllImport("CommunityExpressSW")]
         private static extern UInt64 SteamUnityAPI_UserGeneratedContent_CreateQueryUserUGCRequest(IntPtr pSteamUGC, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, UInt32 unPage);
@@ -879,6 +882,7 @@ namespace CommunityExpressNS
         {
             _ce = ce;
             _remoteStorage = SteamUnityAPI_SteamRemoteStorage();
+            _steamUgc = SteamUnityAPI_SteamUserGeneratedContent();
 
             _userSharedFilesHandler = new CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserSharedWorkshopFilesResult_t>(Events_UserSharedWorkshopFilesReceived);
 
@@ -917,6 +921,7 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(RemoteStoragePublishFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishFileResult_t>(Events_FilePublished));
 
             _ce.AddEventHandler(RemoteStorageDeletePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageDeletePublishedFileResult_t>(Events_FileDeleted));
+            
         }
         /// <summary>
         /// Enumerates published files
