@@ -15,6 +15,7 @@
 #include "time.h"
 #include "ServerBrowser.h"
 #include "Leaderboards.h"
+#include "musicplayer.h"
 #include "clanchatroom.h"
 #include "Lobby.h"
 #include "p2pauth.h"
@@ -79,6 +80,7 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 	}
 #endif
 
+	m_bLastControllerStateInMenu = false;
 	g_pSpaceWarClient = this;
 	m_pGameEngine = pGameEngine;
 	m_uPlayerWhoWonGame = 0;
@@ -138,6 +140,7 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 	// Init stats
 	m_pStatsAndAchievements = new CStatsAndAchievements( pGameEngine );
 	m_pLeaderboards = new CLeaderboards( pGameEngine );
+	m_pMusicPlayer = new CMusicPlayer( pGameEngine );
 	m_pClanChatRoom = new CClanChatRoom( pGameEngine );
 
 	// Remote Storage page
@@ -761,8 +764,9 @@ void CSpaceWarClient::OnGameJoinRequested( GameRichPresenceJoinRequested_t *pCal
 {
 	// parse out the connect 
 	const char *pchServerAddress, *pchLobbyID;
-	extern void ParseCommandLine( const char *pchCmdLine, const char **ppchServerAddress, const char **ppchLobbyID );
-	ParseCommandLine( pCallback->m_rgchConnect, &pchServerAddress, &pchLobbyID );
+	bool bUseVR = false;
+	extern void ParseCommandLine( const char *pchCmdLine, const char **ppchServerAddress, const char **ppchLobbyID, bool *pbUseVR );
+	ParseCommandLine( pCallback->m_rgchConnect, &pchServerAddress, &pchLobbyID, &bUseVR );
 
 	// exec
 	ExecCommandLineConnect( pchServerAddress, pchLobbyID );
@@ -988,6 +992,12 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 		m_pRemoteStorage->Show();
 		SteamFriends()->SetRichPresence( "status", "Viewing remote storage" );
 	}
+	else if ( m_eGameState == k_EClientMusic )
+	{
+		// we've switched to the music player menu
+		m_pMusicPlayer->Show();
+		SteamFriends()->SetRichPresence( "status", "Using music player" );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1130,6 +1140,30 @@ void CSpaceWarClient::RunFrame()
 	{
 		m_bTransitionedGameState = false;
 		OnGameStateChanged( m_eGameState );
+	}
+
+	bool bInMenuNow = false;
+	switch( m_eGameState )
+	{
+	case k_EClientGameMenu:
+	case k_EClientGameQuitMenu:
+		bInMenuNow = true;
+		break;
+	default:
+		bInMenuNow = false;
+		break;
+	}
+
+	// Update steam controller override mode appropriately
+	if ( bInMenuNow && !m_bLastControllerStateInMenu )
+	{
+		m_bLastControllerStateInMenu = true;
+		SteamController()->SetOverrideMode( "menu" );
+	}
+	else if ( !bInMenuNow && m_bLastControllerStateInMenu )
+	{
+		m_bLastControllerStateInMenu = false;
+		SteamController()->SetOverrideMode( "" );
 	}
 
 	// Update state for everything
@@ -1386,6 +1420,16 @@ void CSpaceWarClient::RunFrame()
 #endif
 		}
 
+		break;
+	case k_EClientMusic:
+		m_pStarField->Render();
+
+		m_pMusicPlayer->RunFrame();		
+
+		if ( bEscapePressed )
+		{
+			SetGameState( k_EClientGameMenu );
+		}
 		break;
 	default:
 		OutputDebugString( "Unhandled game state in CSpaceWar::RunFrame\n" );

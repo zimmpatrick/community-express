@@ -1,6 +1,6 @@
 ================================================================
 
-Copyright © 1996-2012, Valve Corporation, All rights reserved.
+Copyright © 1996-2014, Valve Corporation, All rights reserved.
 
 ================================================================
 
@@ -10,6 +10,68 @@ website at: http://partner.steamgames.com
 
 
 Revision History:
+
+----------------------------------------------------------------
+v1.29 24th April 2014
+----------------------------------------------------------------
+
+General:
+* Adjust game server login to use a token instead of username/password. Tokens are randomly generated at account creation time and can be reset.
+* Added existing text param to ISteamUtils::ShowGamepadTextInput() so games can prepopulate control before displaying to user.
+* Updated retail disc installer to use a single multi-language steamsetup.exe replacing all Steam install MSI packages.
+* Removed redistributable Steam libraries for dedicated servers. Standalone dedicated server should use shared "Steamworks SDK Redist" depots.
+* steamcmd is now included for Linux and OSX.
+
+Music:
+* Introducing API to control the Steam Music Player from external software. As an example this gives games the opportunity to pause the music or lower the volume, when an important cut scene is shown, and start playing afterwards.
+* Added menu and code to the Steamworks Example to demonstrate this API.
+* This feature is currently limited to users in the Steam Music Player Beta. It will have no effect on other users.
+
+UGC:
+* ISteamUGC - Add m_bCachedData to SteamUGCQueryCompleted_t and SteamUGCRequestUGCDetailsResult_t which can be used to determine if the data was retrieved from the cache.
+* ISteamUGC - Allow clients to get cached responses for ISteamUGC queries. This is so client code doesn't have to build their own caching layer on top of ISteamUGC.
+* ISteamRemoteStorage - add the name of the shared file to RemoteStorageFileShareResult_t so it can be matched up to the request if a game has multiple outstanding FileShare requests going on at the same time
+
+Steam VR:
+* Renamed GetEyeMatrix to GetHeadFromEyePose and made it return an HmdMatrix34t. This doesn't actually change the values it was returning, it just updates the name to match the values that were already being returned. Changed the driver interface too.
+* Renamed GetWorldFromHeadPose to GetTrackerFromHeadPose to avoid confusion about the game's world space vs. the tracker's coordinate system.
+* Also renamed GetLastWorldFromHeadPose to GetLastTrackerFromHeadPose.
+* Added GetTrackerZeroPose method to get the tracker zero pose.
+* Added VR support to the Linux/SDL version of the Steamworks Example.
+
+----------------------------------------------------------------
+v1.28 28th January 2014
+----------------------------------------------------------------
+
+* Added Steamworks Virtual Reality API via steamvr.h.
+* Added ISteamUtils::IsSteamRunningInVRMode, which returns true if the Steam Client is running in VR mode.
+* Deprecated ISteamGameserver::GetGameplayStats and ISteamGameserver::GetServerReputation. These calls already return no data and will be removed in a future SDK update.
+* Added result code k_EResultRateLimitExceeded, which can now be returned if a user has too many outstanding friend requests.
+
+----------------------------------------------------------------
+v1.26a 14th November 2013
+----------------------------------------------------------------
+
+* Fix missing accessor function in steam_api.h for SteamUGC()
+
+----------------------------------------------------------------
+v1.26 6th November 2013
+----------------------------------------------------------------
+* Includes libsteam_api.so for 64-bit Linux.
+* Callbacks ValidateAuthTicketResponse_t and GSClientApprove_t now contain the SteamID of the owner of current game. If the game is borrowed, this is different than the player's SteamID.
+* Added ISteamFriends::GetPlayerNickname, which returns the nickname the current user has set for the specified player.
+* Fix p2p networking apis on Linux so they work with dedicated servers
+* Fix command line argument handling bug in SteamAPI_RestartAppIfNecessary on Linux and OSX.
+* Added ISteamApps::GetLaunchQueryParam, which will get the value associated with the given key if a game is launched via a url with query paramaters, such as steam://run/<appid>//?param1=value1;param2=value2;param3=value3.  If the game is already running when such a url is executed, instead it will receive a NewLaunchQueryParameters_t callback.
+* Added EUGCReadAction parameter to ISteamRemoteStorage:UGCRead that allows the game to keep the file open if it needs to seek around the file for arbitrary data, rather than always closing the file when the last byte is read.
+* Added new ISteamUGC interface that is used for querying for lists of UGC details (e.g. Workshop items, screenshots, videos, artwork, guides, etc.). The ISteamUGC interface should be used instead of ISteamRemoteStorage, which contains similar, but less flexible and powerful functionality.
+* Removed tools for deprecated content system
+
+
+----------------------------------------------------------------
+v1.25 1st October 2013
+----------------------------------------------------------------
+* Fixed a crash in the 1.24 SDK update when attempting to call ISteamRemoteStorage::GetPublishedFileDetails by adding a missing parameter unMaxSecondsOld, which allows a game to request potentially-cached details (passing a value of 0 retains the previous behavior).
 
 ----------------------------------------------------------------
 v1.24	17th July 2013
