@@ -866,6 +866,140 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownload(
 	return hAPICall;
 }
 
+// Start ----------- User Generated Content -----------
+
+STEAMWORKSUNITY_API UGCQueryHandle_t SteamUnityAPI_UserGeneratedContent_CreateQueryUserUGCRequest(void* pSteamUGC, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	SteamAPICall_t hAPICall = pISteamUGC->CreateQueryUserUGCRequest(unAccountID, eListType, eMatchingUGCType, eSortOrder, nCreatorAppID, nConsumerAppID, unPage);
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+
+	//SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	//steamCallbacks.RemoteStorageDownloadUGCResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageDownloadUGCResult);
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API UGCQueryHandle_t SteamUnityAPI_UserGeneratedContent_CreateQueryAllUGCRequest(void* pSteamUGC, EUGCQuery eQueryType, EUGCMatchingUGCType eMatchingeMatchingUGCTypeFileType, AppId_t nCreatorAppID, AppId_t nConsumerAppID, uint32 unPage)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	SteamAPICall_t hAPICall = pISteamUGC->CreateQueryAllUGCRequest(eQueryType, eMatchingeMatchingUGCTypeFileType, nCreatorAppID, nConsumerAppID, unPage);
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+
+	//SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	//steamCallbacks.RemoteStorageDownloadUGCResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageDownloadUGCResult);
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_UserGeneratedContent_SendQueryUGCRequest(void* pSteamUGC, UGCQueryHandle_t handle)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	SteamAPICall_t hAPICall = pISteamUGC->SendQueryUGCRequest(handle);
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+
+	//SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	//steamCallbacks.RemoteStorageDownloadUGCResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageDownloadUGCResult);
+
+	return hAPICall;
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_GetQueryUGCResult(void* pSteamUGC, UGCQueryHandle_t handle, uint32 index, SteamUGCDetails_t *pDetails)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->GetQueryUGCResult(handle, index, pDetails);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_ReleaseQueryUGCRequest(void* pSteamUGC, UGCQueryHandle_t handle)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->ReleaseQueryUGCRequest(handle);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_AddRequiredTag(void* pSteamUGC, UGCQueryHandle_t handle, const char *pTagName)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->AddRequiredTag(handle, pTagName);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_AddExcludedTag(void* pSteamUGC, UGCQueryHandle_t handle, const char *pTagName)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->AddExcludedTag(handle, pTagName);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetReturnLongDescription(void* pSteamUGC, UGCQueryHandle_t handle, bool bReturnLongDescription)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetReturnLongDescription(handle, bReturnLongDescription);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetReturnTotalOnly(void* pSteamUGC, UGCQueryHandle_t handle, bool bReturnTotalOnly)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetReturnTotalOnly(handle, bReturnTotalOnly);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetAllowCachedResponse(void* pSteamUGC, UGCQueryHandle_t handle, uint32 unMaxAgeSeconds)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetAllowCachedResponse(handle, unMaxAgeSeconds);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetCloudFileNameFilter(void* pSteamUGC, UGCQueryHandle_t handle, const char *pMatchCloudFileName)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetCloudFileNameFilter(handle, pMatchCloudFileName);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetMatchAnyTag(void* pSteamUGC, UGCQueryHandle_t handle, bool bMatchAnyTag)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetMatchAnyTag(handle, bMatchAnyTag);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetSearchText(void* pSteamUGC, UGCQueryHandle_t handle, const char *pSearchText)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetSearchText(handle, pSearchText);
+}
+
+STEAMWORKSUNITY_API bool SteamUnityAPI_UserGeneratedContent_SetRankedByTrendDays(void* pSteamUGC, UGCQueryHandle_t handle, uint32 unDays)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	return pISteamUGC->SetRankedByTrendDays(handle, unDays);
+}
+
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_UserGeneratedContent_RequestUGCDetails(void* pSteamUGC, PublishedFileId_t nPublishedFileID, uint32 unMaxAgeSeconds)
+{
+	ISteamUGC * pISteamUGC = static_cast<ISteamUGC*>(pSteamUGC);
+
+	SteamAPICall_t hAPICall = pISteamUGC->RequestUGCDetails(nPublishedFileID, unMaxAgeSeconds);
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+
+	//SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	//steamCallbacks.RemoteStorageDownloadUGCResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageDownloadUGCResult);
+
+	return hAPICall;
+}
+
+// End ----------- User Generated Content -----------
+
+
 // How long to wait for a response from the server before resending our connection attempt
 #define SERVER_CONNECTION_RETRY_MILLISECONDS 350
 
