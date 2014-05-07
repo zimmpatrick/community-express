@@ -169,13 +169,16 @@ namespace CommunityExpressNS
 	        internal UInt32[] m_rgRTimeUpdated;
         };
 
-	    [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
         internal struct RemoteStorageFileShareResult_t
         {
             internal const int k_iCallback = Events.k_iClientRemoteStorageCallbacks + 7;
 
             internal EResult m_eResult;			// The result of the operation
             internal UGCHandle_t m_hFile;		// The handle that can be shared with users and features
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+            string m_rgchFilename;              // The name of the file that was shared
         };
         /// <summary>
         /// Arguments for sharing file

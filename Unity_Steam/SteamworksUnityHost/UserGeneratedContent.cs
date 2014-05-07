@@ -5,11 +5,16 @@ using System.Text;
 
 namespace CommunityExpressNS
 {
+    using UGCQueryHandle_t = UInt64;
+    using UGCUpdateHandle_t = UInt64;
+
     using SteamAPICall_t = UInt64;
     using PublishedFileId_t = UInt64;
     using UGCHandle_t = UInt64;
     using PublishedFileUpdateHandle_t = UInt64;
     using AppId_t = UInt32;
+
+   
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct RemoteStorageEnumerateUserSubscribedFilesResult_t
@@ -337,6 +342,115 @@ namespace CommunityExpressNS
             k_EWorkshopVideoProviderNone = 0,
             k_EWorkshopVideoProviderYoutube = 1
         };
+
+        #region isteamugc.h
+        // Matching UGC types for queries
+        public enum EUGCMatchingUGCType
+        {
+            k_EUGCMatchingUGCType_Items = 0,		// both mtx items and ready-to-use items
+            k_EUGCMatchingUGCType_Items_Mtx = 1,
+            k_EUGCMatchingUGCType_Items_ReadyToUse = 2,
+            k_EUGCMatchingUGCType_Collections = 3,
+            k_EUGCMatchingUGCType_Artwork = 4,
+            k_EUGCMatchingUGCType_Videos = 5,
+            k_EUGCMatchingUGCType_Screenshots = 6,
+            k_EUGCMatchingUGCType_AllGuides = 7,		// both web guides and integrated guides
+            k_EUGCMatchingUGCType_WebGuides = 8,
+            k_EUGCMatchingUGCType_IntegratedGuides = 9,
+            k_EUGCMatchingUGCType_UsableInGame = 10,		// ready-to-use items and integrated guides
+            k_EUGCMatchingUGCType_ControllerBindings = 11,
+        };
+
+        // Different lists of published UGC for a user.
+        // If the current logged in user is different than the specified user, then some options may not be allowed.
+        public enum EUserUGCList
+        {
+            k_EUserUGCList_Published,
+            k_EUserUGCList_VotedOn,
+            k_EUserUGCList_VotedUp,
+            k_EUserUGCList_VotedDown,
+            k_EUserUGCList_WillVoteLater,
+            k_EUserUGCList_Favorited,
+            k_EUserUGCList_Subscribed,
+            k_EUserUGCList_UsedOrPlayed,
+            k_EUserUGCList_Followed,
+        };
+
+        // Sort order for user published UGC lists (defaults to creation order descending)
+        public enum EUserUGCListSortOrder
+        {
+            k_EUserUGCListSortOrder_CreationOrderDesc,
+            k_EUserUGCListSortOrder_CreationOrderAsc,
+            k_EUserUGCListSortOrder_TitleAsc,
+            k_EUserUGCListSortOrder_LastUpdatedDesc,
+            k_EUserUGCListSortOrder_SubscriptionDateDesc,
+            k_EUserUGCListSortOrder_VoteScoreDesc,
+            k_EUserUGCListSortOrder_ForModeration,
+        };
+
+        // Combination of sorting and filtering for queries across all UGC
+        public enum EUGCQuery
+        {
+            k_EUGCQuery_RankedByVote = 0,
+            k_EUGCQuery_RankedByPublicationDate = 1,
+            k_EUGCQuery_AcceptedForGameRankedByAcceptanceDate = 2,
+            k_EUGCQuery_RankedByTrend = 3,
+            k_EUGCQuery_FavoritedByFriendsRankedByPublicationDate = 4,
+            k_EUGCQuery_CreatedByFriendsRankedByPublicationDate = 5,
+            k_EUGCQuery_RankedByNumTimesReported = 6,
+            k_EUGCQuery_CreatedByFollowedUsersRankedByPublicationDate = 7,
+            k_EUGCQuery_NotYetRated = 8,
+            k_EUGCQuery_RankedByTotalVotesAsc = 9,
+            k_EUGCQuery_RankedByVotesUp = 10,
+            k_EUGCQuery_RankedByTextSearch = 11,
+        };
+
+        public const UInt32 kNumUGCResultsPerPage = 50;
+
+        // Details for a single published file/UGC
+        [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
+        struct SteamUGCDetails_t
+        {
+	        PublishedFileId_t m_nPublishedFileId;
+	        EResult m_eResult;												// The result of the operation.	
+	        EWorkshopFileType m_eFileType;									// Type of the file
+	        AppId_t m_nCreatorAppID;										// ID of the app that created this file.
+	        AppId_t m_nConsumerAppID;										// ID of the app that will consume this file.
+            
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 119)]
+	        string m_rgchTitle;		                                		// title of document
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8000)]
+	        string m_rgchDescription;                                   	// description of document
+
+	        UInt64 m_ulSteamIDOwner;										// Steam ID of the user who created this content.
+	        UInt32 m_rtimeCreated;											// time when the published file was created
+	        UInt32 m_rtimeUpdated;											// time when the published file was last updated
+	        UInt32 m_rtimeAddedToUserList;									// time when the user added the published file to their list (not always applicable)
+	        ERemoteStoragePublishedFileVisibility m_eVisibility;			// visibility
+	        bool m_bBanned;													// whether the file was banned
+	        bool m_bAcceptedForUse;											// developer has specifically flagged this item as accepted in the Workshop
+	        bool m_bTagsTruncated;											// whether the list of tags was too long to be returned in the provided buffer
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1025)]
+	        string m_rgchTags;								                // comma separated list of all tags associated with this file	
+	        // file/url information
+	        UGCHandle_t m_hFile;											// The handle of the primary file
+	        UGCHandle_t m_hPreviewFile;										// The handle of the preview file
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+	        string m_pchFileName;							                // The cloud filename of the primary file
+	        UInt32 m_nFileSize;												// Size of the primary file
+	        UInt32 m_nPreviewFileSize;										// Size of the preview file
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+	        string m_rgchURL;						                        // URL (for a video or a website)
+	        // voting information
+	        UInt32 m_unVotesUp;												// number of votes up
+	        UInt32 m_unVotesDown;											// number of votes down
+	        float m_flScore;												// calculated score
+        }
+
+        #endregion
+
+
         /// <summary>
         /// Arguments for result of file download
         /// </summary>
@@ -1475,6 +1589,35 @@ namespace CommunityExpressNS
 
             pTagsArray.Free();
         }
+
+
+
+        //-----------------------------------------------------------------------------
+        // Purpose: Callback for querying UGC
+        //-----------------------------------------------------------------------------
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        public struct SteamUGCQueryCompleted_t
+        {
+            internal const int k_iCallback = Events.k_iClientUGCCallbacks + 1;
+	        UGCQueryHandle_t m_handle;
+	        EResult m_eResult;
+	        UInt32 m_unNumResultsReturned;
+	        UInt32 m_unTotalMatchingResults;
+	        bool m_bCachedData;	// indicates whether this data was retrieved from the local on-disk cache
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: Callback for requesting details on one piece of UGC
+        //-----------------------------------------------------------------------------
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        public struct SteamUGCRequestUGCDetailsResult_t
+        {
+	        internal const int k_iCallback = Events.k_iClientUGCCallbacks + 2;
+	        SteamUGCDetails_t m_details;
+	        bool m_bCachedData; // indicates whether this data was retrieved from the local on-disk cache
+        }
+
     }
+   
 }
 
