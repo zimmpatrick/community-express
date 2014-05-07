@@ -440,9 +440,9 @@ STEAMWORKSUNITY_API void SteamUnityAPI_SteamUtils_GetImageRGBA(int32 iIconIndex,
 	context.SteamUtils()->GetImageRGBA(iIconIndex, pData, nDataSize);
 }
 
-STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax)
+STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUtils_ShowGamepadTextInput(EGamepadTextInputMode eInputMode, EGamepadTextInputLineMode eLineInputMode, const char *pchDescription, uint32 unCharMax, const char *pchExistingText)
 {
-	return context.SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax);
+	return context.SteamUtils()->ShowGamepadTextInput(eInputMode, eLineInputMode, pchDescription, unCharMax, pchExistingText);
 }
 
 STEAMWORKSUNITY_API uint32 SteamUnityAPI_SteamUtils_GetEnteredGamepadTextLength()
@@ -556,7 +556,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_FileShare(vo
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 	
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->FileShare(pchFile);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageFileShareResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageFileShareResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageFileShareResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageFileShareResult);
 
 	return hAPICall;
 }
@@ -573,7 +576,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUse
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSubscribedFiles( unStartIndex );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSubscribedFilesResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSubscribedFilesResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageEnumerateUserSubscribedFilesResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageEnumerateUserSubscribedFilesResult);
+
 	
 	return hAPICall;
 }
@@ -583,7 +590,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUse
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserPublishedFiles( unStartIndex );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserPublishedFilesResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserPublishedFilesResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageEnumerateUserPublishedFilesResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageEnumerateUserPublishedFilesResult);
 	
 	return hAPICall;
 }
@@ -593,7 +603,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_SubscribePub
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->SubscribePublishedFile( unPublishedFileId );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
 	
 	return hAPICall;
 }
@@ -603,7 +616,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UnsubscribeP
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->UnsubscribePublishedFile( unPublishedFileId );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageUnsubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageUnsubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageUnsubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageUnsubscribePublishedFileResult);
 	
 	return hAPICall;
 }
@@ -613,7 +629,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublished
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedItemVoteDetails( unPublishedFileId );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageGetPublishedItemVoteDetailsResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageGetPublishedItemVoteDetailsResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageGetPublishedItemVoteDetailsResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageGetPublishedItemVoteDetailsResult);
 	
 	return hAPICall;
 }
@@ -623,7 +642,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UpdateUserPu
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->UpdateUserPublishedItemVote( unPublishedFileId, bVoteUp );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
 	
 	return hAPICall;
 }
@@ -633,7 +655,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetUserPubli
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetUserPublishedItemVoteDetails( unPublishedFileId);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
 	
 	return hAPICall;
 }
@@ -643,7 +668,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumerateUse
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumerateUserSharedWorkshopFiles( CSteamID( steamId ), unStartIndex, &requiredTags, &excludedTags);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSharedWorkshopFilesResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateUserSharedWorkshopFilesResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageEnumerateUserSharedWorkshopFilesResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageEnumerateUserSharedWorkshopFilesResult);
 	
 	return hAPICall;
 }
@@ -653,7 +681,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_PublishVideo
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->PublishVideo( eVideoProvider, pchVideoAccount, pchVideoIdentifier, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, pTags);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
+
 	
 	return hAPICall;
 }
@@ -663,7 +695,10 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_SetUserPubli
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->SetUserPublishedFileAction( unPublishedFileId, eAction);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
 	
 	return hAPICall;
 }
@@ -673,7 +708,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePub
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedFilesByUserAction( eAction, unStartIndex);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
+
 	
 	return hAPICall;
 }
@@ -690,17 +729,25 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_CommitPublis
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->CommitPublishedFileUpdate(updateHandle);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageUpdatePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageUpdatePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageUpdatePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageUpdatePublishedFileResult);
+
 	
 	return hAPICall;
 }
 
-STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(void* pSteamRemoteStorage, PublishedFileId_t unPublishedFileId )
+STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_GetPublishedFileDetails(void* pSteamRemoteStorage, PublishedFileId_t unPublishedFileId, uint32 unMaxSecondsOld )
 {
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
-	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedFileDetails(unPublishedFileId);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageGetPublishedFileDetailsResult, hAPICall );
+	SteamAPICall_t hAPICall = pISteamRemoteStorage->GetPublishedFileDetails(unPublishedFileId, unMaxSecondsOld);
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageGetPublishedFileDetailsResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageGetPublishedFileDetailsResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageGetPublishedFileDetailsResult);
+
 	
 	return hAPICall;
 }
@@ -710,7 +757,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_DeletePublis
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->DeletePublishedFile(unPublishedFileId);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
+
 	
 	return hAPICall;
 }
@@ -720,8 +771,14 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_PublishWorks
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->PublishWorkshopFile(pchFile, pchPreviewFile, nConsumerAppId, pchTitle, pchDescription, eVisibility, &pTags, eWorkshopFileType);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileResult, hAPICall );
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileProgress, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStoragePublishFileProgress, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStoragePublishFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStoragePublishFileResult);
+	steamCallbacks.RemoteStoragePublishFileProgress.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStoragePublishFileProgress);
+
+	
 	return hAPICall;
 }
 
@@ -730,7 +787,11 @@ STEAMWORKSUNITY_API PublishedFileUpdateHandle_t SteamUnityAPI_SteamRemoteStorage
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	PublishedFileUpdateHandle_t hAPICall = pISteamRemoteStorage->CreatePublishedFileUpdateRequest(updateHandle);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageSubscribePublishedFileResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageSubscribePublishedFileResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageSubscribePublishedFileResult);
+
 	
 	return hAPICall;
 }
@@ -782,7 +843,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_EnumeratePub
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->EnumeratePublishedWorkshopFiles(eEnumerationType, unStartIndex, unCount, unDays, &tags, &userTags);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateWorkshopFilesResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageEnumerateWorkshopFilesResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageEnumerateWorkshopFilesResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageEnumerateWorkshopFilesResult);
+
 	
 	return hAPICall;
 }
@@ -792,7 +857,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamRemoteStorage_UGCDownload(
 	ISteamRemoteStorage * pISteamRemoteStorage = static_cast<ISteamRemoteStorage*>( pSteamRemoteStorage );
 
 	SteamAPICall_t hAPICall = pISteamRemoteStorage->UGCDownload(hContent, unPriority);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().RemoteStorageDownloadUGCResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.RemoteStorageDownloadUGCResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnRemoteStorageDownloadUGCResult);
+
 	
 	return hAPICall;
 }
@@ -988,7 +1057,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_GetServerReputa
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	SteamAPICall_t hAPICall = pISteamGameServer->GetServerReputation();
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().GSReputation, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().GSReputation, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.GSReputation.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnGSReputation);
+
 
 	return hAPICall;
 }
@@ -998,7 +1071,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_AssociateWithCl
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	SteamAPICall_t hAPICall = pISteamGameServer->AssociateWithClan(steamIDOfClan);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().AssociateWithClanResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().AssociateWithClanResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.AssociateWithClanResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnAssociateWithClanResult);
+
 
 	return hAPICall;
 }
@@ -1008,7 +1085,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_ComputeNewPlaye
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	SteamAPICall_t hAPICall = pISteamGameServer->ComputeNewPlayerCompatibility(steamIDNewPlayer);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ComputeNewPlayerCompatibilityResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ComputeNewPlayerCompatibilityResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.ComputeNewPlayerCompatibilityResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnComputeNewPlayerCompatibilityResult);
+
 
 	return hAPICall;
 }
@@ -1018,7 +1099,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServer_RequestUserGrou
 	ISteamGameServer * pISteamGameServer = static_cast<ISteamGameServer*>( pSteamGameServer );
 
 	SteamAPICall_t hAPICall = pISteamGameServer->RequestUserGroupStatus(steamIDUser, steamIDGroup);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().GSClientGroupStatus, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().GSClientGroupStatus, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.GSClientGroupStatus.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnGSClientGroupStatus);
+
 
 	return hAPICall;
 }
@@ -1147,7 +1232,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_RequestClanOfficer
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	SteamAPICall_t hAPICall = pISteamFriends->RequestClanOfficerList(steamIDClan);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ClanOfficerListResponse, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().ClanOfficerListResponse, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.ClanOfficerListResponse.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnClanOfficerListResponse);
+
 
 	return hAPICall;
 }
@@ -1214,7 +1303,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_DownloadClanActivi
 	}
 
 	SteamAPICall_t hAPICall = pISteamFriends->DownloadClanActivityCounts(aSteamIDClans, cClansToRequest);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().DownloadClanActivityCountsResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().DownloadClanActivityCountsResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.DownloadClanActivityCountsResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnDownloadClanActivityCountsResult);
+
 
 	delete[] aSteamIDClans;
 	aSteamIDClans = 0;
@@ -1227,7 +1320,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_GetFollowerCount(v
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	SteamAPICall_t hAPICall = pISteamFriends->GetFollowerCount(steamIDFriend);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsGetFollowerCount, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsGetFollowerCount, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.FriendsGetFollowerCount.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnFriendsGetFollowerCount);
+
 
 	return hAPICall;
 }
@@ -1237,7 +1334,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_IsFollowing(void* 
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	SteamAPICall_t hAPICall = pISteamFriends->IsFollowing(steamIDFriend);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsIsFollowing, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsIsFollowing, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.FriendsIsFollowing.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnFriendsIsFollowing);
+
 
 	return hAPICall;
 }
@@ -1247,7 +1348,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamFriends_EnumerateFollowing
 	ISteamFriends * pISteamFriends = static_cast<ISteamFriends*>( pSteamFriends );
 
 	SteamAPICall_t hAPICall = pISteamFriends->EnumerateFollowingList(startIndex);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsEnumerateFollowingList, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().FriendsEnumerateFollowingList, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.FriendsEnumerateFollowingList.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnFriendsEnumerateFollowingList);
+
 
 	return hAPICall;
 }
@@ -1542,7 +1647,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_FindLeaderboard(
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	SteamAPICall_t hAPICall = pISteamUserStats->FindLeaderboard(pchLeaderboardName);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardFindResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardFindResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.LeaderboardFindResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLeaderboardFindResult);
+
 
 	return hAPICall;
 }
@@ -1552,7 +1661,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_FindOrCreateLead
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	SteamAPICall_t hAPICall = pISteamUserStats->FindOrCreateLeaderboard(pchLeaderboardName, eLeaderboardSortMethod, eLeaderboardDisplayType);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardFindResult, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardFindResult, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.LeaderboardFindResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLeaderboardFindResult);
+
 
 	return hAPICall;
 }
@@ -1597,7 +1710,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_RequestLeaderboa
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	SteamAPICall_t hAPICall = pISteamUserStats->DownloadLeaderboardEntries(hSteamLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardScoresDownloaded, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardScoresDownloaded, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.LeaderboardScoresDownloaded.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLeaderboardScoresDownloaded);
+
 
 	return hAPICall;
 }
@@ -1627,7 +1744,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUse
 	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
 
 	SteamAPICall_t hAPICall = pISteamGameServerStats->RequestUserStats(steamIDUser);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().UserStatsReceived, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().UserStatsReceived, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.UserStatsReceived.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnUserStatsReceived);
+
 
 	return hAPICall;
 }
@@ -1700,7 +1821,11 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(vo
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
 
 	SteamAPICall_t hAPICall = pISteamMatchmaking->CreateLobby(eLobbyType, cMaxMembers);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LobbyGameCreatedCallback, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LobbyGameCreatedCallback, hAPICall );
+
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.LobbyGameCreatedCallback.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLobbyGameCreatedCallback);
+
 
 	return hAPICall;
 }
@@ -1768,7 +1893,9 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_JoinLobby(void
 	ISteamMatchmaking * pISteamMatchmaking = static_cast<ISteamMatchmaking*>( pSteamMatchmaking );
 	
 	SteamAPICall_t hAPICall = pISteamMatchmaking->JoinLobby(steamIDLobby);
-	SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LobbyEnterCallback, hAPICall );
+	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LobbyEnterCallback, hAPICall );
+	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.LobbyEnterCallResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLobbyEnter);
 
 	return hAPICall;
 
