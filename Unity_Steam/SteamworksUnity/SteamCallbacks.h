@@ -33,8 +33,10 @@ typedef void (ZIMM_CALLBACK *FPOnServerListComplete)(HServerListRequest);
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
 public:					
-						// k_iSteamUserCallbacks
-	SteamCallbacks() :	STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersConnected, SteamServersConnected_t, SteamServersConnected)
+						
+	SteamCallbacks() :	
+		// k_iSteamUserCallbacks
+		  STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersConnected, SteamServersConnected_t, SteamServersConnected)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServerConnectFailure, SteamServerConnectFailure_t, SteamServerConnectFailure)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersDisconnected, SteamServersDisconnected_t, SteamServersDisconnected)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnClientGameServerDeny, ClientGameServerDeny_t, ClientGameServerDeny)
@@ -93,7 +95,6 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageSetUserPublishedFileActionResult, RemoteStorageSetUserPublishedFileActionResult_t, RemoteStorageSetUserPublishedFileActionResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageEnumeratePublishedFilesByUserActionResult, RemoteStorageEnumeratePublishedFilesByUserActionResult_t, RemoteStorageEnumeratePublishedFilesByUserActionResult)
 
-		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback)
@@ -211,17 +212,16 @@ public:
 	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStoragePublishFileProgress, RemoteStoragePublishFileProgress_t, RemoteStoragePublishFileProgress);
 
 
-	STEAM_CALL_RESULT(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback);
-	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback);
+	// k_iSteamMatchmakingCallbacks
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
 	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyGameCreatedCallback, LobbyGameCreated_t, LobbyGameCreatedCallback);
 	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallResult);
-	
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite);
 
+	// k_iSteamGameServerCallbacks
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback);
@@ -232,6 +232,11 @@ public:
 	STEAM_CALL_RESULT(SteamCallbacks, OnGSReputation, GSReputation_t, GSReputation);
 	STEAM_CALL_RESULT(SteamCallbacks, OnAssociateWithClanResult, AssociateWithClanResult_t, AssociateWithClanResult);
 	STEAM_CALL_RESULT(SteamCallbacks, OnComputeNewPlayerCompatibilityResult, ComputeNewPlayerCompatibilityResult_t, ComputeNewPlayerCompatibilityResult);
+
+	// k_iClientUGCCallbacks
+	STEAM_CALL_RESULT(SteamCallbacks, OnUserGeneratedContentQueryCompleted, SteamUGCQueryCompleted_t, UserGeneratedContentQueryCompleted);
+	STEAM_CALL_RESULT(SteamCallbacks, OnUserGeneratedContentDetailsResult, SteamUGCRequestUGCDetailsResult_t, UserGeneratedContentDetailsResult);
+	
 
 	FPOnServerResponded delegateOnServerResponded;
 	FPOnServerListComplete delegateOnServerListComplete;

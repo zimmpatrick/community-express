@@ -207,16 +207,7 @@ namespace CommunityExpressNS
                 private set;
             }
         }
-        /// <summary>
-        /// Result of shared file
-        /// </summary>
-        /// <param name="sender">User who sent the file</param>
-        /// <param name="args">Result arguments</param>
-        public delegate void RemoteStorageFileShareResultHandler(RemoteStorage sender, RemoteStorageFileShareResultArgs args);
-        /// <summary>
-        /// File is shared
-        /// </summary>
-        public event RemoteStorageFileShareResultHandler FileShared;
+       
         /// <summary>
         /// Arguments for stream closing
         /// </summary>
@@ -326,6 +317,15 @@ namespace CommunityExpressNS
 
             
 		}
+
+
+        /// <summary>
+        /// Result of shared file
+        /// </summary>
+        /// <param name="sender">User who sent the file</param>
+        /// <param name="args">Result arguments</param>
+        public delegate void RemoteStorageFileShareResultHandler(RemoteStorage sender, RemoteStorageFileShareResultArgs args);
+        public event RemoteStorageFileShareResultHandler FileShared;
 
         private void Events_FileShareResultReceived(RemoteStorageFileShareResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
         {

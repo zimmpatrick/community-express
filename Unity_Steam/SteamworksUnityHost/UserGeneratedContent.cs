@@ -921,8 +921,13 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(RemoteStoragePublishFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishFileResult_t>(Events_FilePublished));
 
             _ce.AddEventHandler(RemoteStorageDeletePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageDeletePublishedFileResult_t>(Events_FileDeleted));
+
+            _ce.AddEventHandler(SteamUGCQueryCompleted_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamUGCQueryCompleted_t>(QueryCompleted));
+
+            _ce.AddEventHandler(SteamUGCRequestUGCDetailsResult_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamUGCRequestUGCDetailsResult_t>(UGCDetailReceived));
             
         }
+
         /// <summary>
         /// Enumerates published files
         /// </summary>
@@ -1652,6 +1657,22 @@ namespace CommunityExpressNS
 
         #region isteamugc methods
 
+        private void QueryCompleted(SteamUGCQueryCompleted_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            /*
+            SteamUGCDetails_t detail = new SteamUGCDetails_t();
+            uint i = 0;
+            GetQueryUGCResult(recv.m_handle, i, detail);
+             * */
+            ReleaseQueryUGCRequest(recv.m_handle);
+        }
+
+        private void UGCDetailReceived(SteamUGCRequestUGCDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+
+        }
+
+
         // Query UGC associated with a user. Creator app id or consumer app id must be valid and be set to the current running app. unPage should start at 1.
 	    public UGCQueryHandle_t CreateQueryUserUGCRequest( AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, UInt32 unPage )
         {
@@ -1742,25 +1763,25 @@ namespace CommunityExpressNS
         // Purpose: Callback for querying UGC
         //-----------------------------------------------------------------------------
         [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        public struct SteamUGCQueryCompleted_t
+        internal struct SteamUGCQueryCompleted_t
         {
             internal const int k_iCallback = Events.k_iClientUGCCallbacks + 1;
-	        UGCQueryHandle_t m_handle;
-	        EResult m_eResult;
-	        UInt32 m_unNumResultsReturned;
-	        UInt32 m_unTotalMatchingResults;
-	        bool m_bCachedData;	// indicates whether this data was retrieved from the local on-disk cache
+            internal UGCQueryHandle_t m_handle;
+            internal EResult m_eResult;
+            internal UInt32 m_unNumResultsReturned;
+            internal UInt32 m_unTotalMatchingResults;
+            internal bool m_bCachedData;	// indicates whether this data was retrieved from the local on-disk cache
         }
 
         //-----------------------------------------------------------------------------
         // Purpose: Callback for requesting details on one piece of UGC
         //-----------------------------------------------------------------------------
         [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        public struct SteamUGCRequestUGCDetailsResult_t
+        internal struct SteamUGCRequestUGCDetailsResult_t
         {
 	        internal const int k_iCallback = Events.k_iClientUGCCallbacks + 2;
-	        SteamUGCDetails_t m_details;
-	        bool m_bCachedData; // indicates whether this data was retrieved from the local on-disk cache
+            internal SteamUGCDetails_t m_details;
+            internal bool m_bCachedData; // indicates whether this data was retrieved from the local on-disk cache
         }
 
     }
