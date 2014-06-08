@@ -1,6 +1,15 @@
+/*
+ * Community Express SDK
+ * http://www.communityexpresssdk.com/
+ *
+ * Copyright (c) 2011-2014, Zimmdot, LLC
+ * All rights reserved.
+ *
+ * Subject to terms and condition provided in LICENSE.txt
+ * Dual licensed under a Commercial Development and LGPL licenses.
+ */
+
 // SteamworksUnity.cpp : Defines the exported functions for the DLL application.
-// Copyright (c) 2011-2013, Zimmdot, LLC
-// All rights reserved.
 
 #ifdef _WIN32
 #include "stdafx.h"
