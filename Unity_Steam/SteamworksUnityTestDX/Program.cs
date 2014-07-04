@@ -53,6 +53,43 @@ namespace SteamworksUnityTestDX
 
             CommunityExpress.Instance.Leaderboards.LeaderboardReceived += Leaderboards_LeaderboardReceived;
 
+
+            var achievements = _steam.UserAchievements;
+            achievements.InitializeAchievementList(new[] { "TEST_achievement", "TEST_achivement_2" });
+            MyOnUserStatsReceivedCallback(null, achievements);
+
+        }
+
+        private void MyOnUserStatsReceivedCallback(Stats stats, Achievements achievements)
+        {
+            if (stats != null)
+            {
+                Console.WriteLine("Stats: ");
+                foreach (Stat s in stats)
+                {
+                    Console.WriteLine("  {0} - {1} - {2} - {3} - {4}", s.StatName, s.StatValue, s.StatValue.GetType().Name,
+                        s.StatValue is float,
+                        s.StatValue is int);
+                }
+            }
+
+            if (achievements != null)
+            {
+                Console.WriteLine("Achievements: ");
+                foreach (Achievement a in achievements)
+                {
+                    Byte[] iconData = a.IconData;
+                    if (iconData != null)
+                        Console.WriteLine("  {0} - {1} - {2}x{3}({4}) - {5}: {6}", a.AchievementName, a.IsAchieved,
+                            a.IconWidth, a.IconHeight, iconData.Length, a.DisplayName, a.DisplayDescription);
+                    else
+                        Console.WriteLine("  {0} - {1} - {2}: {3}", a.AchievementName, a.IsAchieved, a.DisplayName,
+                            a.DisplayDescription);
+
+
+                }
+                _steam.UserAchievements.UnlockAchievement(achievements.AchievementList[0], true);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
@@ -75,6 +112,8 @@ namespace SteamworksUnityTestDX
                 }
             }
 
+
+
             ////Leaderboards
 
             if (_leaderboard == null)
@@ -85,18 +124,22 @@ namespace SteamworksUnityTestDX
 
             }
             else if (!_entriesCall)
-                {
-                    Console.WriteLine(@"Attemping to set a new score. False? {0}", _leaderboard==null);
-                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 1250, new[]{1,5}.ToList());
-//                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodNone, 1150, new List<int> { 5, 6, 50 });
-//                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 250, null);
-                    _leaderboard.RequestLeaderboardEntries(0, 50, 50);
-                    
-                    _leaderboard.LeaderboardEntriesReceived += OnLeaderboardEntriesReceived;
+            {
+                Console.WriteLine(@"Attemping to set a new score. False? {0}", _leaderboard == null);
+                _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 1250, new[] { 1, 5 }.ToList());
+                //                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodNone, 1150, new List<int> { 5, 6, 50 });
+                //                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 250, null);
+                _leaderboard.RequestLeaderboardEntries(0, 50, 50);
 
-                    _entriesCall = true;
-                }
+                _leaderboard.LeaderboardEntriesReceived += OnLeaderboardEntriesReceived;
+
+                _entriesCall = true;
+            }
             ////Leaderboards
+
+
+
+
 
             CommunityExpress.Instance.RunCallbacks();
             base.Draw(gameTime);
