@@ -74,7 +74,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SteamworksUnityHost\CommunityExpress.csproj">
+    <ProjectReference Include="..\CommunityExpress\CommunityExpress.csproj">
       <Project>{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}</Project>
       <Name>CommunityExpress</Name>
     </ProjectReference>

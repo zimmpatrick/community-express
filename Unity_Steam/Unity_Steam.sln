@@ -3,16 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SteamworksUnity", "SteamworksUnity\SteamworksUnity.vcxproj", "{39BA0E57-7F06-4F42-9BF4-DB427A57715E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityExpress", "SteamworksUnityHost\CommunityExpress.csproj", "{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}"
-	ProjectSection(ProjectDependencies) = postProject
-		{39BA0E57-7F06-4F42-9BF4-DB427A57715E} = {39BA0E57-7F06-4F42-9BF4-DB427A57715E}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityTest", "SteamworksUnityTest\SteamworksUnityTest.csproj", "{82C56495-10E6-4042-B182-296572231E19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityCommunityExpress", "UnityCommunityExpress\UnityCommunityExpress.csproj", "{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityExpressStandAloneTestDX", "SteamworksUnityTestDX\CommunityExpressStandAloneTestDX.csproj", "{1B152943-11F2-4D16-8672-EFD6888F582E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityExpress", "CommunityExpress\CommunityExpress.csproj", "{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,24 +44,6 @@ Global
 		{39BA0E57-7F06-4F42-9BF4-DB427A57715E}.Release|Win32.ActiveCfg = Release|Win32
 		{39BA0E57-7F06-4F42-9BF4-DB427A57715E}.Release|Win32.Build.0 = Release|Win32
 		{39BA0E57-7F06-4F42-9BF4-DB427A57715E}.Release|x86.ActiveCfg = Release|Win32
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Any CPU.ActiveCfg = Release_Unlicensed|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Any CPU.Build.0 = Release_Unlicensed|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Mixed Platforms.ActiveCfg = Release_Unlicensed|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Mixed Platforms.Build.0 = Release_Unlicensed|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Win32.ActiveCfg = Release_Unlicensed|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|x86.ActiveCfg = Release_Unlicensed|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Win32.ActiveCfg = Release|Any CPU
-		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|x86.ActiveCfg = Release|Any CPU
 		{82C56495-10E6-4042-B182-296572231E19}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{82C56495-10E6-4042-B182-296572231E19}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{82C56495-10E6-4042-B182-296572231E19}.Debug|Mixed Platforms.Build.0 = Debug|x86
@@ -119,6 +98,24 @@ Global
 		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|Win32.ActiveCfg = Release|x86
 		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|x86.ActiveCfg = Release|x86
 		{1B152943-11F2-4D16-8672-EFD6888F582E}.Release|x86.Build.0 = Release|x86
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Any CPU.ActiveCfg = Release_Unlicensed|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Any CPU.Build.0 = Release_Unlicensed|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Mixed Platforms.ActiveCfg = Release_Unlicensed|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Mixed Platforms.Build.0 = Release_Unlicensed|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|Win32.ActiveCfg = Release_Unlicensed|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release_Unlicensed|x86.ActiveCfg = Release_Unlicensed|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|Win32.ActiveCfg = Release|Any CPU
+		{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
