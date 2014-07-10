@@ -8,7 +8,7 @@
     <ProjectGuid>{1B152943-11F2-4D16-8672-EFD6888F582E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SteamworksUnityTestDX</RootNamespace>
+    <RootNamespace>CommunityExpressStandAloneTestDX</RootNamespace>
     <AssemblyName>onikira</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>SteamworksUnityTestDX.HelloWorldGame</StartupObject>
+    <StartupObject>CommunityExpressStandAloneTestDX.HelloWorldGame</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SharpDX">
@@ -68,9 +68,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SteamworksUnityHost\SteamworksUnityHost.csproj">
+    <ProjectReference Include="..\SteamworksUnityHost\CommunityExpress.csproj">
       <Project>{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}</Project>
-      <Name>SteamworksUnityHost</Name>
+      <Name>CommunityExpress</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

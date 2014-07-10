@@ -51,9 +51,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SteamworksUnityHost\SteamworksUnityHost.csproj">
+    <ProjectReference Include="..\SteamworksUnityHost\CommunityExpress.csproj">
       <Project>{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}</Project>
-      <Name>SteamworksUnityHost</Name>
+      <Name>CommunityExpress</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using CommunityExpressNS;
 using SharpDX;
 using SharpDX.Toolkit;
-using CommunityExpressNS;
 
-namespace SteamworksUnityTestDX
+namespace CommunityExpressStandAloneTestDX
 {
     /// <summary>
     /// Simple HelloWorld application using SharpDX.Toolkit.

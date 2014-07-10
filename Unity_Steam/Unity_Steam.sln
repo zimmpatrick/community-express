@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SteamworksUnity", "SteamworksUnity\SteamworksUnity.vcxproj", "{39BA0E57-7F06-4F42-9BF4-DB427A57715E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityHost", "SteamworksUnityHost\SteamworksUnityHost.csproj", "{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityExpress", "SteamworksUnityHost\CommunityExpress.csproj", "{07CEE7C4-9AB3-45C5-8A69-76AACB7C1ABD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{39BA0E57-7F06-4F42-9BF4-DB427A57715E} = {39BA0E57-7F06-4F42-9BF4-DB427A57715E}
 	EndProjectSection
@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityTest", "Stea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityCommunityExpress", "UnityCommunityExpress\UnityCommunityExpress.csproj", "{DEBE06CD-F8F3-4100-B078-4D4A809A3ABB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamworksUnityTestDX", "SteamworksUnityTestDX\SteamworksUnityTestDX.csproj", "{1B152943-11F2-4D16-8672-EFD6888F582E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityExpressStandAloneTestDX", "SteamworksUnityTestDX\CommunityExpressStandAloneTestDX.csproj", "{1B152943-11F2-4D16-8672-EFD6888F582E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
