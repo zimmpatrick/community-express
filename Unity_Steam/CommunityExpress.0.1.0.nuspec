@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>CommunityExpress</id>
+        <version>0.1.0</version>
+        <title>Community Express (Steamworks)</title>
+        <authors>@silverspoon</authors>
+        <owners>Patrick Childers https://github.com/zimmpatrick</owners>
+        <projectUrl>https://github.com/zimmpatrick/community-express</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Community Express is a high-level managed SDK to integrate with Steam.Dual licensed with LGPL this compiled version is licensed under LGPL.</description>
+        <language>en-IE</language>
+        <tags>steamworks</tags>        
+    </metadata>
+    <files>
+        <file src="CommunityExpress\bin\Release_Unlicensed\*.dll" target="lib\net20" />        
+        <file src="CommunityExpress\bin\Release_Unlicensed\*.pdb" target="lib\net20" />        
+    </files>
+</package>

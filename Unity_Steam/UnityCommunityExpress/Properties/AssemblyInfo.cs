@@ -1,5 +1,13 @@
-﻿// Copyright (c) 2011-2013, Zimmdot, LLC
-// All rights reserved.
+﻿/*
+ * Community Express SDK
+ * http://www.communityexpresssdk.com/
+ *
+ * Copyright (c) 2011-2014, Zimmdot, LLC
+ * All rights reserved.
+ *
+ * Subject to terms and condition provided in LICENSE.txt
+ * Dual licensed under a Commercial Development and LGPL licenses.
+ */
 
 using System.Reflection;
 using System.Runtime.CompilerServices;

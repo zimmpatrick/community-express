@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using CommunityExpressNS;
 using SharpDX;
 using SharpDX.Toolkit;
-using SharpDX.Toolkit.Graphics;
-using CommunityExpressNS;
 
-namespace SteamworksUnityTestDX
+namespace CommunityExpressStandAloneTestDX
 {
     /// <summary>
     /// Simple HelloWorld application using SharpDX.Toolkit.
@@ -17,16 +14,16 @@ namespace SteamworksUnityTestDX
     {
         private GraphicsDeviceManager graphicsDeviceManager;
         private float delta = 0.0f;
-        private bool shown = false;
+        private bool _shown = false;
+        private CommunityExpress _steam;
+        private Leaderboard _leaderboard;
+        private bool _entriesCall = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HelloWorldGame" /> class.
         /// </summary>
         public HelloWorldGame()
         {
-            CommunityExpress.Instance.Initialize();
-
-            CommunityExpress.Instance.Friends.GameOverlayActivated += new Friends.GameOverlayActivatedHandler(Friends_GameOverlayActivated);
 
             // Creates a graphics manager. This is mandatory.
             graphicsDeviceManager = new GraphicsDeviceManager(this);
@@ -40,14 +37,58 @@ namespace SteamworksUnityTestDX
         {
             if (result)
             {
-                shown = true;
+                _shown = true;
             }
         }
 
         protected override void Initialize()
         {
-            Window.Title = "HelloWorld!";
+            Window.Title = "Oni!";
             base.Initialize();
+
+            CommunityExpress.Instance.Initialize();
+            _steam = CommunityExpress.Instance;
+            CommunityExpress.Instance.Friends.GameOverlayActivated += Friends_GameOverlayActivated;
+
+            CommunityExpress.Instance.Leaderboards.LeaderboardReceived += Leaderboards_LeaderboardReceived;
+
+
+            var achievements = _steam.UserAchievements;
+            achievements.InitializeAchievementList(new[] { "TEST_achievement", "TEST_achivement_2" });
+            MyOnUserStatsReceivedCallback(null, achievements);
+
+        }
+
+        private void MyOnUserStatsReceivedCallback(Stats stats, Achievements achievements)
+        {
+            if (stats != null)
+            {
+                Console.WriteLine("Stats: ");
+                foreach (Stat s in stats)
+                {
+                    Console.WriteLine("  {0} - {1} - {2} - {3} - {4}", s.StatName, s.StatValue, s.StatValue.GetType().Name,
+                        s.StatValue is float,
+                        s.StatValue is int);
+                }
+            }
+
+            if (achievements != null)
+            {
+                Console.WriteLine("Achievements: ");
+                foreach (Achievement a in achievements)
+                {
+                    Byte[] iconData = a.IconData;
+                    if (iconData != null)
+                        Console.WriteLine("  {0} - {1} - {2}x{3}({4}) - {5}: {6}", a.AchievementName, a.IsAchieved,
+                            a.IconWidth, a.IconHeight, iconData.Length, a.DisplayName, a.DisplayDescription);
+                    else
+                        Console.WriteLine("  {0} - {1} - {2}: {3}", a.AchievementName, a.IsAchieved, a.DisplayName,
+                            a.DisplayDescription);
+
+
+                }
+                _steam.UserAchievements.UnlockAchievement(achievements.AchievementList[0], true);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
@@ -55,15 +96,67 @@ namespace SteamworksUnityTestDX
             // Clears the screen with the Color.CornflowerBlue
             GraphicsDevice.Clear(GraphicsDevice.BackBuffer, Color.CornflowerBlue);
 
-            if (!shown && gameTime.TotalGameTime.TotalSeconds > 10.0f)
+            if (!_shown && gameTime.TotalGameTime.TotalSeconds > 10.0f)
             {
-                shown = true;
-                CommunityExpress.Instance.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayCommunity);
+                _shown = true;
+                try
+                {
+                    CommunityExpress.Instance.Friends.ActivateGameOverlay(EGameOverlay.EGameOverlayCommunity);
+
+                }
+                catch (Exception)
+                {
+
+                    Console.WriteLine("error");
+                }
             }
 
-            base.Draw(gameTime);
+
+
+            ////Leaderboards
+
+            if (_leaderboard == null)
+            {
+                Console.WriteLine(@"Hi {0} you are welcome ", CommunityExpress.Instance.User.PersonaName);
+
+                CommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard("Score", ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeTimeMilliSeconds);
+
+            }
+            else if (!_entriesCall)
+            {
+                Console.WriteLine(@"Attemping to set a new score. False? {0}", _leaderboard == null);
+                _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 1250, new[] { 1, 5 }.ToList());
+                //                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodNone, 1150, new List<int> { 5, 6, 50 });
+                //                    _leaderboard.UploadLeaderboardScore(ELeaderboardUploadScoreMethod.k_ELeaderboardUploadScoreMethodForceUpdate, 250, null);
+                _leaderboard.RequestLeaderboardEntries(0, 50, 50);
+
+                _leaderboard.LeaderboardEntriesReceived += OnLeaderboardEntriesReceived;
+
+                _entriesCall = true;
+            }
+            ////Leaderboards
+
+
+
+
 
             CommunityExpress.Instance.RunCallbacks();
+            base.Draw(gameTime);
+        }
+
+        private void OnLeaderboardEntriesReceived(Leaderboard sender, LeaderboardEntries entries)
+        {
+            foreach (var leaderboardEntry in entries)
+            {
+                Console.WriteLine(@"Name:{0} Score: {1} Details: {2}", leaderboardEntry.PersonaName, leaderboardEntry.Score, string.Join(" ", leaderboardEntry.ScoreDetails));
+            }
+        }
+
+        private void Leaderboards_LeaderboardReceived(Leaderboards sender, Leaderboard leaderboard)
+        {
+            if (_leaderboard == null)
+                Console.WriteLine("leaderboard name: {0}. Leaderboard(s) received {1}", leaderboard.LeaderboardName, sender.Count);
+            _leaderboard = leaderboard;
         }
 
         static void Main(string[] args)
