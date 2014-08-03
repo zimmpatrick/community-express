@@ -1828,7 +1828,6 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_RequestLeaderboa
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
 	SteamAPICall_t hAPICall = pISteamUserStats->DownloadLeaderboardEntries(hSteamLeaderboard, eLeaderboardDataRequest, nRangeStart, nRangeEnd);
-	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().LeaderboardScoresDownloaded, hAPICall );
 
 	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
 	steamCallbacks.LeaderboardScoresDownloaded.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLeaderboardScoresDownloaded);
@@ -1862,11 +1861,9 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamGameServerStats_RequestUse
 	ISteamGameServerStats * pISteamGameServerStats = static_cast<ISteamGameServerStats*>( pSteamGameServerStats );
 
 	SteamAPICall_t hAPICall = pISteamGameServerStats->RequestUserStats(steamIDUser);
-	//SteamAPI_RegisterCallResult( &SteamCallbacks::getInstance().UserStatsReceived, hAPICall );
 
 	SteamCallbacks steamCallbacks = SteamCallbacks::getInstance();
-	steamCallbacks.UserStatsReceived.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnUserStatsReceived);
-
+	steamCallbacks.GameServerStatsReceived.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnGameServerStatsReceived);
 
 	return hAPICall;
 }

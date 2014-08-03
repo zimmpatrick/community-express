@@ -78,6 +78,7 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, GamepadTextInputDismissed)
 		
 		// k_iSteamUserStatsCallbacks
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStored)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserAchievementStored, UserAchievementStored_t, UserAchievementStored)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardScoreUploaded, LeaderboardScoreUploaded_t, LeaderboardScoreUploaded)
@@ -178,7 +179,7 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGamepadTextInputDismissed, GamepadTextInputDismissed_t, GamepadTextInputDismissed);
 
 	// k_iSteamUserStatsCallbacks
-	STEAM_CALL_RESULT(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStored);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserAchievementStored, UserAchievementStored_t, UserAchievementStored);
 	STEAM_CALL_RESULT(SteamCallbacks, OnLeaderboardFindResult, LeaderboardFindResult_t, LeaderboardFindResult);
@@ -230,6 +231,8 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite);
 
 	// k_iSteamGameServerCallbacks
+	
+	STEAM_CALL_RESULT(SteamCallbacks, OnGameServerStatsReceived, GSStatsReceived_t, GameServerStatsReceived);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback);
