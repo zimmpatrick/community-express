@@ -222,10 +222,12 @@ public:
 
 
 	// k_iSteamMatchmakingCallbacks
+
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
 	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyGameCreatedCallback, LobbyGameCreated_t, LobbyGameCreatedCallback);
+	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyCreated, LobbyCreated_t, LobbyCreatedCallResult);
 	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite);
