@@ -1920,6 +1920,8 @@ STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamMatchmaking_CreateLobby(vo
 	SteamCallbacks &steamCallbacks = SteamCallbacks::getInstance();
 	steamCallbacks.LobbyCreatedCallResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLobbyCreated);
 
+	steamCallbacks.LobbyEnterCallResult.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLobbyEnter);
+
 	return hAPICall;
 }
 
