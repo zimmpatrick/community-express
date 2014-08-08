@@ -17,7 +17,6 @@
 #include "Ship.h"
 #include "StatsAndAchievements.h"
 #include "RemoteStorage.h"
-#include "musicplayer.h"
 
 // Forward class declaration
 class CConnectingMenu;
@@ -85,29 +84,6 @@ struct LeaderboardMenuItem_t
 	bool m_bNextLeaderboard;
 };
 
-#define MAX_WORKSHOP_ITEMS 16
-
-// a Steam Workshop item
-class CWorkshopItem : public CVectorEntity
-{
-public:
-
-	CWorkshopItem( IGameEngine *pGameEngine, uint32 uCollisionRadius ) : CVectorEntity( pGameEngine, uCollisionRadius )
-	{
-		memset( &m_ItemDetails, 0, sizeof(m_ItemDetails) );
-	}
-	
-	void OnUGCDetailsResult(SteamUGCRequestUGCDetailsResult_t *pCallback, bool bIOFailure)
-	{
-		m_ItemDetails = pCallback->m_details;
-	}
-
-	SteamUGCDetails_t m_ItemDetails; // meta data
-	CCallResult<CWorkshopItem, SteamUGCRequestUGCDetailsResult_t> m_SteamCallResultUGCDetails;
-};
-
-
-
 
 class CSpaceWarClient 
 {
@@ -166,8 +142,6 @@ public:
 	void OnMenuSelection( LobbyMenuItem_t selection );
 	void OnMenuSelection( LeaderboardMenuItem_t selection );
 	void OnMenuSelection( ERemoteStorageSyncMenuCommand selection );
-
-	void OnMenuSelection( MusicPlayerMenuItem_t selection ) { m_pMusicPlayer->OnMenuSelection( selection ); }
 
 	// Set game state
 	void SetGameState( EClientGameState eState );
@@ -238,16 +212,6 @@ private:
 
 	// Updates what we show to friends about what we're doing and how to connect
 	void UpdateRichPresenceConnectionInfo();
-
-	// Draw description for all subscribed workshop items
-	void DrawWorkshopItems();
-
-	// load subscribed workshop items
-	void LoadWorkshopItems();
-
-	// load a workshop item from file
-	bool LoadWorkshopItem( PublishedFileId_t workshopItemID );
-	CWorkshopItem *LoadWorkshopItemFromFile( const char *pszFileName );
 
 	// Server we are connected to
 	CSpaceWarServer *m_pServer;
@@ -360,10 +324,6 @@ private:
 	// Sun instance
 	CSun *m_pSun;
 
-	// Steam Workshop items
-	CWorkshopItem *m_rgpWorkshopItems[ MAX_WORKSHOP_ITEMS ];
-	int m_nNumWorkshopItems; // items in m_rgpWorkshopItems
-
 	// Main menu instance
 	CMainMenu *m_pMainMenu;
 
@@ -382,7 +342,6 @@ private:
 	CStatsAndAchievements *m_pStatsAndAchievements;
 
 	CLeaderboards *m_pLeaderboards;
-	CMusicPlayer *m_pMusicPlayer;
 	CClanChatRoom *m_pClanChatRoom;
 	CServerBrowser *m_pServerBrowser;
 
@@ -394,7 +353,6 @@ private:
 	// callback for when we're creating a new lobby
 	void OnLobbyCreated( LobbyCreated_t *pCallback, bool bIOFailure );
 	CCallResult<CSpaceWarClient, LobbyCreated_t> m_SteamCallResultLobbyCreated;
-
 	// callback for when we've joined a lobby
 	void OnLobbyEntered( LobbyEnter_t *pCallback, bool bIOFailure );
 	CCallResult<CSpaceWarClient, LobbyEnter_t> m_SteamCallResultLobbyEntered;
@@ -412,9 +370,6 @@ private:
 	
 	// callback when getting the results of a web call
 	STEAM_CALLBACK( CSpaceWarClient, OnGameWebCallback, GameWebCallback_t, m_CallbackGameWebCallback );
-
-	// callback when new Workshop item was installed
-	STEAM_CALLBACK(CSpaceWarClient, OnWorkshopItemInstalled, ItemInstalled_t, m_CallbackWorkshopItemInstalled);
 
 	// lobby browser menu
 	CLobbyBrowser *m_pLobbyBrowser;
@@ -440,8 +395,6 @@ private:
 	// Called when SteamUser()->RequestEncryptedAppTicket() returns asynchronously
 	void OnRequestEncryptedAppTicket( EncryptedAppTicketResponse_t *pEncryptedAppTicketResponse, bool bIOFailure );
 	CCallResult< CSpaceWarClient, EncryptedAppTicketResponse_t > m_SteamCallResultEncryptedAppTicket;
-
-	bool m_bLastControllerStateInMenu;
 };
 
 // Must define this stuff before BaseMenu.h as it depends on calling back into us through these accessors

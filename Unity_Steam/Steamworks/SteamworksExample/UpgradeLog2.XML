@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="SteamworksExample">
+</Property><Property Name="Solution File" Value="D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.sln">
+</Property><Property Name="User Options File" Value="D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.suo">
+</Property><Property Name="Date" Value="Friday, November 22, 2013">
+</Property><Property Name="Time" Value="10:21 AM">
+</Property><Property Name="Log Number" Value="2">
+</Property></Properties><Event ErrorLevel="2" Project="" Source="SteamworksExample.sln" Description="Error creating backup file: D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.sln.old">
+</Event><Event ErrorLevel="2" Project="" Source="SteamworksExample.suo" Description="Error creating backup file: D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.suo.old">
+</Event><Event ErrorLevel="0" Project="SteamworksExample" Source="SteamworksExample.vcproj" Description="Converting project file 'D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.vcproj'.">
+</Event><Event ErrorLevel="2" Project="D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.vcxproj" Source="SteamworksExample.vcxproj.filters" Description="Project file 'D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.vcxproj' or filters file 'D:\Work\community-express\Unity_Steam\Steamworks\SteamworksExample\SteamworksExample.vcxproj.filters' already exist and will not attempt to overwrite them.">
+</Event><Event ErrorLevel="2" Project="SteamworksExample" Source="SteamworksExample.vcproj" Description="Project upgrade failed.">
+</Event><Event ErrorLevel="3" Project="SteamworksExample" Source="SteamworksExample.vcproj" Description="Not Converted">
+</Event><Event ErrorLevel="0" Project="" Source="SteamworksExample.sln" Description="The solution file does not require conversion.">
+</Event><Event ErrorLevel="3" Project="" Source="SteamworksExample.sln" Description="No Conversion Required">
+</Event></UpgradeLog>
