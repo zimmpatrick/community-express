@@ -184,6 +184,8 @@ enum EClientGameState
 	k_EClientRetrySteamConnection,
 	k_EClientClanChatRoom,
 	k_EClientWebCallback,
+	k_EClientMusic,
+	k_EClientWorkshop,
 };
 
 

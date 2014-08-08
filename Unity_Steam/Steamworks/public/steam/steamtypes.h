@@ -10,6 +10,8 @@
 #pragma once
 #endif
 
+#define S_CALLTYPE __cdecl
+
 // Steam-specific types. Defined here so this header file can be included in other code bases.
 #ifndef WCHARTYPES_H
 typedef unsigned char uint8;
@@ -145,5 +147,11 @@ typedef uint32 AccountID_t;
 
 typedef uint32 PartnerId_t;
 const PartnerId_t k_uPartnerIdInvalid = 0;
+
+// ID for a depot content manifest
+typedef uint64 ManifestId_t; 
+const ManifestId_t k_uManifestIdInvalid = 0;
+
+
 
 #endif // STEAMTYPES_H

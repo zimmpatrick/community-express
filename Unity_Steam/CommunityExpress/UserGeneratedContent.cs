@@ -5,11 +5,17 @@ using System.Text;
 
 namespace CommunityExpressNS
 {
+    using UGCQueryHandle_t = UInt64;
+    using UGCUpdateHandle_t = UInt64;
+
     using SteamAPICall_t = UInt64;
     using PublishedFileId_t = UInt64;
     using UGCHandle_t = UInt64;
     using PublishedFileUpdateHandle_t = UInt64;
     using AppId_t = UInt32;
+    using AccountID_t = UInt32;
+    
+   
 
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
     internal struct RemoteStorageEnumerateUserSubscribedFilesResult_t
@@ -337,6 +343,115 @@ namespace CommunityExpressNS
             k_EWorkshopVideoProviderNone = 0,
             k_EWorkshopVideoProviderYoutube = 1
         };
+
+        #region isteamugc.h
+        // Matching UGC types for queries
+        public enum EUGCMatchingUGCType
+        {
+            k_EUGCMatchingUGCType_Items = 0,		// both mtx items and ready-to-use items
+            k_EUGCMatchingUGCType_Items_Mtx = 1,
+            k_EUGCMatchingUGCType_Items_ReadyToUse = 2,
+            k_EUGCMatchingUGCType_Collections = 3,
+            k_EUGCMatchingUGCType_Artwork = 4,
+            k_EUGCMatchingUGCType_Videos = 5,
+            k_EUGCMatchingUGCType_Screenshots = 6,
+            k_EUGCMatchingUGCType_AllGuides = 7,		// both web guides and integrated guides
+            k_EUGCMatchingUGCType_WebGuides = 8,
+            k_EUGCMatchingUGCType_IntegratedGuides = 9,
+            k_EUGCMatchingUGCType_UsableInGame = 10,		// ready-to-use items and integrated guides
+            k_EUGCMatchingUGCType_ControllerBindings = 11,
+        };
+
+        // Different lists of published UGC for a user.
+        // If the current logged in user is different than the specified user, then some options may not be allowed.
+        public enum EUserUGCList
+        {
+            k_EUserUGCList_Published,
+            k_EUserUGCList_VotedOn,
+            k_EUserUGCList_VotedUp,
+            k_EUserUGCList_VotedDown,
+            k_EUserUGCList_WillVoteLater,
+            k_EUserUGCList_Favorited,
+            k_EUserUGCList_Subscribed,
+            k_EUserUGCList_UsedOrPlayed,
+            k_EUserUGCList_Followed,
+        };
+
+        // Sort order for user published UGC lists (defaults to creation order descending)
+        public enum EUserUGCListSortOrder
+        {
+            k_EUserUGCListSortOrder_CreationOrderDesc,
+            k_EUserUGCListSortOrder_CreationOrderAsc,
+            k_EUserUGCListSortOrder_TitleAsc,
+            k_EUserUGCListSortOrder_LastUpdatedDesc,
+            k_EUserUGCListSortOrder_SubscriptionDateDesc,
+            k_EUserUGCListSortOrder_VoteScoreDesc,
+            k_EUserUGCListSortOrder_ForModeration,
+        };
+
+        // Combination of sorting and filtering for queries across all UGC
+        public enum EUGCQuery
+        {
+            k_EUGCQuery_RankedByVote = 0,
+            k_EUGCQuery_RankedByPublicationDate = 1,
+            k_EUGCQuery_AcceptedForGameRankedByAcceptanceDate = 2,
+            k_EUGCQuery_RankedByTrend = 3,
+            k_EUGCQuery_FavoritedByFriendsRankedByPublicationDate = 4,
+            k_EUGCQuery_CreatedByFriendsRankedByPublicationDate = 5,
+            k_EUGCQuery_RankedByNumTimesReported = 6,
+            k_EUGCQuery_CreatedByFollowedUsersRankedByPublicationDate = 7,
+            k_EUGCQuery_NotYetRated = 8,
+            k_EUGCQuery_RankedByTotalVotesAsc = 9,
+            k_EUGCQuery_RankedByVotesUp = 10,
+            k_EUGCQuery_RankedByTextSearch = 11,
+        };
+
+        public const UInt32 kNumUGCResultsPerPage = 50;
+
+        // Details for a single published file/UGC
+        [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
+        public struct SteamUGCDetails_t
+        {
+	        PublishedFileId_t m_nPublishedFileId;
+	        EResult m_eResult;												// The result of the operation.	
+	        EWorkshopFileType m_eFileType;									// Type of the file
+	        AppId_t m_nCreatorAppID;										// ID of the app that created this file.
+	        AppId_t m_nConsumerAppID;										// ID of the app that will consume this file.
+            
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 119)]
+	        string m_rgchTitle;		                                		// title of document
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8000)]
+	        string m_rgchDescription;                                   	// description of document
+
+	        UInt64 m_ulSteamIDOwner;										// Steam ID of the user who created this content.
+	        UInt32 m_rtimeCreated;											// time when the published file was created
+	        UInt32 m_rtimeUpdated;											// time when the published file was last updated
+	        UInt32 m_rtimeAddedToUserList;									// time when the user added the published file to their list (not always applicable)
+	        ERemoteStoragePublishedFileVisibility m_eVisibility;			// visibility
+	        bool m_bBanned;													// whether the file was banned
+	        bool m_bAcceptedForUse;											// developer has specifically flagged this item as accepted in the Workshop
+	        bool m_bTagsTruncated;											// whether the list of tags was too long to be returned in the provided buffer
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1025)]
+	        string m_rgchTags;								                // comma separated list of all tags associated with this file	
+	        // file/url information
+	        UGCHandle_t m_hFile;											// The handle of the primary file
+	        UGCHandle_t m_hPreviewFile;										// The handle of the preview file
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+	        string m_pchFileName;							                // The cloud filename of the primary file
+	        UInt32 m_nFileSize;												// Size of the primary file
+	        UInt32 m_nPreviewFileSize;										// Size of the preview file
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+	        string m_rgchURL;						                        // URL (for a video or a website)
+	        // voting information
+	        UInt32 m_unVotesUp;												// number of votes up
+	        UInt32 m_unVotesDown;											// number of votes down
+	        float m_flScore;												// calculated score
+        }
+
+        #endregion
+
+
         /// <summary>
         /// Arguments for result of file download
         /// </summary>
@@ -704,7 +819,61 @@ namespace CommunityExpressNS
         private static extern UInt64 SteamUnityAPI_SteamRemoteStorage_UpdatePublishedFileTags(IntPtr remoteStorage, PublishedFileUpdateHandle_t updateHandle, SteamParamStringArray_t pTags);
 
 
+        #region steamugc
+
+        [DllImport("CommunityExpressSW")]
+        private static extern IntPtr SteamUnityAPI_SteamUserGeneratedContent();
+      
+        [DllImport("CommunityExpressSW")]
+        private static extern UInt64 SteamUnityAPI_UserGeneratedContent_CreateQueryUserUGCRequest(IntPtr pSteamUGC, AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, UInt32 unPage);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern UInt64 SteamUnityAPI_UserGeneratedContent_CreateQueryAllUGCRequest(IntPtr pSteamUGC, EUGCQuery eQueryType, EUGCMatchingUGCType eMatchingeMatchingUGCTypeFileType, AppId_t nCreatorAppID, AppId_t nConsumerAppID, UInt32 unPage);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern UInt64 SteamUnityAPI_UserGeneratedContent_SendQueryUGCRequest(IntPtr pSteamUGC, UGCQueryHandle_t handle);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_GetQueryUGCResult(IntPtr pSteamUGC, UGCQueryHandle_t handle, UInt32 index, SteamUGCDetails_t pDetails);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_ReleaseQueryUGCRequest(IntPtr pSteamUGC, UGCQueryHandle_t handle);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_AddRequiredTag(IntPtr pSteamUGC, UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pTagName);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_AddExcludedTag(IntPtr pSteamUGC, UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pTagName);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetReturnLongDescription(IntPtr pSteamUGC, UGCQueryHandle_t handle, bool bReturnLongDescription);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetReturnTotalOnly(IntPtr pSteamUGC, UGCQueryHandle_t handle, bool bReturnTotalOnly);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetAllowCachedResponse(IntPtr pSteamUGC, UGCQueryHandle_t handle, UInt32 unMaxAgeSeconds);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetCloudFileNameFilter(IntPtr pSteamUGC, UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pMatchCloudFileName);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetMatchAnyTag(IntPtr pSteamUGC, UGCQueryHandle_t handle, bool bMatchAnyTag);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetSearchText(IntPtr pSteamUGC, UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pSearchText);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern bool SteamUnityAPI_UserGeneratedContent_SetRankedByTrendDays(IntPtr pSteamUGC, UGCQueryHandle_t handle, UInt32 unDays);
+
+        [DllImport("CommunityExpressSW")]
+        private static extern UInt64 SteamUnityAPI_UserGeneratedContent_RequestUGCDetails(IntPtr pSteamUGC, PublishedFileId_t nPublishedFileID, UInt32 unMaxAgeSeconds);
+
+
+        #endregion
+
         private IntPtr _remoteStorage;
+        private IntPtr _steamUgc;
         private CommunityExpress _ce;
         private CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserSharedWorkshopFilesResult_t> _userSharedFilesHandler;
         private Dictionary<UInt64, PublishedFileDownloadResultArgs> _ugcDownloads = new Dictionary<PublishedFileUpdateHandle_t, PublishedFileDownloadResultArgs>();
@@ -713,6 +882,7 @@ namespace CommunityExpressNS
         {
             _ce = ce;
             _remoteStorage = SteamUnityAPI_SteamRemoteStorage();
+            _steamUgc = SteamUnityAPI_SteamUserGeneratedContent();
 
             _userSharedFilesHandler = new CommunityExpress.OnEventHandler<RemoteStorageEnumerateUserSharedWorkshopFilesResult_t>(Events_UserSharedWorkshopFilesReceived);
 
@@ -751,7 +921,13 @@ namespace CommunityExpressNS
             _ce.AddEventHandler(RemoteStoragePublishFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStoragePublishFileResult_t>(Events_FilePublished));
 
             _ce.AddEventHandler(RemoteStorageDeletePublishedFileResult_t.k_iCallback, new CommunityExpress.OnEventHandler<RemoteStorageDeletePublishedFileResult_t>(Events_FileDeleted));
+
+            _ce.AddEventHandler(SteamUGCQueryCompleted_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamUGCQueryCompleted_t>(QueryCompleted));
+
+            _ce.AddEventHandler(SteamUGCRequestUGCDetailsResult_t.k_iCallback, new CommunityExpress.OnEventHandler<SteamUGCRequestUGCDetailsResult_t>(UGCDetailReceived));
+            
         }
+
         /// <summary>
         /// Enumerates published files
         /// </summary>
@@ -1475,6 +1651,140 @@ namespace CommunityExpressNS
 
             pTagsArray.Free();
         }
+
+
+
+
+        #region isteamugc methods
+
+        private void QueryCompleted(SteamUGCQueryCompleted_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+            /*
+            SteamUGCDetails_t detail = new SteamUGCDetails_t();
+            uint i = 0;
+            GetQueryUGCResult(recv.m_handle, i, detail);
+             * */
+            ReleaseQueryUGCRequest(recv.m_handle);
+        }
+
+        private void UGCDetailReceived(SteamUGCRequestUGCDetailsResult_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
+        {
+
+        }
+
+
+        // Query UGC associated with a user. Creator app id or consumer app id must be valid and be set to the current running app. unPage should start at 1.
+	    public UGCQueryHandle_t CreateQueryUserUGCRequest( AccountID_t unAccountID, EUserUGCList eListType, EUGCMatchingUGCType eMatchingUGCType, EUserUGCListSortOrder eSortOrder, AppId_t nCreatorAppID, AppId_t nConsumerAppID, UInt32 unPage )
+        {
+            return SteamUnityAPI_UserGeneratedContent_CreateQueryUserUGCRequest(_steamUgc, unAccountID, eListType, eMatchingUGCType, eSortOrder, nCreatorAppID, nCreatorAppID, unPage);
+        }
+
+	    // Query for all matching UGC. Creator app id or consumer app id must be valid and be set to the current running app. unPage should start at 1.
+	    public UGCQueryHandle_t CreateQueryAllUGCRequest( EUGCQuery eQueryType, EUGCMatchingUGCType eMatchingeMatchingUGCTypeFileType, AppId_t nCreatorAppID, AppId_t nConsumerAppID, UInt32 unPage )
+        {
+            return SteamUnityAPI_UserGeneratedContent_CreateQueryAllUGCRequest(_steamUgc, eQueryType, eMatchingeMatchingUGCTypeFileType, nCreatorAppID, nConsumerAppID, unPage);
+        }
+
+	    // Send the query to Steam
+	    public SteamAPICall_t SendQueryUGCRequest( UGCQueryHandle_t handle )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SendQueryUGCRequest(_steamUgc, handle);
+        }
+
+	    // Retrieve an individual result after receiving the callback for querying UGC
+	    public bool GetQueryUGCResult( UGCQueryHandle_t handle, UInt32 index, SteamUGCDetails_t pDetails )
+        {
+            return SteamUnityAPI_UserGeneratedContent_GetQueryUGCResult(_steamUgc, handle, index, pDetails);
+        }
+
+	    // Release the request to free up memory, after retrieving results
+	    public bool ReleaseQueryUGCRequest( UGCQueryHandle_t handle )
+        {
+            return SteamUnityAPI_UserGeneratedContent_ReleaseQueryUGCRequest(_steamUgc, handle);
+        }
+
+	    // Options to set for querying UGC
+        public bool AddRequiredTag(UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pTagName)
+        {
+            return SteamUnityAPI_UserGeneratedContent_AddRequiredTag(_steamUgc, handle, pTagName);
+        }
+
+	    public bool AddExcludedTag( UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pTagName )
+        {
+            return SteamUnityAPI_UserGeneratedContent_AddExcludedTag(_steamUgc, handle, pTagName);
+        }
+
+	    public bool SetReturnLongDescription( UGCQueryHandle_t handle, bool bReturnLongDescription )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetReturnLongDescription(_steamUgc, handle, bReturnLongDescription);
+        }
+
+	    public bool SetReturnTotalOnly( UGCQueryHandle_t handle, bool bReturnTotalOnly )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetReturnTotalOnly(_steamUgc, handle, bReturnTotalOnly);
+        }
+
+	    public bool SetAllowCachedResponse( UGCQueryHandle_t handle, UInt32 unMaxAgeSeconds )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetAllowCachedResponse(_steamUgc, handle, unMaxAgeSeconds);
+        }
+
+	    // Options only for querying user UGC
+	    public bool SetCloudFileNameFilter( UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pMatchCloudFileName )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetCloudFileNameFilter(_steamUgc, handle, pMatchCloudFileName);
+        }
+
+	    // Options only for querying all UGC
+	    public bool SetMatchAnyTag( UGCQueryHandle_t handle, bool bMatchAnyTag )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetMatchAnyTag(_steamUgc, handle, bMatchAnyTag);
+        }
+
+	    public bool SetSearchText( UGCQueryHandle_t handle, [MarshalAs(UnmanagedType.LPStr)] string pSearchText )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetSearchText(_steamUgc, handle, pSearchText);
+        }
+
+	    public bool SetRankedByTrendDays( UGCQueryHandle_t handle, UInt32 unDays )
+        {
+            return SteamUnityAPI_UserGeneratedContent_SetRankedByTrendDays(_steamUgc, handle, unDays);
+        }
+
+	    // Request full details for one piece of UGC
+	    SteamAPICall_t RequestUGCDetails( PublishedFileId_t nPublishedFileID, UInt32 unMaxAgeSeconds )
+        {
+            return SteamUnityAPI_UserGeneratedContent_RequestUGCDetails(_steamUgc, nPublishedFileID, unMaxAgeSeconds);
+        }
+
+        #endregion isteamugc methods
+
+        //-----------------------------------------------------------------------------
+        // Purpose: Callback for querying UGC
+        //-----------------------------------------------------------------------------
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct SteamUGCQueryCompleted_t
+        {
+            internal const int k_iCallback = Events.k_iClientUGCCallbacks + 1;
+            internal UGCQueryHandle_t m_handle;
+            internal EResult m_eResult;
+            internal UInt32 m_unNumResultsReturned;
+            internal UInt32 m_unTotalMatchingResults;
+            internal bool m_bCachedData;	// indicates whether this data was retrieved from the local on-disk cache
+        }
+
+        //-----------------------------------------------------------------------------
+        // Purpose: Callback for requesting details on one piece of UGC
+        //-----------------------------------------------------------------------------
+        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        internal struct SteamUGCRequestUGCDetailsResult_t
+        {
+	        internal const int k_iCallback = Events.k_iClientUGCCallbacks + 2;
+            internal SteamUGCDetails_t m_details;
+            internal bool m_bCachedData; // indicates whether this data was retrieved from the local on-disk cache
+        }
+
     }
+   
 }
 
