@@ -110,14 +110,6 @@ namespace CommunityExpressNS
         internal const int k_iClientDeviceAuthCallbacks = 3000;
         internal const int k_iClientNetworkDeviceManagerCallbacks = 3100;
         internal const int k_iClientMusicCallbacks = 3200;
-        internal const int k_iClientRemoteClientManagerCallbacks = 3300;
-        internal const int k_iClientUGCCallbacks = 3400;
-        internal const int k_iSteamStreamClientCallbacks = 3500;
-        internal const int k_IClientProductBuilderCallbacks = 3600;
-        internal const int k_iClientShortcutsCallbacks = 3700;
-        internal const int k_iClientRemoteControlManagerCallbacks = 3800;
-        internal const int k_iSteamAppListCallbacks = 3900;
-        internal const int k_iSteamMusicCallbacks = 4000;
 
         public Events()
         {

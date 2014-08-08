@@ -19,25 +19,6 @@ namespace CommunityExpressNS
 {
 	using SteamAPICall_t = UInt64;
 
-
-    //-----------------------------------------------------------------------------
-    // Purpose: result of a request to store the achievements for a game, or an 
-    //			"indicate progress" call. If both m_nCurProgress and m_nMaxProgress
-    //			are zero, that means the achievement has been fully unlocked.
-    //-----------------------------------------------------------------------------
-    [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    struct UserAchievementStored_t
-	{
-        internal const int k_iCallback = Events.k_iSteamUserStatsCallbacks + 3;
-
-	    public UInt64		m_nGameID;				// Game this is for
-	    public bool		    m_bGroupAchievement;	// if this is a "group" achievement
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-	    public char[]		m_rgchAchievementName;	// name of the achievement
-	    public UInt32		m_nCurProgress;			// current progress towards the achievement
-	    public UInt32		m_nMaxProgress;			// "out of" this many
-	}
-
     /// <summary>
     /// List of user's achievements
     /// </summary>
@@ -87,9 +68,7 @@ namespace CommunityExpressNS
 		private SteamID _id;
 		private List<Achievement> _achievementList = new List<Achievement>();
 		private IEnumerable<string> _requestedAchievements;
-        
         private CommunityExpress.OnEventHandler<UserStatsReceived_t> _statsRecievedEventHandler = null;
-        private CommunityExpress.OnEventHandler<UserAchievementStored_t> _achievementStoredEventHandler = null;
 
         public delegate void UserAchievementsReceivedHandler(Achievements sender, UserAchievementsReceivedArgs e);
 
@@ -128,9 +107,6 @@ namespace CommunityExpressNS
             _ce = ce;
 			_id = steamID;
 
-            _achievementStoredEventHandler = new CommunityExpress.OnEventHandler<UserAchievementStored_t>(Event_AchievementStoredCallback);
-            _ce.AddEventHandler(UserAchievementStored_t.k_iCallback, _achievementStoredEventHandler);
-
 			if (isGameServer)
 			{
 				_gameserverStats = SteamUnityAPI_SteamGameServerStats();
@@ -139,36 +115,6 @@ namespace CommunityExpressNS
 			{
 				_stats = SteamUnityAPI_SteamUserStats();
 			}
-        }
-
-        /// <summary>
-        /// Achievement Stored
-        /// </summary>
-        public delegate void AchievementStoredHandler(Achievement ach, bool justAchieved);
-        public event AchievementStoredHandler OnAchievementStored;
-
-        private void Event_AchievementStoredCallback(UserAchievementStored_t recv, bool bIOFailure, SteamAPICall_t hSteamAPICall)
-        {
-            bool justAchieved = false;
-            string achievementName = new string(recv.m_rgchAchievementName);
-
-            foreach (Achievement ach in _achievementList)
-            {
-                if (ach.AchievementName == achievementName)
-                {
-                    if (!ach.IsAchieved && (recv.m_nCurProgress == 0 && recv.m_nMaxProgress == 0))
-                    {
-                        ach.IsAchieved = true;
-                        justAchieved = true;
-                    }
-
-                    if (OnAchievementStored != null)
-                        OnAchievementStored(ach, justAchieved);
-
-                    break;
-                }
-            }
-            
         }
 
 		internal void RequestCurrentAchievements(IEnumerable<string> requestedAchievements)

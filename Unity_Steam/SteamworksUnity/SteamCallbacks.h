@@ -32,19 +32,14 @@ typedef void (ZIMM_CALLBACK *FPOnServerListComplete)(HServerListRequest);
 
 
 #define STEAM_CALLBACK_CESDK1( thisclass, func, param, var ) var(this, &thisclass::func)
-#define STEAM_CALLBACK_CESDK2( thisclass, func, param, var ) CCallback< thisclass, param, false > var; void func( param *pParam ) { delegateOnCallback(param::k_iCallback, pParam, false, k_uAPICallInvalid); }
-#define STEAM_GAMESERVER_CALLBACK_CESDK2( thisclass, func, param, var ) CCallback< thisclass, param, true > var; void func( param *pParam ) { delegateOnCallback(param::k_iCallback, pParam, false, k_uAPICallInvalid); }
-
-#define STEAM_CALL_RESULT( thisclass, func, param, var ) CCallResult< thisclass, param > var; void func(param *pParam, bool bIOFailure) { delegateOnCallback(param::k_iCallback, pParam, bIOFailure, k_uAPICallInvalid); }
-
+#define STEAM_CALLBACK_CESDK2( thisclass, func, param, var ) CCallback< thisclass, param, false > var; void func( param *pParam ) { delegateOnCallback(param::k_iCallback, pParam, false, k_uAPICallInvalid);  }
+#define STEAM_GAMESERVER_CALLBACK_CESDK2( thisclass, func, param, var ) CCallback< thisclass, param, true > var; void func( param *pParam ) { delegateOnCallback(param::k_iCallback, pParam, false, k_uAPICallInvalid);  }
 
 class SteamCallbacks : public ISteamMatchmakingServerListResponse
 {
 public:					
-						
-	SteamCallbacks() :	
-		// k_iSteamUserCallbacks
-		  STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersConnected, SteamServersConnected_t, SteamServersConnected)
+						// k_iSteamUserCallbacks
+	SteamCallbacks() :	STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersConnected, SteamServersConnected_t, SteamServersConnected)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServerConnectFailure, SteamServerConnectFailure_t, SteamServerConnectFailure)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSteamServersDisconnected, SteamServersDisconnected_t, SteamServersDisconnected)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnClientGameServerDeny, ClientGameServerDeny_t, ClientGameServerDeny)
@@ -62,11 +57,16 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendRichPresenceUpdate, FriendRichPresenceUpdate_t, FriendRichPresenceUpdate)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerChangeRequested, GameServerChangeRequested_t, GameServerChangeRequested)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, GameLobbyJoinRequested)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnClanOfficerListResponse, ClanOfficerListResponse_t, ClanOfficerListResponse)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameRichPresenceJoinRequested, GameRichPresenceJoinRequested_t, GameRichPresenceJoinRequested)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedClanChatMsg, GameConnectedClanChatMsg_t, GameConnectedClanChatMsg)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedChatJoin, GameConnectedChatJoin_t, GameConnectedChatJoin)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedChatLeave, GameConnectedChatLeave_t, GameConnectedChatLeave)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnDownloadClanActivityCountsResult, DownloadClanActivityCountsResult_t, DownloadClanActivityCountsResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameConnectedFriendChatMsg, GameConnectedFriendChatMsg_t, GameConnectedFriendChatMsg)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendsGetFollowerCount, FriendsGetFollowerCount_t, FriendsGetFollowerCount)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendsIsFollowing, FriendsIsFollowing_t, FriendsIsFollowing)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFriendsEnumerateFollowingList, FriendsEnumerateFollowingList_t, FriendsEnumerateFollowingList)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnSetPersonaNameResponse, SetPersonaNameResponse_t, SetPersonaNameResponse)
 
 		// k_iSteamUtilsCallbacks
@@ -81,6 +81,8 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStored)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserAchievementStored, UserAchievementStored_t, UserAchievementStored)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardFindResult, LeaderboardFindResult_t, LeaderboardFindResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardScoresDownloaded, LeaderboardScoresDownloaded_t, LeaderboardScoresDownloaded)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLeaderboardScoreUploaded, LeaderboardScoreUploaded_t, LeaderboardScoreUploaded)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnNumberOfCurrentPlayers, NumberOfCurrentPlayers_t, NumberOfCurrentPlayers)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnUserStatsUnloaded, UserStatsUnloaded_t, UserStatsUnloaded)
@@ -95,18 +97,35 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageAppSyncProgress, RemoteStorageAppSyncProgress_t, RemoteStorageAppSyncProgress)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageAppSyncStatusCheck, RemoteStorageAppSyncStatusCheck_t, RemoteStorageAppSyncStatusCheck)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageConflictResolution, RemoteStorageConflictResolution_t, RemoteStorageConflictResolution)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageFileShareResult, RemoteStorageFileShareResult_t, RemoteStorageFileShareResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStoragePublishFileResult, RemoteStoragePublishFileResult_t, RemoteStoragePublishFileResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageDeletePublishedFileResult, RemoteStorageDeletePublishedFileResult_t, RemoteStorageDeletePublishedFileResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageEnumerateUserPublishedFilesResult, RemoteStorageEnumerateUserPublishedFilesResult_t, RemoteStorageEnumerateUserPublishedFilesResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageSubscribePublishedFileResult, RemoteStorageSubscribePublishedFileResult_t, RemoteStorageSubscribePublishedFileResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageEnumerateUserSubscribedFilesResult, RemoteStorageEnumerateUserSubscribedFilesResult_t, RemoteStorageEnumerateUserSubscribedFilesResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageUnsubscribePublishedFileResult, RemoteStorageUnsubscribePublishedFileResult_t, RemoteStorageUnsubscribePublishedFileResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageUpdatePublishedFileResult, RemoteStorageUpdatePublishedFileResult_t, RemoteStorageUpdatePublishedFileResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageDownloadUGCResult, RemoteStorageDownloadUGCResult_t, RemoteStorageDownloadUGCResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageGetPublishedFileDetailsResult, RemoteStorageGetPublishedFileDetailsResult_t, RemoteStorageGetPublishedFileDetailsResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageEnumerateWorkshopFilesResult, RemoteStorageEnumerateWorkshopFilesResult_t, RemoteStorageEnumerateWorkshopFilesResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageGetPublishedItemVoteDetailsResult, RemoteStorageGetPublishedItemVoteDetailsResult_t, RemoteStorageGetPublishedItemVoteDetailsResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStoragePublishedFileSubscribed, RemoteStoragePublishedFileSubscribed_t, RemoteStoragePublishedFileSubscribed)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStoragePublishedFileUnsubscribed, RemoteStoragePublishedFileUnsubscribed_t, RemoteStoragePublishedFileUnsubscribed)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStoragePublishedFileDeleted, RemoteStoragePublishedFileDeleted_t, RemoteStoragePublishedFileDeleted)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageUpdateUserPublishedItemVoteResult, RemoteStorageUpdateUserPublishedItemVoteResult_t, RemoteStorageUpdateUserPublishedItemVoteResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageUserVoteDetails, RemoteStorageUserVoteDetails_t, RemoteStorageUserVoteDetails)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageEnumerateUserSharedWorkshopFilesResult, RemoteStorageEnumerateUserSharedWorkshopFilesResult_t, RemoteStorageEnumerateUserSharedWorkshopFilesResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageSetUserPublishedFileActionResult, RemoteStorageSetUserPublishedFileActionResult_t, RemoteStorageSetUserPublishedFileActionResult)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStorageEnumeratePublishedFilesByUserActionResult, RemoteStorageEnumeratePublishedFilesByUserActionResult_t, RemoteStorageEnumeratePublishedFilesByUserActionResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnRemoteStoragePublishFileProgress, RemoteStoragePublishFileProgress_t, RemoteStoragePublishFileProgress)
 
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite)
 
@@ -116,6 +135,10 @@ public:
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGameServerPolicyResponse, GSPolicyResponse_t, GameServerPolicyResponseCallback)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSClientAchievementStatus, GSClientAchievementStatus_t, GSClientAchievementStatus)
 		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSGameplayStats, GSGameplayStats_t, GSGameplayStats)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSClientGroupStatus, GSClientGroupStatus_t, GSClientGroupStatus)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnGSReputation, GSReputation_t, GSReputation)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnAssociateWithClanResult, AssociateWithClanResult_t, AssociateWithClanResult)
+		, STEAM_CALLBACK_CESDK1(SteamCallbacks, OnComputeNewPlayerCompatibilityResult, ComputeNewPlayerCompatibilityResult_t, ComputeNewPlayerCompatibilityResult)
 	{
 		delegateOnServerResponded = 0;
 		delegateOnServerListComplete = 0;
@@ -157,16 +180,16 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendRichPresenceUpdate, FriendRichPresenceUpdate_t, FriendRichPresenceUpdate);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameServerChangeRequested, GameServerChangeRequested_t, GameServerChangeRequested);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameLobbyJoinRequested, GameLobbyJoinRequested_t, GameLobbyJoinRequested);
-	STEAM_CALL_RESULT(SteamCallbacks, OnClanOfficerListResponse, ClanOfficerListResponse_t, ClanOfficerListResponse);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnClanOfficerListResponse, ClanOfficerListResponse_t, ClanOfficerListResponse);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameRichPresenceJoinRequested, GameRichPresenceJoinRequested_t, GameRichPresenceJoinRequested);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedClanChatMsg, GameConnectedClanChatMsg_t, GameConnectedClanChatMsg);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedChatJoin, GameConnectedChatJoin_t, GameConnectedChatJoin);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedChatLeave, GameConnectedChatLeave_t, GameConnectedChatLeave);
-	STEAM_CALL_RESULT(SteamCallbacks, OnDownloadClanActivityCountsResult, DownloadClanActivityCountsResult_t, DownloadClanActivityCountsResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnDownloadClanActivityCountsResult, DownloadClanActivityCountsResult_t, DownloadClanActivityCountsResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnGameConnectedFriendChatMsg, GameConnectedFriendChatMsg_t, GameConnectedFriendChatMsg);
-	STEAM_CALL_RESULT(SteamCallbacks, OnFriendsGetFollowerCount, FriendsGetFollowerCount_t, FriendsGetFollowerCount);
-	STEAM_CALL_RESULT(SteamCallbacks, OnFriendsIsFollowing, FriendsIsFollowing_t, FriendsIsFollowing);
-	STEAM_CALL_RESULT(SteamCallbacks, OnFriendsEnumerateFollowingList, FriendsEnumerateFollowingList_t, FriendsEnumerateFollowingList);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendsGetFollowerCount, FriendsGetFollowerCount_t, FriendsGetFollowerCount);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendsIsFollowing, FriendsIsFollowing_t, FriendsIsFollowing);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFriendsEnumerateFollowingList, FriendsEnumerateFollowingList_t, FriendsEnumerateFollowingList);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnSetPersonaNameResponse, SetPersonaNameResponse_t, SetPersonaNameResponse);
 
 
@@ -182,8 +205,8 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsReceived, UserStatsReceived_t, UserStatsReceived);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsStored, UserStatsStored_t, UserStatsStored);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserAchievementStored, UserAchievementStored_t, UserAchievementStored);
-	STEAM_CALL_RESULT(SteamCallbacks, OnLeaderboardFindResult, LeaderboardFindResult_t, LeaderboardFindResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnLeaderboardScoresDownloaded, LeaderboardScoresDownloaded_t, LeaderboardScoresDownloaded);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardFindResult, LeaderboardFindResult_t, LeaderboardFindResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardScoresDownloaded, LeaderboardScoresDownloaded_t, LeaderboardScoresDownloaded);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLeaderboardScoreUploaded, LeaderboardScoreUploaded_t, LeaderboardScoreUploaded);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnNumberOfCurrentPlayers, NumberOfCurrentPlayers_t, NumberOfCurrentPlayers);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnUserStatsUnloaded, UserStatsUnloaded_t, UserStatsUnloaded);
@@ -198,56 +221,49 @@ public:
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageAppSyncProgress, RemoteStorageAppSyncProgress_t, RemoteStorageAppSyncProgress);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageAppSyncStatusCheck, RemoteStorageAppSyncStatusCheck_t, RemoteStorageAppSyncStatusCheck);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageConflictResolution, RemoteStorageConflictResolution_t, RemoteStorageConflictResolution);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageFileShareResult, RemoteStorageFileShareResult_t, RemoteStorageFileShareResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStoragePublishFileResult, RemoteStoragePublishFileResult_t, RemoteStoragePublishFileResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageFileShareResult, RemoteStorageFileShareResult_t, RemoteStorageFileShareResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStoragePublishFileResult, RemoteStoragePublishFileResult_t, RemoteStoragePublishFileResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageDeletePublishedFileResult, RemoteStorageDeletePublishedFileResult_t, RemoteStorageDeletePublishedFileResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageEnumerateUserPublishedFilesResult, RemoteStorageEnumerateUserPublishedFilesResult_t, RemoteStorageEnumerateUserPublishedFilesResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageSubscribePublishedFileResult, RemoteStorageSubscribePublishedFileResult_t, RemoteStorageSubscribePublishedFileResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageEnumerateUserSubscribedFilesResult, RemoteStorageEnumerateUserSubscribedFilesResult_t, RemoteStorageEnumerateUserSubscribedFilesResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageUnsubscribePublishedFileResult, RemoteStorageUnsubscribePublishedFileResult_t, RemoteStorageUnsubscribePublishedFileResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageUpdatePublishedFileResult, RemoteStorageUpdatePublishedFileResult_t, RemoteStorageUpdatePublishedFileResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageDownloadUGCResult, RemoteStorageDownloadUGCResult_t, RemoteStorageDownloadUGCResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageGetPublishedFileDetailsResult, RemoteStorageGetPublishedFileDetailsResult_t, RemoteStorageGetPublishedFileDetailsResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageEnumerateWorkshopFilesResult, RemoteStorageEnumerateWorkshopFilesResult_t, RemoteStorageEnumerateWorkshopFilesResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageGetPublishedItemVoteDetailsResult, RemoteStorageGetPublishedItemVoteDetailsResult_t, RemoteStorageGetPublishedItemVoteDetailsResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageEnumerateUserPublishedFilesResult, RemoteStorageEnumerateUserPublishedFilesResult_t, RemoteStorageEnumerateUserPublishedFilesResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageSubscribePublishedFileResult, RemoteStorageSubscribePublishedFileResult_t, RemoteStorageSubscribePublishedFileResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageEnumerateUserSubscribedFilesResult, RemoteStorageEnumerateUserSubscribedFilesResult_t, RemoteStorageEnumerateUserSubscribedFilesResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageUnsubscribePublishedFileResult, RemoteStorageUnsubscribePublishedFileResult_t, RemoteStorageUnsubscribePublishedFileResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageUpdatePublishedFileResult, RemoteStorageUpdatePublishedFileResult_t, RemoteStorageUpdatePublishedFileResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageDownloadUGCResult, RemoteStorageDownloadUGCResult_t, RemoteStorageDownloadUGCResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageGetPublishedFileDetailsResult, RemoteStorageGetPublishedFileDetailsResult_t, RemoteStorageGetPublishedFileDetailsResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageEnumerateWorkshopFilesResult, RemoteStorageEnumerateWorkshopFilesResult_t, RemoteStorageEnumerateWorkshopFilesResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageGetPublishedItemVoteDetailsResult, RemoteStorageGetPublishedItemVoteDetailsResult_t, RemoteStorageGetPublishedItemVoteDetailsResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStoragePublishedFileSubscribed, RemoteStoragePublishedFileSubscribed_t, RemoteStoragePublishedFileSubscribed);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStoragePublishedFileUnsubscribed, RemoteStoragePublishedFileUnsubscribed_t, RemoteStoragePublishedFileUnsubscribed);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStoragePublishedFileDeleted, RemoteStoragePublishedFileDeleted_t, RemoteStoragePublishedFileDeleted);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageUpdateUserPublishedItemVoteResult, RemoteStorageUpdateUserPublishedItemVoteResult_t, RemoteStorageUpdateUserPublishedItemVoteResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageUserVoteDetails, RemoteStorageUserVoteDetails_t, RemoteStorageUserVoteDetails);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStorageEnumerateUserSharedWorkshopFilesResult, RemoteStorageEnumerateUserSharedWorkshopFilesResult_t, RemoteStorageEnumerateUserSharedWorkshopFilesResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageEnumerateUserSharedWorkshopFilesResult, RemoteStorageEnumerateUserSharedWorkshopFilesResult_t, RemoteStorageEnumerateUserSharedWorkshopFilesResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageSetUserPublishedFileActionResult, RemoteStorageSetUserPublishedFileActionResult_t, RemoteStorageSetUserPublishedFileActionResult);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStorageEnumeratePublishedFilesByUserActionResult, RemoteStorageEnumeratePublishedFilesByUserActionResult_t, RemoteStorageEnumeratePublishedFilesByUserActionResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnRemoteStoragePublishFileProgress, RemoteStoragePublishFileProgress_t, RemoteStoragePublishFileProgress);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnRemoteStoragePublishFileProgress, RemoteStoragePublishFileProgress_t, RemoteStoragePublishFileProgress);
 
 
-	// k_iSteamMatchmakingCallbacks
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnAvatarReceived, AvatarImageLoaded_t, AvatarReceivedCallback);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnTransactionAuthorizationReceived, MicroTxnAuthorizationResponse_t, TransactionAuthorizationReceivedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyDataUpdated, LobbyDataUpdate_t, LobbyDataUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatUpdated, LobbyChatUpdate_t, LobbyChatUpdatedCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyChatMessage, LobbyChatMsg_t, LobbyChatMessageCallback);
-	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyGameCreatedCallback, LobbyGameCreated_t, LobbyGameCreatedCallback);
-	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyCreated, LobbyCreated_t, LobbyCreatedCallResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallResult);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyGameCreated, LobbyGameCreated_t, LobbyGameCreatedCallback);
+	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyEnter, LobbyEnter_t, LobbyEnterCallback);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnFavoritesListChanged, FavoritesListChanged_t, FavoritesListChanged);
 	STEAM_CALLBACK_CESDK2(SteamCallbacks, OnLobbyInvite, LobbyInvite_t, LobbyInvite);
 
-	// k_iSteamGameServerCallbacks
-	STEAM_CALL_RESULT(SteamCallbacks, OnGameServerStatsReceived, GSStatsReceived_t, GameServerStatsReceived);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientApprove, GSClientApprove_t, GameServerClientApproveCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientDeny, GSClientDeny_t, GameServerClientDenyCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerClientKick, GSClientKick_t, GameServerClientKickCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGameServerPolicyResponse, GSPolicyResponse_t, GameServerPolicyResponseCallback);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSClientAchievementStatus, GSClientAchievementStatus_t, GSClientAchievementStatus);
 	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSGameplayStats, GSGameplayStats_t, GSGameplayStats);
-	STEAM_CALL_RESULT(SteamCallbacks, OnGSClientGroupStatus, GSClientGroupStatus_t, GSClientGroupStatus);
-	STEAM_CALL_RESULT(SteamCallbacks, OnGSReputation, GSReputation_t, GSReputation);
-	STEAM_CALL_RESULT(SteamCallbacks, OnAssociateWithClanResult, AssociateWithClanResult_t, AssociateWithClanResult);
-	STEAM_CALL_RESULT(SteamCallbacks, OnComputeNewPlayerCompatibilityResult, ComputeNewPlayerCompatibilityResult_t, ComputeNewPlayerCompatibilityResult);
-
-	// k_iClientUGCCallbacks
-	STEAM_CALL_RESULT(SteamCallbacks, OnUserGeneratedContentQueryCompleted, SteamUGCQueryCompleted_t, UserGeneratedContentQueryCompleted);
-	STEAM_CALL_RESULT(SteamCallbacks, OnUserGeneratedContentDetailsResult, SteamUGCRequestUGCDetailsResult_t, UserGeneratedContentDetailsResult);
-	
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSClientGroupStatus, GSClientGroupStatus_t, GSClientGroupStatus);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnGSReputation, GSReputation_t, GSReputation);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnAssociateWithClanResult, AssociateWithClanResult_t, AssociateWithClanResult);
+	STEAM_GAMESERVER_CALLBACK_CESDK2(SteamCallbacks, OnComputeNewPlayerCompatibilityResult, ComputeNewPlayerCompatibilityResult_t, ComputeNewPlayerCompatibilityResult);
 
 	FPOnServerResponded delegateOnServerResponded;
 	FPOnServerListComplete delegateOnServerListComplete;

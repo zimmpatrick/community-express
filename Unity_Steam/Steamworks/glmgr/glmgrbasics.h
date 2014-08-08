@@ -21,7 +21,7 @@
 #include <OpenGL/CGLTypes.h>
 #include <OpenGL/CGLRenderers.h>
 #include <OpenGL/CGLCurrent.h>
-//#include <OpenGL/CGLProfiler.h>
+#include <OpenGL/CGLProfiler.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <ApplicationServices/ApplicationServices.h>
@@ -154,6 +154,7 @@ private:
 #define V_vsnprintf(a,b,c,d) vsprintf(a,c,d)		// double check this
 #define V_snprintf snprintf
 #define V_strncpy strncpy
+#define V_strncat strncat
 #define V_strcmp strcmp
 #define V_strlen strlen
 #define V_strstr strstr

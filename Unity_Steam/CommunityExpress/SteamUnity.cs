@@ -215,7 +215,8 @@ namespace CommunityExpressNS
 		{
             foreach (MethodInfo mi in typeof(CommunityExpress).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                if (mi.Name == "InternalOnEvent" && mi.IsGenericMethod)
+                if (mi.Name == "InternalOnEvent" && 
+                    mi.IsGenericMethod)
                 {
                     _internalOnEvent = mi;
                     break;

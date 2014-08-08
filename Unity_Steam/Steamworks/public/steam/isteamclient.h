@@ -17,10 +17,6 @@
 // Define compile time assert macros to let us validate the structure sizes.
 #define VALVE_COMPILE_TIME_ASSERT( pred ) typedef char compile_time_assert_type[(pred) ? 1 : -1];
 
-#ifndef REFERENCE
-#define REFERENCE(arg) ((void)arg)
-#endif
-
 #if defined(__linux__) || defined(__APPLE__) 
 // The 32-bit version of gcc has the alignment requirement for uint64 and double set to
 // 4 meaning that even with #pragma pack(8) these types will only be four-byte aligned.
@@ -87,15 +83,10 @@ class ISteamApps;
 class ISteamNetworking;
 class ISteamRemoteStorage;
 class ISteamScreenshots;
-class ISteamMusic;
-class ISteamMusicRemote;
 class ISteamGameServerStats;
 class ISteamPS3OverlayRender;
 class ISteamHTTP;
 class ISteamUnifiedMessages;
-class ISteamController;
-class ISteamUGC;
-class ISteamAppList;
 
 //-----------------------------------------------------------------------------
 // Purpose: Interface to creating a new steam instance, or to
@@ -198,23 +189,9 @@ public:
 	// Exposes the ISteamUnifiedMessages interface
 	virtual ISteamUnifiedMessages *GetISteamUnifiedMessages( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
 
-	// Exposes the ISteamController interface
-	virtual ISteamController *GetISteamController( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
-
-	// Exposes the ISteamUGC interface
-	virtual ISteamUGC *GetISteamUGC( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
-
-	// returns app list interface, only available on specially registered apps
-	virtual ISteamAppList *GetISteamAppList( HSteamUser hSteamUser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
-	
-	// Music Player
-	virtual ISteamMusic *GetISteamMusic( HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion ) = 0;
-
-	// Music Player Remote
-	virtual ISteamMusicRemote *GetISteamMusicRemote(HSteamUser hSteamuser, HSteamPipe hSteamPipe, const char *pchVersion) = 0;
 };
 
-#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient015"
+#define STEAMCLIENT_INTERFACE_VERSION		"SteamClient012"
 
 //-----------------------------------------------------------------------------
 // Purpose: Base values for callback identifiers, each callback must
@@ -233,7 +210,7 @@ enum { k_iSteamAppsCallbacks = 1000 };
 enum { k_iSteamUserStatsCallbacks = 1100 };
 enum { k_iSteamNetworkingCallbacks = 1200 };
 enum { k_iClientRemoteStorageCallbacks = 1300 };
-enum { k_iClientDepotBuilderCallbacks = 1400 };
+enum { k_iSteamUserItemsCallbacks = 1400 };
 enum { k_iSteamGameServerItemsCallbacks = 1500 };
 enum { k_iClientUtilsCallbacks = 1600 };
 enum { k_iSteamGameCoordinatorCallbacks = 1700 };
@@ -252,16 +229,7 @@ enum { k_iClientParentalSettingsCallbacks = 2900 };
 enum { k_iClientDeviceAuthCallbacks = 3000 };
 enum { k_iClientNetworkDeviceManagerCallbacks = 3100 };
 enum { k_iClientMusicCallbacks = 3200 };
-enum { k_iClientRemoteClientManagerCallbacks = 3300 };
-enum { k_iClientUGCCallbacks = 3400 };
-enum { k_iSteamStreamClientCallbacks = 3500 };
-enum { k_IClientProductBuilderCallbacks = 3600 };
-enum { k_iClientShortcutsCallbacks = 3700 };
-enum { k_iClientRemoteControlManagerCallbacks = 3800 };
-enum { k_iSteamAppListCallbacks = 3900 };
-enum { k_iSteamMusicCallbacks = 4000 };
-enum { k_iSteamMusicRemoteCallbacks = 4100 };
-enum { k_iClientVRCallbacks = 4200 };
+
 
 //-----------------------------------------------------------------------------
 // The CALLBACK macros are for client side callback logging enabled with
@@ -269,18 +237,21 @@ enum { k_iClientVRCallbacks = 4200 };
 // Do not change any of these. 
 //-----------------------------------------------------------------------------
 
-struct SteamCallback_t
+class CSteamCallback
 {
 public:
-	SteamCallback_t() {}
+	virtual const char *GetCallbackName() const = 0;
+	virtual uint32 GetCallbackID() const = 0;
+	virtual uint8 *GetFixedData() const = 0;
+	virtual uint32 GetFixedSize() const = 0;
+	virtual uint32 GetNumMemberVariables() const = 0;
+	virtual bool GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize, uint32 &varCount, const char **pszName, const char **pszType  ) const = 0;
 };
 
 #define DEFINE_CALLBACK( callbackname, callbackid ) \
-struct callbackname : SteamCallback_t { \
+struct callbackname##_t { \
 	enum { k_iCallback = callbackid }; \
-	static callbackname *GetNullPointer() { return 0; } \
-	static const char *GetCallbackName() { return #callbackname; } \
-	static uint32  GetCallbackID() { return callbackname::k_iCallback; }
+	static callbackname##_t *GetNullPointer() { return 0; }
 
 #define CALLBACK_MEMBER( varidx, vartype, varname ) \
 	public: vartype varname ; \
@@ -299,60 +270,64 @@ struct callbackname : SteamCallback_t { \
 	*pszName = #varname; *pszType = #vartype; }
 
 
-#define END_CALLBACK_INTERNAL_BEGIN( numvars )  \
-	static uint32  GetNumMemberVariables() { return numvars; } \
-	static bool    GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize,  uint32 &varCount, const char **pszName, const char **pszType ) { \
+#define END_CALLBACK_INTERNAL_BEGIN( callbackname, numvars )  }; \
+class C##callbackname : public CSteamCallback { \
+public: callbackname##_t m_Data; \
+	C##callbackname () { memset( &m_Data, 0, sizeof(m_Data) ); } \
+	virtual const char *GetCallbackName() const { return #callbackname; } \
+	virtual uint32  GetCallbackID() const { return callbackname##_t::k_iCallback; } \
+	virtual uint32  GetFixedSize() const { return sizeof( m_Data ); } \
+	virtual uint8  *GetFixedData() const { return (uint8*)&m_Data; } \
+	virtual uint32  GetNumMemberVariables() const { return numvars; } \
+	virtual bool    GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize,  uint32 &varCount, const char **pszName, const char **pszType ) const { \
 	switch ( index ) { default : return false;
 
 
-#define END_CALLBACK_INTERNAL_SWITCH( varidx ) case varidx : GetMemberVar_##varidx( varOffset, varSize, varCount, pszName, pszType ); return true;
+#define END_CALLBACK_INTERNAL_SWITCH( varidx ) case varidx : m_Data.GetMemberVar_##varidx( varOffset, varSize, varCount, pszName, pszType ); return true;
 
-#define END_CALLBACK_INTERNAL_END() }; } };
+#define END_CALLBACK_INTERNAL_END() }; }; };
 
-#define END_DEFINE_CALLBACK_0() \
-	static uint32  GetNumMemberVariables() { return 0; } \
-	static bool    GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize,  uint32 &varCount, const char **pszName, const char **pszType ) { REFERENCE( pszType ); REFERENCE( pszName ); REFERENCE( varCount ); REFERENCE( varSize ); REFERENCE( varOffset ); REFERENCE( index ); return false; } \
-	};
+#define END_DEFINE_CALLBACK_0( callbackname )  }; \
+class C##callbackname : public CSteamCallback { \
+public: callbackname##_t m_Data; \
+	virtual const char *GetCallbackName() const { return #callbackname; } \
+	virtual uint32  GetCallbackID() const { return callbackname##_t::k_iCallback; } \
+	virtual uint32  GetFixedSize() const { return sizeof( m_Data ); } \
+	virtual uint8  *GetFixedData() const { return (uint8*)&m_Data; } \
+	virtual uint32  GetNumMemberVariables() const { return 0; } \
+	virtual bool    GetMemberVariable( uint32 index, uint32 &varOffset, uint32 &varSize,  uint32 &varCount, const char **pszName, const char **pszType ) const { return false; } \
+	}; \
 	
 
-#define END_DEFINE_CALLBACK_1() \
-	END_CALLBACK_INTERNAL_BEGIN( 1 ) \
+#define END_DEFINE_CALLBACK_1( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 1 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
 	END_CALLBACK_INTERNAL_END()
 
-#define END_DEFINE_CALLBACK_2() \
-	END_CALLBACK_INTERNAL_BEGIN( 2 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
-	END_CALLBACK_INTERNAL_END()
-
-#define END_DEFINE_CALLBACK_3() \
-	END_CALLBACK_INTERNAL_BEGIN( 3 ) \
+#define END_DEFINE_CALLBACK_2( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 2 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
 	END_CALLBACK_INTERNAL_END()
 
-#define END_DEFINE_CALLBACK_4() \
-	END_CALLBACK_INTERNAL_BEGIN( 4 ) \
+#define END_DEFINE_CALLBACK_3( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 3 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
 	END_CALLBACK_INTERNAL_END()
 
-#define END_DEFINE_CALLBACK_5() \
-	END_CALLBACK_INTERNAL_BEGIN( 4 ) \
+#define END_DEFINE_CALLBACK_4( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 4 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 4 ) \
 	END_CALLBACK_INTERNAL_END()
 
 
-#define END_DEFINE_CALLBACK_6() \
-	END_CALLBACK_INTERNAL_BEGIN( 6 ) \
+#define END_DEFINE_CALLBACK_6( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 6 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
@@ -361,8 +336,8 @@ struct callbackname : SteamCallback_t { \
 	END_CALLBACK_INTERNAL_SWITCH( 5 ) \
 	END_CALLBACK_INTERNAL_END()
 
-#define END_DEFINE_CALLBACK_7() \
-	END_CALLBACK_INTERNAL_BEGIN( 7 ) \
+#define END_DEFINE_CALLBACK_7( callbackname ) \
+	END_CALLBACK_INTERNAL_BEGIN( callbackname, 7 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
@@ -370,31 +345,6 @@ struct callbackname : SteamCallback_t { \
 	END_CALLBACK_INTERNAL_SWITCH( 4 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 5 ) \
 	END_CALLBACK_INTERNAL_SWITCH( 6 ) \
-	END_CALLBACK_INTERNAL_END()
-
-#define END_DEFINE_CALLBACK_8() \
-	END_CALLBACK_INTERNAL_BEGIN( 7 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 4 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 5 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 6 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 7 ) \
-	END_CALLBACK_INTERNAL_END()
-
-#define END_DEFINE_CALLBACK_9() \
-	END_CALLBACK_INTERNAL_BEGIN( 7 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 0 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 1 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 2 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 3 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 4 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 5 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 6 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 7 ) \
-	END_CALLBACK_INTERNAL_SWITCH( 8 ) \
 	END_CALLBACK_INTERNAL_END()
 
 #endif // ISTEAMCLIENT_H

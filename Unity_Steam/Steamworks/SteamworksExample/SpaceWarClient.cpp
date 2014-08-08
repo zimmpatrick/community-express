@@ -15,7 +15,6 @@
 #include "time.h"
 #include "ServerBrowser.h"
 #include "Leaderboards.h"
-#include "musicplayer.h"
 #include "clanchatroom.h"
 #include "Lobby.h"
 #include "p2pauth.h"
@@ -51,8 +50,7 @@ CSpaceWarClient::CSpaceWarClient( IGameEngine *pGameEngine ) :
 		m_SteamServerConnectFailure( this, &CSpaceWarClient::OnSteamServerConnectFailure ),
 		m_GameJoinRequested( this, &CSpaceWarClient::OnGameJoinRequested ),
 		m_CallbackGameOverlayActivated( this, &CSpaceWarClient::OnGameOverlayActivated ),
-		m_CallbackGameWebCallback( this, &CSpaceWarClient::OnGameWebCallback ),
-		m_CallbackWorkshopItemInstalled( this, &CSpaceWarClient::OnWorkshopItemInstalled )
+		m_CallbackGameWebCallback( this, &CSpaceWarClient::OnGameWebCallback )
 {
 	Init( pGameEngine );
 }
@@ -81,7 +79,6 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 	}
 #endif
 
-	m_bLastControllerStateInMenu = false;
 	g_pSpaceWarClient = this;
 	m_pGameEngine = pGameEngine;
 	m_uPlayerWhoWonGame = 0;
@@ -129,12 +126,6 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 	// Initialize sun
 	m_pSun = new CSun( pGameEngine );
 
-	m_nNumWorkshopItems = 0;
-	for (uint32 i = 0; i < MAX_WORKSHOP_ITEMS; ++i)
-	{
-		m_rgpWorkshopItems[i] = NULL;
-	}
-
 	// initialize P2P auth engine
 	m_pP2PAuthedGame = new CP2PAuthedGame( m_pGameEngine );
 
@@ -147,7 +138,6 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 	// Init stats
 	m_pStatsAndAchievements = new CStatsAndAchievements( pGameEngine );
 	m_pLeaderboards = new CLeaderboards( pGameEngine );
-	m_pMusicPlayer = new CMusicPlayer( pGameEngine );
 	m_pClanChatRoom = new CClanChatRoom( pGameEngine );
 
 	// Remote Storage page
@@ -155,8 +145,6 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 
 	// P2P voice chat 
 	m_pVoiceChat = new CVoiceChat( pGameEngine );
-
-	LoadWorkshopItems();
 }
 
 
@@ -210,15 +198,6 @@ CSpaceWarClient::~CSpaceWarClient()
 		{
 			delete m_rgpShips[i];
 			m_rgpShips[i] = NULL;
-		}
-	}
-	
-	for (uint32 i = 0; i < MAX_WORKSHOP_ITEMS; ++i)
-	{
-		if ( m_rgpWorkshopItems[i] )
-		{
-			delete m_rgpWorkshopItems[i];
-			m_rgpWorkshopItems[i] = NULL;
 		}
 	}
 }
@@ -782,9 +761,8 @@ void CSpaceWarClient::OnGameJoinRequested( GameRichPresenceJoinRequested_t *pCal
 {
 	// parse out the connect 
 	const char *pchServerAddress, *pchLobbyID;
-	bool bUseVR = false;
-	extern void ParseCommandLine( const char *pchCmdLine, const char **ppchServerAddress, const char **ppchLobbyID, bool *pbUseVR );
-	ParseCommandLine( pCallback->m_rgchConnect, &pchServerAddress, &pchLobbyID, &bUseVR );
+	extern void ParseCommandLine( const char *pchCmdLine, const char **ppchServerAddress, const char **ppchLobbyID );
+	ParseCommandLine( pCallback->m_rgchConnect, &pchServerAddress, &pchLobbyID );
 
 	// exec
 	ExecCommandLineConnect( pchServerAddress, pchLobbyID );
@@ -1010,12 +988,6 @@ void CSpaceWarClient::OnGameStateChanged( EClientGameState eGameStateNew )
 		m_pRemoteStorage->Show();
 		SteamFriends()->SetRichPresence( "status", "Viewing remote storage" );
 	}
-	else if ( m_eGameState == k_EClientMusic )
-	{
-		// we've switched to the music player menu
-		m_pMusicPlayer->Show();
-		SteamFriends()->SetRichPresence( "status", "Using music player" );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1160,30 +1132,6 @@ void CSpaceWarClient::RunFrame()
 		OnGameStateChanged( m_eGameState );
 	}
 
-	bool bInMenuNow = false;
-	switch( m_eGameState )
-	{
-	case k_EClientGameMenu:
-	case k_EClientGameQuitMenu:
-		bInMenuNow = true;
-		break;
-	default:
-		bInMenuNow = false;
-		break;
-	}
-
-	// Update steam controller override mode appropriately
-	if ( bInMenuNow && !m_bLastControllerStateInMenu )
-	{
-		m_bLastControllerStateInMenu = true;
-		SteamController()->SetOverrideMode( "menu" );
-	}
-	else if ( !bInMenuNow && m_bLastControllerStateInMenu )
-	{
-		m_bLastControllerStateInMenu = false;
-		SteamController()->SetOverrideMode( "" );
-	}
-
 	// Update state for everything
 	switch ( m_eGameState )
 	{
@@ -1322,14 +1270,6 @@ void CSpaceWarClient::RunFrame()
 		if ( bEscapePressed )
 			SetGameState( k_EClientGameMenu );
 		break;
-	case k_EClientWorkshop:
-		m_pStarField->Render();
-		DrawWorkshopItems();
-
-		if (bEscapePressed)
-			SetGameState(k_EClientGameMenu);
-		break;
-
 	case k_EClientStatsAchievements:
 		m_pStarField->Render();
 		m_pStatsAndAchievements->Render();
@@ -1415,14 +1355,6 @@ void CSpaceWarClient::RunFrame()
 			if ( m_rgpShips[i] )
 				m_rgpShips[i]->RunFrame();
 		}
-
-		for (uint32 i = 0; i < MAX_WORKSHOP_ITEMS; ++i)
-		{
-			if (m_rgpWorkshopItems[i])
-				m_rgpWorkshopItems[i]->RunFrame();
-		}
-
-
 		DrawHUDText();
 
 		m_pStatsAndAchievements->RunFrame();
@@ -1454,16 +1386,6 @@ void CSpaceWarClient::RunFrame()
 #endif
 		}
 
-		break;
-	case k_EClientMusic:
-		m_pStarField->Render();
-
-		m_pMusicPlayer->RunFrame();		
-
-		if ( bEscapePressed )
-		{
-			SetGameState( k_EClientGameMenu );
-		}
 		break;
 	default:
 		OutputDebugString( "Unhandled game state in CSpaceWar::RunFrame\n" );
@@ -1537,13 +1459,6 @@ void CSpaceWarClient::RunFrame()
 			if ( m_rgpShips[i] )
 				m_rgpShips[i]->Render();
 		}
-
-		for (uint32 i = 0; i < MAX_WORKSHOP_ITEMS; ++i)
-		{
-			if ( m_rgpWorkshopItems[i] )
-				m_rgpWorkshopItems[i]->Render();
-		}
-
 		break;
 	default:
 		// Any needed drawing was already done above before server updates
@@ -2044,184 +1959,3 @@ void CSpaceWarClient::ExecCommandLineConnect( const char *pchServerAddress, cons
 		}
 	}
 }
-
-
-//-----------------------------------------------------------------------------
-// Purpose: parse CWorkshopItem from text file
-//-----------------------------------------------------------------------------
-CWorkshopItem *CSpaceWarClient::LoadWorkshopItemFromFile( const char *pszFileName )
-{
-	FILE *file = fopen( pszFileName, "rt");
-	if (!file)
-		return NULL;
-
-	CWorkshopItem *pItem = NULL;
-
-	char szLine[1024];
-
-	if ( fgets(szLine, sizeof(szLine), file) )
-	{
-		float flXPos, flYPos, flXVelocity, flYVelocity;
-		// initialize object
-		if ( sscanf(szLine, "%f %f %f %f", &flXPos, &flYPos, &flXVelocity, &flYVelocity) )
-		{
-			pItem = new CWorkshopItem( m_pGameEngine, 0 );
-
-			pItem->SetPosition( flXPos, flYPos );
-			pItem->SetVelocity( flXVelocity, flYVelocity );
-
-			while (!feof(file))
-			{
-				float xPos0, yPos0, xPos1, yPos1;
-				DWORD dwColor;
-				fgets(szLine, sizeof(szLine), file);
-
-				if (sscanf(szLine, "%f %f %f %f %x", &xPos0, &yPos0, &xPos1, &yPos1, &dwColor) >= 5)
-				{
-					// Add a line to the entity
-					pItem->AddLine(xPos0, yPos0, xPos1, yPos1, dwColor);
-				}
-			}
-		}
-	}
-
-	fclose(file);
-
-	return pItem;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: load a Workshop item by PublishFileID
-//-----------------------------------------------------------------------------
-bool CSpaceWarClient::LoadWorkshopItem( PublishedFileId_t workshopItemID )
-{
-	if ( m_nNumWorkshopItems == MAX_WORKSHOP_ITEMS )
-		return false; // too much
-
-	uint64 unSizeOnDisk = 0;
-	char szItemFolder[1024] = { 0 };
-	if ( !SteamUGC()->GetItemInstallInfo( workshopItemID, &unSizeOnDisk, szItemFolder, sizeof(szItemFolder) ) )
-		return false;
-
-	char szFile[1024];
-	_snprintf(szFile, sizeof(szFile), "%s/workshopitem.txt", szItemFolder);
-
-	CWorkshopItem *pItem = LoadWorkshopItemFromFile( szFile );
-
-	if ( !pItem )
-		return false;
-	
-	pItem->m_ItemDetails.m_nPublishedFileId = workshopItemID;
-	m_rgpWorkshopItems[m_nNumWorkshopItems++] = pItem;
-
-	// get Workshop item details
-	SteamAPICall_t hSteamAPICall = SteamUGC()->RequestUGCDetails( workshopItemID, 60 );
-	pItem->m_SteamCallResultUGCDetails.Set(hSteamAPICall, pItem, &CWorkshopItem::OnUGCDetailsResult);
-	
-	return true;
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: load all subscribed workshop items 
-//-----------------------------------------------------------------------------
-void CSpaceWarClient::LoadWorkshopItems()
-{
-	// reset workshop Items
-	for (uint32 i = 0; i < MAX_WORKSHOP_ITEMS; ++i)
-	{
-		if ( m_rgpWorkshopItems[i] )
-		{
-			delete m_rgpWorkshopItems[i];
-			m_rgpWorkshopItems[i] = NULL;
-		}
-	}
-
-	m_nNumWorkshopItems = 0; // load default test item
-
-	PublishedFileId_t vecSubscribedItems[MAX_WORKSHOP_ITEMS];
-
-	int numSubscribedItems = SteamUGC()->GetSubscribedItems( vecSubscribedItems, MAX_WORKSHOP_ITEMS );
-	
-	if ( numSubscribedItems > MAX_WORKSHOP_ITEMS )
-		numSubscribedItems = MAX_WORKSHOP_ITEMS; // crop
-	
-	// load all subscribed workshop items
-	for ( int iSubscribedItem=0; iSubscribedItem<numSubscribedItems; iSubscribedItem++ )
-	{
-		PublishedFileId_t workshopItemID = vecSubscribedItems[iSubscribedItem];
-		LoadWorkshopItem( workshopItemID );
-	}
-
-	// load local test item 
-	if ( m_nNumWorkshopItems < MAX_WORKSHOP_ITEMS )
-	{
-		CWorkshopItem *pItem = LoadWorkshopItemFromFile("workshop/workshopitem.txt");
-
-		if ( pItem )
-		{
-			strncpy( pItem->m_ItemDetails.m_rgchTitle, "Test Item", k_cchPublishedDocumentTitleMax );
-			strncpy( pItem->m_ItemDetails.m_rgchDescription, "This is a local test item for debugging", k_cchPublishedDocumentDescriptionMax );
-			m_rgpWorkshopItems[m_nNumWorkshopItems++] = pItem;
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: new Workshop was installed, load it instantly
-//-----------------------------------------------------------------------------
-void CSpaceWarClient::OnWorkshopItemInstalled( ItemInstalled_t *pParam )
-{
-	if ( pParam->m_unAppID == SteamUtils()->GetAppID() )
-		LoadWorkshopItem( pParam->m_nPublishedFileId );
-}
-
-
-//-----------------------------------------------------------------------------
-// Purpose: Draws PublishFileID, title & description for each subscribed Workshop item
-//-----------------------------------------------------------------------------
-void CSpaceWarClient::DrawWorkshopItems()
-{
-	const int32 width = m_pGameEngine->GetViewportWidth();
-
-	RECT rect;
-	rect.top = 0;
-	rect.bottom = 64;
-	rect.left = 0;
-	rect.right = width;
-
-	char rgchBuffer[1024];
-	sprintf_safe(rgchBuffer, "Subscribed Workshop Items");
-	m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB(255, 25, 200, 25), TEXTPOS_CENTER |TEXTPOS_VCENTER, rgchBuffer);
-
-	rect.left = 32;
-	rect.top = 64;
-	rect.bottom = 96;
-	
-	for (int iSubscribedItem = 0; iSubscribedItem < MAX_WORKSHOP_ITEMS; iSubscribedItem++)
-	{
-		CWorkshopItem *pItem = m_rgpWorkshopItems[ iSubscribedItem ];
-
-		if ( !pItem )
-			continue;
-
-		rect.top += 32;
-		rect.bottom += 32;
-
-		sprintf_safe( rgchBuffer, "%u. \"%s\" (%llu) : %s", iSubscribedItem+1,
-			pItem->m_ItemDetails.m_rgchTitle, pItem->m_ItemDetails.m_nPublishedFileId, pItem->m_ItemDetails.m_rgchDescription );
-
-		m_pGameEngine->BDrawString( m_hInstructionsFont, rect, D3DCOLOR_ARGB(255, 25, 200, 25), TEXTPOS_LEFT |TEXTPOS_VCENTER, rgchBuffer);
-	}
-	
-	rect.left = 0;
-	rect.right = width;
-	rect.top = LONG(m_pGameEngine->GetViewportHeight() * 0.8);
-	rect.bottom = m_pGameEngine->GetViewportHeight();
-
-	sprintf_safe(rgchBuffer, "Press ESC to return to the Main Menu");
-	m_pGameEngine->BDrawString(m_hInstructionsFont, rect, D3DCOLOR_ARGB(255, 25, 200, 25), TEXTPOS_CENTER | TEXTPOS_TOP, rgchBuffer);
-}
-

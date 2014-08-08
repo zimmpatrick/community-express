@@ -157,7 +157,7 @@ void ReplaceParamName( const char *pSrc, const char *pNewParamName, char *pOut, 
 	const char *pDot = GetSwizzleDot( pSrc );
 	if ( pDot )
 	{
-		strncat( pOut, pDot, nOutLen - strlen( pOut ) - 1 );
+		V_strncat( pOut, pDot, nOutLen );
 	}
 }
 
@@ -899,7 +899,7 @@ CUtlString D3DToGL::FixGLSLSwizzle( const char *pDestRegisterName, const char *p
 
 	char szFixedSrcRegister[128];
 	GetParamNameWithoutSwizzle( pSrcRegisterName, szFixedSrcRegister, sizeof( szFixedSrcRegister ) );
-	strncat( szFixedSrcRegister, ".", sizeof(szFixedSrcRegister) - strlen(szFixedSrcRegister) - 1 );
+	V_strncat( szFixedSrcRegister, ".", sizeof( szFixedSrcRegister ) );
 	for ( int i=0; i < nSwizzlesInDest; i++ )
 	{
 		char chDestWriteMask = GetSwizzleComponent( pDestRegisterName, i );
@@ -908,7 +908,7 @@ CUtlString D3DToGL::FixGLSLSwizzle( const char *pDestRegisterName, const char *p
 		char ch[2];
 		ch[0] = GetSwizzleComponent( pSrcRegisterName, nVectorIndex );
 		ch[1] = 0;
-		strncat( szFixedSrcRegister, ch, sizeof(szFixedSrcRegister) - strlen(szFixedSrcRegister) - 1 );
+		V_strncat( szFixedSrcRegister, ch, sizeof( szFixedSrcRegister ) );
 	}
 
 	SimplifyFourParamRegister( szFixedSrcRegister );
@@ -1532,9 +1532,9 @@ void D3DToGL::AddTokenHexCodeToBuffer( char *pBuffer, int nSize, int nLastStrlen
 	{
 		char szTemp[32];
 		V_snprintf( szTemp, sizeof( szTemp ), "0x%x ", m_pRecordedInputTokenStart[i] );
-		strncat( szHex, szTemp, sizeof(szHex) - strlen(szHex) - 1 );
+		V_strncat( szHex, szTemp, sizeof( szHex ) );
 	}
-	strncat( szHex, "\n", sizeof(szHex) - strlen(szHex) - 1 );
+	V_strncat( szHex, "\n", sizeof( szHex ) );
 
 	// Insert the hex codes into the string.
 	int nBytesToInsert = V_strlen( szHex );
@@ -1547,7 +1547,7 @@ void D3DToGL::AddTokenHexCodeToBuffer( char *pBuffer, int nSize, int nLastStrlen
 		if ( pBuffer[nCurStrlen-1] == '\n' )
 			pBuffer[nCurStrlen-1] = 0;
 
-		strncat( pBuffer, &szHex[1], nSize - strlen( pBuffer ) - 1 );
+		V_strncat( pBuffer, &szHex[1], nSize );
 	}
 	else
 	{
@@ -1746,7 +1746,7 @@ void D3DToGL::Handle_DEF()
 
 			if ( !strchr( szTemp, '.' ) )
 			{
-				strncat( szTemp, ".0", sizeof(szTemp) - strlen(szTemp) - 1 );
+				V_strncat( szTemp, ".0", sizeof( szTemp ) );
 			}
 
 			PrintToBuf( *m_pBufParamCode, i != 3 ? "%s, " : "%s", szTemp ); // end with comma-space
@@ -2044,7 +2044,7 @@ void D3DToGL::Handle_TEX( uint32 dwToken, bool bIsTexLDL )
 				char szLOD[128], szExtra[8];
 				GetParamNameWithoutSwizzle( pSrc0Reg, szLOD, sizeof( szLOD ) );
 				V_snprintf( szExtra, sizeof( szExtra ), ".%c", GetSwizzleComponent( pSrc0Reg, 3 ) );
-				strncat( szLOD, szExtra, sizeof(szLOD) - strlen(szLOD) - 1 );
+				V_strncat( szLOD, szExtra, sizeof( szLOD ) );
 
 				PrintToBuf( *m_pBufALUCode, "%s = texture2DLod( %s, %s, %s );\n", pDestReg, pSrc1Reg, sCoordVar.String(), szLOD );
 			}
@@ -2780,7 +2780,7 @@ int D3DToGL::TranslateShader( uint32* code, CUtlBuffer *pBufDisassembledCode, bo
 	if ( ( dwToken & 0xFFFF0000 ) == 0xFFFF0000 )
 	{
 		// must explicitly enable extensions if emitting GLSL
-		V_snprintf( (char *)m_pBufHeaderCode->Base(), m_pBufHeaderCode->Size(), m_bGLSL ? "#version 120\n%s" : "!!ARBfp1.0\n%s", glslBindableUniformExtText );
+		V_snprintf( (char *)m_pBufHeaderCode->Base(), m_pBufHeaderCode->Size(), m_bGLSL ? "#version 120\n%s" : "!!ARBfp1.0\n", glslBindableUniformExtText );
 		m_bVertexShader = false;
 	}
 	else // vertex shader

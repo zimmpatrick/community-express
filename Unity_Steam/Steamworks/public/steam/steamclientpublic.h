@@ -102,17 +102,7 @@ enum EResult
 	k_EResultNoMatchingURL = 75,
 	k_EResultBadResponse = 76,					// parse failure, missing field, etc.
 	k_EResultRequirePasswordReEntry = 77,		// The user cannot complete the action until they re-enter their password
-	k_EResultValueOutOfRange = 78,				// the value entered is outside the acceptable range
-	k_EResultUnexpectedError = 79,				// something happened that we didn't expect to ever happen
-	k_EResultDisabled = 80,						// The requested service has been configured to be unavailable
-	k_EResultInvalidCEGSubmission = 81,			// The set of files submitted to the CEG server are not valid !
-	k_EResultRestrictedDevice = 82,				// The device being used is not allowed to perform this action
-	k_EResultRegionLocked = 83,					// The action could not be complete because it is region restricted
-	k_EResultRateLimitExceeded = 84,			// Temporary rate limit exceeded, try again later, different from k_EResultLimitExceeded which may be permanent
-	k_EResultAccountLoginDeniedNeedTwoFactor = 85,	// Need two-factor code to login
-	k_EResultItemDeleted = 86,					// The thing we're trying to access has been deleted
-	k_EResultAccountLoginDeniedThrottle = 87,	// login attempt failed, try to throttle response to possible attacker
-	k_EResultTwoFactorCodeMismatch = 88,		// two factor code mismatch (only on token setup, not on login path)
+	k_EResultValueOutOfRange = 78				// the value entered is outside the acceptable range
 };
 
 // Error codes for use with the voice functions
@@ -225,23 +215,17 @@ enum EAppReleaseState
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-enum EAppOwnershipFlags
+enum EAppOwernshipFlags
 {
-	k_EAppOwnershipFlags_None				= 0x0000,	// unknown
-	k_EAppOwnershipFlags_OwnsLicense		= 0x0001,	// owns license for this game
-	k_EAppOwnershipFlags_FreeLicense		= 0x0002,	// not paid for game
-	k_EAppOwnershipFlags_RegionRestricted	= 0x0004,	// owns app, but not allowed to play in current region
-	k_EAppOwnershipFlags_LowViolence		= 0x0008,	// only low violence version
-	k_EAppOwnershipFlags_InvalidPlatform	= 0x0010,	// app not supported on current platform
-	k_EAppOwnershipFlags_SharedLicense		= 0x0020,	// license was granted by authorized local device
-	k_EAppOwnershipFlags_FreeWeekend		= 0x0040,	// owned by a free weekend licenses
-	k_EAppOwnershipFlags_RetailLicense		= 0x0080,	// has a retail license for game, (CD-Key etc)
-	k_EAppOwnershipFlags_LicenseLocked		= 0x0100,	// shared license is locked (in use) by other user
-	k_EAppOwnershipFlags_LicensePending		= 0x0200,	// owns app, but transaction is still pending. Can't install or play
-	k_EAppOwnershipFlags_LicenseExpired		= 0x0400,	// doesn't own app anymore since license expired
-	k_EAppOwnershipFlags_LicensePermanent	= 0x0800,	// permanent license, not borrowed, or guest or freeweekend etc
-	k_EAppOwnershipFlags_LicenseRecurring	= 0x1000,	// Recurring license, user is charged periodically
-	k_EAppOwnershipFlags_LicenseCanceled	= 0x2000,	// Mark as canceled, but might be still active if recurring
+	k_EAppOwernshipFlags_None				= 0,	// unknown
+	k_EAppOwernshipFlags_OwnsLicense		= 1,	// owns license for this game
+	k_EAppOwernshipFlags_FreeLicense		= 2,	// not paid for game
+	k_EAppOwernshipFlags_RegionRestricted	= 4,	// owns app, but not allowed to play in current region
+	k_EAppOwernshipFlags_LowViolence		= 8,	// only low violence version
+	k_EAppOwernshipFlags_InvalidPlatform	= 16,	// app not supported on current platform
+	k_EAppOwernshipFlags_SharedLicense		= 32,	// license was granted by authorized local device
+	k_EAppOwernshipFlags_FreeWeekend		= 64,	// owned by a free weekend licenses
+	k_EAppOwernshipFlags_LicenseLocked		= 128,	// shared license is locked (in use) by other user
 };
 
 
@@ -326,6 +310,18 @@ enum EChatRoomEnterResponse
 	// k_EChatRoomEnterResponseNoRankingDataLobby = 12,  // No longer used
 	// k_EChatRoomEnterResponseNoRankingDataUser = 13,  //  No longer used
 	// k_EChatRoomEnterResponseRankOutOfRange = 14, //  No longer used
+};
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Status of a given depot version, these are stored in the DB, don't renumber
+//-----------------------------------------------------------------------------
+enum EStatusDepotVersion
+{
+	k_EStatusDepotVersionInvalid = 0,			
+	k_EStatusDepotVersionDisabled = 1,			// version was disabled, no manifest & content available
+	k_EStatusDepotVersionAvailable = 2,			// manifest & content is available, but not current
+	k_EStatusDepotVersionCurrent = 3,			// current depot version. The can be multiple, one for public and one for each beta key
 };
 
 
@@ -464,7 +460,7 @@ public:
 		m_steamid.m_comp.m_EUniverse = eUniverse;
 		m_steamid.m_comp.m_EAccountType = eAccountType;
 
-		if ( eAccountType == k_EAccountTypeClan || eAccountType == k_EAccountTypeGameServer )
+		if ( eAccountType == k_EAccountTypeClan )
 		{
 			m_steamid.m_comp.m_unAccountInstance = 0;
 		}
