@@ -43,7 +43,6 @@ namespace CommunityExpressStandAloneTestDX
 
         protected override void Initialize()
         {
-            Window.Title = "Oni!";
             base.Initialize();
 
             CommunityExpress.Instance.Initialize();
@@ -51,7 +50,6 @@ namespace CommunityExpressStandAloneTestDX
             CommunityExpress.Instance.Friends.GameOverlayActivated += Friends_GameOverlayActivated;
 
             CommunityExpress.Instance.Leaderboards.LeaderboardReceived += Leaderboards_LeaderboardReceived;
-
 
             var achievements = _steam.UserAchievements;
             achievements.InitializeAchievementList(new[] { "TEST_achievement", "TEST_achivement_2" });
@@ -122,7 +120,6 @@ namespace CommunityExpressStandAloneTestDX
                 Console.WriteLine(@"Hi {0} you are welcome ", CommunityExpress.Instance.User.PersonaName);
 
                 CommunityExpress.Instance.Leaderboards.FindOrCreateLeaderboard("Score", ELeaderboardSortMethod.k_ELeaderboardSortMethodAscending, ELeaderboardDisplayType.k_ELeaderboardDisplayTypeTimeMilliSeconds);
-
             }
             else if (!_entriesCall)
             {
@@ -158,10 +155,20 @@ namespace CommunityExpressStandAloneTestDX
         {
             if (_leaderboard == null)
                 Console.WriteLine("leaderboard name: {0}. Leaderboard(s) received {1}", leaderboard.LeaderboardName, sender.Count);
-            _leaderboard = leaderboard;
+            
+			_leaderboard = leaderboard;
+	        _leaderboard.LeaderboardScoreUploaded += OnLeaderboardScoreUploaded;
         }
 
-        static void Main(string[] args)
+	    private void OnLeaderboardScoreUploaded(Leaderboard sender, LeaderboardScoreUploaded pScoreUploadedResult)
+	    {
+		    if (sender == null)
+			    return;
+
+		    Console.WriteLine("Score uploaded successfully! Score:{0}", pScoreUploadedResult.Score);
+	    }
+
+	    static void Main(string[] args)
         {
             HelloWorldGame game = new HelloWorldGame();
             game.Run();
