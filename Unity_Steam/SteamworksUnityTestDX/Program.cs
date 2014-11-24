@@ -87,7 +87,9 @@ namespace CommunityExpressStandAloneTestDX
 
 
                 }
-                _steam.UserAchievements.UnlockAchievement(achievements.AchievementList[0], true);
+
+				if(achievements.AchievementList.Count > 0)
+					_steam.UserAchievements.UnlockAchievement(achievements.AchievementList[0], true);
             }
         }
 

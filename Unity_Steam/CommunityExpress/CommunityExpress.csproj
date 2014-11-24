@@ -66,6 +66,7 @@
     <Compile Include="Image.cs" />
     <Compile Include="InGamePurchase.cs" />
     <Compile Include="InGamePurchasing.cs" />
+    <Compile Include="LeaderboardScoreUploaded.cs" />
     <Compile Include="ListEnumerator.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Friend.cs" />

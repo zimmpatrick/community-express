@@ -39,6 +39,19 @@ namespace CommunityExpressNS
 		public SteamLeaderboardEntries_t m_hSteamLeaderboardEntries;	// the handle to pass into GetDownloadedLeaderboardEntries()
 		public Int32 m_cEntryCount; // the number of entries downloaded
 	};
+
+	[StructLayout(LayoutKind.Sequential, Pack = 8)]
+	struct LeaderboardScoreUploaded_t
+	{
+		internal const int k_iCallback = Events.k_iSteamUserStatsCallbacks + 6;
+
+		public bool m_bSuccess;
+		public SteamLeaderboard_t m_hSteamLeaderboard;
+		public Int32 m_nScore;
+		public bool m_bScoreChanged;
+		public Int32 m_nGlobalRankNew;
+		public Int32 m_nGlobalRankPrevious;
+	}
     
     /// <summary>
     /// Information about a leaderboard
@@ -91,7 +104,11 @@ namespace CommunityExpressNS
         /// </summary>
         public event OnLeaderboardEntriesRetrievedHandler LeaderboardEntriesReceived;
 
+		public delegate void OnLeaderboardScoreUploadedHandler(Leaderboard sender, LeaderboardScoreUploaded pScoreUploadedResult);
+		public event OnLeaderboardScoreUploadedHandler LeaderboardScoreUploaded;
+
         private CommunityExpress.OnEventHandler<LeaderboardScoresDownloaded_t> LeaderboardEntriesRetrievedCallback;
+	    private CommunityExpress.OnEventHandler<LeaderboardScoreUploaded_t> LeaderboardScoreUploadedCallback; 
 
 		internal Leaderboard(Leaderboards leaderboards, SteamLeaderboard_t leaderboard, String leaderboardName, Int32 entryCount, ELeaderboardSortMethod sortMethod, ELeaderboardDisplayType displayType)
 		{
@@ -106,6 +123,9 @@ namespace CommunityExpressNS
 
             LeaderboardEntriesRetrievedCallback = new CommunityExpress.OnEventHandler<LeaderboardScoresDownloaded_t>(OnLeaderboardEntriesRetrievedCallback);
             _ce.AddEventHandler<LeaderboardScoresDownloaded_t>(LeaderboardScoresDownloaded_t.k_iCallback, LeaderboardEntriesRetrievedCallback);
+
+			LeaderboardScoreUploadedCallback = new CommunityExpress.OnEventHandler<LeaderboardScoreUploaded_t>(OnLeaderboardScoreUploadedCallback);
+			_ce.AddEventHandler<LeaderboardScoreUploaded_t>(LeaderboardScoreUploaded_t.k_iCallback, LeaderboardScoreUploadedCallback);
 		}
         /// <summary>
         /// Updates scores on leaderboard
@@ -204,6 +224,21 @@ namespace CommunityExpressNS
 
             if (LeaderboardEntriesReceived != null) LeaderboardEntriesReceived(this, leaderboardEntries);
 		}
+
+		private void OnLeaderboardScoreUploadedCallback(LeaderboardScoreUploaded_t scoreUploadedResult, Boolean bIOFailure, SteamAPICall_t hSteamAPICall)
+	    {
+			if (LeaderboardScoreUploaded != null)
+			{
+				LeaderboardScoreUploaded(this, new LeaderboardScoreUploaded(
+					scoreUploadedResult.m_bSuccess, 
+					this, 
+					scoreUploadedResult.m_nScore, 
+					scoreUploadedResult.m_bScoreChanged, 
+					scoreUploadedResult.m_nGlobalRankNew, 
+					scoreUploadedResult.m_nGlobalRankPrevious));
+			}
+	    }
+
         /// <summary>
         /// Refresh the leaderboard
         /// </summary>

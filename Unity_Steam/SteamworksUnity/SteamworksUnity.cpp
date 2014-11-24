@@ -1800,7 +1800,12 @@ STEAMWORKSUNITY_API bool SteamUnityAPI_SteamUserStats_UploadLeaderboardScore(voi
 {
 	ISteamUserStats * pISteamUserStats = static_cast<ISteamUserStats*>( pSteamUserStats );
 
-	return pISteamUserStats->UploadLeaderboardScore(hSteamLeaderboard, eLeaderboardUploadScoreMethod, nScore, pScoreDetails, cScoreDetailCount) != 0;
+	SteamAPICall_t hAPICall = pISteamUserStats->UploadLeaderboardScore(hSteamLeaderboard, eLeaderboardUploadScoreMethod, nScore, pScoreDetails, cScoreDetailCount);
+
+	SteamCallbacks &steamCallbacks = SteamCallbacks::getInstance();
+	steamCallbacks.LeaderboardScoreUploaded.Set(hAPICall, &steamCallbacks, &SteamCallbacks::OnLeaderboardScoreUploaded);
+	
+	return hAPICall;
 }
 
 STEAMWORKSUNITY_API SteamAPICall_t SteamUnityAPI_SteamUserStats_RequestLeaderboardEntries(void* pSteamUserStats, SteamLeaderboard_t hSteamLeaderboard, ELeaderboardDataRequest eLeaderboardDataRequest, int nRangeStart, int nRangeEnd)
